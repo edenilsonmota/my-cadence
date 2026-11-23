@@ -1,2 +1,63 @@
-- Atualize esse arquivo no primeiro prompt
-- Doc de etapas em docs/PLANO.md
+# My Cadence
+
+App Flutter pessoal, offline-first: tarefas, flashcards FSRS, pomodoro, books e agenda.
+A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md). Leia antes de começar uma etapa.
+
+## Como trabalhar
+
+- **Uma etapa por vez, na ordem do plano.** Ao terminar: `dart run build_runner build -d` (se mexeu em tabelas
+  ou providers gerados), `flutter analyze` e `flutter test` limpos, commit com mensagem descritiva e **parar para revisão**.
+- **Cada pacote entra só na etapa que o usa.** Antes de adicionar, conferir no pub.dev a versão estável e a
+  compatibilidade com o Flutter instalado. Não inventar APIs: ler a documentação ou o código em `~/.pub-cache`.
+- Declarar a versão mínima esperada de cada pacote (`^x.y.z`) para o resolvedor falhar alto, em vez de cair
+  silenciosamente numa versão antiga.
+- Na dúvida entre simples e "arquiteturalmente bonito", escolher o simples.
+- Se uma decisão do plano se mostrar ruim na prática, parar e explicar antes de mudar.
+- Repositório público: nunca commitar chaves, keystores, `.env`, `google-services.json` ou dados pessoais.
+
+## Identidade
+
+- Pacote Dart `my_cadence`; ID do app `com.nextinfor.mycadence` (Android e iOS, sem `_` porque o iOS não aceita).
+- Nome no ícone: **Cadence**. Título interno e README: **My Cadence**.
+
+## Arquitetura
+
+- Fluxo de dados: **UI → provider (Riverpod) → repository → DAO (drift)**. Widgets só leem providers; a UI
+  nunca fala com o DAO.
+- Pastas (feature-first): `app/` (MaterialApp, tema, rotas, shell), `core/` (utilitários puros),
+  `data/db` + `data/repositories`, `features/<domínio>/`, `shared/widgets/`. `test/` espelha `lib/`.
+- Lógica pura (recorrência, ocorrências, layout do calendário, ponte FSRS, métricas) fica **sem Flutter** e tem
+  teste unitário.
+- Rotas centralizadas em `lib/app/router.dart` (`Routes`). Abas: Hoje, Tarefas, Agenda, Revisar, Books.
+  Métricas e Ajustes abrem pelo menu lateral, por cima do shell.
+
+## Banco e sync
+
+- Toda tabela usa o mixin `SyncColumns` (id UUID v7, `createdAt`, `updatedAt`, `deletedAt`, `dirty`, `serverVersion`).
+- Toda escrita passa por um helper do repositório que aplica `updatedAt = now` e `dirty = true`.
+- **Nunca exclusão física**: sempre `deletedAt` (soft delete, em cascata para subtarefas).
+- Enums como **`textEnum`** (o nome do valor). Renomear um valor exige migração.
+- Sync (Etapa 11): ao confirmar o push, só marcar `dirty = false` se o `updatedAt` local ainda for o enviado.
+
+## Regras de domínio que não podem escorregar
+
+- **Datas FSRS em UTC** na ponte (`toUtc()` ao montar, `toLocal()` ao salvar); importar
+  `package:fsrs/fsrs.dart` com prefixo `fsrs` (`Card` e `State` colidem com o Flutter).
+- **Pomodoro sem `Timer` acumulando**: decorrido = `(pausedAt ?? agora) - startedAt - pausedTotalMs`.
+  Pausar cancela a notificação de fim; retomar soma a pausa e reagenda.
+- **ID de notificação** = FNV-1a do UUID reduzido a 31 bits. **Nunca `String.hashCode`** (muda entre execuções).
+- Recorrência em RRULE (subconjunto DAILY/WEEKLY, INTERVAL, BYDAY, UNTIL); rotina é uma linha só; ocorrências
+  futuras no calendário são virtuais.
+- Páginas: a fonte da verdade é o JSON do editor; Markdown só para importar e exportar.
+
+## Estilo
+
+- Textos da UI em **português do Brasil**; nenhuma string em inglês.
+- Material 3 com `colorSchemeSeed`, tema claro e escuro; testar em 360 dp de largura.
+- Lints estritos em `analysis_options.yaml` (inclui `prefer_const_constructors`, `always_declare_return_types`,
+  `avoid_dynamic_calls`, `require_trailing_commas`). Rodar `dart format` antes do commit.
+
+## Ambiente
+
+- Flutter 3.47 / Dart 3.13. `flutter_local_notifications` 23 exige `compileSdk = 37` e AGP ≥ 9.1.1.
+- No Linux não dá para compilar iOS: a configuração iOS é feita seguindo o README dos plugins, mas sem build.
