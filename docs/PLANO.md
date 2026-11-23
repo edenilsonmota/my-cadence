@@ -8,6 +8,7 @@ a sincronização com backend Go vem por último.
 > - Execute **uma etapa por vez**, na ordem. Ao terminar uma etapa: rode `dart run build_runner build -d`
 >   (se mexeu em tabelas ou providers), `flutter analyze` e `flutter test`, corrija tudo, faça commit
 >   e **pare** para eu revisar antes da próxima.
+> - **Cada pacote entra só na etapa que o usa** (nada de instalar tudo na Etapa 0).
 > - Antes de adicionar qualquer pacote, confira no pub.dev a versão estável atual e a compatibilidade
 >   com o Flutter instalado. Não invente APIs: leia a documentação ou o código-fonte do pacote.
 > - Na dúvida entre algo simples e algo "arquiteturalmente bonito", escolha o simples.
@@ -35,7 +36,7 @@ a sincronização com backend Go vem por último.
 | Banco local | **drift** + `drift_flutter` (SQLite) | Tipado, queries reativas (`watch`), migrações testáveis |
 | Estado | **Riverpod** (`flutter_riverpod` + `riverpod_annotation`/`riverpod_generator`) | Padrão do ecossistema, testável, sem boilerplate de BLoC |
 | Navegação | **go_router** com `StatefulShellRoute` | Abas com pilha própria e deep links das notificações |
-| Editor | **appflowy_editor** (`MobileToolbarV2` + `MobileFloatingToolbar`) | Editor de blocos estilo Notion, nativo em Flutter |
+| Editor | **appflowy_editor** (`MobileToolbarV2` + `MobileFloatingToolbar`), decidido na Etapa 7 | Editor de blocos estilo Notion, nativo em Flutter. A versão 6.2.0 do pub.dev não compila no Flutter 3.44+; ver Etapa 7 |
 | Repetição espaçada | **fsrs** (Dart) | Mesmo algoritmo do Anki moderno |
 | Alarmes | **flutter_local_notifications** + `timezone` + `flutter_timezone` | Locais, offline, funcionam com o app fechado |
 | IDs | **uuid** v7 | Gerados no celular, sem colisão no sync, ordenáveis por tempo |
@@ -72,7 +73,8 @@ Regras:
 - **UI → provider → repository → DAO.** Widgets só leem providers.
 - Lógica pura (recorrência, expansão de ocorrências, layout do calendário, ponte FSRS, agregações de métricas)
   fica em funções/classes **sem Flutter**, com testes unitários.
-- Enums guardados como `intEnum` **só no fim da lista** (nunca reordenar valores existentes).
+- Enums guardados como **`textEnum`** (o nome do valor), legível no banco e no backend Go, sem armadilha de ordem.
+  Renomear um valor de enum exige migração.
 - Textos da UI em português do Brasil. Tema claro e escuro (Material 3, `colorSchemeSeed`).
 
 ### Colunas de sincronização (em TODAS as tabelas desde o início)
@@ -118,7 +120,7 @@ AppSettings (chave/valor)
 **Tags**: `name`, `color`. **TaskTags**: `taskId`, `tagId`.
 
 **PomodoroSessions**: `taskId?`, `kind` (foco, pausaCurta, pausaLonga), `startedAt`, `endedAt?`, `plannedMinutes`,
-`completed` (chegou ao fim ou foi interrompida).
+`pausedAt?`, `pausedTotalMs` (padrão 0), `completed` (chegou ao fim ou foi interrompida).
 
 **Decks**: `name`, `description?`. **Flashcards**: `deckId?`, `taskId?`, `sourcePageId?` (card criado de uma página),
 `front`, `back`, estado FSRS (`state`, `step?`, `stability?`, `difficulty?`, `due`, `lastReview?`), `suspended`.
@@ -146,10 +148,13 @@ alarme padrão, modo do calendário etc.).
 - **No calendário**, ocorrências futuras de rotinas são **virtuais** (calculadas, não gravadas).
 - **FSRS trabalha em UTC**: converter na ponte (`toUtc()` ao montar o `fsrs.Card`, `toLocal()` ao salvar).
   Importar o pacote com prefixo (`import 'package:fsrs/fsrs.dart' as fsrs;`), porque `Card` e `State` colidem com o Flutter.
-- **Pomodoro** nunca conta com `Timer` acumulando segundos: o tempo restante é sempre
-  `startedAt + plannedMinutes - agora`. A sessão em andamento fica no banco (`endedAt == null`), então matar o app
+- **Pomodoro** nunca conta com `Timer` acumulando segundos. `PomodoroSessions` tem também `pausedAt?` e
+  `pausedTotalMs` (padrão 0). Tempo decorrido = `(pausedAt ?? agora) - startedAt - pausedTotalMs`;
+  restante = `plannedMinutes - decorrido`. Pausar grava `pausedAt` e **cancela** a notificação de fim;
+  retomar soma `agora - pausedAt` em `pausedTotalMs`, limpa `pausedAt` e **reagenda** a notificação. A sessão em andamento fica no banco (`endedAt == null`), então matar o app
   não perde nada. O fim do ciclo é uma **notificação agendada**.
-- **Alarmes**: id da notificação derivado do UUID (hash estável). Todo create/update/complete/delete de tarefa
+- **Alarmes**: id da notificação derivado do UUID com hash explícito e estável entre execuções
+  (FNV-1a reduzido a 31 bits). **Nunca** usar `String.hashCode`, que muda entre execuções. Todo create/update/complete/delete de tarefa
   reagenda ou cancela. Na inicialização do app, reagendar tudo (alarmes se perdem após reboot em alguns aparelhos).
 
 ---
@@ -160,8 +165,8 @@ alarme padrão, modo do calendário etc.).
 - **Identidade do projeto:**
   - repositório e pasta: `my-cadence`; pacote Dart: `my_cadence`;
   - criar com `flutter create --org com.nextinfor --project-name my_cadence --platforms android,ios .`
-    (application id `com.nextinfor.my_cadence`; se preferir sem underline, ajustar para `com.nextinfor.mycadence`
-    no Gradle e no Xcode e me avisar);
+    e depois ajustar o ID para **`com.nextinfor.mycadence` nos dois sistemas** (`applicationId`/`namespace` no Gradle,
+    `PRODUCT_BUNDLE_IDENTIFIER` no Xcode), porque o iOS não aceita `_`;
   - nome exibido no ícone do celular: **Cadence** (`android:label` no `AndroidManifest.xml` e
     `CFBundleDisplayName` no `Info.plist`); título interno do app e README: **My Cadence**.
 - **Repositório público:** licença **MIT** (arquivo `LICENSE`), `.gitignore` cobrindo keystore e segredos
@@ -171,7 +176,7 @@ alarme padrão, modo do calendário etc.).
   (`prefer_const_constructors`, `always_declare_return_types`, `avoid_dynamic_calls`).
 - Estrutura de pastas da seção 2, `go_router` com shell de 5 abas: **Hoje, Tarefas, Agenda, Revisar, Books**
   (métricas e ajustes ficam num menu ou drawer).
-- Tema M3 claro/escuro, localização pt_BR (`flutter_localizations` + `AppFlowyEditorLocalizations.delegate`).
+- Tema M3 claro/escuro, localização pt_BR (`flutter_localizations`). O delegate do AppFlowy entra na Etapa 7.
 - Configuração Android das notificações: core library desugaring no Gradle, permissões
   `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM`, `RECEIVE_BOOT_COMPLETED`, `VIBRATE`,
   receivers do plugin no `AndroidManifest`. Configuração iOS do plugin. Siga o README da versão instalada.
@@ -234,6 +239,16 @@ alarme padrão, modo do calendário etc.).
 - **Pronto quando:** a revisão funciona fluida e os intervalos batem com o FSRS.
 
 ### Etapa 7: Books (AppFlowy)
+- **Primeiro, resolver a dependência do editor** (a 6.2.0 do pub.dev não implementa `TextInputClient.onFocusReceived`,
+  obrigatório desde o Flutter 3.44, e prende `file_picker ^10`/`device_info_plus ^11`, conflitando com o `win32` 6).
+  Ordem de preferência:
+  1. dependência git do **repositório oficial** `AppFlowy-IO/appflowy-editor`, fixada num commit do `main` que já tem
+     o `onFocusReceived`, com `dependency_overrides` só no que for preciso para o `win32` 6;
+  2. se isso não bastar, **fork na minha conta do GitHub** (eu crio), fixado num commit, com as correções mínimas.
+     Arquivos modificados do editor seguem MPL-2.0;
+  3. se o editor não ficar estável no mobile, trocar por `super_editor` e me apresentar o que se perde.
+  Sempre declarar a versão mínima esperada para o resolvedor **falhar alto** em vez de cair numa versão antiga (ex.: 0.1.12).
+  Mostrar o resultado (compila, roda no Android, o que foi sobrescrito) e esperar meu ok antes de seguir.
 - Lista de books; cada book com páginas e subpáginas (árvore), reordenação, renomear, ícone.
 - Editor: `AppFlowyEditor` com `MobileToolbarV2` e `MobileFloatingToolbar` (seguir o `example/lib/pages/mobile_editor.dart`
   do pacote), título editável, **autosave com debounce** (~800 ms) ouvindo `editorState.transactionStream`
@@ -284,6 +299,8 @@ Fazer em **repositório separado** (`my-cadence-api`) ou pasta `backend/` (decid
     `updatedAt` recebido ≥ atual e devolve as `server_version` atribuídas.
   - `GET /sync/pull?since=<cursor>` → devolve tudo com `server_version > cursor`, paginado; o cliente grava, marca
     `dirty = false` e guarda o novo cursor em `AppSettings`.
+  - Ao receber a confirmação do push, só marcar `dirty = false` se o `updatedAt` local ainda for igual ao enviado
+    (senão uma edição feita durante o push se perde).
   - Ordem: push e depois pull. Rodar ao abrir o app, ao voltar do background e por botão manual.
 - **Conteúdo das páginas**: no MVP, LWW pela página inteira. Depois avaliar o `appflowy_editor_sync_plugin`
   ou CRDT se eu editar a mesma página em dois aparelhos.
