@@ -7,6 +7,8 @@ import '../features/calendar/agenda_page.dart';
 import '../features/cards/review_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/stats/stats_page.dart';
+import '../features/tasks/task_form_page.dart';
+import '../features/tasks/task_page.dart';
 import '../features/tasks/tasks_page.dart';
 import '../features/tasks/today_page.dart';
 import 'shell.dart';
@@ -20,6 +22,16 @@ abstract final class Routes {
   static const books = '/books';
   static const stats = '/metricas';
   static const settings = '/ajustes';
+
+  /// Hub da tarefa (também alvo dos deep links das notificações).
+  static String task(String id) => '/tarefa/$id';
+  static String editTask(String id) => '/tarefa/$id/editar';
+
+  /// Formulário de nova tarefa, opcionalmente como subtarefa ou com prazo hoje.
+  static String newTask({String? parentId, bool dueToday = false}) => Uri(
+    path: '/tarefa/nova',
+    queryParameters: {'pai': ?parentId, if (dueToday) 'prazo': 'hoje'},
+  ).toString();
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -59,6 +71,29 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         path: Routes.settings,
         parentNavigatorKey: rootKey,
         builder: (_, _) => const SettingsPage(),
+      ),
+      // Tarefas abrem em tela cheia, por cima das abas. `nova` vem antes de
+      // `:id` para não ser lida como id.
+      GoRoute(
+        path: '/tarefa/nova',
+        parentNavigatorKey: rootKey,
+        builder: (_, state) => TaskFormPage(
+          parentId: state.uri.queryParameters['pai'],
+          dueToday: state.uri.queryParameters['prazo'] == 'hoje',
+        ),
+      ),
+      GoRoute(
+        path: '/tarefa/:id',
+        parentNavigatorKey: rootKey,
+        builder: (_, state) => TaskPage(taskId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'editar',
+            parentNavigatorKey: rootKey,
+            builder: (_, state) =>
+                TaskFormPage(taskId: state.pathParameters['id']),
+          ),
+        ],
       ),
     ],
   );

@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_cadence/app/app.dart';
 
-Future<void> pumpApp(WidgetTester tester) async {
-  // Largura mínima suportada pelo app (360 dp).
-  tester.view.physicalSize = const Size(360, 720);
-  tester.view.devicePixelRatio = 1;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(const ProviderScope(child: CadenceApp()));
-  await tester.pumpAndSettle();
-}
+import '../helpers/pump_app.dart';
 
 Finder appBarTitle(String text) =>
     find.descendant(of: find.byType(AppBar), matching: find.text(text));

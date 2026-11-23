@@ -1,0 +1,4 @@
+# Código gerado (build_runner / drift_dev): versionado, mas recolhido nos diffs do GitHub.
+*.g.dart linguist-generated=true
+test/data/db/migrations/generated/** linguist-generated=true
+drift_schemas/** linguist-generated=true

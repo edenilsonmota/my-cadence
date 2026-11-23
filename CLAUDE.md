@@ -67,6 +67,19 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   futuras no calendário são virtuais.
 - Páginas: a fonte da verdade é o JSON do editor; Markdown só para importar e exportar.
 
+## UI e testes
+
+- Telas leem providers (`features/<domínio>/*_providers.dart`); ações chamam o repositório via
+  `ref.read(xRepositoryProvider)`. O "hoje" vem de `todayProvider` (vira sozinho à meia-noite), nunca
+  de `DateTime.now()` espalhado.
+- Lógica de tela que dá para testar sem Flutter fica em arquivo puro (ex.: `task_lists.dart`, `task_draft.dart`).
+- Rotas de tarefa: `Routes.task(id)` (hub, alvo dos deep links), `Routes.editTask(id)`, `Routes.newTask(...)`.
+  Abrem no navegador raiz, por cima das abas.
+- FABs das abas usam `heroTag: null` (as abas ficam vivas no `IndexedStack` e os Heroes colidiriam).
+- Testes de widget: `pumpApp(tester, seed: ..., today: ...)` de `test/helpers/pump_app.dart` (banco em
+  memória, 360 dp, hoje fixo) e **`settle(tester)` no lugar de `pumpAndSettle`**, porque o banco só
+  responde em tempo real. Ler o banco no teste com `tester.runAsync`.
+
 ## Estilo
 
 - Textos da UI em **português do Brasil**; nenhuma string em inglês.

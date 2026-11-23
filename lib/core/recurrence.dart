@@ -5,6 +5,8 @@
 /// Semanas começam na segunda-feira (WKST=MO, o padrão da RFC).
 library;
 
+import 'dates.dart';
+
 enum Frequency { daily, weekly }
 
 class RecurrenceRule {
@@ -14,7 +16,7 @@ class RecurrenceRule {
     Set<int> weekdays = const {},
     DateTime? until,
   }) : weekdays = Set.unmodifiable(weekdays),
-       until = until == null ? null : _dateOnly(until) {
+       until = until == null ? null : startOfDay(until) {
     if (interval < 1) {
       throw ArgumentError.value(interval, 'interval', 'deve ser >= 1');
     }
@@ -115,22 +117,22 @@ class RecurrenceRule {
   DateTime? next(DateTime from) {
     final DateTime candidate;
     if (frequency == Frequency.daily) {
-      candidate = _addDays(from, interval);
+      candidate = addDays(from, interval);
     } else {
       final days = weekdays.isEmpty ? [from.weekday] : _sortedDays;
       final laterThisWeek = days.where((d) => d > from.weekday);
       if (laterThisWeek.isNotEmpty) {
-        candidate = _addDays(from, laterThisWeek.first - from.weekday);
+        candidate = addDays(from, laterThisWeek.first - from.weekday);
       } else {
         final mondayOffset = -(from.weekday - DateTime.monday);
-        candidate = _addDays(
+        candidate = addDays(
           from,
           mondayOffset + 7 * interval + (days.first - DateTime.monday),
         );
       }
     }
     final u = until;
-    if (u != null && _dateOnly(candidate).isAfter(u)) return null;
+    if (u != null && startOfDay(candidate).isAfter(u)) return null;
     return candidate;
   }
 
@@ -207,20 +209,6 @@ DateTime _parseUntil(String value, String rule) {
   }
   return DateTime(g(1), g(2), g(3), g(4), g(5), g(6));
 }
-
-DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
-
-/// Soma dias no calendário local preservando a hora do relógio (seguro na
-/// virada de mês/ano e em mudanças de horário de verão).
-DateTime _addDays(DateTime d, int days) => DateTime(
-  d.year,
-  d.month,
-  d.day + days,
-  d.hour,
-  d.minute,
-  d.second,
-  d.millisecond,
-);
 
 String _two(int n) => n.toString().padLeft(2, '0');
 

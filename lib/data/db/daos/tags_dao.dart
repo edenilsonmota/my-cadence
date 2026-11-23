@@ -32,6 +32,10 @@ class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
             ..orderBy([(t) => OrderingTerm.asc(t.name)]))
           .watch();
 
+  /// Todos os vínculos tarefa ↔ tag vivos (para filtrar a lista por tag).
+  Stream<List<TaskTag>> watchAllLinks() =>
+      (select(taskTags)..where((l) => l.deletedAt.isNull())).watch();
+
   Stream<List<Tag>> watchTagsOfTask(String taskId) {
     final query =
         select(tags)
