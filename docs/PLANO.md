@@ -1,0 +1,301 @@
+# Plano do projeto: My Cadence (Flutter, offline-first)
+
+**My Cadence** é um app pessoal, com repositório público, que junta **gerenciador de tarefas**, **flashcards estilo Anki (FSRS)**, **pomodoro**,
+**books em Markdown estilo Notion (AppFlowy Editor)** e **calendário**. Primeiro 100% mobile e local;
+a sincronização com backend Go vem por último.
+
+> **Como trabalhar com este plano (para o Claude Code)**
+> - Execute **uma etapa por vez**, na ordem. Ao terminar uma etapa: rode `dart run build_runner build -d`
+>   (se mexeu em tabelas ou providers), `flutter analyze` e `flutter test`, corrija tudo, faça commit
+>   e **pare** para eu revisar antes da próxima.
+> - Antes de adicionar qualquer pacote, confira no pub.dev a versão estável atual e a compatibilidade
+>   com o Flutter instalado. Não invente APIs: leia a documentação ou o código-fonte do pacote.
+> - Na dúvida entre algo simples e algo "arquiteturalmente bonito", escolha o simples.
+> - Se alguma decisão deste plano se mostrar ruim na prática, pare e explique antes de mudar.
+
+---
+
+## 1. O fluxo central (o que dá sentido ao app)
+
+1. Crio uma **tarefa** (ou subtarefa) e defino o **tipo** (simples, estudo, rotina, evento).
+2. A tela da tarefa vira um **hub** com ferramentas que posso ligar:
+   - **Flashcards** da tarefa (criar e revisar só os dela);
+   - **Pomodoro** vinculado (métricas e tempo gasto, somando as subtarefas);
+   - **Páginas**: um caderno próprio da tarefa com uma ou mais páginas, e/ou links para páginas de books existentes.
+3. Tarefas do tipo **estudo** já abrem com as três ferramentas visíveis; nos outros tipos elas
+   aparecem como atalhos ("+ Flashcard", "+ Pomodoro", "+ Página") e a seção só surge quando tem conteúdo.
+4. Tudo aparece também no **calendário** (dia, semana e mês) e nas **métricas**.
+
+---
+
+## 2. Stack e decisões de arquitetura
+
+| Tema | Escolha | Motivo |
+|---|---|---|
+| Banco local | **drift** + `drift_flutter` (SQLite) | Tipado, queries reativas (`watch`), migrações testáveis |
+| Estado | **Riverpod** (`flutter_riverpod` + `riverpod_annotation`/`riverpod_generator`) | Padrão do ecossistema, testável, sem boilerplate de BLoC |
+| Navegação | **go_router** com `StatefulShellRoute` | Abas com pilha própria e deep links das notificações |
+| Editor | **appflowy_editor** (`MobileToolbarV2` + `MobileFloatingToolbar`) | Editor de blocos estilo Notion, nativo em Flutter |
+| Repetição espaçada | **fsrs** (Dart) | Mesmo algoritmo do Anki moderno |
+| Alarmes | **flutter_local_notifications** + `timezone` + `flutter_timezone` | Locais, offline, funcionam com o app fechado |
+| IDs | **uuid** v7 | Gerados no celular, sem colisão no sync, ordenáveis por tempo |
+| Datas | `intl` (pt_BR) | |
+| Arquivos | `file_picker` + `share_plus` | Importar e exportar `.md` e backups |
+| Pomodoro | `wakelock_plus` (opcional, tela ligada durante o foco) | |
+
+**Não usar:** Syncfusion (licença), Hive/Isar (já temos drift), GetX.
+
+### Estrutura de pastas (feature-first, sem camadas a mais)
+
+```
+lib/
+  main.dart                 # init: notificações, timezone, ProviderScope
+  app/                      # MaterialApp.router, tema, rotas (go_router), shell das abas
+  core/                     # utilitários puros: ids, datas, recurrence, notifications, format
+  data/
+    db/                     # AppDatabase, tables/, daos/, migrations/
+    repositories/           # um por domínio; a UI nunca fala com o DAO direto
+  features/
+    tasks/                  # lista Hoje, lista Tarefas, formulário, hub da tarefa
+    calendar/
+    pomodoro/
+    cards/                  # decks, CRUD, revisão
+    books/                  # cadernos, páginas, editor
+    stats/
+    settings/
+    sync/                   # (última etapa)
+  shared/widgets/           # componentes reutilizáveis
+test/                       # espelha lib/
+```
+
+Regras:
+- **UI → provider → repository → DAO.** Widgets só leem providers.
+- Lógica pura (recorrência, expansão de ocorrências, layout do calendário, ponte FSRS, agregações de métricas)
+  fica em funções/classes **sem Flutter**, com testes unitários.
+- Enums guardados como `intEnum` **só no fim da lista** (nunca reordenar valores existentes).
+- Textos da UI em português do Brasil. Tema claro e escuro (Material 3, `colorSchemeSeed`).
+
+### Colunas de sincronização (em TODAS as tabelas desde o início)
+
+```dart
+mixin SyncColumns on Table {
+  TextColumn get id => text().clientDefault(newId)();          // UUID v7
+  DateTimeColumn get createdAt => dateTime().clientDefault(DateTime.now)();
+  DateTimeColumn get updatedAt => dateTime().clientDefault(DateTime.now)();
+  DateTimeColumn get deletedAt => dateTime().nullable()();     // soft delete (tombstone)
+  BoolColumn get dirty => boolean().withDefault(const Constant(true))(); // mudou e não subiu
+  IntColumn get serverVersion => integer().nullable()();       // versão recebida do servidor
+  @override Set<Column> get primaryKey => {id};
+}
+```
+Toda escrita atualiza `updatedAt` e marca `dirty = true` (centralizar isso num helper dos repositórios).
+Nenhuma exclusão física: sempre `deletedAt`.
+
+---
+
+## 3. Modelo de dados
+
+```
+Tasks ─┬─< Tasks (subtarefas, parentId)
+       ├─< TaskCompletions (histórico de rotinas)
+       ├─< TaskTags >── Tags
+       ├─< PomodoroSessions
+       ├─< Flashcards ──< ReviewLogs
+       ├─< Notebooks (caderno próprio da tarefa, taskId)
+       └─< TaskPageLinks >── NotePages (link para páginas de outros books)
+
+Decks ──< Flashcards
+Notebooks ──< NotePages (parentPageId para subpáginas)
+AppSettings (chave/valor)
+```
+
+**Tasks**: `parentId?`, `title`, `notes?`, `kind` (simples, estudo, rotina, evento), `status` (aFazer, fazendo, feita),
+`priority` (0..3), `startAt?`, `dueAt?`, `hasTime` (false = dia inteiro), `recurrenceRule?` (RRULE),
+`reminderMinutesBefore?`, `estimatedPomodoros?`, `sortOrder`, `completedAt?`, `color?`.
+
+**TaskCompletions**: `taskId`, `occurrence` (data da ocorrência concluída).
+
+**Tags**: `name`, `color`. **TaskTags**: `taskId`, `tagId`.
+
+**PomodoroSessions**: `taskId?`, `kind` (foco, pausaCurta, pausaLonga), `startedAt`, `endedAt?`, `plannedMinutes`,
+`completed` (chegou ao fim ou foi interrompida).
+
+**Decks**: `name`, `description?`. **Flashcards**: `deckId?`, `taskId?`, `sourcePageId?` (card criado de uma página),
+`front`, `back`, estado FSRS (`state`, `step?`, `stability?`, `difficulty?`, `due`, `lastReview?`), `suspended`.
+**ReviewLogs**: `cardId`, `rating` (1..4), `reviewedAt`, `durationMs?`.
+
+**Notebooks**: `title`, `taskId?` (preenchido = caderno da tarefa), `icon?`.
+**NotePages**: `notebookId`, `parentPageId?`, `title`, `content` (JSON do AppFlowy), `sortOrder`.
+**TaskPageLinks**: `taskId`, `pageId`.
+
+**AppSettings**: `key`, `value` (durações do pomodoro, retenção desejada, limite de cards novos/dia,
+alarme padrão, modo do calendário etc.).
+
+Índices: `Tasks(parentId)`, `Tasks(dueAt)`, `Flashcards(due)`, `Flashcards(taskId)`, `PomodoroSessions(taskId, startedAt)`,
+`NotePages(notebookId, sortOrder)`.
+
+### Decisões importantes
+- **Fonte da verdade das páginas = JSON do AppFlowy** (sem perdas). Markdown é formato de
+  **importação e exportação** (`markdownToDocument` / `documentToMarkdown`).
+- **Recorrência** guardada em **RRULE** (subconjunto: `FREQ=DAILY|WEEKLY`, `INTERVAL`, `BYDAY`, `UNTIL`),
+  implementada em `core/recurrence.dart` com `parse`, `toRule`, `next(from)` e `describe()` em português.
+  Assim o backend Go pode ler com `rrule-go` depois.
+- **Tarefa recorrente = uma linha só.** Ao concluir: grava `TaskCompletions`, avança `dueAt`/`startAt` para a próxima
+  ocorrência (pulando as que ficaram no passado), reabre as subtarefas (checklist da rotina) e reagenda o alarme.
+  Passou do `UNTIL`: marca como feita.
+- **No calendário**, ocorrências futuras de rotinas são **virtuais** (calculadas, não gravadas).
+- **FSRS trabalha em UTC**: converter na ponte (`toUtc()` ao montar o `fsrs.Card`, `toLocal()` ao salvar).
+  Importar o pacote com prefixo (`import 'package:fsrs/fsrs.dart' as fsrs;`), porque `Card` e `State` colidem com o Flutter.
+- **Pomodoro** nunca conta com `Timer` acumulando segundos: o tempo restante é sempre
+  `startedAt + plannedMinutes - agora`. A sessão em andamento fica no banco (`endedAt == null`), então matar o app
+  não perde nada. O fim do ciclo é uma **notificação agendada**.
+- **Alarmes**: id da notificação derivado do UUID (hash estável). Todo create/update/complete/delete de tarefa
+  reagenda ou cancela. Na inicialização do app, reagendar tudo (alarmes se perdem após reboot em alguns aparelhos).
+
+---
+
+## 4. Etapas
+
+### Etapa 0: Fundação
+- **Identidade do projeto:**
+  - repositório e pasta: `my-cadence`; pacote Dart: `my_cadence`;
+  - criar com `flutter create --org com.nextinfor --project-name my_cadence --platforms android,ios .`
+    (application id `com.nextinfor.my_cadence`; se preferir sem underline, ajustar para `com.nextinfor.mycadence`
+    no Gradle e no Xcode e me avisar);
+  - nome exibido no ícone do celular: **Cadence** (`android:label` no `AndroidManifest.xml` e
+    `CFBundleDisplayName` no `Info.plist`); título interno do app e README: **My Cadence**.
+- **Repositório público:** licença **MIT** (arquivo `LICENSE`), `.gitignore` cobrindo keystore e segredos
+  (`*.jks`, `*.keystore`, `android/key.properties`, `.env*`, `google-services.json`, `GoogleService-Info.plist`),
+  e `README.md` com descrição, stack, como rodar e uma seção de screenshots que será atualizada a cada etapa.
+- `analysis_options` com `flutter_lints` mais regras estritas
+  (`prefer_const_constructors`, `always_declare_return_types`, `avoid_dynamic_calls`).
+- Estrutura de pastas da seção 2, `go_router` com shell de 5 abas: **Hoje, Tarefas, Agenda, Revisar, Books**
+  (métricas e ajustes ficam num menu ou drawer).
+- Tema M3 claro/escuro, localização pt_BR (`flutter_localizations` + `AppFlowyEditorLocalizations.delegate`).
+- Configuração Android das notificações: core library desugaring no Gradle, permissões
+  `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM`, `RECEIVE_BOOT_COMPLETED`, `VIBRATE`,
+  receivers do plugin no `AndroidManifest`. Configuração iOS do plugin. Siga o README da versão instalada.
+- Criar `CLAUDE.md` na raiz com as convenções deste plano.
+- **Pronto quando:** app abre com as 5 abas vazias, analyze e test limpos.
+
+### Etapa 1: Camada de dados
+- Todas as tabelas da seção 3 com o mixin `SyncColumns`, DAOs por domínio e repositórios.
+- Helper que aplica `updatedAt = now` e `dirty = true` em toda escrita; soft delete em cascata (tarefa → subtarefas).
+- `PRAGMA foreign_keys = ON` no `beforeOpen`. Migrações versionadas com `drift_dev schema dump` e teste de migração.
+- `core/recurrence.dart` completo, com testes (diário, intervalo, semanal com vários dias, semanal a cada 2 semanas,
+  UNTIL, virada de mês/ano).
+- Testes de DAO com banco em memória (`NativeDatabase.memory()`).
+- **Pronto quando:** testes cobrem CRUD de cada domínio e a recorrência.
+
+### Etapa 2: Tarefas
+- **Hoje**: atrasadas (destaque), de hoje (com e sem hora) e "sem data" recolhível. Concluir com checkbox e animação.
+- **Tarefas**: árvore (raiz + subtarefas expansíveis), filtros por tipo, tag, status e prioridade, busca por título, ordenação.
+- **Formulário** (tela cheia): título, notas, tipo (SegmentedButton), prioridade, início e prazo (data, opcional hora,
+  switch "dia inteiro"), recorrência (nenhuma, diária, semanal com chips de dias, a cada N, até data),
+  alarme (nenhum, na hora, 5/10/15/30/60 min, 1 dia antes), pomodoros estimados, tags (chips + criar tag).
+  Recorrência sem data define o prazo como hoje.
+- Subtarefa rápida: campo de texto inline no hub; subtarefa abre o mesmo hub (pode ter cards, pomodoro e páginas).
+- Arrastar para reordenar subtarefas; deslizar para concluir ou excluir (com desfazer no SnackBar).
+- **Pronto quando:** consigo criar, editar, concluir, excluir e filtrar tarefas e subtarefas.
+
+### Etapa 3: Recorrência e alarmes
+- Concluir rotina conforme a seção 3. Histórico de conclusões visível no hub ("sequência" de dias seguidos).
+- Serviço de notificações: agendar, cancelar, reagendar tudo no boot do app; tocar na notificação abre o hub da tarefa (deep link via go_router).
+- Ações na notificação: "Concluir" e "Adiar 10 min".
+- **Pronto quando:** alarme dispara com o app fechado e a rotina avança corretamente.
+
+### Etapa 4: Hub da tarefa
+- Cabeçalho: título, tipo, status, datas, recorrência descrita, tags, notas, botão concluir.
+- Seções: **Subtarefas**, **Flashcards** (quantidade, vencidos, "Revisar desta tarefa", "+ Card"),
+  **Pomodoro** (tempo total da tarefa + subtarefas, nº de sessões, estimado × realizado, "Iniciar foco"),
+  **Páginas** (caderno da tarefa + páginas de books vinculadas; "+ Página", "Vincular página existente").
+- Comportamento por tipo descrito na seção 1.
+- **Pronto quando:** o hub mostra e cria tudo; as ações de cards, pomodoro e páginas podem abrir telas provisórias
+  até as próximas etapas.
+
+### Etapa 5: Pomodoro
+- Tela com anel de progresso, tarefa vinculada (trocar tarefa), modos foco, pausa curta e pausa longa,
+  iniciar, pausar, retomar, parar. Pausa longa a cada 4 focos (configurável).
+- Retomar sessão em andamento ao abrir o app; notificação agendada para o fim; opção de manter a tela ligada.
+- Mini-player persistente no shell quando há sessão rodando (tempo + tarefa, toque abre a tela).
+- Ao terminar: sugerir o próximo ciclo e perguntar se conclui a tarefa.
+- Ajustes: durações, auto-iniciar pausas, som/vibração.
+- **Pronto quando:** fechar e reabrir o app no meio de um foco mantém o tempo certo e a notificação chega.
+
+### Etapa 6: Flashcards (FSRS)
+- Decks; cards com frente e verso (texto com Markdown simples renderizado), vínculo opcional a tarefa e deck; suspender.
+- **Revisão**: fila de vencidos (geral, por deck ou por tarefa), mostrar resposta, 4 botões (Errei, Difícil, Bom, Fácil)
+  exibindo o intervalo previsto de cada um, desfazer última avaliação, tempo de resposta registrado.
+  Passos de aprendizado curtos (1 e 10 min): quando a fila esvaziar mas houver card vencendo em até 20 min, mostrar
+  "Próximo card em X min".
+- Limite diário de cards novos e retenção desejada nos ajustes.
+- Badge na aba Revisar com o número de vencidos.
+- Importação de CSV (frente;verso) e, se viável, de `.apkg` simples (avaliar; não é obrigatório).
+- **Pronto quando:** a revisão funciona fluida e os intervalos batem com o FSRS.
+
+### Etapa 7: Books (AppFlowy)
+- Lista de books; cada book com páginas e subpáginas (árvore), reordenação, renomear, ícone.
+- Editor: `AppFlowyEditor` com `MobileToolbarV2` e `MobileFloatingToolbar` (seguir o `example/lib/pages/mobile_editor.dart`
+  do pacote), título editável, **autosave com debounce** (~800 ms) ouvindo `editorState.transactionStream`
+  e salvando também ao sair da tela.
+- Modo leitura (sem teclado) e modo edição.
+- **Importar** `.md` (um arquivo vira página; vários arquivos ou pasta viram book) e **exportar** página ou book
+  inteiro em `.md` (book = zip com um `.md` por página, mantendo a ordem no nome do arquivo).
+- **Integração com cards**: selecionar texto no editor → "Criar flashcard" (seleção vira frente ou verso, guarda `sourcePageId`).
+- Vincular página a tarefa e ver, na página, as tarefas vinculadas.
+- **Pronto quando:** consigo escrever um book com várias páginas, exportar em Markdown e reimportar sem perder o essencial.
+
+### Etapa 8: Agenda (calendário)
+- Modos **Dia**, **Semana** (7 dias, ou 3 em tela estreita) e **Mês**, com o modo lembrado nos ajustes.
+- **Dia/Semana**: cabeçalho com mês (dropdown de mês/ano), busca e botão "hoje"; faixa **dia inteiro** recolhível;
+  linha do tempo com coluna de horas; blocos com fundo claro, barra vertical colorida à esquerda e título na cor da barra
+  (cor = primeira tag, senão por tipo); tarefas sobrepostas lado a lado (algoritmo de colunas); concluídas esmaecidas e riscadas;
+  ícone de repetição; **linha da hora atual** atualizada a cada minuto; rolagem inicial perto de agora;
+  bottom sheet "Próxima tarefa em X min" + FAB.
+- **Mês**: grade 7×N com até 3 chips por dia e "+N"; tocar abre o dia.
+- Dados: `watchTasksInRange(from, to)` + função pura `expandOccurrences(tasks, from, to)` (ocorrências virtuais das rotinas),
+  com testes, além de testes do layout de sobreposição.
+- Interações: toque abre o hub; toque longo em horário vazio cria tarefa naquele horário (arredondado em 15 min);
+  arrastar reagenda mantendo a duração; arrastar a borda muda a duração; pinça ajusta o zoom.
+  Rotina: no MVP, reagendar afeta "todas".
+- Camada opcional "Pomodoros realizados": sessões de foco como blocos hachurados estreitos ao lado das tarefas.
+- Avaliar `calendar_view` e `kalender` (licenças MIT/BSD); se não entregarem esse visual sem gambiarra,
+  implementar a linha do tempo com `Stack` + `Positioned`. Explique a escolha antes.
+- **Pronto quando:** as três visões refletem o banco em tempo real e arrastar reagenda.
+
+### Etapa 9: Métricas
+- Tempo de foco por dia, semana e mês; por tarefa, tag e tipo; estimado × realizado.
+- Revisões por dia, taxa de acerto, cards vencidos previstos para os próximos 7 dias, sequência de dias estudando.
+- Conclusão de rotinas (heatmap estilo GitHub).
+- Gráficos com `fl_chart`. Agregações em funções puras testadas.
+
+### Etapa 10: Backup e polimento
+- Exportar e importar **backup completo** (JSON de todas as tabelas, com versão do schema) via share/arquivo.
+  Isso é a rede de segurança até existir sync.
+- Estados vazios, onboarding curto, haptics, acessibilidade (tamanhos de fonte), performance (listas grandes, editor longo).
+- Ícone e splash.
+
+### Etapa 11: Sincronização com backend Go
+Fazer em **repositório separado** (`my-cadence-api`) ou pasta `backend/` (decidir comigo).
+- **Backend**: Go + PostgreSQL, autenticação JWT (login simples, um usuário por conta), migrações (`golang-migrate`),
+  mesmas tabelas com `user_id` e coluna `server_version BIGINT` preenchida por uma sequence global a cada escrita.
+- **Protocolo** (por linha, last-write-wins por `updatedAt`):
+  - `POST /sync/push` → envia linhas com `dirty = true` (incluindo tombstones); o servidor aplica se
+    `updatedAt` recebido ≥ atual e devolve as `server_version` atribuídas.
+  - `GET /sync/pull?since=<cursor>` → devolve tudo com `server_version > cursor`, paginado; o cliente grava, marca
+    `dirty = false` e guarda o novo cursor em `AppSettings`.
+  - Ordem: push e depois pull. Rodar ao abrir o app, ao voltar do background e por botão manual.
+- **Conteúdo das páginas**: no MVP, LWW pela página inteira. Depois avaliar o `appflowy_editor_sync_plugin`
+  ou CRDT se eu editar a mesma página em dois aparelhos.
+- Indicador de status de sync e tela de conflitos simples (log do que foi sobrescrito).
+- Testes: servidor com testes de integração (Postgres em container) e cliente com servidor fake.
+
+---
+
+## 5. Definição de pronto (vale para todas as etapas)
+- `flutter analyze` sem avisos; `flutter test` passando; lógica nova com teste.
+- Nenhuma string de UI em inglês.
+- Funciona em tema claro e escuro e em tela pequena (360 dp de largura).
+- Commit por etapa com mensagem descritiva; resumo no final do que foi feito e do que ficou pendente.
+- Repositório é público: nunca commitar chaves, keystores ou dados pessoais; atualizar o README quando a etapa
+  mudar algo visível.

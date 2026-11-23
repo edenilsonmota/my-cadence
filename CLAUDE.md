@@ -1,0 +1,2 @@
+- Atualize esse arquivo no primeiro prompt
+- Doc de etapas em docs/PLANO.md
