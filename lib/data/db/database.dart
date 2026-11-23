@@ -40,7 +40,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   /// Banco do app no armazenamento do aparelho.
-  factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'my_cadence'));
+  ///
+  /// Compartilhado entre isolates (as ações das notificações rodam em outro):
+  /// quando os dois estão na mesma engine, as consultas observadas se
+  /// atualizam dos dois lados.
+  factory AppDatabase.open() => AppDatabase(
+    driftDatabase(
+      name: 'my_cadence',
+      native: const DriftNativeOptions(shareAcrossIsolates: true),
+    ),
+  );
 
   // Ao mudar o esquema: incrementar a versão, rodar
   // `dart run drift_dev make-migrations` e escrever o passo em `onUpgrade`.
@@ -52,6 +61,10 @@ class AppDatabase extends _$AppDatabase {
     onCreate: (m) => m.createAll(),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      // Se a ação da notificação abrir uma segunda conexão (outra engine),
+      // WAL e espera evitam "database is locked".
+      await customStatement('PRAGMA journal_mode = WAL');
+      await customStatement('PRAGMA busy_timeout = 5000');
     },
   );
 }

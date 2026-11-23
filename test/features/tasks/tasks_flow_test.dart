@@ -83,6 +83,32 @@ void main() {
     expect(done.completedAt, isNotNull);
   });
 
+  testWidgets('fechar o seletor de data não devolve o foco ao título', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Nova tarefa'));
+    await settle(tester);
+    final title = find.widgetWithText(TextField, 'Título');
+    expect(tester.widget<TextField>(title).focusNode, isNull);
+    expect(
+      FocusManager.instance.primaryFocus?.context
+          ?.findAncestorWidgetOfExactType<TextField>(),
+      isNotNull,
+    ); // título começa focado
+
+    await tester.tap(find.text('seg, 23 nov'));
+    await settle(tester);
+    await tester.tap(find.text('OK'));
+    await settle(tester);
+
+    expect(
+      FocusManager.instance.primaryFocus?.context
+          ?.findAncestorWidgetOfExactType<TextField>(),
+      isNull,
+    );
+  });
+
   testWidgets('título vazio não salva', (tester) async {
     await pumpApp(tester);
     await goTo(tester, 'Tarefas');

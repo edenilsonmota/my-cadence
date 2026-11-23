@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/router.dart';
 import '../../core/dates.dart';
 import '../../core/recurrence.dart';
+import '../../core/routine.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
@@ -123,7 +124,13 @@ class _TaskHub extends ConsumerWidget {
                 PopupMenuButton<TaskStatus>(
                   tooltip: 'Mudar status',
                   initialValue: task.status,
-                  onSelected: (s) => repo.setStatus(task.id, s),
+                  onSelected: (s) => s == TaskStatus.feita
+                      ? completeAndAnnounce(
+                          ScaffoldMessenger.of(context),
+                          ref,
+                          task,
+                        )
+                      : repo.setStatus(task.id, s),
                   itemBuilder: (_) => [
                     for (final s in TaskStatus.values)
                       PopupMenuItem(value: s, child: Text(s.label)),
@@ -181,14 +188,22 @@ class _TaskHub extends ConsumerWidget {
                 ? OutlinedButton.icon(
                     icon: const Icon(Icons.undo),
                     label: const Text('Reabrir'),
-                    onPressed: () => toggleDone(ref, task),
+                    onPressed: () =>
+                        toggleDone(ScaffoldMessenger.of(context), ref, task),
                   )
                 : FilledButton.icon(
                     icon: const Icon(Icons.check),
                     label: const Text('Concluir'),
-                    onPressed: () => toggleDone(ref, task),
+                    onPressed: () =>
+                        toggleDone(ScaffoldMessenger.of(context), ref, task),
                   ),
           ),
+          if (task.recurrenceRule case final rule?)
+            _RoutineHistory(
+              taskId: task.id,
+              rule: RecurrenceRule.parse(rule),
+              today: today,
+            ),
           const Divider(height: 24),
           _Subtasks(task: task, today: today),
         ],
@@ -328,6 +343,83 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
             onSubmitted: (_) => _add(),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Sequência atual e últimas conclusões de uma rotina.
+class _RoutineHistory extends ConsumerWidget {
+  const _RoutineHistory({
+    required this.taskId,
+    required this.rule,
+    required this.today,
+  });
+
+  final String taskId;
+  final RecurrenceRule rule;
+  final DateTime today;
+
+  static const _shown = 10;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final completions =
+        ref.watch(completionsProvider(taskId)).value ?? const [];
+    final theme = Theme.of(context);
+    final streak = routineStreak(
+      rule,
+      completions.map((c) => c.occurrence),
+      today,
+    );
+    final daily = rule.frequency == Frequency.daily && rule.interval == 1;
+    final streakText = streak == 0
+        ? 'Nenhuma sequência em andamento'
+        : daily
+        ? '$streak ${streak == 1 ? 'dia seguido' : 'dias seguidos'}'
+        : '$streak ${streak == 1 ? 'vez seguida' : 'vezes seguidas'}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Divider(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Histórico',
+            style: theme.textTheme.titleSmall!.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.local_fire_department_outlined,
+            color: streak > 0 ? theme.colorScheme.tertiary : null,
+          ),
+          title: Text(streakText),
+          subtitle: Text(
+            completions.isEmpty
+                ? 'Ainda não concluída'
+                : '${completions.length} '
+                      '${completions.length == 1 ? 'conclusão' : 'conclusões'} no total',
+          ),
+        ),
+        if (completions.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (final c in completions.take(_shown))
+                  Chip(
+                    avatar: const Icon(Icons.check, size: 16),
+                    label: Text(formatDate(c.occurrence, today)),
+                  ),
+              ],
+            ),
+          ),
       ],
     );
   }

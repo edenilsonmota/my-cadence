@@ -127,6 +127,55 @@ void main() {
   });
 
   group('conclusões de rotina', () {
+    test('tarefa simples: completeTask marca feita', () async {
+      final id = await repo.createTask(title: 'Ler');
+      final done = await repo.completeTask(id, now: DateTime(2026, 11, 23, 8));
+      expect(done!.status, TaskStatus.feita);
+      expect(done.completedAt, DateTime(2026, 11, 23, 8));
+      expect(await repo.watchCompletions(id).first, isEmpty);
+    });
+
+    test('rotina: registra, avança o prazo e reabre o checklist', () async {
+      final id = await repo.createTask(
+        title: 'Treino',
+        kind: TaskKind.rotina,
+        dueAt: DateTime(2026, 11, 23, 7),
+        startAt: DateTime(2026, 11, 23, 6),
+        hasTime: true,
+        recurrenceRule: 'FREQ=WEEKLY;BYDAY=MO,TH',
+      );
+      final sub = await repo.createTask(title: 'Alongar', parentId: id);
+      await repo.setStatus(sub, TaskStatus.feita);
+
+      final updated = await repo.completeTask(
+        id,
+        now: DateTime(2026, 11, 23, 7, 30),
+      );
+
+      expect(updated!.status, TaskStatus.aFazer);
+      expect(updated.completedAt, isNull);
+      expect(updated.dueAt, DateTime(2026, 11, 26, 7));
+      expect(updated.startAt, DateTime(2026, 11, 26, 6));
+      expect((await repo.getTask(sub))!.status, TaskStatus.aFazer);
+      final history = await repo.watchCompletions(id).first;
+      expect(history.single.occurrence, DateTime(2026, 11, 23, 7));
+    });
+
+    test('rotina na última ocorrência fica feita', () async {
+      final id = await repo.createTask(
+        title: 'Curso',
+        dueAt: DateTime(2026, 11, 23),
+        recurrenceRule: 'FREQ=DAILY;UNTIL=20261123',
+      );
+      final updated = await repo.completeTask(
+        id,
+        now: DateTime(2026, 11, 23, 9),
+      );
+      expect(updated!.status, TaskStatus.feita);
+      expect(updated.dueAt, DateTime(2026, 11, 23));
+      expect(await repo.watchCompletions(id).first, hasLength(1));
+    });
+
     test('registra, lista da mais recente e desfaz', () async {
       final id = await repo.createTask(title: 'Correr', kind: TaskKind.rotina);
       await repo.addCompletion(id, DateTime(2026, 11, 21));

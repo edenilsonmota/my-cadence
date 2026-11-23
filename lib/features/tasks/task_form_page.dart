@@ -5,6 +5,7 @@ import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
+import 'alarms.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
@@ -112,6 +113,11 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
       );
     }
     await repo.setTaskTags(id, draft.tagIds);
+    if (f.reminderMinutesBefore != null) {
+      // Android 13+ e iOS pedem permissão para notificar; pergunta na hora em
+      // que o primeiro lembrete é criado.
+      await ref.read(alarmSchedulerProvider).requestPermission();
+    }
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -342,6 +348,7 @@ class _DateTimeRow extends StatelessWidget {
   final String? placeholder;
 
   Future<void> _pickDate(BuildContext context) async {
+    _dropFocus();
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -353,6 +360,7 @@ class _DateTimeRow extends StatelessWidget {
   }
 
   Future<void> _pickTime(BuildContext context) async {
+    _dropFocus();
     final current = time ?? defaultTime;
     final picked = await showTimePicker(
       context: context,
@@ -454,6 +462,7 @@ class _TagPicker extends ConsumerWidget {
   final ValueChanged<Set<String>> onChanged;
 
   Future<void> _createTag(BuildContext context, WidgetRef ref) async {
+    _dropFocus();
     final created = await showDialog<({String name, int color})>(
       context: context,
       builder: (_) => const _NewTagDialog(),
@@ -558,3 +567,7 @@ class _NewTagDialogState extends State<_NewTagDialog> {
     );
   }
 }
+
+/// Tira o foco do campo de texto antes de abrir um seletor. Sem isso, ao
+/// fechar o diálogo o Flutter devolve o foco ao título e o teclado sobe.
+void _dropFocus() => FocusManager.instance.primaryFocus?.unfocus();

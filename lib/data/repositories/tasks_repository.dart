@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids.dart';
+import '../../core/recurrence.dart';
+import '../../core/routine.dart';
 import '../db/daos/tags_dao.dart';
 import '../db/daos/tasks_dao.dart';
 import '../db/database.dart';
@@ -108,6 +110,50 @@ class TasksRepository {
           ),
         ),
       );
+
+  /// Conclui a tarefa e devolve como ela ficou.
+  ///
+  /// Rotina (com recorrência e prazo): grava a ocorrência no histórico, avança
+  /// prazo e início para a próxima ocorrência futura e reabre as subtarefas
+  /// (checklist da rotina). Se a série acabou (UNTIL), marca como feita.
+  Future<Task?> completeTask(String id, {DateTime? now}) =>
+      _tasks.transaction(() async {
+        final at = now ?? DateTime.now();
+        final task = await _tasks.getTask(id);
+        if (task == null) return null;
+        final rule = task.recurrenceRule;
+        final due = task.dueAt;
+        if (rule == null || due == null) {
+          await setStatus(id, TaskStatus.feita, now: at);
+          return _tasks.getTask(id);
+        }
+
+        final advance = advanceRoutine(
+          rule: RecurrenceRule.parse(rule),
+          dueAt: due,
+          startAt: task.startAt,
+          hasTime: task.hasTime,
+          now: at,
+        );
+        await addCompletion(id, advance.occurrence);
+        if (advance.finished) {
+          await setStatus(id, TaskStatus.feita, now: at);
+        } else {
+          await _tasks.updateTask(
+            id,
+            TasksCompanion(
+              dueAt: Value(advance.nextDue),
+              startAt: Value(advance.nextStart),
+              status: const Value(TaskStatus.aFazer),
+              completedAt: const Value(null),
+            ),
+          );
+          for (final subId in (await _tasks.taskTreeIds(id)).skip(1)) {
+            await setStatus(subId, TaskStatus.aFazer);
+          }
+        }
+        return _tasks.getTask(id);
+      });
 
   /// Grava a nova ordem das irmãs (posição na lista = `sortOrder`).
   Future<void> reorder(List<String> orderedIds) => _tasks.reorder(orderedIds);

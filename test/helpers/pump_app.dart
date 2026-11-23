@@ -6,7 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/app/app.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/providers.dart';
+import 'package:my_cadence/features/tasks/alarms.dart';
 import 'package:my_cadence/features/tasks/task_providers.dart';
+
+import 'fake_scheduler.dart';
 
 /// "Hoje" fixo, sem o timer da meia-noite.
 class FixedToday extends TodayNotifier {
@@ -24,6 +27,7 @@ Future<AppDatabase> pumpApp(
   WidgetTester tester, {
   DateTime? today,
   Future<void> Function(AppDatabase db)? seed,
+  FakeScheduler? scheduler,
 }) async {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   final db = AppDatabase(
@@ -42,6 +46,7 @@ Future<AppDatabase> pumpApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        alarmSchedulerProvider.overrideWithValue(scheduler ?? FakeScheduler()),
         todayProvider.overrideWith(
           () => FixedToday(today ?? DateTime(2026, 11, 23)),
         ),

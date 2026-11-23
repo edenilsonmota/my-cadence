@@ -15,6 +15,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   silenciosamente numa versão antiga.
 - Na dúvida entre simples e "arquiteturalmente bonito", escolher o simples.
 - Se uma decisão do plano se mostrar ruim na prática, parar e explicar antes de mudar.
+- O que só dá para validar no celular (alarmes, notificações, reboot, gestos reais) vai como checklist em
+  [docs/TESTES_APARELHO.md](docs/TESTES_APARELHO.md); rodar e marcar quando o aparelho estiver disponível.
 - Repositório público: nunca commitar chaves, keystores, `.env`, `google-services.json` ou dados pessoais.
 
 ## Identidade
@@ -67,6 +69,20 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   futuras no calendário são virtuais.
 - Páginas: a fonte da verdade é o JSON do editor; Markdown só para importar e exportar.
 
+## Rotinas e alarmes
+
+- Concluir sempre por `TasksRepository.completeTask` (nunca `setStatus(feita)` direto): rotina grava o
+  histórico, avança prazo/início (`core/routine.dart`), reabre subtarefas e, depois do UNTIL, fica feita.
+- Lembretes são **derivados das tarefas**: `AlarmSync` (`features/tasks/alarms.dart`) observa todas as
+  tarefas e agenda/cancela o que mudou; na abertura reagenda tudo. Não agendar notificação de tarefa
+  em outro lugar.
+- Tarefa de dia inteiro lembra às `allDayReminderHour` (9h) menos a antecedência.
+- Ações "Concluir"/"Adiar" rodam em isolate de segundo plano (`notification_actions.dart`, top-level com
+  `@pragma('vm:entry-point')`), abrem o próprio banco e reagendam ali mesmo. O banco usa
+  `shareAcrossIsolates`, WAL e `busy_timeout`; ao voltar ao app, as consultas são forçadas a reler.
+- Nos testes, `alarmSchedulerProvider` é trocado por `FakeScheduler` (`test/helpers/fake_scheduler.dart`).
+- Testar alarme no aparelho: fechar com `adb shell am kill` (o `force-stop` apaga os alarmes do app).
+
 ## UI e testes
 
 - Telas leem providers (`features/<domínio>/*_providers.dart`); ações chamam o repositório via
@@ -75,6 +91,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Lógica de tela que dá para testar sem Flutter fica em arquivo puro (ex.: `task_lists.dart`, `task_draft.dart`).
 - Rotas de tarefa: `Routes.task(id)` (hub, alvo dos deep links), `Routes.editTask(id)`, `Routes.newTask(...)`.
   Abrem no navegador raiz, por cima das abas.
+- Antes de abrir seletor de data/hora ou diálogo a partir de um formulário, tirar o foco do campo de
+  texto (senão o foco volta ao campo ao fechar e o teclado sobe).
 - FABs das abas usam `heroTag: null` (as abas ficam vivas no `IndexedStack` e os Heroes colidiriam).
 - Testes de widget: `pumpApp(tester, seed: ..., today: ...)` de `test/helpers/pump_app.dart` (banco em
   memória, 360 dp, hoje fixo) e **`settle(tester)` no lugar de `pumpAndSettle`**, porque o banco só

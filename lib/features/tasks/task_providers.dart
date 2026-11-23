@@ -113,3 +113,9 @@ final subtasksProvider = StreamProvider.autoDispose.family<List<Task>, String>(
 final taskTagsProvider = StreamProvider.autoDispose.family<List<Tag>, String>(
   (ref, id) => ref.watch(tasksRepositoryProvider).watchTagsOfTask(id),
 );
+
+/// Conclusões de rotina, da mais recente para a mais antiga.
+final completionsProvider = StreamProvider.autoDispose
+    .family<List<TaskCompletion>, String>(
+      (ref, id) => ref.watch(tasksRepositoryProvider).watchCompletions(id),
+    );

@@ -8,14 +8,42 @@ import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
 import '../../../data/providers.dart';
 import '../task_labels.dart';
+import '../task_providers.dart';
 
-/// Conclui ou reabre a tarefa.
-Future<void> toggleDone(WidgetRef ref, Task task) => ref
-    .read(tasksRepositoryProvider)
-    .setStatus(
-      task.id,
-      task.status == TaskStatus.feita ? TaskStatus.aFazer : TaskStatus.feita,
-    );
+/// Conclui ou reabre a tarefa. Rotina concluída avança para a próxima
+/// ocorrência e o SnackBar avisa quando ela é.
+Future<void> toggleDone(
+  ScaffoldMessengerState messenger,
+  WidgetRef ref,
+  Task task,
+) async {
+  final repo = ref.read(tasksRepositoryProvider);
+  if (task.status == TaskStatus.feita) {
+    await repo.setStatus(task.id, TaskStatus.aFazer);
+    return;
+  }
+  await completeAndAnnounce(messenger, ref, task);
+}
+
+/// Conclui (via [TasksRepository.completeTask]) e, se for rotina, mostra a
+/// próxima ocorrência.
+Future<void> completeAndAnnounce(
+  ScaffoldMessengerState messenger,
+  WidgetRef ref,
+  Task task,
+) async {
+  final today = ref.read(todayProvider);
+  final updated = await ref.read(tasksRepositoryProvider).completeTask(task.id);
+  if (task.recurrenceRule == null || updated == null) return;
+  final next = updated.dueAt;
+  final message = updated.status == TaskStatus.feita || next == null
+      ? 'Rotina encerrada: era a última ocorrência.'
+      : 'Rotina concluída. Próxima: '
+            '${formatRelative(next, today, withTime: updated.hasTime)}.';
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+}
 
 /// Exclui a tarefa (e subtarefas) e oferece "Desfazer" no SnackBar.
 Future<void> deleteWithUndo(
@@ -76,7 +104,8 @@ class _TaskTileState extends ConsumerState<TaskTile> {
   Future<void> _toggle() async {
     setState(() => _pendingDone = !_done);
     await Future<void>.delayed(const Duration(milliseconds: 250));
-    await toggleDone(ref, widget.task);
+    if (!mounted) return;
+    await toggleDone(ScaffoldMessenger.of(context), ref, widget.task);
     if (mounted) setState(() => _pendingDone = null);
   }
 
@@ -209,7 +238,7 @@ class _SwipeableTaskTileState extends ConsumerState<SwipeableTaskTile> {
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
-          await toggleDone(ref, task);
+          await toggleDone(ScaffoldMessenger.of(context), ref, task);
           return false; // a linha continua, só muda o estado
         }
         return true;
