@@ -66,6 +66,13 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
             ..orderBy([(c) => OrderingTerm.asc(c.id)]))
           .watch();
 
+  /// Cards vivos de um conjunto de tarefas (ex.: tarefa + subtarefas).
+  Stream<List<Flashcard>> watchCardsOfTasks(List<String> taskIds) =>
+      (select(flashcards)
+            ..where((c) => c.taskId.isIn(taskIds) & c.deletedAt.isNull())
+            ..orderBy([(c) => OrderingTerm.asc(c.due)]))
+          .watch();
+
   /// Fila de revisão: cards não suspensos com `due <= now`, do mais atrasado
   /// para o mais recente.
   Stream<List<Flashcard>> watchDue(

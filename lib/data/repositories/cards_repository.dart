@@ -46,6 +46,9 @@ class CardsRepository {
   Stream<List<Flashcard>> watchCards({String? deckId, String? taskId}) =>
       _dao.watchCards(deckId: deckId, taskId: taskId);
 
+  Stream<List<Flashcard>> watchCardsOfTasks(List<String> taskIds) =>
+      _dao.watchCardsOfTasks(taskIds);
+
   Stream<List<Flashcard>> watchDue(
     DateTime now, {
     String? deckId,

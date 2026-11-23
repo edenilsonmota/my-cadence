@@ -44,6 +44,36 @@ class BooksDao extends DatabaseAccessor<AppDatabase> with _$BooksDaoMixin {
             ..limit(1))
           .getSingleOrNull();
 
+  Stream<Notebook?> watchTaskNotebook(String taskId) =>
+      (select(notebooks)
+            ..where((n) => n.taskId.equals(taskId) & n.deletedAt.isNull())
+            ..limit(1))
+          .watchSingleOrNull();
+
+  /// Páginas de todos os books (cadernos que não são de tarefa), com o book.
+  Stream<List<(NotePage, Notebook)>> watchBookPages() {
+    final query =
+        select(notePages).join([
+            innerJoin(notebooks, notebooks.id.equalsExp(notePages.notebookId)),
+          ])
+          ..where(
+            notebooks.taskId.isNull() &
+                notebooks.deletedAt.isNull() &
+                notePages.deletedAt.isNull(),
+          )
+          ..orderBy([
+            OrderingTerm.asc(notebooks.title),
+            OrderingTerm.asc(notePages.sortOrder),
+            OrderingTerm.asc(notePages.id),
+          ]);
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          (row.readTable(notePages), row.readTable(notebooks)),
+      ],
+    );
+  }
+
   // Páginas
 
   Future<void> insertPage(NotePagesCompanion row) =>

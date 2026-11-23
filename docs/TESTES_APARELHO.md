@@ -29,6 +29,7 @@ adb shell date            # conferir a hora do celular antes de marcar alarmes
 | 23/11/2026 | 2 | Criar tarefa pelo formulário, abrir hub, subtarefas inline | OK |
 | 23/11/2026 | 3 | Permissão de notificação pedida ao salvar o 1º lembrete | OK |
 | 23/11/2026 | 3 | Alarme exato registrado no Android (`RTC_WAKEUP`, `exactAllowReason=policy_permission`) e mantido após matar o processo | OK |
+| 23/11/2026 | 3 | Alarme disparou com o app fechado, como notificação (verificado manualmente) | OK |
 
 Achado no aparelho e já corrigido: ao fechar o seletor de data/hora, o foco voltava ao título e o
 teclado cobria o formulário (corrigido, com teste de regressão).
@@ -38,7 +39,7 @@ teclado cobria o formulário (corrigido, com teste de regressão).
 Preparação: criar pela aba Hoje uma rotina com **Dia inteiro desligado**, prazo hoje com hora
 = agora + 3 min, **Repetir: Diária** e **Alarme: Na hora**. Fechar o app como descrito acima.
 
-- [ ] **3.1 Alarme com o app fechado.** No horário, a notificação "Teste alarme / Prazo: Hoje, HH:MM"
+- [x] **3.1 Alarme com o app fechado.** (23/11/2026: disparou como notificação.) No horário, a notificação "Teste alarme / Prazo: Hoje, HH:MM"
   aparece com os botões **Concluir** e **Adiar 10 min**, com o processo do app morto.
 - [ ] **3.2 Concluir pela notificação (app fechado).** Tocar em **Concluir**: a notificação some; ao abrir o
   app, a rotina está com prazo **amanhã** no mesmo horário, o histórico do hub mostra 1 conclusão e
@@ -66,6 +67,18 @@ Preparação: criar pela aba Hoje uma rotina com **Dia inteiro desligado**, praz
   com "1 dia antes", às 9h do dia anterior.
 - [ ] **3.13 Rotina semanal.** Rotina seg/qua/sex com alarme: concluir na segunda leva o prazo e o
   alarme para quarta.
+
+## Pendentes: Etapa 4 (hub da tarefa)
+
+- [ ] **4.1 Visual em 360 dp e tema claro.** Abrir o hub de uma tarefa de **estudo** com subtarefas, cards,
+  sessões e páginas: as quatro seções cabem sem cortes; os botões "Revisar desta tarefa" e "+ Card"
+  quebram linha direito; conferir também com o celular em tema claro e com fonte grande do sistema.
+- [ ] **4.2 Atalhos em tarefa simples.** Hub de tarefa simples mostra "Adicionar: Flashcard, Pomodoro,
+  Página"; criar um card faz a seção Flashcards aparecer e o atalho sumir.
+- [ ] **4.3 Painel de card com teclado.** No "+ Card", o painel sobe junto com o teclado e o botão
+  "Salvar card" fica visível sem fechar o teclado.
+- [ ] **4.4 Telas provisórias.** "Revisar desta tarefa", "Iniciar foco" e tocar numa página abrem as telas
+  "em construção" e o voltar retorna ao hub.
 
 ## Limitações conhecidas (não são bugs)
 

@@ -10,6 +10,7 @@ import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
+import 'hub/hub_tools.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
@@ -175,8 +176,6 @@ class _TaskHub extends ConsumerWidget {
               reminderOptions[task.reminderMinutesBefore] ??
                   '${task.reminderMinutesBefore} min antes',
             ),
-          if (task.estimatedPomodoros case final n?)
-            _Info(Icons.timer_outlined, 'Pomodoros estimados', '$n'),
           if (task.notes case final notes?)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -198,6 +197,7 @@ class _TaskHub extends ConsumerWidget {
                         toggleDone(ScaffoldMessenger.of(context), ref, task),
                   ),
           ),
+          HubTools(task: task, part: HubToolsPart.shortcuts),
           if (task.recurrenceRule case final rule?)
             _RoutineHistory(
               taskId: task.id,
@@ -206,6 +206,7 @@ class _TaskHub extends ConsumerWidget {
             ),
           const Divider(height: 24),
           _Subtasks(task: task, today: today),
+          HubTools(task: task, part: HubToolsPart.sections),
         ],
       ),
     );

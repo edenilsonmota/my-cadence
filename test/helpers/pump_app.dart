@@ -7,6 +7,7 @@ import 'package:my_cadence/app/app.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/providers.dart';
 import 'package:my_cadence/features/tasks/alarms.dart';
+import 'package:my_cadence/features/tasks/hub/hub_providers.dart';
 import 'package:my_cadence/features/tasks/task_providers.dart';
 
 import 'fake_scheduler.dart';
@@ -47,6 +48,11 @@ Future<AppDatabase> pumpApp(
       overrides: [
         databaseProvider.overrideWithValue(db),
         alarmSchedulerProvider.overrideWithValue(scheduler ?? FakeScheduler()),
+        // Meio-dia do "hoje" fixo.
+        clockProvider.overrideWithValue(
+          () =>
+              (today ?? DateTime(2026, 11, 23)).add(const Duration(hours: 12)),
+        ),
         todayProvider.overrideWith(
           () => FixedToday(today ?? DateTime(2026, 11, 23)),
         ),

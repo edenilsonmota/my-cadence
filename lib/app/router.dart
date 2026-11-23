@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/books/books_page.dart';
+import '../features/books/note_page_page.dart';
 import '../features/calendar/agenda_page.dart';
 import '../features/cards/review_page.dart';
+import '../features/cards/review_session_page.dart';
+import '../features/pomodoro/pomodoro_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/stats/stats_page.dart';
 import '../features/tasks/task_form_page.dart';
@@ -26,6 +29,12 @@ abstract final class Routes {
   /// Hub da tarefa (também alvo dos deep links das notificações).
   static String task(String id) => '/tarefa/$id';
   static String editTask(String id) => '/tarefa/$id/editar';
+
+  /// Telas provisórias até as etapas de revisão, pomodoro e books.
+  static String reviewTask(String taskId) => '/revisao?tarefa=$taskId';
+  static String pomodoro({String? taskId}) =>
+      Uri(path: '/pomodoro', queryParameters: {'tarefa': ?taskId}).toString();
+  static String page(String id) => '/pagina/$id';
 
   /// Formulário de nova tarefa, opcionalmente como subtarefa ou com prazo hoje.
   static String newTask({String? parentId, bool dueToday = false}) => Uri(
@@ -71,6 +80,24 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         path: Routes.settings,
         parentNavigatorKey: rootKey,
         builder: (_, _) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: '/revisao',
+        parentNavigatorKey: rootKey,
+        builder: (_, state) =>
+            ReviewSessionPage(taskId: state.uri.queryParameters['tarefa']),
+      ),
+      GoRoute(
+        path: '/pomodoro',
+        parentNavigatorKey: rootKey,
+        builder: (_, state) =>
+            PomodoroPage(taskId: state.uri.queryParameters['tarefa']),
+      ),
+      GoRoute(
+        path: '/pagina/:id',
+        parentNavigatorKey: rootKey,
+        builder: (_, state) =>
+            NotePagePage(pageId: state.pathParameters['id']!),
       ),
       // Tarefas abrem em tela cheia, por cima das abas. `nova` vem antes de
       // `:id` para não ser lida como id.

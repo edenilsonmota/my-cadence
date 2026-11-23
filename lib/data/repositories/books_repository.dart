@@ -49,6 +49,12 @@ class BooksRepository {
   /// Exclui o caderno e todas as páginas dele.
   Future<void> deleteNotebook(String id) => _dao.softDeleteNotebook(id);
 
+  Stream<Notebook?> watchTaskNotebook(String taskId) =>
+      _dao.watchTaskNotebook(taskId);
+
+  /// Páginas de todos os books, com o book de cada uma.
+  Stream<List<(NotePage, Notebook)>> watchBookPages() => _dao.watchBookPages();
+
   // Páginas
 
   Future<NotePage?> getPage(String id) => _dao.getPage(id);

@@ -97,6 +97,10 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Testes de widget: `pumpApp(tester, seed: ..., today: ...)` de `test/helpers/pump_app.dart` (banco em
   memória, 360 dp, hoje fixo) e **`settle(tester)` no lugar de `pumpAndSettle`**, porque o banco só
   responde em tempo real. Ler o banco no teste com `tester.runAsync`.
+  Depois de `enterText`, chamar `settle` antes de tocar em botões que dependem do texto (senão o botão
+  ainda está desabilitado). Antes de tocar em algo que pode estar fora da tela, `tester.ensureVisible`.
+- O relógio vem de `clockProvider` (hub: "vencidos agora", sessão em andamento); `pumpApp` fixa ao
+  meio-dia do "hoje" do teste.
 
 ## Estilo
 
