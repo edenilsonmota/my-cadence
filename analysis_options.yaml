@@ -4,6 +4,7 @@ analyzer:
   exclude:
     - build/**
     - "**/*.g.dart"
+    - test/data/db/migrations/generated/**
     - android/**
     - ios/**
   language:

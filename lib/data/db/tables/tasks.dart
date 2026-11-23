@@ -1,0 +1,61 @@
+import 'package:drift/drift.dart';
+
+import '../enums.dart';
+import '../sync_columns.dart';
+
+@TableIndex(name: 'tasks_parent_id', columns: {#parentId})
+@TableIndex(name: 'tasks_due_at', columns: {#dueAt})
+class Tasks extends Table with SyncColumns {
+  /// Subtarefa quando preenchido.
+  TextColumn get parentId => text().nullable().references(Tasks, #id)();
+  TextColumn get title => text()();
+  TextColumn get notes => text().nullable()();
+  TextColumn get kind =>
+      textEnum<TaskKind>().withDefault(Constant(TaskKind.simples.name))();
+  TextColumn get status =>
+      textEnum<TaskStatus>().withDefault(Constant(TaskStatus.aFazer.name))();
+
+  /// 0 (nenhuma) a 3 (alta).
+  IntColumn get priority => integer()
+      .withDefault(const Constant(0))
+      // ignore: recursive_getters (padrão do drift para CHECK na própria coluna)
+      .check(priority.isBetweenValues(0, 3))();
+  DateTimeColumn get startAt => dateTime().nullable()();
+  DateTimeColumn get dueAt => dateTime().nullable()();
+
+  /// `false` = dia inteiro (vale só a data de [startAt]/[dueAt]).
+  BoolColumn get hasTime => boolean().withDefault(const Constant(false))();
+
+  /// RRULE (subconjunto de `core/recurrence.dart`).
+  TextColumn get recurrenceRule => text().nullable()();
+  IntColumn get reminderMinutesBefore => integer().nullable()();
+  IntColumn get estimatedPomodoros => integer().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  DateTimeColumn get completedAt => dateTime().nullable()();
+
+  /// Cor ARGB.
+  IntColumn get color => integer().nullable()();
+}
+
+/// Histórico de conclusões de rotinas (uma linha por ocorrência concluída).
+class TaskCompletions extends Table with SyncColumns {
+  TextColumn get taskId => text().references(Tasks, #id)();
+  DateTimeColumn get occurrence => dateTime()();
+}
+
+class Tags extends Table with SyncColumns {
+  TextColumn get name => text()();
+
+  /// Cor ARGB.
+  IntColumn get color => integer()();
+}
+
+class TaskTags extends Table with SyncColumns {
+  TextColumn get taskId => text().references(Tasks, #id)();
+  TextColumn get tagId => text().references(Tags, #id)();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {taskId, tagId},
+  ];
+}

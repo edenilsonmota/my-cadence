@@ -5,8 +5,10 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 
 ## Como trabalhar
 
-- **Uma etapa por vez, na ordem do plano.** Ao terminar: `dart run build_runner build -d` (se mexeu em tabelas
-  ou providers gerados), `flutter analyze` e `flutter test` limpos, commit com mensagem descritiva e **parar para revisão**.
+- **Uma etapa por vez, na ordem do plano.** Ao terminar: `dart run build_runner build` (se mexeu em tabelas
+  ou providers gerados; a flag `-d` não existe mais no build_runner 2.17), `flutter analyze` e `flutter test`
+  limpos, commit com mensagem descritiva e **parar para revisão**.
+- Os arquivos gerados (`*.g.dart`) são versionados, para o projeto rodar logo após o clone.
 - **Cada pacote entra só na etapa que o usa.** Antes de adicionar, conferir no pub.dev a versão estável e a
   compatibilidade com o Flutter instalado. Não inventar APIs: ler a documentação ou o código em `~/.pub-cache`.
 - Declarar a versão mínima esperada de cada pacote (`^x.y.z`) para o resolvedor falhar alto, em vez de cair
@@ -34,9 +36,24 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 ## Banco e sync
 
 - Toda tabela usa o mixin `SyncColumns` (id UUID v7, `createdAt`, `updatedAt`, `deletedAt`, `dirty`, `serverVersion`).
-- Toda escrita passa por um helper do repositório que aplica `updatedAt = now` e `dirty = true`.
-- **Nunca exclusão física**: sempre `deletedAt` (soft delete, em cascata para subtarefas).
+- Toda escrita nos DAOs passa por `SyncWrites` (`lib/data/db/sync_writes.dart`: `insertSynced`, `updateSynced`,
+  `softDeleteSynced`), que aplica `updatedAt = now` e `dirty = true`. Nunca usar `into().insert`, `update()` ou
+  `delete()` direto.
+- **Nunca exclusão física**: sempre `deletedAt`. Cascatas: tarefa → subtarefas, tag → vínculos,
+  caderno → páginas, página → subpáginas. Excluir deck desvincula os cards.
+- Toda leitura filtra `deletedAt.isNull()`.
+- Tabelas de vínculo (`TaskTags`, `TaskPageLinks`) e `AppSettings` têm chave única: re-vincular **revive** a
+  linha excluída em vez de inserir outra.
+- Repositórios criam com parâmetros nomeados (a UI não monta Companions) e `saveX(objeto)` grava só os campos
+  editáveis, nunca as colunas de sync.
+- DateTime fica no formato padrão do drift (inteiro, **segundos** desde a época, comparável sem depender de fuso).
+  Não há milissegundos no banco.
 - Enums como **`textEnum`** (o nome do valor). Renomear um valor exige migração.
+- `PRAGMA foreign_keys = ON` no `beforeOpen`.
+- **Migrações:** ao mudar o esquema, incrementar `schemaVersion`, rodar `dart run drift_dev make-migrations`
+  (gera o dump em `drift_schemas/` e os helpers de teste), escrever o passo em `onUpgrade` e um teste de
+  integridade de dados em `test/data/db/migrations/`. O teste de migração percorre todas as versões salvas.
+- Testes de dados usam `openTestDb()` (`test/data/test_db.dart`, banco em memória).
 - Sync (Etapa 11): ao confirmar o push, só marcar `dirty = false` se o `updatedAt` local ainda for o enviado.
 
 ## Regras de domínio que não podem escorregar
