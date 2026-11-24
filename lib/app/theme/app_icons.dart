@@ -49,6 +49,8 @@ abstract final class AppIcons {
   static const export = _I.download;
   static const link = _I.link;
   static const unlink = _I.unlink;
+  static const table = _I.table2;
+  static const image = _I.imagePlus;
   static const read = _I.eye;
   static const check = _I.check;
   static const done = _I.circleCheck;

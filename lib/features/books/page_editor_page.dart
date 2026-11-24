@@ -19,6 +19,7 @@ import '../tasks/widgets/task_picker.dart';
 import 'book_actions.dart';
 import 'book_markdown.dart';
 import 'books_providers.dart';
+import 'editor_toolbar_items.dart';
 
 /// Página de um caderno com o editor AppFlowy.
 ///
@@ -379,7 +380,10 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
                   buildTextAndBackgroundColorMobileToolbarItem(),
                   blocksMobileToolbarItem,
                   linkMobileToolbarItem,
+                  codeMobileToolbarItem,
                   dividerMobileToolbarItem,
+                  tableMobileToolbarItem,
+                  imageMobileToolbarItem,
                 ],
                 child: Column(
                   children: [
