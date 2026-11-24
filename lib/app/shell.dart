@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/cards/cards_providers.dart';
 import '../features/pomodoro/pomodoro_mini_player.dart';
+import '../features/update/update_widgets.dart';
 import 'theme/app_theme.dart';
 
 /// Shell com a barra de navegação das 5 abas. Cada aba mantém a própria pilha.
@@ -15,7 +16,7 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: UpdateWatcher(child: navigationShell),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

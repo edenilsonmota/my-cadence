@@ -21,8 +21,10 @@ Em **APIs e serviços → Tela de consentimento OAuth** (ou "Google Auth Platfor
 3. Escopos (Acesso aos dados → Adicionar escopos):
    - `.../auth/drive.appdata` (ver, criar e excluir os próprios dados de configuração no Google Drive);
    - `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`.
-4. **Publique como "Em produção"** (Público-alvo → Publicar app). Em modo de teste o login expira a cada 7 dias.
-   Como os escopos não são sensíveis, não há revisão demorada.
+4. Branding: página inicial = o repositório no GitHub, política de privacidade = link para
+   `docs/PRIVACIDADE.md` no GitHub, domínio autorizado `github.com`.
+5. **Publique como "Em produção"** (Público-alvo → Publicar app). Em modo de teste só os usuários de teste
+   entram e o login pode expirar a cada 7 dias. Como os escopos não são sensíveis, não há revisão demorada.
 
 ## 3. Clientes OAuth (Credenciais → Criar credenciais → ID do cliente OAuth)
 
@@ -38,7 +40,9 @@ Em **APIs e serviços → Tela de consentimento OAuth** (ou "Google Auth Platfor
     -storepass android -keypass android | grep SHA1
   ```
   (ou `cd android && ./gradlew signingReport`).
-- Quando existir a chave de release, crie **outro** cliente Android com o SHA-1 dela.
+- Crie **outro** cliente Android com o SHA-1 da chave de release (`docs/RELEASE.md`):
+  `keytool -list -v -keystore ~/keys/my-cadence-release.jks -alias cadence | grep SHA1`.
+  Os APKs do GitHub Actions são assinados com ela.
 - O ID deste cliente não vai para o app: o Google só confere pacote + SHA-1.
 
 ### iOS (quando houver build iOS)
@@ -55,6 +59,9 @@ cp config/google.example.json config/google.json
 flutter run --dart-define-from-file=config/google.json
 flutter build apk --dart-define-from-file=config/google.json
 ```
+
+Os APKs distribuídos saem do GitHub Actions (`docs/RELEASE.md`), com o ID do cliente Web no secret
+`GOOGLE_SERVER_CLIENT_ID`.
 
 No VS Code, acrescente `"args": ["--dart-define-from-file=config/google.json"]` na configuração de execução.
 

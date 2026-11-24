@@ -11,6 +11,7 @@ import '../pomodoro/pomodoro_controller.dart';
 import '../pomodoro/pomodoro_logic.dart';
 import '../sync/presentation/backup_actions.dart';
 import '../tasks/alarms.dart';
+import '../update/update_widgets.dart';
 
 final _allDayHourProvider = StreamProvider.autoDispose<String?>(
   (ref) =>
@@ -147,6 +148,8 @@ class SettingsPage extends ConsumerWidget {
             ),
             onTap: () => importJsonFlow(context, ref),
           ),
+          const _Header('Atualizações'),
+          const UpdateTiles(),
         ],
       ),
     );

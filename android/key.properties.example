@@ -1,0 +1,4 @@
+storeFile=/caminho/para/my-cadence-release.jks
+storePassword=
+keyAlias=cadence
+keyPassword=

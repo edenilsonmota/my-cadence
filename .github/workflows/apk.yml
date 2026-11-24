@@ -1,0 +1,96 @@
+# Gera o APK assinado. Tag `vX.Y.Z` → GitHub Release com os APKs; "Run workflow" → só artefato.
+# Secrets e passo a passo em docs/RELEASE.md.
+name: APK
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Versão da tag confere com o pubspec
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pub="$(grep -E '^version:' pubspec.yaml | sed -E 's/version: *([^+]+).*/\1/')"
+          if [ "$tag" != "$pub" ]; then
+            echo "::error::Tag v$tag, mas o pubspec.yaml diz $pub. Suba a versão no pubspec antes da tag."
+            exit 1
+          fi
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+      - name: Chave de assinatura e configuração do Google
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$GOOGLE_SERVER_CLIENT_ID" ]; then
+            echo "::error::Faltam secrets (ver docs/RELEASE.md)."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          mkdir -p config
+          printf '{"GOOGLE_SERVER_CLIENT_ID": "%s", "GOOGLE_IOS_CLIENT_ID": ""}\n' \
+            "$GOOGLE_SERVER_CLIENT_ID" > config/google.json
+
+      - name: Build
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          flutter build apk --release --split-per-abi \
+            --target-platform android-arm64,android-arm \
+            --dart-define-from-file=config/google.json
+          version="$(grep -E '^version:' pubspec.yaml | sed -E 's/version: *([^+]+).*/\1/')"
+          cd build/app/outputs/flutter-apk
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          cp app-arm64-v8a-release.apk "$GITHUB_WORKSPACE/dist/cadence-$version.apk"
+          cp app-armeabi-v7a-release.apk "$GITHUB_WORKSPACE/dist/cadence-$version-aparelhos-antigos.apk"
+
+      - name: Remove a chave
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks" config/google.json
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist/*.apk
+          generate_release_notes: true
+
+      - name: Artefato (execução manual)
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: cadence-apk
+          path: dist/*.apk
+          retention-days: 30

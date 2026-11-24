@@ -223,6 +223,14 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Goldens dos componentes em `test/golden/` (fontes reais via `test/helpers/golden_fonts.dart`).
   Atualizar com `flutter test --update-goldens test/golden` e conferir a imagem antes do commit.
 
+## Release e atualizações
+
+- APK assinado pela chave de release (`~/keys`, fora do git; `android/key.properties` ou variáveis
+  `ANDROID_*` no CI; sem elas, cai na chave debug). Tag `vX.Y.Z` (igual à versão do `pubspec.yaml`) →
+  GitHub Actions publica a Release (`docs/RELEASE.md`). O `+n` da versão sempre sobe.
+- O app consulta a última Release (`features/update/`): ao abrir, no máximo 1×/dia (`device.updateLastCheck`),
+  e em Ajustes → Atualizações. Nos testes, `pumpApp(releaseFetcher:, openedUrls:)`; versão fixa `1.0.0`.
+
 ## Ambiente
 
 - Flutter 3.47 / Dart 3.13. `flutter_local_notifications` 23 exige `compileSdk = 37` e AGP ≥ 9.1.1.
