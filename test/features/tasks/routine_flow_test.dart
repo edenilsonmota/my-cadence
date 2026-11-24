@@ -76,11 +76,13 @@ void main() {
     await tester.tap(find.byTooltip('Nova tarefa'));
     await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ligar');
+    // Rola até o campo seguinte, para o alarme ficar inteiro na tela.
     await tester.dragUntilVisible(
-      find.text('Nenhum'),
+      find.text('Pomodoros estimados'),
       find.byType(ListView).first,
       const Offset(0, -200),
     );
+    await settle(tester);
     await tester.tap(find.text('Nenhum'));
     await settle(tester);
     await tester.tap(find.text('Na hora').last);
