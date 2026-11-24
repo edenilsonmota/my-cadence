@@ -234,6 +234,7 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
               // Folga no fim para o aviso de próxima tarefa e o botão +.
               padding: const EdgeInsets.only(bottom: 80),
               child: SizedBox(
+                width: double.infinity,
                 height: 24 * hourHeight,
                 child: LayoutBuilder(
                   builder: (context, box) {
@@ -768,7 +769,8 @@ class _NowLine extends ConsumerWidget {
     ref.watch(tickerProvider.select((t) => t.value?.minute));
     final now = ref.watch(clockProvider)();
     final i = days.indexWhere((d) => isSameDay(d, now));
-    if (i < 0) return const SizedBox.shrink();
+    // Sempre posicionado: um filho solto faria o Stack medir 0 de largura.
+    if (i < 0) return const Positioned(left: 0, top: 0, child: SizedBox());
     final color = Theme.of(context).colorScheme.error;
     final top = minutesFrom(days[i], now) * hourHeight / 60;
     return Positioned(

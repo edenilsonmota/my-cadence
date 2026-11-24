@@ -78,6 +78,15 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
     editor.selectionNotifier.addListener(() {
       final selection = editor.selection;
       if (selection == null) return; // perdeu o foco: mantém o último trecho
+      if (!_editing && selection.isCollapsed) {
+        // Leitura: tocar no texto não deixa cursor (só seleção de trecho).
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && !_editing && editor.selection == selection) {
+            editor.selection = null;
+          }
+        });
+        return;
+      }
       _lastSelectedText = selection.isCollapsed ? null : _selectedText();
     });
     _title.text = page.title;
@@ -264,12 +273,17 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
       editorState: editor,
       editorScrollController: _scroll,
       editable: _editing,
+      // Leitura: sem teclado (tocar no texto não deve abrir o IME).
+      disableKeyboardService: !_editing,
+      // Página nova (aberta já em edição) começa com o cursor e o teclado.
+      autoFocus: widget.startEditing && _editing,
       editorStyle: _style(context),
       blockComponentBuilders: _blocks(),
       header: header,
       footer: const SizedBox(height: 120),
     );
 
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -318,6 +332,17 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
             ? MobileToolbarV2(
                 toolbarHeight: 48,
                 editorState: editor,
+                // Cores do tema (o padrão do pacote é sempre claro).
+                backgroundColor: colors.surfaceContainer,
+                foregroundColor: colors.onSurfaceVariant,
+                iconColor: colors.onSurface,
+                itemHighlightColor: colors.primary,
+                itemOutlineColor: colors.outlineVariant,
+                tabBarSelectedBackgroundColor: colors.secondaryContainer,
+                tabBarSelectedForegroundColor: colors.onSecondaryContainer,
+                primaryColor: colors.primary,
+                onPrimaryColor: colors.onPrimary,
+                outlineColor: colors.outlineVariant,
                 toolbarItems: [
                   textDecorationMobileToolbarItemV2,
                   buildTextAndBackgroundColorMobileToolbarItem(),

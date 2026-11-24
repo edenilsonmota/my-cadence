@@ -153,45 +153,60 @@ notificação chega.** Para testar rápido, em Ajustes deixar Foco = 1 min e Pau
 Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-13`), fixado no commit
 `82d3c27`. O APK compila; falta ver o editor no aparelho (o celular estava em uso).
 
-- [ ] **7.1 Editar no celular.** Novo book → Nova página: o editor abre em modo edição com o teclado;
+- [x] **7.1 Editar no celular.** Novo book → Nova página: o editor abre em modo edição com o teclado;
   a barra móvel (estilos, cores, blocos, link, divisor) aparece acima do teclado e funciona; títulos,
   listas e citação ficam certos no tema escuro e no claro (texto legível nos dois).
-- [ ] **7.2 Seleção.** Selecionar um trecho mostra a barra flutuante com Copiar, Recortar, Colar e
+  _24/11: ok nos dois temas; a barra era clara no tema escuro e a página nova abria sem teclado (corrigidos)._
+- [x] **7.2 Seleção.** Selecionar um trecho mostra a barra flutuante com Copiar, Recortar, Colar e
   "Criar flashcard"; "Criar flashcard" abre o painel com o trecho na frente ou no verso.
-- [ ] **7.3 Salvamento.** Escrever, esperar 1 s e matar o app (`am kill`): ao reabrir, o texto está lá.
+  _24/11: ok; card criado com a página de origem._
+- [x] **7.3 Salvamento.** Escrever, esperar 1 s e matar o app (`am kill`): ao reabrir, o texto está lá.
   Escrever e sair logo pelo "voltar": também salvo.
-- [ ] **7.4 Modo leitura.** O olho alterna para leitura: sem teclado, sem barras; o lápis volta a editar.
-- [ ] **7.5 Exportar.** Exportar página (.md) e book (.zip) abre o "Salvar como" do sistema e o arquivo
+- [x] **7.4 Modo leitura.** O olho alterna para leitura: sem teclado, sem barras; o lápis volta a editar.
+  _24/11: no modo leitura o toque abria o teclado e deixava cursor (corrigido)._
+- [x] **7.5 Exportar.** Exportar página (.md) e book (.zip) abre o "Salvar como" do sistema e o arquivo
   abre certo em outro app (ex.: um leitor de Markdown).
-- [ ] **7.6 Importar.** Importar na aba Books o zip exportado (e também arquivos .md soltos de outra
+  _24/11: arquivos conferidos pelo adb (não abri em outro app)._
+- [x] **7.6 Importar.** Importar na aba Books o zip exportado (e também arquivos .md soltos de outra
   origem): mesma árvore e conteúdo.
-- [ ] **7.7 Livro longo.** Página com umas 300 linhas: rolar e digitar continuam fluidos.
+  _24/11: conteúdo idêntico ao original no banco._
+- [x] **7.7 Livro longo.** Página com umas 300 linhas: rolar e digitar continuam fluidos.
+  _24/11: rolagem com mediana de 8 ms/quadro e digitação sem quadros acima de 33 ms, em build debug._
 
 ## Pendentes: Etapa 8 (agenda)
 
-- [ ] **8.1 Visões.** Dia, 3 dias e Mês pelo menu da agenda; o modo volta igual ao reabrir o app. Deslizar
+- [x] **8.1 Visões.** Dia, 3 dias e Mês pelo menu da agenda; o modo volta igual ao reabrir o app. Deslizar
   para os lados troca de período; o título abre o seletor de data; "Ir para hoje" volta.
-- [ ] **8.2 Arrastar.** Toque longo num bloco e arrastar: ele segue o dedo em passos de 15 min (e para o dia
+  _24/11: deslizar parava de funcionar depois do 1º período (grade com largura 0 fora de hoje; corrigido, com teste)._
+- [x] **8.2 Arrastar.** Toque longo num bloco e arrastar: ele segue o dedo em passos de 15 min (e para o dia
   ao lado no modo 3 dias), com vibração curta ao pegar; ao soltar, o horário muda e o lembrete é
   reagendado. Rolar a tela com o dedo sobre um bloco continua funcionando.
-- [ ] **8.3 Redimensionar.** Toque longo na parte de baixo (alça) e arrastar muda só o fim.
+- [x] **8.3 Redimensionar.** Toque longo na parte de baixo (alça) e arrastar muda só o fim.
 - [ ] **8.4 Pinça.** Dois dedos aumentam e diminuem a altura das horas sem pular a rolagem.
-- [ ] **8.5 Criar.** Toque longo num horário vazio abre "Nova tarefa" com início no horário (15 min) e
+  _24/11: o adb só simula um dedo; testar à mão._
+- [x] **8.5 Criar.** Toque longo num horário vazio abre "Nova tarefa" com início no horário (15 min) e
   fim 1 h depois.
-- [ ] **8.6 Hora atual.** A linha vermelha anda sozinha a cada minuto; o aviso "Próxima tarefa em X min"
+- [x] **8.6 Hora atual.** A linha vermelha anda sozinha a cada minuto; o aviso "Próxima tarefa em X min"
   diminui e some quando ela começa.
-- [ ] **8.7 Temas.** Blocos legíveis no tema claro e no escuro (fundo claro, barra e título coloridos);
+- [x] **8.7 Temas.** Blocos legíveis no tema claro e no escuro (fundo claro, barra e título coloridos);
   concluídas esmaecidas e riscadas; pomodoros hachurados na beira direita quando a camada está ligada.
 
 ## Pendentes: logo do app
 
-- [ ] **L.1 Ícone.** Na tela inicial e na gaveta de apps aparece o anel com check em fundo verde-azulado
+- [x] **L.1 Ícone.** Na tela inicial e na gaveta de apps aparece o anel com check em fundo verde-azulado
   (sem o logo do Flutter), recortado certo no formato do launcher. Com "ícones temáticos" do Android 13+
   ligado, o ícone segue as cores do sistema.
-- [ ] **L.2 Notificação.** Lembrete de tarefa e fim de pomodoro mostram o símbolo branco na barra de
+  _24/11: ícone ok; não verifiquei os ícones temáticos._
+- [x] **L.2 Notificação.** Lembrete de tarefa e fim de pomodoro mostram o símbolo branco na barra de
   status (não um quadrado cinza) e o símbolo em verde-azulado na notificação aberta.
-- [ ] **L.3 Splash e menu.** Ao abrir (Android 12+), o splash mostra o novo ícone; o menu lateral mostra o
+- [x] **L.3 Splash e menu.** Ao abrir (Android 12+), o splash mostra o novo ícone; o menu lateral mostra o
   logo ao lado de "My Cadence".
+
+## Para decidir
+
+- **Lembrete de tarefa com início e prazo** conta a partir do **prazo** (regra da Etapa 3). Num bloco da
+  agenda (ex.: 12:00–13:00 com "Na hora"), o aviso vem às 13:00, no fim. Proposta: quando houver início
+  com hora, contar a partir do início.
 
 ## Limitações conhecidas (não são bugs)
 

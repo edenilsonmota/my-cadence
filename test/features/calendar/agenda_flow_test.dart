@@ -288,4 +288,33 @@ void main() {
     expect(find.byTooltip('Foco 11:10–11:35'), findsOneWidget);
     expect(find.byType(Tooltip), findsWidgets);
   });
+
+  testWidgets('deslizar troca de período e a linha do tempo continua viva', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      seed: (db) async {
+        for (var day = 23; day < 30; day++) {
+          await tasksOf(db)
+              .createTask(title: 'T$day', dueAt: d(day, 14), hasTime: true);
+        }
+      },
+    );
+    await goToAgenda(tester);
+    for (final expected in ['T26', 'T29']) {
+      await tester.flingFrom(
+        const Offset(300, 400),
+        const Offset(-250, 0),
+        1500,
+      );
+      await settle(tester);
+      // Fora do dia de hoje (sem a linha da hora atual) a grade já chegou a
+      // ficar com largura 0 e parar de receber toques.
+      expect(find.text(expected).hitTestable(), findsOneWidget);
+    }
+    await tester.flingFrom(const Offset(100, 400), const Offset(250, 0), 1500);
+    await settle(tester);
+    expect(find.text('T26').hitTestable(), findsOneWidget);
+  });
 }
