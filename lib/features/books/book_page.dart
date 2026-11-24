@@ -87,7 +87,14 @@ class BookPage extends ConsumerWidget {
                   ),
                 ),
               for (final (page, depth) in tree)
-                _PageTile(page: page, depth: depth, allPages: pages),
+                _PageTile(
+                  page: page,
+                  depth: depth,
+                  allPages: pages,
+                  color: context.palette
+                      .byName(book?.colorKey ?? defaultBookColor)
+                      .strong,
+                ),
             ],
           );
         },
@@ -101,11 +108,15 @@ class _PageTile extends ConsumerWidget {
     required this.page,
     required this.depth,
     required this.allPages,
+    required this.color,
   });
 
   final NotePage page;
   final int depth;
   final List<NotePage> allPages;
+
+  /// Cor do book (as páginas herdam).
+  final Color color;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -116,7 +127,10 @@ class _PageTile extends ConsumerWidget {
         start: 16 + 24.0 * depth,
         end: 4,
       ),
-      leading: Icon(depth == 0 ? AppIcons.page : AppIcons.subtask),
+      leading: Icon(
+        depth == 0 ? AppIcons.page : AppIcons.subtask,
+        color: color,
+      ),
       title: Text(page.title, maxLines: 2, overflow: TextOverflow.ellipsis),
       onTap: () => context.push(Routes.page(page.id)),
       trailing: PopupMenuButton<String>(

@@ -10,7 +10,9 @@ import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
+import '../tasks/task_providers.dart';
 import 'book_actions.dart';
+import 'books_format.dart';
 import 'books_providers.dart';
 
 /// Aba Books: os cadernos que não pertencem a uma tarefa.
@@ -51,7 +53,7 @@ class BooksPage extends ConsumerWidget {
                 ),
               )
             : ListView(
-                padding: const EdgeInsets.only(bottom: 88),
+                padding: EdgeInsets.only(bottom: context.space.xxxl * 2),
                 children: [for (final book in books) _BookTile(book: book)],
               ),
       ),
@@ -67,16 +69,25 @@ class _BookTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pages = ref.watch(pagesOfNotebookProvider(book.id)).value;
+    final today = ref.watch(todayProvider);
+    // Última edição: a página mais recente, ou o próprio book.
+    final edited = [
+      book.updatedAt,
+      for (final p in pages ?? const <NotePage>[]) p.updatedAt,
+    ].reduce((a, b) => a.isAfter(b) ? a : b);
     return ListTile(
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: context.space.page,
+        vertical: context.space.xs,
+      ),
       leading: AppearanceBadge(
         colorKey: book.colorKey ?? defaultBookColor,
         icon: bookIcon(book),
-        size: AppIconSize.standard,
       ),
-      title: Text(book.title),
+      title: Text(book.title, style: context.text.titleMedium),
       subtitle: pages == null
           ? null
-          : Text('${pages.length} ${pages.length == 1 ? 'página' : 'páginas'}'),
+          : Text('${pagesLabel(pages.length)} · ${editedLabel(edited, today)}'),
       onTap: () => context.push(Routes.book(book.id)),
       trailing: _BookMenu(book: book),
     );

@@ -118,7 +118,10 @@ void main() {
     await tester.tap(find.text('Métricas'));
     await settle(tester);
     expect(find.text('Nenhum foco no período.'), findsOneWidget);
-    expect(find.text('Iniciar foco'), findsOneWidget); // ação, não gráfico vazio
+    expect(
+      find.text('Iniciar foco'),
+      findsOneWidget,
+    ); // ação, não gráfico vazio
     await tester.scrollUntilVisible(
       find.text('Nenhuma tarefa com pomodoros estimados.'),
       200,

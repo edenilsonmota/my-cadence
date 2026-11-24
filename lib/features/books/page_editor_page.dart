@@ -212,37 +212,64 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
     await _repo.linkPage(taskId, widget.pageId);
   }
 
+  /// Tema do editor alinhado ao app: corpo na serifada de leitura, títulos
+  /// na escala do TextTheme, código em JetBrains Mono, seleção na cor de
+  /// destaque.
   EditorStyle _style(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = context.colors;
+    final reading = context.type.reading;
     return EditorStyle.mobile(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: context.space.page),
       cursorColor: colors.primary,
       dragHandleColor: colors.primary,
       selectionColor: colors.primary.withValues(alpha: 0.25),
       textStyleConfiguration: TextStyleConfiguration(
-        text: theme.textTheme.bodyLarge!.copyWith(color: colors.onSurface),
-        code: TextStyle(
-          fontFamily: 'monospace',
-          color: colors.onSurface,
+        text: reading,
+        lineHeight: 1.6,
+        code: context.type.code.copyWith(
           backgroundColor: colors.surfaceContainerHighest,
         ),
         href: TextStyle(
           color: colors.primary,
           decoration: TextDecoration.underline,
+          decorationColor: colors.primary,
         ),
       ),
     );
   }
 
-  Map<String, BlockComponentBuilder> _blocks() => {
-    ...standardBlockComponentBuilderMap,
-    ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
-      configuration: BlockComponentConfiguration(
-        placeholderText: (_) => _editing ? 'Escreva aqui…' : '',
+  Map<String, BlockComponentBuilder> _blocks(
+    BuildContext context,
+    Color bookColor,
+  ) {
+    final text = context.text;
+    final onSurface = context.colors.onSurface;
+    return {
+      ...standardBlockComponentBuilderMap,
+      ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
+        configuration: BlockComponentConfiguration(
+          placeholderText: (_) => _editing ? 'Escreva aqui…' : '',
+        ),
       ),
-    ),
-  };
+      HeadingBlockKeys.type: HeadingBlockComponentBuilder(
+        textStyleBuilder: (level) => switch (level) {
+          1 => text.headlineMedium!,
+          2 => text.titleLarge!,
+          3 => text.titleMedium!,
+          _ => text.titleSmall!,
+        }.copyWith(color: onSurface),
+      ),
+      // Citação com a barra lateral na cor do book.
+      QuoteBlockKeys.type: QuoteBlockComponentBuilder(
+        iconBuilder: (context, node) => Container(
+          alignment: Alignment.center,
+          constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
+          padding: EdgeInsets.only(right: context.space.sm),
+          child: Container(width: 3, color: bookColor),
+        ),
+      ),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -261,25 +288,32 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
       return Scaffold(appBar: AppBar(), body: const SkeletonPage());
     }
 
+    final book = ref.watch(notebookProvider(page.notebookId)).value;
+    final bookColor = context.palette
+        .byName(book?.colorKey ?? defaultBookColor)
+        .strong;
     final header = _Header(
       pageId: widget.pageId,
       title: _title,
       editing: _editing,
       onTitleChanged: (_) => _saver.schedule(),
     );
-    final appFlowy = AppFlowyEditor(
-      key: ValueKey('editor-$_editing'),
-      editorState: editor,
-      editorScrollController: _scroll,
-      editable: _editing,
-      // Leitura: sem teclado (tocar no texto não deve abrir o IME).
-      disableKeyboardService: !_editing,
-      // Página nova (aberta já em edição) começa com o cursor e o teclado.
-      autoFocus: widget.startEditing && _editing,
-      editorStyle: _style(context),
-      blockComponentBuilders: _blocks(),
-      header: header,
-      footer: const SizedBox(height: 120),
+    // Largura de leitura limitada (~680 px) em telas largas.
+    final appFlowy = _ReadingWidth(
+      child: AppFlowyEditor(
+        key: ValueKey('editor-$_editing'),
+        editorState: editor,
+        editorScrollController: _scroll,
+        editable: _editing,
+        // Leitura: sem teclado (tocar no texto não deve abrir o IME).
+        disableKeyboardService: !_editing,
+        // Página nova (aberta já em edição) começa com o cursor e o teclado.
+        autoFocus: widget.startEditing && _editing,
+        editorStyle: _style(context),
+        blockComponentBuilders: _blocks(context, bookColor),
+        header: header,
+        footer: const SizedBox(height: 120),
+      ),
     );
 
     final colors = Theme.of(context).colorScheme;
@@ -456,4 +490,21 @@ class _Header extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Centraliza o conteúdo com largura máxima de leitura.
+class _ReadingWidth extends StatelessWidget {
+  const _ReadingWidth({required this.child});
+
+  static const maxWidth = 680.0;
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: maxWidth),
+      child: child,
+    ),
+  );
 }
