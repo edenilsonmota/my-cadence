@@ -206,7 +206,7 @@ Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-
 
 - [x] **9.1 Tela com dados reais.** Abre pelo menu lateral; números de foco, revisões, previsão e heatmap
   batem com o banco; legível no tema escuro. _24/11._
-- [ ] **9.2 Toque nos gráficos.** Tocar numa barra mostra a dica (data e valor) e não atrapalha a rolagem.
+- [x] **9.2 Toque nos gráficos.** Tocar numa barra mostra a dica (data e valor) e não atrapalha a rolagem. _24/11._
 
 ## Para decidir
 
