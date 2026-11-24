@@ -7,7 +7,7 @@ import '../data/providers.dart';
 import '../features/pomodoro/pomodoro_controller.dart';
 import '../features/tasks/alarms.dart';
 import 'router.dart';
-import 'theme.dart';
+import 'theme/app_theme.dart';
 
 class CadenceApp extends ConsumerStatefulWidget {
   const CadenceApp({super.key});

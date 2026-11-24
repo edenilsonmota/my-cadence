@@ -172,7 +172,13 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 ## Estilo
 
 - Textos da UI em **português do Brasil**; nenhuma string em inglês.
-- Material 3 com `colorSchemeSeed`, tema claro e escuro; testar em 360 dp de largura.
+- Sistema de design em `lib/app/theme/` (ver `docs/EVOLUCAO-VISUAL.md`): tokens `context.space`,
+  `context.radius`, `context.motion` (já respeita "remover animações"), `context.palette` (12 cores por chave,
+  tons `tint`/`strong`/`onTint` gerados em HCT, contraste testado) e `context.type` (seção, leitura, código,
+  métrica, timer). Fontes empacotadas: Inter (interface), Literata (leitura), JetBrains Mono (código), OFL.
+- Nada de `Colors.*`, `Color(0x..)`, `Icons.*`, `fontSize:` ou duração literal fora do tema:
+  `test/app/theme/visual_debt_test.dart` é uma catraca por arquivo (só pode baixar; arquivo novo começa em 0).
+- Tema claro e escuro; testar em 360 dp de largura.
 - Lints estritos em `analysis_options.yaml` (inclui `prefer_const_constructors`, `always_declare_return_types`,
   `avoid_dynamic_calls`, `require_trailing_commas`). Rodar `dart format` antes do commit.
 
