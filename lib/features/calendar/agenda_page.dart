@@ -10,6 +10,7 @@ import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../sync/presentation/account_avatar.dart';
 import '../tasks/task_providers.dart';
 import 'calendar_entries.dart';
 import 'calendar_providers.dart';
@@ -148,6 +149,7 @@ class AgendaPage extends ConsumerWidget {
               ),
             ],
           ),
+          const AccountAvatar(),
         ],
       ),
       floatingActionButton: FloatingActionButton(

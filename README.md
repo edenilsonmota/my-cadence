@@ -10,7 +10,8 @@ App pessoal, offline-first, que junta num lugar só:
 - **Métricas** de foco, revisões e rotinas.
 
 A tarefa é o centro: cada uma vira um hub onde ficam os cards, o tempo de foco e as páginas dela.
-Tudo funciona sem internet e fica no próprio aparelho. A sincronização com um backend próprio vem no fim.
+Tudo funciona sem internet e fica no próprio aparelho. Para usar em mais de um aparelho, o app sincroniza pelo
+Google Drive da própria pessoa (pasta privada do app, sem servidor próprio); também há backup manual em JSON.
 
 > Em desenvolvimento. O plano completo, etapa por etapa, está em [docs/PLANO.md](docs/PLANO.md).
 
@@ -25,7 +26,8 @@ Tudo funciona sem internet e fica no próprio aparelho. A sincronização com um
 | Repetição espaçada | `fsrs` |
 | Notificações | `flutter_local_notifications` + `timezone` |
 | Editor de páginas | AppFlowy Editor ([fork](https://github.com/edenilsonmota/appflowy-editor/tree/cadence/file-picker-13) com suporte a file_picker 13) |
-| Arquivos | `file_picker` (CSV, Markdown, zip) e `archive` |
+| Arquivos | `file_picker` (CSV, Markdown, zip, JSON) e `archive` |
+| Sincronização | `google_sign_in` + `googleapis` (Drive, `appDataFolder`) |
 | Gráficos | `fl_chart` |
 | Ícones | Lucide (`lucide_icons_flutter`), família única |
 | Fontes | Inter (interface), Literata (leitura) e JetBrains Mono (código), empacotadas, licença OFL |
@@ -43,6 +45,9 @@ cd my-cadence
 flutter pub get
 flutter run
 ```
+
+Para a sincronização pelo Google Drive, siga [docs/google-cloud.md](docs/google-cloud.md) e rode com
+`--dart-define-from-file=config/google.json`. Sem isso o app funciona normalmente, sem login.
 
 Verificações usadas em toda etapa:
 

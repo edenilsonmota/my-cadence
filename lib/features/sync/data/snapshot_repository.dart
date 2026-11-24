@@ -152,6 +152,19 @@ class SnapshotRepository {
     });
   }
 
+  /// O aparelho tem dados da pessoa (para a pergunta da primeira conexão)?
+  Future<bool> hasUserData() async {
+    for (final name in ['tasks', 'flashcards', 'notebooks', 'decks', 'tags']) {
+      final row = await _db
+          .customSelect(
+            'SELECT 1 FROM "$name" WHERE deleted_at IS NULL LIMIT 1',
+          )
+          .getSingleOrNull();
+      if (row != null) return true;
+    }
+    return false;
+  }
+
   /// Há alguma alteração local ainda não enviada?
   Future<bool> hasDirty() async {
     // Ajustes do aparelho não sobem, então não contam como pendentes.

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +12,15 @@ import 'package:my_cadence/app/clock.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/providers.dart';
 import 'package:my_cadence/features/pomodoro/pomodoro_controller.dart';
+import 'package:my_cadence/features/sync/application/account_controller.dart';
+import 'package:my_cadence/features/sync/application/sync_service.dart';
+import 'package:my_cadence/features/sync/data/google_account.dart';
+import 'package:my_cadence/features/sync/domain/sync_transport.dart';
 import 'package:my_cadence/features/tasks/alarms.dart';
 import 'package:my_cadence/features/tasks/task_providers.dart';
 
 import 'fake_scheduler.dart';
+import 'fake_sync.dart';
 
 /// "Hoje" fixo, sem o timer da meia-noite.
 class FixedToday extends TodayNotifier {
@@ -35,6 +42,8 @@ Future<AppDatabase> pumpApp(
   DateTime Function()? clock,
   List<bool>? screenAwake,
   List<Override> overrides = const [],
+  GoogleAccountApi? accountApi,
+  SyncTransport? syncTransport,
 }) async {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   final db = AppDatabase(
@@ -60,6 +69,16 @@ Future<AppDatabase> pumpApp(
       overrides: [
         ...overrides,
         databaseProvider.overrideWithValue(db),
+        // Sem Google nem Drive de verdade nos testes.
+        googleAccountApiProvider.overrideWithValue(
+          accountApi ?? FakeAccountApi(),
+        ),
+        syncTransportProvider.overrideWithValue(
+          syncTransport ?? FakeSyncTransport(),
+        ),
+        photoFileProvider.overrideWithValue(
+          Future.value(File('${Directory.systemTemp.path}/cadence_test_photo')),
+        ),
         alarmSchedulerProvider.overrideWithValue(scheduler ?? FakeScheduler()),
         // Padrão: meio-dia do "hoje" fixo.
         clockProvider.overrideWithValue(

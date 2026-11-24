@@ -62,3 +62,6 @@ GoogleService-Info.plist
 *.sqlite
 *.sqlite3
 *.db
+
+# IDs do cliente OAuth do Google (ver docs/google-cloud.md).
+/config/google.json

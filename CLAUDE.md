@@ -63,6 +63,15 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   180 dias). `SnapshotRepository` lê o banco pelos metadados das tabelas e aplica em transação com
   `defer_foreign_keys`; `markClean` só limpa `dirty` se o `updated_at` ainda é o enviado.
 - Ao mudar o esquema, acrescentar o upgrader do snapshot em `sync/domain/upgraders.dart` (e o teste).
+- Orquestração: `SyncEngine` (um ciclo: versão → fetch → merge/apply → push condicional, até 3 tentativas;
+  `markClean` do que foi enviado) e `SyncService` (Riverpod: ao abrir, ao voltar após 2 min, 30 s após
+  alteração **pendente**, ao sair, botão; lock; backoff; offline silencioso; log em `sync.log`).
+  `DriveTransport` usa `appDataFolder`, `version` do arquivo e cópia `.prev`. Conta: `GoogleAccountApi`
+  (`google_sign_in` 7), configurada por `--dart-define-from-file=config/google.json` (`docs/google-cloud.md`).
+- Testes de sync: `FakeSyncTransport`/`FakeAccountApi` (`test/helpers/fake_sync.dart`); `pumpApp` aceita
+  `accountApi:` e `syncTransport:` (não sobrescrever esses providers por `overrides:`).
+- Callbacks de UI que trocam de conta: depois de `await`, usar `ProviderScope.containerOf(context)`, não o
+  `ref` do widget (o trecho da tela que chamou pode ter sumido).
 
 ## Cores e ícones (dados)
 

@@ -90,6 +90,17 @@ abstract final class AppIcons {
   static const page = _I.fileText;
   static const newPage = _I.filePlus;
 
+  // ─── Conta e sincronização ──────────────────────────────────────────────
+  static const cloud = _I.cloud;
+  static const cloudOff = _I.cloudOff;
+  static const synced = _I.cloudCheck;
+  static const sync = _I.refreshCw;
+  static const signOut = _I.logOut;
+  static const switchAccount = _I.arrowLeftRight;
+  static const history = _I.history;
+  static const device = _I.smartphone;
+  static const account = _I.userRound;
+
   // ─── Agenda ─────────────────────────────────────────────────────────────
   static const viewDay = _I.rows3;
   static const viewWeek = _I.columns3;

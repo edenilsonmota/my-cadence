@@ -7,6 +7,7 @@ import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tag_chip.dart';
+import '../sync/presentation/account_avatar.dart';
 import 'quick_add_sheet.dart';
 import 'task_labels.dart';
 import 'task_lists.dart';
@@ -99,6 +100,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
               builder: (_) => const _FilterSheet(),
             ),
           ),
+          if (!_searching) const AccountAvatar(),
         ],
       ),
       drawer: const AppDrawer(),
