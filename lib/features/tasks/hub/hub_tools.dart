@@ -8,6 +8,7 @@ import '../../../app/theme/app_theme.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
 import '../../../data/providers.dart';
+import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/text_input_dialog.dart';
 import '../../cards/card_form_sheet.dart';
 import 'hub_providers.dart';
@@ -94,19 +95,19 @@ class HubTools extends ConsumerWidget {
     final shortcuts = [
       if (!visible.cards)
         ActionChip(
-          avatar: const Icon(AppIcons.flashcard, size: 18),
+          avatar: const Icon(AppIcons.flashcard),
           label: const Text('Flashcard'),
           onPressed: addCard,
         ),
       if (!visible.pomodoro)
         ActionChip(
-          avatar: const Icon(AppIcons.pomodoro, size: 18),
+          avatar: const Icon(AppIcons.pomodoro),
           label: const Text('Pomodoro'),
           onPressed: startFocus,
         ),
       if (!visible.pages)
         ActionChip(
-          avatar: const Icon(AppIcons.page, size: 18),
+          avatar: const Icon(AppIcons.page),
           label: const Text('Página'),
           onPressed: addPage,
         ),
@@ -116,16 +117,18 @@ class HubTools extends ConsumerWidget {
       return shortcuts.isEmpty
           ? const SizedBox.shrink()
           : Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              padding: EdgeInsets.fromLTRB(
+                context.space.page,
+                0,
+                context.space.page,
+                context.space.sm,
+              ),
               child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
+                spacing: context.space.sm,
+                runSpacing: context.space.xs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text(
-                    'Adicionar:',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
+                  Text('ADICIONAR', style: context.type.section),
                   ...shortcuts,
                 ],
               ),
@@ -168,33 +171,16 @@ class _Section extends StatelessWidget {
   });
 
   final String title;
+
+  /// Mantido para quem chama; a seção usa só o rótulo (menos ruído).
   final IconData icon;
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Divider(height: 24),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Icon(icon, size: 18, color: theme.colorScheme.primary),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: theme.textTheme.titleSmall!.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
-          ),
-        ),
-        ...children,
-      ],
+      children: [SectionHeader(title), ...children],
     );
   }
 }
@@ -207,8 +193,17 @@ class _Actions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-      child: Wrap(spacing: 8, runSpacing: 4, children: children),
+      padding: EdgeInsets.fromLTRB(
+        context.space.page,
+        context.space.xs,
+        context.space.page,
+        0,
+      ),
+      child: Wrap(
+        spacing: context.space.sm,
+        runSpacing: context.space.xs,
+        children: children,
+      ),
     );
   }
 }

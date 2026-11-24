@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +11,10 @@ import '../../core/routine.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
+import '../../shared/widgets/appearance_badge.dart';
+import '../../shared/widgets/appearance_picker.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tag_chip.dart';
 import 'hub/hub_tools.dart';
@@ -62,9 +66,39 @@ class _TaskHub extends ConsumerWidget {
     await deleteWithUndo(messenger, ref, task);
   }
 
+  Future<void> _pickAppearance(BuildContext context, WidgetRef ref) async {
+    final resolver = ref.read(appearanceResolverProvider);
+    // O que vale sem escolha própria: herança sem a cor/ícone da tarefa.
+    final inherited = task.copyWith(
+      colorKey: const Value(null),
+      iconKey: const Value(null),
+    );
+    final choice = await showAppearancePicker(
+      context,
+      colorKey: task.colorKey,
+      iconKey: task.iconKey,
+      inheritedColor: resolver.colorKeyOf(inherited),
+      inheritedIcon: AppIcons.of(
+        resolver.iconKeyOf(inherited),
+        fallback: AppIcons.kind(task.kind),
+      ),
+    );
+    if (choice == null) return;
+    await ref
+        .read(tasksRepositoryProvider)
+        .saveTask(
+          task.copyWith(
+            colorKey: Value(choice.colorKey),
+            iconKey: Value(choice.iconKey),
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final space = context.space;
+    final resolver = ref.watch(appearanceResolverProvider);
     final today = ref.watch(todayProvider);
     final tags = ref.watch(taskTagsProvider(task.id)).value ?? const [];
     final parent = task.parentId == null
@@ -94,29 +128,56 @@ class _TaskHub extends ConsumerWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 32),
+        padding: EdgeInsets.only(bottom: space.xxl),
         children: [
           if (parent != null)
-            ListTile(
-              dense: true,
-              leading: const Icon(AppIcons.subtask),
-              title: Text('Subtarefa de ${parent.title}'),
-              onTap: () => context.push(Routes.task(parent.id)),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: space.sm),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  icon: const Icon(AppIcons.subtask),
+                  label: Text('Subtarefa de ${parent.title}'),
+                  onPressed: () => context.push(Routes.task(parent.id)),
+                ),
+              ),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(
-              task.title,
-              style: theme.textTheme.headlineSmall!.copyWith(
-                decoration: done ? TextDecoration.lineThrough : null,
-              ),
+            padding: EdgeInsets.fromLTRB(space.page, space.sm, space.page, 0),
+            child: Row(
+              children: [
+                Tooltip(
+                  message: 'Ícone e cor',
+                  child: InkWell(
+                    borderRadius: context.radius.lgAll,
+                    onTap: () => _pickAppearance(context, ref),
+                    child: AppearanceBadge(
+                      colorKey: resolver.colorKeyOf(task),
+                      icon: AppIcons.of(
+                        resolver.iconKeyOf(task),
+                        fallback: AppIcons.kind(task.kind),
+                      ),
+                      size: AppIconSize.feature,
+                    ),
+                  ),
+                ),
+                SizedBox(width: space.lg),
+                Expanded(
+                  child: Text(
+                    task.title,
+                    style: theme.textTheme.headlineSmall!.copyWith(
+                      decoration: done ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: EdgeInsets.fromLTRB(space.page, space.lg, space.page, 0),
             child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: space.sm,
+              runSpacing: space.sm,
               children: [
                 Chip(
                   avatar: Icon(task.kind.icon),
@@ -144,7 +205,10 @@ class _TaskHub extends ConsumerWidget {
                       children: [
                         Text(task.status.label),
                         const ExcludeSemantics(
-                          child: Icon(AppIcons.dropdown, size: 20),
+                          child: Icon(
+                            AppIcons.dropdown,
+                            size: AppIconSize.meta,
+                          ),
                         ),
                       ],
                     ),
@@ -154,7 +218,11 @@ class _TaskHub extends ConsumerWidget {
                   Chip(
                     avatar: Icon(
                       AppIcons.priority,
-                      color: priorityColor(task.priority, theme.colorScheme),
+                      color: switch (task.priority) {
+                        3 => context.palette.danger.strong,
+                        2 => context.palette.warning.strong,
+                        _ => null,
+                      },
                     ),
                     label: Text('Prioridade ${priorityLabels[task.priority]}'),
                   ),
@@ -163,9 +231,9 @@ class _TaskHub extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: space.sm),
           if (task.startAt case final start?)
-            _Info(AppIcons.play, 'Início', when(start)),
+            _Info(AppIcons.start, 'Início', when(start)),
           if (task.dueAt case final due?)
             _Info(AppIcons.date, 'Prazo', when(due)),
           if (task.recurrenceRule case final rule?)
@@ -183,11 +251,16 @@ class _TaskHub extends ConsumerWidget {
             ),
           if (task.notes case final notes?)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: EdgeInsets.fromLTRB(space.page, space.sm, space.page, 0),
               child: Text(notes, style: theme.textTheme.bodyMedium),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: EdgeInsets.fromLTRB(
+              space.page,
+              space.lg,
+              space.page,
+              space.sm,
+            ),
             child: done
                 ? OutlinedButton.icon(
                     icon: const Icon(AppIcons.undo),
@@ -209,7 +282,6 @@ class _TaskHub extends ConsumerWidget {
               rule: RecurrenceRule.parse(rule),
               today: today,
             ),
-          const Divider(height: 24),
           _Subtasks(task: task, today: today),
           HubTools(task: task, part: HubToolsPart.sections),
         ],
@@ -297,15 +369,9 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: Text(
-            subtasks.isEmpty
-                ? 'Subtarefas'
-                : 'Subtarefas · $doneCount/${subtasks.length}',
-            style: Theme.of(context).textTheme.titleSmall!
-                .copyWith(color: Theme.of(context).colorScheme.primary),
-          ),
+        SectionHeader(
+          'Subtarefas',
+          detail: subtasks.isEmpty ? null : '$doneCount/${subtasks.length}',
         ),
         ReorderableListView(
           shrinkWrap: true,
@@ -321,9 +387,9 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
                   today: widget.today,
                   trailing: ReorderableDragStartListener(
                     index: index,
-                    child: const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Icon(
+                    child: Padding(
+                      padding: EdgeInsets.all(context.space.sm),
+                      child: const Icon(
                         AppIcons.dragHandle,
                         semanticLabel: 'Arrastar',
                       ),
@@ -334,7 +400,12 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          padding: EdgeInsets.fromLTRB(
+            context.space.page,
+            context.space.xs,
+            context.space.page,
+            0,
+          ),
           child: TextField(
             controller: _input,
             focusNode: _focus,
@@ -391,16 +462,7 @@ class _RoutineHistory extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Divider(height: 24),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Histórico',
-            style: theme.textTheme.titleSmall!.copyWith(
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ),
+        const SectionHeader('Histórico'),
         ListTile(
           leading: Icon(
             AppIcons.streak,

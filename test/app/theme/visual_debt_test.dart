@@ -17,8 +17,6 @@ const _allowed = <String, int>{
   'features/calendar/month_view.dart': 1,
   'features/calendar/timeline_view.dart': 1,
   'features/stats/stats_page.dart': 3,
-  'features/tasks/today_page.dart': 1,
-  'features/tasks/widgets/task_tile.dart': 2,
 };
 
 /// Exceções permanentes (o valor precisa ser literal ali).

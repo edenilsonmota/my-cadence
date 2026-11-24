@@ -41,13 +41,13 @@ void main() {
     );
     await openHub(tester, 'Prova');
 
-    expect(find.text('Adicionar:'), findsNothing);
+    expect(find.text('ADICIONAR'), findsNothing);
     await scrollTo(tester, find.text('Vincular página existente'));
-    expect(find.text('Flashcards'), findsOneWidget);
+    expect(find.text('FLASHCARDS'), findsOneWidget);
     expect(find.text('Nenhum card ainda'), findsOneWidget);
-    expect(find.text('Pomodoro'), findsOneWidget);
+    expect(find.text('POMODORO'), findsOneWidget);
     expect(find.text('Tempo de foco: 0 min'), findsOneWidget);
-    expect(find.text('Páginas'), findsOneWidget);
+    expect(find.text('PÁGINAS'), findsOneWidget);
   });
 
   testWidgets('tarefa simples mostra atalhos; criar card faz a seção surgir', (
@@ -59,9 +59,9 @@ void main() {
     );
     await openHub(tester, 'Mercado');
 
-    expect(find.text('Adicionar:'), findsOneWidget);
-    expect(find.text('Flashcards'), findsNothing);
-    expect(find.text('Páginas'), findsNothing);
+    expect(find.text('ADICIONAR'), findsOneWidget);
+    expect(find.text('FLASHCARDS'), findsNothing);
+    expect(find.text('PÁGINAS'), findsNothing);
 
     await tester.tap(find.widgetWithText(ActionChip, 'Flashcard'));
     await settle(tester);

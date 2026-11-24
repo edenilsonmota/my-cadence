@@ -26,6 +26,7 @@ class TaskFormPage extends ConsumerStatefulWidget {
     this.dueToday = false,
     this.date,
     this.startAt,
+    this.initialTitle,
     super.key,
   });
 
@@ -41,6 +42,9 @@ class TaskFormPage extends ConsumerStatefulWidget {
   /// Nova tarefa com hora: começa aqui e termina 1 h depois (toque longo na
   /// agenda).
   final DateTime? startAt;
+
+  /// Título já digitado na adição rápida ("Mais opções").
+  final String? initialTitle;
 
   @override
   ConsumerState<TaskFormPage> createState() => _TaskFormPageState();
@@ -61,6 +65,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     if (_editing) {
       _load();
     } else {
+      _title.text = widget.initialTitle ?? '';
       final start = widget.startAt;
       final end = start?.add(const Duration(hours: 1));
       _draft = start != null && end != null
@@ -358,8 +363,8 @@ class _Label extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 8),
-      child: Text(text, style: Theme.of(context).textTheme.labelLarge),
+      padding: EdgeInsets.only(top: context.space.xl, bottom: context.space.sm),
+      child: Text(text, style: context.text.titleSmall),
     );
   }
 }

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/enums.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tag_chip.dart';
+import 'quick_add_sheet.dart';
 import 'task_labels.dart';
 import 'task_lists.dart';
 import 'task_providers.dart';
@@ -107,7 +106,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
         // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
         heroTag: null,
         tooltip: 'Nova tarefa',
-        onPressed: () => context.push(Routes.newTask()),
+        onPressed: () => showQuickAdd(context),
         child: const Icon(AppIcons.add),
       ),
       body: tree.when(

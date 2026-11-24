@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/clock.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import 'task_appearance.dart';
 import 'task_lists.dart';
+import 'task_metrics.dart';
 
 /// Dia atual (meia-noite local), atualizado sozinho na virada do dia.
 final todayProvider = NotifierProvider<TodayNotifier, DateTime>(
@@ -140,5 +142,28 @@ final appearanceResolverProvider = Provider.autoDispose<AppearanceResolver>((
     },
     validColors: {for (final k in PaletteKey.values) k.name},
     validIcons: {for (final i in IconCatalog.all) i.key},
+  );
+});
+
+// ─── Métricas do item (subtarefas, cards vencidos, foco) ─────────────────────
+
+final _allSessionsProvider = StreamProvider.autoDispose<List<PomodoroSession>>(
+  (ref) => ref
+      .watch(pomodoroRepositoryProvider)
+      .watchSessionsBetween(DateTime(2000), DateTime(2100)),
+);
+
+final _allCardsForMetricsProvider = StreamProvider.autoDispose<List<Flashcard>>(
+  (ref) => ref.watch(cardsRepositoryProvider).watchCards(),
+);
+
+final taskMetricsProvider = Provider.autoDispose<Map<String, TaskMetrics>>((
+  ref,
+) {
+  return computeTaskMetrics(
+    tasks: ref.watch(allTasksProvider).value ?? const [],
+    cards: ref.watch(_allCardsForMetricsProvider).value ?? const [],
+    sessions: ref.watch(_allSessionsProvider).value ?? const [],
+    now: ref.watch(clockProvider)(),
   );
 });

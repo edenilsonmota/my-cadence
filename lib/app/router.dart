@@ -61,6 +61,7 @@ abstract final class Routes {
     bool dueToday = false,
     DateTime? date,
     DateTime? at,
+    String? title,
   }) => Uri(
     path: '/tarefa/nova',
     queryParameters: {
@@ -68,6 +69,7 @@ abstract final class Routes {
       if (dueToday) 'prazo': 'hoje',
       if (date != null) 'data': _isoDate(date),
       if (at != null) 'inicio': '${_isoDate(at)}T${formatTime(at)}',
+      'titulo': ?title,
     },
   ).toString();
 

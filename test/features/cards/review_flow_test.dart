@@ -52,6 +52,9 @@ void main() {
       seed: (db) async {
         await seedReviewCard(db, 'Antigo');
         await cardsOf(db).createCard(front: 'Novo A', back: 'a', now: now);
+        // Os novos saem na ordem do id (UUID v7, por milissegundo): no mesmo
+        // milissegundo a ordem dependeria do sufixo aleatório.
+        await Future<void>.delayed(const Duration(milliseconds: 3));
         await cardsOf(db).createCard(front: 'Novo B', back: 'b', now: now);
       },
     );

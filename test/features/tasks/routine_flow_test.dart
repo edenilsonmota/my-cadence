@@ -25,7 +25,7 @@ void main() {
     );
     expect(find.text('Meditar'), findsOneWidget);
 
-    await tester.tap(find.byType(Checkbox));
+    await tester.tap(find.bySemanticsLabel('Concluir'));
     await tester.pump(const Duration(milliseconds: 300));
     await settle(tester);
 
@@ -61,7 +61,7 @@ void main() {
       const Offset(0, -200),
     );
 
-    expect(find.text('Histórico'), findsOneWidget);
+    expect(find.text('HISTÓRICO'), findsOneWidget);
     expect(find.text('3 dias seguidos'), findsOneWidget);
     expect(find.text('3 conclusões no total'), findsOneWidget);
     expect(find.text('Todo dia'), findsOneWidget);
@@ -74,6 +74,9 @@ void main() {
     await pumpApp(tester, scheduler: scheduler);
 
     await tester.tap(find.byTooltip('Nova tarefa'));
+    await settle(tester);
+    // Adição rápida → formulário completo.
+    await tester.tap(find.text('Mais opções'));
     await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ligar');
     // Rola até o campo seguinte, para o alarme ficar inteiro na tela.

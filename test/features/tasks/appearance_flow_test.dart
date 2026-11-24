@@ -22,6 +22,9 @@ void main() {
     final db = await pumpApp(tester);
     await tester.tap(find.byTooltip('Nova tarefa'));
     await settle(tester);
+    // Adição rápida → formulário completo.
+    await tester.tap(find.text('Mais opções'));
+    await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ler');
     await settle(tester);
     await tester.dragUntilVisible(

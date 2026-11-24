@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +11,9 @@ import '../../../core/dates.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
 import '../../../data/providers.dart';
+import '../../../shared/widgets/appearance_badge.dart';
+import '../../../shared/widgets/pressable.dart';
+import '../hub/hub_stats.dart' show formatDuration;
 import '../task_labels.dart';
 import '../task_providers.dart';
 
@@ -71,7 +77,8 @@ Future<void> deleteWithUndo(
     );
 }
 
-/// Linha de tarefa: checkbox, título e um resumo (prazo, repetição, prioridade).
+/// Item de tarefa: checkbox circular na cor da tarefa, ícone no quadrado
+/// suave, título e uma linha de metadados (só o que existe).
 class TaskTile extends ConsumerStatefulWidget {
   const TaskTile({
     required this.task,
@@ -89,7 +96,7 @@ class TaskTile extends ConsumerStatefulWidget {
   final int depth;
   final Widget? trailing;
 
-  /// Destaca o prazo em vermelho quando já passou.
+  /// Destaca o prazo em cor de perigo quando já passou.
   final bool showOverdue;
 
   @override
@@ -103,8 +110,10 @@ class _TaskTileState extends ConsumerState<TaskTile> {
   bool get _done => _pendingDone ?? widget.task.status == TaskStatus.feita;
 
   Future<void> _toggle() async {
-    setState(() => _pendingDone = !_done);
-    await Future<void>.delayed(const Duration(milliseconds: 250));
+    final completing = !_done;
+    setState(() => _pendingDone = completing);
+    if (completing) unawaited(HapticFeedback.lightImpact());
+    await Future<void>.delayed(context.motion.base);
     if (!mounted) return;
     await toggleDone(ScaffoldMessenger.of(context), ref, widget.task);
     if (mounted) setState(() => _pendingDone = null);
@@ -113,72 +122,179 @@ class _TaskTileState extends ConsumerState<TaskTile> {
   @override
   Widget build(BuildContext context) {
     final task = widget.task;
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = context.colors;
+    final space = context.space;
+    final palette = context.palette;
+    final resolver = ref.watch(appearanceResolverProvider);
+    final metrics = ref.watch(taskMetricsProvider)[task.id];
+    final tones = palette.byName(resolver.colorKeyOf(task));
+    final icon = AppIcons.of(
+      resolver.iconKeyOf(task),
+      fallback: AppIcons.kind(task.kind),
+    );
     final overdue =
         widget.showOverdue &&
         !_done &&
         task.dueAt != null &&
         task.dueAt!.isBefore(widget.today);
 
-    final details = <Widget>[
+    final meta = <Widget>[
       if (task.dueAt case final due?)
-        _Detail(
-          icon: AppIcons.date,
+        _Meta(
+          icon: task.hasTime ? AppIcons.time : AppIcons.date,
           text: formatRelative(due, widget.today, withTime: task.hasTime),
-          color: overdue ? colors.error : null,
+          color: overdue ? palette.danger.strong : null,
         ),
-      if (task.recurrenceRule != null) const _Detail(icon: AppIcons.repeat),
-      // Rotina com repetição já mostra o ícone de repetição acima.
-      if (task.kind != TaskKind.simples &&
-          !(task.kind == TaskKind.rotina && task.recurrenceRule != null))
-        _Detail(icon: task.kind.icon),
+      if (task.recurrenceRule != null) const _Meta(icon: AppIcons.repeat),
+      if (task.reminderMinutesBefore != null) const _Meta(icon: AppIcons.alarm),
+      if (metrics != null && metrics.subtasks > 0)
+        _Meta(
+          icon: AppIcons.subtask,
+          text: '${metrics.subtasksDone}/${metrics.subtasks}',
+        ),
+      if (metrics != null && metrics.dueCards > 0)
+        _Meta(icon: AppIcons.flashcard, text: '${metrics.dueCards}'),
+      if (metrics != null && metrics.focus.inMinutes > 0)
+        _Meta(icon: AppIcons.pomodoro, text: formatDuration(metrics.focus)),
       if (task.status == TaskStatus.fazendo)
-        _Detail(icon: AppIcons.play, text: task.status.label),
+        _Meta(icon: AppIcons.play, text: task.status.label),
     ];
-    final flag = priorityColor(task.priority, colors);
+    final flag = switch (task.priority) {
+      3 => palette.danger.strong,
+      2 => palette.warning.strong,
+      1 => colors.onSurfaceVariant,
+      _ => null,
+    };
 
-    return ListTile(
-      contentPadding: EdgeInsetsDirectional.only(
-        start: 8 + 24.0 * widget.depth,
-        end: 8,
-      ),
-      onTap: () => context.push(Routes.task(task.id)),
-      leading: Checkbox(
-        value: _done,
-        onChanged: (_) => _toggle(),
-        semanticLabel: _done ? 'Reabrir' : 'Concluir',
-      ),
-      title: AnimatedDefaultTextStyle(
-        duration: const Duration(milliseconds: 250),
-        style: theme.textTheme.bodyLarge!.copyWith(
-          color: _done ? colors.onSurfaceVariant : colors.onSurface,
-          decoration: _done ? TextDecoration.lineThrough : null,
+    return Pressable(
+      child: InkWell(
+        onTap: () => context.push(Routes.task(task.id)),
+        child: Padding(
+          padding: EdgeInsetsDirectional.fromSTEB(
+            space.xs + 24.0 * widget.depth,
+            space.sm,
+            space.sm,
+            space.sm,
+          ),
+          child: Row(
+            children: [
+              _CircleCheck(done: _done, color: tones.strong, onTap: _toggle),
+              SizedBox(width: space.xs),
+              Opacity(
+                opacity: _done ? 0.5 : 1,
+                child: AppearanceBadge(
+                  colorKey: resolver.colorKeyOf(task),
+                  icon: icon,
+                  size: AppIconSize.meta,
+                ),
+              ),
+              SizedBox(width: space.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedDefaultTextStyle(
+                      duration: context.motion.base,
+                      style: context.text.bodyLarge!.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: _done
+                            ? colors.onSurfaceVariant
+                            : colors.onSurface,
+                        decoration: _done ? TextDecoration.lineThrough : null,
+                        decorationColor: colors.onSurfaceVariant,
+                      ),
+                      child: Text(
+                        task.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (meta.isNotEmpty) ...[
+                      SizedBox(height: space.xxs),
+                      Wrap(
+                        spacing: space.md,
+                        runSpacing: space.xxs,
+                        children: meta,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (flag != null)
+                Padding(
+                  padding: EdgeInsets.only(left: space.sm),
+                  child: Icon(
+                    AppIcons.priority,
+                    size: AppIconSize.meta,
+                    color: flag,
+                    semanticLabel: 'Prioridade',
+                  ),
+                ),
+              ?widget.trailing,
+            ],
+          ),
         ),
-        child: Text(task.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-      ),
-      subtitle: details.isEmpty
-          ? null
-          : Wrap(spacing: 12, runSpacing: 2, children: details),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (flag != null)
-            Icon(
-              AppIcons.priority,
-              size: 18,
-              color: flag,
-              semanticLabel: 'Prioridade',
-            ),
-          ?widget.trailing,
-        ],
       ),
     );
   }
 }
 
-class _Detail extends StatelessWidget {
-  const _Detail({required this.icon, this.text, this.color});
+/// Checkbox redondo na cor da tarefa, com o check animado.
+class _CircleCheck extends StatelessWidget {
+  const _CircleCheck({
+    required this.done,
+    required this.color,
+    required this.onTap,
+  });
+
+  final bool done;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final motion = context.motion;
+    return Semantics(
+      checked: done,
+      button: true,
+      label: done ? 'Reabrir' : 'Concluir',
+      child: InkResponse(
+        onTap: onTap,
+        radius: 22,
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Center(
+            child: AnimatedContainer(
+              duration: motion.base,
+              curve: motion.standard,
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: done ? color : null,
+                border: Border.all(color: color, width: 2),
+              ),
+              child: AnimatedScale(
+                scale: done ? 1 : 0,
+                duration: motion.base,
+                curve: motion.enter,
+                child: Icon(
+                  AppIcons.check,
+                  size: AppIconSize.meta,
+                  color: context.colors.surface,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Meta extends StatelessWidget {
+  const _Meta({required this.icon, this.text, this.color});
 
   final IconData icon;
   final String? text;
@@ -186,15 +302,15 @@ class _Detail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodySmall!.copyWith(
-      color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+    final style = context.text.bodySmall!.copyWith(
+      color: color ?? context.colors.onSurfaceVariant,
     );
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: style.color),
+        Icon(icon, size: AppIconSize.meta - 2, color: style.color),
         if (text != null) ...[
-          const SizedBox(width: 4),
+          SizedBox(width: context.space.xs),
           Text(text!, style: style),
         ],
       ],
@@ -278,13 +394,16 @@ class _SwipeBackground extends StatelessWidget {
       child: Align(
         alignment: alignment,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: context.space.xl),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, color: foreground),
-              const SizedBox(width: 8),
-              Text(label, style: TextStyle(color: foreground)),
+              SizedBox(width: context.space.sm),
+              Text(
+                label,
+                style: context.text.labelLarge!.copyWith(color: foreground),
+              ),
             ],
           ),
         ),

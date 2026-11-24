@@ -38,17 +38,17 @@ void main() {
       },
     );
 
-    expect(find.text('Atrasadas · 1'), findsOneWidget);
+    expect(find.text('ATRASADAS · 1'), findsOneWidget);
     expect(find.text('Atrasada'), findsOneWidget);
-    expect(find.text('Hoje · 1'), findsOneWidget);
+    expect(find.text('HOJE · 1'), findsOneWidget);
     expect(find.text('Reunião'), findsOneWidget);
     expect(find.text('Hoje, 15:00'), findsOneWidget);
     expect(find.text('Amanhã'), findsNothing);
 
     // "Sem data" começa recolhida.
-    expect(find.text('Sem data · 1'), findsOneWidget);
+    expect(find.text('SEM DATA · 1'), findsOneWidget);
     expect(find.text('Sem prazo'), findsNothing);
-    await tester.tap(find.text('Sem data · 1'));
+    await tester.tap(find.text('SEM DATA · 1'));
     await settle(tester);
     expect(find.text('Sem prazo'), findsOneWidget);
   });
@@ -60,12 +60,15 @@ void main() {
 
     await tester.tap(find.byTooltip('Nova tarefa'));
     await settle(tester);
+    // Adição rápida → formulário completo.
+    await tester.tap(find.text('Mais opções'));
+    await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ler');
     await tester.tap(find.text('Estudo'));
     await tester.tap(find.text('Salvar'));
     await settle(tester);
 
-    expect(find.text('Hoje · 1'), findsOneWidget);
+    expect(find.text('HOJE · 1'), findsOneWidget);
     final task = (await read(
       tester,
       () => repoOf(db).watchAllTasks().first,
@@ -74,7 +77,7 @@ void main() {
     expect(task.kind, TaskKind.estudo);
     expect(task.dueAt, DateTime(2026, 11, 23));
 
-    await tester.tap(find.byType(Checkbox));
+    await tester.tap(find.bySemanticsLabel('Concluir'));
     await tester.pump(const Duration(milliseconds: 300));
     await settle(tester);
 
@@ -88,6 +91,9 @@ void main() {
   ) async {
     await pumpApp(tester);
     await tester.tap(find.byTooltip('Nova tarefa'));
+    await settle(tester);
+    // Adição rápida → formulário completo.
+    await tester.tap(find.text('Mais opções'));
     await settle(tester);
     final title = find.widgetWithText(TextField, 'Título');
     expect(tester.widget<TextField>(title).focusNode, isNull);
@@ -113,6 +119,9 @@ void main() {
     await pumpApp(tester);
     await goTo(tester, 'Tarefas');
     await tester.tap(find.byTooltip('Nova tarefa'));
+    await settle(tester);
+    // Adição rápida → formulário completo.
+    await tester.tap(find.text('Mais opções'));
     await settle(tester);
 
     await tester.tap(find.text('Salvar'));
@@ -200,7 +209,7 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await settle(tester);
 
-    expect(find.text('Subtarefas · 0/2'), findsOneWidget);
+    expect(find.text('SUBTAREFAS · 0/2'), findsOneWidget);
     final subtasks = await read(tester, () async {
       final root = (await repoOf(db).watchRootTasks().first).single;
       return repoOf(db).watchSubtasks(root.id).first;
@@ -239,5 +248,35 @@ void main() {
       () => repoOf(db).watchAllTasks().first,
     )).single;
     expect(task.priority, 3);
+  });
+
+  testWidgets('adição rápida: Enter cria e já deixa pronto para a próxima', (
+    tester,
+  ) async {
+    final db = await pumpApp(tester);
+    await tester.tap(find.byTooltip('Nova tarefa'));
+    await settle(tester);
+
+    await tester.tap(find.byTooltip('Prioridade'));
+    await settle(tester);
+    await tester.tap(find.text('Alta').last);
+    await settle(tester);
+    await tester.enterText(find.byType(TextField).last, 'Pão');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle(tester);
+    expect(find.text('Criada: Pão'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).last, 'Leite');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle(tester);
+
+    final tasks = await read(tester, () => db.select(db.tasks).get());
+    expect(
+      {for (final t in tasks) t.title: (t.priority, t.dueAt)},
+      {
+        'Pão': (3, DateTime(2026, 11, 23)),
+        'Leite': (3, DateTime(2026, 11, 23)),
+      },
+    );
   });
 }
