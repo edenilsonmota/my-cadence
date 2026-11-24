@@ -195,6 +195,7 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
               1;
           return _CardView(
             card: card,
+            reviewed: _history.length,
             remaining: remaining,
             preview: _preview,
             previewAt: _previewAt ?? now,
@@ -211,6 +212,7 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
 class _CardView extends StatelessWidget {
   const _CardView({
     required this.card,
+    required this.reviewed,
     required this.remaining,
     required this.preview,
     required this.previewAt,
@@ -220,6 +222,9 @@ class _CardView extends StatelessWidget {
   });
 
   final Flashcard card;
+
+  /// Avaliados nesta sessão (para a barra de progresso).
+  final int reviewed;
   final int remaining;
   final Map<Grade, CardSchedule>? preview;
   final DateTime previewAt;
@@ -230,12 +235,19 @@ class _CardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final space = context.space;
     final revealed = preview != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Progresso da sessão, fino.
+        LinearProgressIndicator(
+          value: reviewed / (reviewed + remaining),
+          minHeight: 3,
+          semanticsLabel: 'Progresso da sessão',
+        ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          padding: EdgeInsets.fromLTRB(space.page, space.md, space.page, 0),
           child: Text(
             '$remaining ${remaining == 1 ? 'card restante' : 'cards restantes'}'
             '${isNewCard(card) ? ' · novo' : ''}',
@@ -245,39 +257,53 @@ class _CardView extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SimpleMarkdown(
-                  card.front,
-                  style: theme.textTheme.headlineSmall,
-                  textAlign: TextAlign.center,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(space.xl),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: space.xl,
+                  vertical: space.xxl,
                 ),
-                if (revealed) ...[
-                  const Divider(height: 48),
-                  SimpleMarkdown(
-                    card.back,
-                    style: theme.textTheme.titleLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ],
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: context.radius.xlAll,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SimpleMarkdown(
+                      card.front,
+                      style: theme.textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    if (revealed) ...[
+                      Divider(height: space.xxxl),
+                      SimpleMarkdown(
+                        card.back,
+                        style: context.type.reading,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),
         SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            padding: EdgeInsets.fromLTRB(space.md, 0, space.md, space.md),
             child: revealed
                 ? Row(
                     children: [
                       for (final grade in Grade.values)
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: space.xxs,
+                            ),
                             child: _GradeButton(
                               grade: grade,
                               interval: preview![grade]!.due.difference(
@@ -313,18 +339,17 @@ class _GradeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final (bg, fg) = switch (grade) {
-      Grade.errei => (colors.errorContainer, colors.onErrorContainer),
-      Grade.dificil => (colors.tertiaryContainer, colors.onTertiaryContainer),
-      Grade.bom => (colors.primaryContainer, colors.onPrimaryContainer),
-      Grade.facil => (colors.secondaryContainer, colors.onSecondaryContainer),
-    };
+    // As 4 cores semânticas das notas (Errei, Difícil, Bom, Fácil).
+    final tones = context.palette.grade(grade.value);
+    final (bg, fg) = (tones.tint, tones.onTint);
     return FilledButton(
       style: FilledButton.styleFrom(
         backgroundColor: bg,
         foregroundColor: fg,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        padding: EdgeInsets.symmetric(
+          vertical: context.space.sm,
+          horizontal: context.space.xs,
+        ),
       ),
       onPressed: onPressed,
       child: Column(
@@ -333,7 +358,9 @@ class _GradeButton extends StatelessWidget {
           Text(grade.label, maxLines: 1, overflow: TextOverflow.ellipsis),
           Text(
             formatInterval(interval),
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg),
+            style: context.text.labelSmall!.tabular.copyWith(
+              color: fg.withValues(alpha: 0.8),
+            ),
             maxLines: 1,
           ),
         ],

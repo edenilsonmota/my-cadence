@@ -651,7 +651,6 @@ class _AllDayStrip extends StatelessWidget {
     final perDay = [for (final d in days) entriesOfDay(entries, d).allDay];
     if (perDay.every((l) => l.isEmpty)) return const SizedBox.shrink();
     final canToggle = perDay.any((l) => l.length > _collapsed);
-    final scheme = Theme.of(context).colorScheme;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -675,10 +674,7 @@ class _AllDayStrip extends StatelessWidget {
                     child: Text(
                       'dia\ninteiro',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                        color: scheme.onSurfaceVariant,
-                        fontSize: 9,
-                      ),
+                      style: context.type.micro,
                     ),
                   ),
           ),
@@ -788,7 +784,8 @@ class _NowLine extends ConsumerWidget {
     final i = days.indexWhere((d) => isSameDay(d, now));
     // Sempre posicionado: um filho solto faria o Stack medir 0 de largura.
     if (i < 0) return const Positioned(left: 0, top: 0, child: SizedBox());
-    final color = Theme.of(context).colorScheme.error;
+    // Linha da hora atual na cor de destaque do tema.
+    final color = Theme.of(context).colorScheme.primary;
     final top = minutesFrom(days[i], now) * hourHeight / 60;
     return Positioned(
       left: _gutter + i * dayWidth - 4,

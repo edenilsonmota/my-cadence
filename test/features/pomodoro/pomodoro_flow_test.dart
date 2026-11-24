@@ -161,10 +161,7 @@ void main() {
     expect(find.text('Foco concluído!'), findsOneWidget);
     expect(find.text('Concluir "Ligar"'), findsOneWidget);
     // O próximo foco já vem com a mesma tarefa.
-    expect(
-      find.descendant(of: find.byType(Card), matching: find.text('Ligar')),
-      findsWidgets,
-    );
+    expect(find.widgetWithText(ListTile, 'Ligar'), findsWidgets);
     await tester.dragUntilVisible(
       find.text('Tarefa vinculada'),
       find.byType(ListView).first,

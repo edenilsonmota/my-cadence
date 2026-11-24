@@ -6,6 +6,7 @@ import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
+import '../../shared/widgets/appearance_badge.dart';
 import '../tasks/task_providers.dart';
 import '../tasks/widgets/task_picker.dart';
 import 'pomodoro_controller.dart';
@@ -93,12 +94,27 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
         ? Duration(minutes: settings.minutesFor(kind))
         : remaining(running, now);
     final ringValue = running == null ? 0.0 : progress(running, now);
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.colors;
+    final space = context.space;
+    final task = taskId == null ? null : ref.watch(taskProvider(taskId)).value;
+    final resolver = ref.watch(appearanceResolverProvider);
+    // Anel na cor da tarefa; sem tarefa, a cor do app.
+    final ringColor = task == null
+        ? colors.primary
+        : context.palette.byName(resolver.colorKeyOf(task)).strong;
+    final ringTrack = task == null
+        ? colors.surfaceContainerHighest
+        : context.palette.byName(resolver.colorKeyOf(task)).tint;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Pomodoro')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        padding: EdgeInsets.fromLTRB(
+          space.page,
+          space.sm,
+          space.page,
+          space.xxl,
+        ),
         children: [
           if (state.finished case final finished?)
             _FinishedCard(
@@ -123,44 +139,9 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
               selected: {kind},
               onSelectionChanged: (s) => setState(() => _kind = s.single),
             ),
-          const SizedBox(height: 24),
-          Center(
-            child: SizedBox.square(
-              dimension: 240,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CircularProgressIndicator(
-                    value: ringValue,
-                    strokeWidth: 12,
-                    backgroundColor: colors.surfaceContainerHighest,
-                    semanticsLabel: 'Progresso do ciclo',
-                  ),
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          formatClock(duration),
-                          style: Theme.of(context).textTheme.displayMedium,
-                        ),
-                        Text(
-                          state.isPaused
-                              ? '${kind.label} · pausado'
-                              : kind.label,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(color: colors.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
+          SizedBox(height: space.lg),
           _TaskRow(
-            taskId: taskId,
+            task: task,
             onChange: () => _pickTask(
               taskId,
               (id) => running != null
@@ -171,7 +152,43 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
                     }),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: space.xl),
+          Center(
+            child: SizedBox.square(
+              dimension: 248,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CircularProgressIndicator(
+                    value: ringValue,
+                    strokeWidth: 10,
+                    strokeCap: StrokeCap.round,
+                    color: ringColor,
+                    backgroundColor: ringTrack,
+                    semanticsLabel: 'Progresso do ciclo',
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(formatClock(duration), style: context.type.timer),
+                        SizedBox(height: space.xs),
+                        Text(
+                          state.isPaused
+                              ? '${kind.label} · pausado'
+                              : kind.label,
+                          style: context.text.titleMedium!.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: space.xxl),
           _Controls(
             running: running != null,
             paused: state.isPaused,
@@ -227,9 +244,9 @@ class _Controls extends StatelessWidget {
                   onPressed: onPause,
                 ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: context.space.md),
         Expanded(
-          child: OutlinedButton.icon(
+          child: TextButton.icon(
             icon: const Icon(AppIcons.stop),
             label: const Text('Parar'),
             onPressed: onStop,
@@ -240,22 +257,36 @@ class _Controls extends StatelessWidget {
   }
 }
 
+/// Tarefa do ciclo: ícone e título, com "Trocar".
 class _TaskRow extends ConsumerWidget {
-  const _TaskRow({required this.taskId, required this.onChange});
+  const _TaskRow({required this.task, required this.onChange});
 
-  final String? taskId;
+  final Task? task;
   final VoidCallback onChange;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final task = taskId == null ? null : ref.watch(taskProvider(taskId!)).value;
-    return Card.outlined(
-      child: ListTile(
-        leading: const Icon(AppIcons.task),
-        title: Text(task?.title ?? 'Sem tarefa'),
-        subtitle: const Text('Tarefa vinculada'),
-        trailing: TextButton(onPressed: onChange, child: const Text('Trocar')),
+    final task = this.task;
+    final resolver = ref.watch(appearanceResolverProvider);
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: task == null
+          ? const AppearanceBadge(colorKey: null, icon: AppIcons.task)
+          : AppearanceBadge(
+              colorKey: resolver.colorKeyOf(task),
+              icon: AppIcons.of(
+                resolver.iconKeyOf(task),
+                fallback: AppIcons.kind(task.kind),
+              ),
+            ),
+      title: Text(
+        task?.title ?? 'Sem tarefa',
+        style: context.text.titleMedium,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
+      subtitle: const Text('Tarefa vinculada'),
+      trailing: TextButton(onPressed: onChange, child: const Text('Trocar')),
     );
   }
 }
@@ -287,9 +318,9 @@ class _FinishedCard extends ConsumerWidget {
 
     return Card.filled(
       color: colors.secondaryContainer,
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: context.space.lg),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(context.space.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -297,16 +328,16 @@ class _FinishedCard extends ConsumerWidget {
               focus ? 'Foco concluído!' : '${finished.kind.label} concluída',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: context.space.xs),
             Text(
               nextAlreadyRunning
                   ? '${next.label} em andamento'
                   : 'Próximo: ${next.label}',
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: context.space.md),
             Wrap(
-              spacing: 8,
-              runSpacing: 4,
+              spacing: context.space.sm,
+              runSpacing: context.space.xs,
               children: [
                 if (!nextAlreadyRunning)
                   FilledButton(

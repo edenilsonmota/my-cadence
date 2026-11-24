@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/app_theme.dart';
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
 import '../tasks/task_appearance.dart';
@@ -167,11 +168,7 @@ class _DayCell extends StatelessWidget {
                         child: Text(
                           '+$extra',
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.labelSmall!.copyWith(
-                            color: scheme.onSurfaceVariant,
-                            fontSize: 10,
-                            height: 1.2,
-                          ),
+                          style: context.type.micro,
                         ),
                       ),
                   ],
