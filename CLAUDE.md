@@ -56,7 +56,13 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   (gera o dump em `drift_schemas/` e os helpers de teste), escrever o passo em `onUpgrade` e um teste de
   integridade de dados em `test/data/db/migrations/`. O teste de migração percorre todas as versões salvas.
 - Testes de dados usam `openTestDb()` (`test/data/test_db.dart`, banco em memória).
-- Sync (Etapa 11): ao confirmar o push, só marcar `dirty = false` se o `updatedAt` local ainda for o enviado.
+- Sync (Etapa 11, `docs/SINCRONIZACAO.md`): Google Drive (`appDataFolder`) + JSON manual, sem backend.
+  Snapshot em `features/sync/domain/snapshot.dart` (snake_case, datas ISO UTC, sem `dirty`/`serverVersion`, sem
+  ajustes do aparelho: prefixos `sync.`, `device.`, `calendar.`). Mesclagem pura em `merge.dart` (vence o
+  `updated_at` mais recente; empate pelo JSON canônico; vínculos e ajustes pela chave natural; tombstones de
+  180 dias). `SnapshotRepository` lê o banco pelos metadados das tabelas e aplica em transação com
+  `defer_foreign_keys`; `markClean` só limpa `dirty` se o `updated_at` ainda é o enviado.
+- Ao mudar o esquema, acrescentar o upgrader do snapshot em `sync/domain/upgraders.dart` (e o teste).
 
 ## Cores e ícones (dados)
 

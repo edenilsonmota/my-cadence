@@ -23,6 +23,8 @@ const _permanent = <String, int>{
   'core/notification_id.dart': 1,
   // Espera do salvamento automático (comportamento, não animação).
   'shared/debounced_saver.dart': 1,
+  // Tabela de conversão das cores ARGB da v1 (dados antigos, não tela).
+  'features/sync/domain/upgraders.dart': 8,
 };
 
 void main() {
