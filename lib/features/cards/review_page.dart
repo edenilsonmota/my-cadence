@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../../shared/widgets/text_input_dialog.dart';
 import 'card_actions.dart';
@@ -55,18 +57,18 @@ class ReviewPage extends ConsumerWidget {
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
         tooltip: 'Novo card',
         onPressed: () => createCardFlow(context, ref),
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
       body: cards.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(),
         error: (_, _) => const EmptyState(
-          icon: Icons.error_outline,
+          icon: AppIcons.error,
           message: 'Não foi possível carregar os cards.',
         ),
         data: (all) {
           if (all.isEmpty && decks.isEmpty) {
             return EmptyState(
-              icon: Icons.style_outlined,
+              icon: AppIcons.flashcard,
               message:
                   'Nenhum card ainda.\nCrie um card no + ou importe um CSV.',
               action: FilledButton.tonal(
@@ -100,7 +102,7 @@ class ReviewPage extends ConsumerWidget {
                     ),
                     IconButton(
                       tooltip: 'Novo deck',
-                      icon: const Icon(Icons.create_new_folder_outlined),
+                      icon: const Icon(AppIcons.newDeck),
                       onPressed: () => _newDeck(context, ref),
                     ),
                   ],
@@ -108,7 +110,7 @@ class ReviewPage extends ConsumerWidget {
               ),
               for (final deck in decks) _DeckTile(deck: deck, cards: all),
               ListTile(
-                leading: const Icon(Icons.view_list_outlined),
+                leading: const Icon(AppIcons.viewList),
                 title: const Text('Todos os cards'),
                 subtitle: Text(
                   '${all.length} ${all.length == 1 ? 'card' : 'cards'}',
@@ -153,7 +155,7 @@ class _DueCard extends StatelessWidget {
             if (due > 0) ...[
               const SizedBox(height: 12),
               FilledButton.icon(
-                icon: const Icon(Icons.play_arrow),
+                icon: const Icon(AppIcons.play),
                 label: const Text('Revisar tudo'),
                 onPressed: onReview,
               ),
@@ -181,7 +183,7 @@ class _DeckTile extends ConsumerWidget {
             ?.length ??
         0;
     return ListTile(
-      leading: const Icon(Icons.folder_outlined),
+      leading: const Icon(AppIcons.deck),
       title: Text(deck.name),
       subtitle: Text(
         '$total ${total == 1 ? 'card' : 'cards'}'

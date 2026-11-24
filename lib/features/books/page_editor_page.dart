@@ -7,11 +7,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/books_repository.dart';
 import '../../shared/debounced_saver.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import '../cards/card_form_sheet.dart';
 import '../tasks/widgets/task_picker.dart';
 import 'book_actions.dart';
@@ -161,12 +163,12 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.flip_to_front),
+              leading: const Icon(AppIcons.cardFront),
               title: const Text('Usar como frente'),
               onTap: () => Navigator.of(context).pop('frente'),
             ),
             ListTile(
-              leading: const Icon(Icons.flip_to_back),
+              leading: const Icon(AppIcons.cardBack),
               title: const Text('Usar como verso'),
               onTap: () => Navigator.of(context).pop('verso'),
             ),
@@ -250,16 +252,13 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
       return Scaffold(
         appBar: AppBar(),
         body: const EmptyState(
-          icon: Icons.search_off,
+          icon: AppIcons.searchEmpty,
           message: 'Página não encontrada.',
         ),
       );
     }
     if (page == null || editor == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(appBar: AppBar(), body: const SkeletonPage());
     }
 
     final header = _Header(
@@ -289,9 +288,7 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
         actions: [
           IconButton(
             tooltip: _editing ? 'Modo leitura' : 'Editar',
-            icon: Icon(
-              _editing ? Icons.visibility_outlined : Icons.edit_outlined,
-            ),
+            icon: Icon(_editing ? AppIcons.read : AppIcons.edit),
             onPressed: _toggleEditing,
           ),
           PopupMenuButton<String>(
@@ -449,7 +446,7 @@ class _Header extends ConsumerWidget {
               children: [
                 for (final task in tasks)
                   ActionChip(
-                    avatar: const Icon(Icons.task_alt, size: 18),
+                    avatar: const Icon(AppIcons.task, size: 18),
                     label: Text(task.title),
                     onPressed: () => context.push(Routes.task(task.id)),
                   ),

@@ -176,6 +176,12 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   `context.radius`, `context.motion` (já respeita "remover animações"), `context.palette` (12 cores por chave,
   tons `tint`/`strong`/`onTint` gerados em HCT, contraste testado) e `context.type` (seção, leitura, código,
   métrica, timer). Fontes empacotadas: Inter (interface), Literata (leitura), JetBrains Mono (código), OFL.
+- Ícones só pelo `AppIcons` (`lib/app/theme/app_icons.dart`, Lucide traço 300; o 500 marca estado ativo).
+  Mesma ação, mesmo ícone. Tamanhos em `AppIconSize` (16 meta, 20 padrão, 24 ação, 32 destaque).
+- Temas dos componentes em `lib/app/theme/components.dart` (AppBar plana, campos preenchidos, botões, chips,
+  diálogos, folhas com alça, SnackBar flutuante, transição fade + leve subida). Carregando = `SkeletonList`/
+  `SkeletonPage`; `Pressable` (escala 0,98) e `StaggeredEntry` (cascata só na 1ª vez) em `shared/widgets/`.
+  Catálogo em `/dev/componentes` (só debug, pelo menu). Componente que se repete vai para o catálogo.
 - Nada de `Colors.*`, `Color(0x..)`, `Icons.*`, `fontSize:` ou duração literal fora do tema:
   `test/app/theme/visual_debt_test.dart` é uma catraca por arquivo (só pode baixar; arquivo novo começa em 0).
 - Tema claro e escuro; testar em 360 dp de largura.

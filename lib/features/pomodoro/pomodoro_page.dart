@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
@@ -206,7 +207,7 @@ class _Controls extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!running) {
       return FilledButton.icon(
-        icon: const Icon(Icons.play_arrow),
+        icon: const Icon(AppIcons.play),
         label: const Text('Iniciar'),
         onPressed: onStart,
       );
@@ -216,12 +217,12 @@ class _Controls extends StatelessWidget {
         Expanded(
           child: paused
               ? FilledButton.icon(
-                  icon: const Icon(Icons.play_arrow),
+                  icon: const Icon(AppIcons.play),
                   label: const Text('Retomar'),
                   onPressed: onResume,
                 )
               : FilledButton.tonalIcon(
-                  icon: const Icon(Icons.pause),
+                  icon: const Icon(AppIcons.pause),
                   label: const Text('Pausar'),
                   onPressed: onPause,
                 ),
@@ -229,7 +230,7 @@ class _Controls extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: OutlinedButton.icon(
-            icon: const Icon(Icons.stop),
+            icon: const Icon(AppIcons.stop),
             label: const Text('Parar'),
             onPressed: onStop,
           ),
@@ -250,7 +251,7 @@ class _TaskRow extends ConsumerWidget {
     final task = taskId == null ? null : ref.watch(taskProvider(taskId!)).value;
     return Card.outlined(
       child: ListTile(
-        leading: const Icon(Icons.task_alt),
+        leading: const Icon(AppIcons.task),
         title: Text(task?.title ?? 'Sem tarefa'),
         subtitle: const Text('Tarefa vinculada'),
         trailing: TextButton(onPressed: onChange, child: const Text('Trocar')),

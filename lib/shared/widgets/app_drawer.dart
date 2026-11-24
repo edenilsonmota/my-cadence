@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 
 /// Menu lateral com o que não cabe nas abas: pomodoro, métricas e ajustes.
 class AppDrawer extends StatelessWidget {
@@ -18,7 +20,8 @@ class AppDrawer extends StatelessWidget {
       onDestinationSelected: (index) => open(switch (index) {
         0 => Routes.pomodoro(),
         1 => Routes.stats,
-        _ => Routes.settings,
+        2 => Routes.settings,
+        _ => Routes.devComponents,
       }),
       selectedIndex: null,
       children: [
@@ -44,17 +47,22 @@ class AppDrawer extends StatelessWidget {
           ),
         ),
         const NavigationDrawerDestination(
-          icon: Icon(Icons.timer_outlined),
+          icon: Icon(AppIcons.pomodoro),
           label: Text('Pomodoro'),
         ),
         const NavigationDrawerDestination(
-          icon: Icon(Icons.insights_outlined),
+          icon: Icon(AppIcons.stats),
           label: Text('Métricas'),
         ),
         const NavigationDrawerDestination(
-          icon: Icon(Icons.settings_outlined),
+          icon: Icon(AppIcons.settings),
           label: Text('Ajustes'),
         ),
+        if (kDebugMode)
+          const NavigationDrawerDestination(
+            icon: Icon(AppIcons.color),
+            label: Text('Componentes'),
+          ),
       ],
     );
   }

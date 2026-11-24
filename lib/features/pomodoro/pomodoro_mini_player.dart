@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/enums.dart';
 import '../tasks/task_providers.dart';
 import 'pomodoro_controller.dart';
@@ -30,7 +31,7 @@ class PomodoroMiniPlayer extends ConsumerWidget {
         color: colors.secondaryContainer,
         child: ListTile(
           dense: true,
-          leading: const Icon(Icons.check_circle_outline),
+          leading: const Icon(AppIcons.done),
           title: Text(
             finished!.kind == PomodoroKind.foco
                 ? 'Foco concluído'
@@ -39,7 +40,7 @@ class PomodoroMiniPlayer extends ConsumerWidget {
           subtitle: Text('Próximo: ${state.suggestedNext.label}'),
           trailing: IconButton(
             tooltip: 'Dispensar',
-            icon: const Icon(Icons.close),
+            icon: const Icon(AppIcons.close),
             onPressed: controller.dismissFinished,
           ),
           onTap: open,
@@ -73,7 +74,9 @@ class PomodoroMiniPlayer extends ConsumerWidget {
             ListTile(
               dense: true,
               leading: Icon(
-                running.kind == PomodoroKind.foco ? Icons.timer : Icons.coffee,
+                running.kind == PomodoroKind.foco
+                    ? AppIcons.pomodoro
+                    : AppIcons.breakTime,
               ),
               title: Text(
                 '${running.kind.label} · ${formatClock(remaining(running, now))}'
@@ -88,7 +91,7 @@ class PomodoroMiniPlayer extends ConsumerWidget {
                     ),
               trailing: IconButton(
                 tooltip: state.isPaused ? 'Retomar' : 'Pausar',
-                icon: Icon(state.isPaused ? Icons.play_arrow : Icons.pause),
+                icon: Icon(state.isPaused ? AppIcons.play : AppIcons.pause),
                 onPressed: state.isPaused
                     ? controller.resume
                     : controller.pause,

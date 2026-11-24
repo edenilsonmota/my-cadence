@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/text_input_dialog.dart';
 import '../tasks/task_providers.dart';
 import 'card_actions.dart';
@@ -95,17 +97,17 @@ class CardsListPage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         tooltip: 'Novo card',
         onPressed: () => createCardFlow(context, ref, deckId: deckId),
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
       body: cards.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(),
         error: (_, _) => const EmptyState(
-          icon: Icons.error_outline,
+          icon: AppIcons.error,
           message: 'Não foi possível carregar os cards.',
         ),
         data: (cards) => cards.isEmpty
             ? const EmptyState(
-                icon: Icons.style_outlined,
+                icon: AppIcons.flashcard,
                 message: 'Nenhum card aqui ainda.',
               )
             : ListView(
@@ -115,7 +117,7 @@ class CardsListPage extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                       child: FilledButton.tonalIcon(
-                        icon: const Icon(Icons.play_arrow),
+                        icon: const Icon(AppIcons.play),
                         label: Text('Revisar $due agora'),
                         onPressed: () =>
                             context.push(Routes.reviewSession(deckId: deckId)),

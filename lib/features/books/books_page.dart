@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import 'book_actions.dart';
 import 'books_providers.dart';
@@ -22,7 +24,7 @@ class BooksPage extends ConsumerWidget {
       actions: [
         IconButton(
           tooltip: 'Importar Markdown',
-          icon: const Icon(Icons.file_upload_outlined),
+          icon: const Icon(AppIcons.import),
           onPressed: () => importBookFlow(context, ref),
         ),
       ],
@@ -30,17 +32,17 @@ class BooksPage extends ConsumerWidget {
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
         tooltip: 'Novo book',
         onPressed: () => createBookFlow(context, ref),
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
       body: books.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(),
         error: (_, _) => const EmptyState(
-          icon: Icons.error_outline,
+          icon: AppIcons.error,
           message: 'Não foi possível carregar os books.',
         ),
         data: (books) => books.isEmpty
             ? EmptyState(
-                icon: Icons.menu_book_outlined,
+                icon: AppIcons.book,
                 message: 'Nenhum book criado.\nCrie um no + ou importe arquivos .md.',
                 action: FilledButton.tonal(
                   onPressed: () => importBookFlow(context, ref),
@@ -66,7 +68,7 @@ class _BookTile extends ConsumerWidget {
     final pages = ref.watch(pagesOfNotebookProvider(book.id)).value;
     return ListTile(
       leading: book.icon == null
-          ? const Icon(Icons.menu_book_outlined)
+          ? const Icon(AppIcons.book)
           : Text(book.icon!, style: const TextStyle(fontSize: 26)),
       title: Text(book.title),
       subtitle: pages == null

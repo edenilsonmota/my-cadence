@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import '../tasks/task_providers.dart';
 import 'book_actions.dart';
 import 'book_markdown.dart';
@@ -56,12 +58,12 @@ class BookPage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         tooltip: 'Nova página',
         onPressed: () => createPageFlow(context, ref, notebookId: notebookId),
-        child: const Icon(Icons.note_add_outlined),
+        child: const Icon(AppIcons.add),
       ),
       body: pages.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(),
         error: (_, _) => const EmptyState(
-          icon: Icons.error_outline,
+          icon: AppIcons.error,
           message: 'Não foi possível carregar as páginas.',
         ),
         data: (pages) {
@@ -72,7 +74,7 @@ class BookPage extends ConsumerWidget {
               if (task != null)
                 ListTile(
                   dense: true,
-                  leading: const Icon(Icons.task_alt),
+                  leading: const Icon(AppIcons.task),
                   title: Text('Caderno da tarefa ${task.title}'),
                   onTap: () => context.push(Routes.task(task.id)),
                 ),
@@ -80,7 +82,7 @@ class BookPage extends ConsumerWidget {
                 const Padding(
                   padding: EdgeInsets.only(top: 64),
                   child: EmptyState(
-                    icon: Icons.description_outlined,
+                    icon: AppIcons.page,
                     message: 'Nenhuma página ainda.',
                   ),
                 ),
@@ -114,11 +116,7 @@ class _PageTile extends ConsumerWidget {
         start: 16 + 24.0 * depth,
         end: 4,
       ),
-      leading: Icon(
-        depth == 0
-            ? Icons.description_outlined
-            : Icons.subdirectory_arrow_right,
-      ),
+      leading: Icon(depth == 0 ? AppIcons.page : AppIcons.subtask),
       title: Text(page.title, maxLines: 2, overflow: TextOverflow.ellipsis),
       onTap: () => context.push(Routes.page(page.id)),
       trailing: PopupMenuButton<String>(

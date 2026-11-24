@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import 'task_providers.dart';
 import 'widgets/task_tile.dart';
@@ -22,16 +24,16 @@ class TodayPage extends ConsumerWidget {
     final Widget body;
     if (overdue.hasError || dueToday.hasError || undated.hasError) {
       body = const EmptyState(
-        icon: Icons.error_outline,
+        icon: AppIcons.error,
         message: 'Não foi possível carregar as tarefas.',
       );
     } else if (!overdue.hasValue || !dueToday.hasValue || !undated.hasValue) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (overdue.requireValue.isEmpty &&
         dueToday.requireValue.isEmpty &&
         undated.requireValue.isEmpty) {
       body = const EmptyState(
-        icon: Icons.today_outlined,
+        icon: AppIcons.today,
         message: 'Nada para hoje ainda.',
       );
     } else {
@@ -84,7 +86,7 @@ class TodayPage extends ConsumerWidget {
         heroTag: null,
         tooltip: 'Nova tarefa',
         onPressed: () => context.push(Routes.newTask(dueToday: true)),
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
     );
   }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/app_icons.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/number_stepper.dart';
+import '../../shared/widgets/skeleton.dart';
 import 'alarms.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
@@ -157,7 +159,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
       appBar: AppBar(
         leading: IconButton(
           tooltip: 'Cancelar',
-          icon: const Icon(Icons.close),
+          icon: const Icon(AppIcons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(title),
@@ -168,9 +170,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           ),
         ],
       ),
-      body: draft == null
-          ? const Center(child: CircularProgressIndicator())
-          : _buildForm(context, draft),
+      body: draft == null ? const SkeletonPage() : _buildForm(context, draft),
     );
   }
 
@@ -406,7 +406,7 @@ class _DateTimeRow extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               OutlinedButton.icon(
-                icon: const Icon(Icons.event_outlined, size: 18),
+                icon: const Icon(AppIcons.date, size: 18),
                 label: Text(
                   date == null
                       ? placeholder ?? 'Sem data'
@@ -416,7 +416,7 @@ class _DateTimeRow extends StatelessWidget {
               ),
               if (!allDay && date != null && onTime != null)
                 OutlinedButton.icon(
-                  icon: const Icon(Icons.schedule, size: 18),
+                  icon: const Icon(AppIcons.time, size: 18),
                   label: Text('${two(t.hour)}:${two(t.minute)}'),
                   onPressed: () => _pickTime(context),
                 ),
@@ -426,7 +426,7 @@ class _DateTimeRow extends StatelessWidget {
         if (date != null)
           IconButton(
             tooltip: 'Limpar $label',
-            icon: const Icon(Icons.clear),
+            icon: const Icon(AppIcons.close),
             onPressed: () {
               onDate(null);
               onTime?.call(null);
@@ -473,7 +473,7 @@ class _TagPicker extends ConsumerWidget {
             ),
           ),
         ActionChip(
-          avatar: const Icon(Icons.add, size: 18),
+          avatar: const Icon(AppIcons.add, size: 18),
           label: const Text('Nova tag'),
           onPressed: () => _createTag(context, ref),
         ),
@@ -531,7 +531,11 @@ class _NewTagDialogState extends State<_NewTagDialog> {
                     radius: 16,
                     backgroundColor: Color(color),
                     child: color == _color
-                        ? const Icon(Icons.check, color: Colors.white, size: 18)
+                        ? const Icon(
+                            AppIcons.check,
+                            color: Colors.white,
+                            size: 18,
+                          )
                         : null,
                   ),
                 ),

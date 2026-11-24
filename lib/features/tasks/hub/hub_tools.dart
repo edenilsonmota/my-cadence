@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/clock.dart';
 import '../../../app/router.dart';
+import '../../../app/theme/app_icons.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
 import '../../../data/providers.dart';
@@ -93,19 +94,19 @@ class HubTools extends ConsumerWidget {
     final shortcuts = [
       if (!visible.cards)
         ActionChip(
-          avatar: const Icon(Icons.style_outlined, size: 18),
+          avatar: const Icon(AppIcons.flashcard, size: 18),
           label: const Text('Flashcard'),
           onPressed: addCard,
         ),
       if (!visible.pomodoro)
         ActionChip(
-          avatar: const Icon(Icons.timer_outlined, size: 18),
+          avatar: const Icon(AppIcons.pomodoro, size: 18),
           label: const Text('Pomodoro'),
           onPressed: startFocus,
         ),
       if (!visible.pages)
         ActionChip(
-          avatar: const Icon(Icons.description_outlined, size: 18),
+          avatar: const Icon(AppIcons.page, size: 18),
           label: const Text('Página'),
           onPressed: addPage,
         ),
@@ -228,7 +229,7 @@ class _CardsSection extends StatelessWidget {
     final total = counts.total;
     return _Section(
       title: 'Flashcards',
-      icon: Icons.style_outlined,
+      icon: AppIcons.flashcard,
       children: [
         ListTile(
           title: Text(
@@ -247,12 +248,12 @@ class _CardsSection extends StatelessWidget {
         _Actions([
           if (total > 0)
             FilledButton.tonalIcon(
-              icon: const Icon(Icons.play_arrow),
+              icon: const Icon(AppIcons.play),
               label: const Text('Revisar desta tarefa'),
               onPressed: onReview,
             ),
           OutlinedButton.icon(
-            icon: const Icon(Icons.add),
+            icon: const Icon(AppIcons.add),
             label: const Text('Card'),
             onPressed: onAdd,
           ),
@@ -278,7 +279,7 @@ class _PomodoroSection extends StatelessWidget {
     final sessions = summary.sessions;
     return _Section(
       title: 'Pomodoro',
-      icon: Icons.timer_outlined,
+      icon: AppIcons.pomodoro,
       children: [
         ListTile(
           title: Text('Tempo de foco: ${formatDuration(summary.total)}'),
@@ -306,7 +307,7 @@ class _PomodoroSection extends StatelessWidget {
           ),
         _Actions([
           FilledButton.tonalIcon(
-            icon: const Icon(Icons.play_arrow),
+            icon: const Icon(AppIcons.play),
             label: const Text('Iniciar foco'),
             onPressed: onStart,
           ),
@@ -335,7 +336,7 @@ class _PagesSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final books = ref.read(booksRepositoryProvider);
     Widget pageTile(NotePage page, {Widget? trailing}) => ListTile(
-      leading: const Icon(Icons.description_outlined),
+      leading: const Icon(AppIcons.page),
       title: Text(page.title),
       trailing: trailing,
       onTap: () => context.push(Routes.page(page.id)),
@@ -343,7 +344,7 @@ class _PagesSection extends ConsumerWidget {
 
     return _Section(
       title: 'Páginas',
-      icon: Icons.description_outlined,
+      icon: AppIcons.page,
       children: [
         if (ownPages.isEmpty && linked.isEmpty)
           const ListTile(title: Text('Nenhuma página ainda')),
@@ -353,24 +354,24 @@ class _PagesSection extends ConsumerWidget {
             page,
             trailing: IconButton(
               tooltip: 'Desvincular',
-              icon: const Icon(Icons.link_off),
+              icon: const Icon(AppIcons.unlink),
               onPressed: () => books.unlinkPage(taskId, page.id),
             ),
           ),
         _Actions([
           OutlinedButton.icon(
-            icon: const Icon(Icons.add),
+            icon: const Icon(AppIcons.add),
             label: const Text('Página'),
             onPressed: onAdd,
           ),
           if (notebookId case final id?)
             OutlinedButton.icon(
-              icon: const Icon(Icons.menu_book_outlined),
+              icon: const Icon(AppIcons.book),
               label: const Text('Abrir caderno'),
               onPressed: () => context.push(Routes.book(id)),
             ),
           OutlinedButton.icon(
-            icon: const Icon(Icons.link),
+            icon: const Icon(AppIcons.link),
             label: const Text('Vincular página existente'),
             onPressed: () => showModalBottomSheet<void>(
               context: context,
@@ -416,7 +417,7 @@ class _LinkPageSheet extends ConsumerWidget {
           ),
           if (pages.isEmpty)
             const ListTile(
-              leading: Icon(Icons.menu_book_outlined),
+              leading: Icon(AppIcons.book),
               title: Text('Nenhuma página em books ainda.'),
               subtitle: Text('Crie páginas na aba Books para vinculá-las.'),
             ),

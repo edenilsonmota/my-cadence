@@ -1,9 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/dates.dart';
-
 import '../features/books/book_page.dart';
 import '../features/books/books_page.dart';
 import '../features/books/page_editor_page.dart';
@@ -11,6 +11,7 @@ import '../features/calendar/agenda_page.dart';
 import '../features/cards/cards_list_page.dart';
 import '../features/cards/review_page.dart';
 import '../features/cards/review_session_page.dart';
+import '../features/dev/components_page.dart';
 import '../features/pomodoro/pomodoro_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/stats/stats_page.dart';
@@ -29,6 +30,9 @@ abstract final class Routes {
   static const books = '/books';
   static const stats = '/metricas';
   static const settings = '/ajustes';
+
+  /// Catálogo de componentes (só em debug).
+  static const devComponents = '/dev/componentes';
 
   /// Hub da tarefa (também alvo dos deep links das notificações).
   static String task(String id) => '/tarefa/$id';
@@ -109,6 +113,12 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         parentNavigatorKey: rootKey,
         builder: (_, _) => const SettingsPage(),
       ),
+      if (kDebugMode)
+        GoRoute(
+          path: Routes.devComponents,
+          parentNavigatorKey: rootKey,
+          builder: (_, _) => const ComponentsPage(),
+        ),
       GoRoute(
         path: '/revisao',
         parentNavigatorKey: rootKey,

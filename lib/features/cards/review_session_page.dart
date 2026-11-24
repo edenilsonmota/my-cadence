@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fsrs/fsrs.dart' as fsrs;
 
 import '../../app/clock.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/simple_markdown.dart';
+import '../../shared/widgets/skeleton.dart';
 import 'cards_providers.dart';
 import 'fsrs_bridge.dart';
 import 'review_queue.dart';
@@ -147,15 +149,15 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
         actions: [
           IconButton(
             tooltip: 'Desfazer última avaliação',
-            icon: const Icon(Icons.undo),
+            icon: const Icon(AppIcons.undo),
             onPressed: _history.isEmpty || _busy ? null : _undo,
           ),
         ],
       ),
       body: queue.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(),
         error: (_, _) => const EmptyState(
-          icon: Icons.error_outline,
+          icon: AppIcons.error,
           message: 'Não foi possível carregar os cards.',
         ),
         data: (queue) {
@@ -357,14 +359,14 @@ class _Done extends StatelessWidget {
     if (soon != null) {
       final minutes = (soon.difference(now).inSeconds / 60).ceil();
       return EmptyState(
-        icon: Icons.hourglass_bottom,
+        icon: AppIcons.breakTime,
         message:
             'Próximo card em ${minutes <= 1 ? '1 min' : '$minutes min'}.\n'
             'Ele aparece aqui sozinho.',
       );
     }
     return EmptyState(
-      icon: Icons.celebration_outlined,
+      icon: AppIcons.celebrate,
       message: reviewed == 0
           ? 'Nada para revisar agora.'
           : 'Tudo revisado por agora! '

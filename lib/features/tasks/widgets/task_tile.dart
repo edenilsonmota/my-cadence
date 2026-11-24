@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
+import '../../../app/theme/app_icons.dart';
 import '../../../core/dates.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
@@ -123,17 +124,17 @@ class _TaskTileState extends ConsumerState<TaskTile> {
     final details = <Widget>[
       if (task.dueAt case final due?)
         _Detail(
-          icon: Icons.event_outlined,
+          icon: AppIcons.date,
           text: formatRelative(due, widget.today, withTime: task.hasTime),
           color: overdue ? colors.error : null,
         ),
-      if (task.recurrenceRule != null) const _Detail(icon: Icons.repeat),
+      if (task.recurrenceRule != null) const _Detail(icon: AppIcons.repeat),
       // Rotina com repetição já mostra o ícone de repetição acima.
       if (task.kind != TaskKind.simples &&
           !(task.kind == TaskKind.rotina && task.recurrenceRule != null))
         _Detail(icon: task.kind.icon),
       if (task.status == TaskStatus.fazendo)
-        _Detail(icon: Icons.play_circle_outline, text: task.status.label),
+        _Detail(icon: AppIcons.play, text: task.status.label),
     ];
     final flag = priorityColor(task.priority, colors);
 
@@ -164,7 +165,7 @@ class _TaskTileState extends ConsumerState<TaskTile> {
         children: [
           if (flag != null)
             Icon(
-              Icons.flag,
+              AppIcons.priority,
               size: 18,
               color: flag,
               semanticLabel: 'Prioridade',
@@ -228,14 +229,14 @@ class _SwipeableTaskTileState extends ConsumerState<SwipeableTaskTile> {
       background: _SwipeBackground(
         color: colors.primaryContainer,
         foreground: colors.onPrimaryContainer,
-        icon: done ? Icons.undo : Icons.check,
+        icon: done ? AppIcons.undo : AppIcons.check,
         label: done ? 'Reabrir' : 'Concluir',
         alignment: AlignmentDirectional.centerStart,
       ),
       secondaryBackground: _SwipeBackground(
         color: colors.errorContainer,
         foreground: colors.onErrorContainer,
-        icon: Icons.delete_outline,
+        icon: AppIcons.delete,
         label: 'Excluir',
         alignment: AlignmentDirectional.centerEnd,
       ),

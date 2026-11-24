@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme/app_icons.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
 import '../task_providers.dart';
@@ -38,9 +39,7 @@ class _TaskPicker extends ConsumerWidget {
           );
 
     Widget option(String? id, String title) => ListTile(
-      leading: Icon(
-        id == current ? Icons.radio_button_checked : Icons.radio_button_off,
-      ),
+      leading: Icon(id == current ? AppIcons.radioOn : AppIcons.radioOff),
       title: Text(title),
       selected: id == current,
       onTap: () => Navigator.of(context).pop((id: id)),

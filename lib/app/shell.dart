@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/cards/cards_providers.dart';
 import '../features/pomodoro/pomodoro_mini_player.dart';
+import 'theme/app_icons.dart';
 
 /// Shell com a barra de navegação das 5 abas. Cada aba mantém a própria pilha.
 class AppShell extends StatelessWidget {
@@ -28,28 +29,28 @@ class AppShell extends StatelessWidget {
             ),
             destinations: const [
               NavigationDestination(
-                icon: Icon(Icons.today_outlined),
-                selectedIcon: Icon(Icons.today),
+                icon: Icon(AppIcons.today),
+                selectedIcon: Icon(AppIcons.todayActive),
                 label: 'Hoje',
               ),
               NavigationDestination(
-                icon: Icon(Icons.checklist_outlined),
-                selectedIcon: Icon(Icons.checklist),
+                icon: Icon(AppIcons.tasks),
+                selectedIcon: Icon(AppIcons.tasksActive),
                 label: 'Tarefas',
               ),
               NavigationDestination(
-                icon: Icon(Icons.calendar_month_outlined),
-                selectedIcon: Icon(Icons.calendar_month),
+                icon: Icon(AppIcons.agenda),
+                selectedIcon: Icon(AppIcons.agendaActive),
                 label: 'Agenda',
               ),
               NavigationDestination(
-                icon: _ReviewIcon(Icons.style_outlined),
-                selectedIcon: _ReviewIcon(Icons.style),
+                icon: _ReviewIcon(AppIcons.review),
+                selectedIcon: _ReviewIcon(AppIcons.reviewActive),
                 label: 'Revisar',
               ),
               NavigationDestination(
-                icon: Icon(Icons.menu_book_outlined),
-                selectedIcon: Icon(Icons.menu_book),
+                icon: Icon(AppIcons.books),
+                selectedIcon: Icon(AppIcons.booksActive),
                 label: 'Books',
               ),
             ],

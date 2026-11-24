@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
@@ -71,7 +72,7 @@ class AgendaPage extends ConsumerWidget {
             textStyle: Theme.of(context).textTheme.titleMedium,
           ),
           iconAlignment: IconAlignment.end,
-          icon: const Icon(Icons.arrow_drop_down),
+          icon: const Icon(AppIcons.dropdown),
           label: Text(
             title[0].toUpperCase() + title.substring(1),
             maxLines: 1,
@@ -93,7 +94,7 @@ class AgendaPage extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Buscar',
-            icon: const Icon(Icons.search),
+            icon: const Icon(AppIcons.search),
             onPressed: () async {
               final found = await showSearch<DateTime?>(
                 context: context,
@@ -104,7 +105,7 @@ class AgendaPage extends ConsumerWidget {
           ),
           IconButton(
             tooltip: 'Ir para hoje',
-            icon: const Icon(Icons.today),
+            icon: const Icon(AppIcons.goToday),
             onPressed: () => ref
                 .read(calendarDayProvider.notifier)
                 .show(ref.read(todayProvider)),
@@ -112,9 +113,9 @@ class AgendaPage extends ConsumerWidget {
           PopupMenuButton<String>(
             tooltip: 'Visualização',
             icon: Icon(switch (mode) {
-              CalendarMode.dia => Icons.view_day_outlined,
-              CalendarMode.semana => Icons.view_week_outlined,
-              CalendarMode.mes => Icons.calendar_view_month_outlined,
+              CalendarMode.dia => AppIcons.viewDay,
+              CalendarMode.semana => AppIcons.viewWeek,
+              CalendarMode.mes => AppIcons.viewMonth,
             }),
             onSelected: (v) {
               if (v == 'pomodoros') {
@@ -153,7 +154,7 @@ class AgendaPage extends ConsumerWidget {
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
         tooltip: 'Nova tarefa',
         onPressed: () => context.push(Routes.newTask(date: day)),
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
       bottomSheet: mode == CalendarMode.mes ? null : const _NextTaskSheet(),
       body: GestureDetector(
@@ -203,7 +204,7 @@ class _NextTaskSheet extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 10, 88, 10),
           child: Row(
             children: [
-              Icon(Icons.schedule, size: 20, color: scheme.primary),
+              Icon(AppIcons.time, size: 20, color: scheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Text.rich(
@@ -238,7 +239,7 @@ class _TaskSearch extends SearchDelegate<DateTime?> {
     if (query.isNotEmpty)
       IconButton(
         tooltip: 'Limpar',
-        icon: const Icon(Icons.clear),
+        icon: const Icon(AppIcons.close),
         onPressed: () => query = '',
       ),
   ];
@@ -246,7 +247,7 @@ class _TaskSearch extends SearchDelegate<DateTime?> {
   @override
   Widget buildLeading(BuildContext context) => IconButton(
     tooltip: 'Voltar',
-    icon: const Icon(Icons.arrow_back),
+    icon: const Icon(AppIcons.back),
     onPressed: () => close(context, null),
   );
 

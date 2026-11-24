@@ -55,6 +55,7 @@ dependencies:
   fl_chart: ^1.3.1
   # Já vem com o Flutter (HCT para gerar os tons da paleta).
   material_color_utilities: ^0.13.0
+  lucide_icons_flutter: ^4.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

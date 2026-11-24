@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/app_icons.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../tasks/task_providers.dart';
@@ -140,7 +141,7 @@ class _CardFormState extends ConsumerState<_CardForm> {
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.task_alt),
+              leading: const Icon(AppIcons.task),
               title: Text(task?.title ?? 'Sem tarefa'),
               subtitle: const Text('Tarefa vinculada'),
               trailing: TextButton(

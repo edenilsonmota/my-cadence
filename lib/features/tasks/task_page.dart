@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../core/dates.dart';
 import '../../core/recurrence.dart';
 import '../../core/routine.dart';
@@ -10,6 +11,7 @@ import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import 'hub/hub_tools.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
@@ -27,14 +29,11 @@ class TaskPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final task = ref.watch(taskProvider(taskId));
     return task.when(
-      loading: () => Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
-      ),
+      loading: () => Scaffold(appBar: AppBar(), body: const SkeletonPage()),
       error: (_, _) => Scaffold(
         appBar: AppBar(),
         body: const EmptyState(
-          icon: Icons.error_outline,
+          icon: AppIcons.error,
           message: 'Não foi possível carregar a tarefa.',
         ),
       ),
@@ -42,7 +41,7 @@ class TaskPage extends ConsumerWidget {
           ? Scaffold(
               appBar: AppBar(),
               body: const EmptyState(
-                icon: Icons.search_off,
+                icon: AppIcons.searchEmpty,
                 message: 'Tarefa não encontrada.',
               ),
             )
@@ -83,12 +82,12 @@ class _TaskHub extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Editar',
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(AppIcons.edit),
             onPressed: () => context.push(Routes.editTask(task.id)),
           ),
           IconButton(
             tooltip: 'Excluir',
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(AppIcons.delete),
             onPressed: () => _delete(context, ref),
           ),
         ],
@@ -99,7 +98,7 @@ class _TaskHub extends ConsumerWidget {
           if (parent != null)
             ListTile(
               dense: true,
-              leading: const Icon(Icons.subdirectory_arrow_right),
+              leading: const Icon(AppIcons.subtask),
               title: Text('Subtarefa de ${parent.title}'),
               onTap: () => context.push(Routes.task(parent.id)),
             ),
@@ -144,7 +143,7 @@ class _TaskHub extends ConsumerWidget {
                       children: [
                         Text(task.status.label),
                         const ExcludeSemantics(
-                          child: Icon(Icons.arrow_drop_down, size: 20),
+                          child: Icon(AppIcons.dropdown, size: 20),
                         ),
                       ],
                     ),
@@ -153,7 +152,7 @@ class _TaskHub extends ConsumerWidget {
                 if (task.priority > 0)
                   Chip(
                     avatar: Icon(
-                      Icons.flag,
+                      AppIcons.priority,
                       color: priorityColor(task.priority, theme.colorScheme),
                     ),
                     label: Text('Prioridade ${priorityLabels[task.priority]}'),
@@ -168,18 +167,18 @@ class _TaskHub extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           if (task.startAt case final start?)
-            _Info(Icons.play_arrow_outlined, 'Início', when(start)),
+            _Info(AppIcons.play, 'Início', when(start)),
           if (task.dueAt case final due?)
-            _Info(Icons.event_outlined, 'Prazo', when(due)),
+            _Info(AppIcons.date, 'Prazo', when(due)),
           if (task.recurrenceRule case final rule?)
             _Info(
-              Icons.repeat,
+              AppIcons.repeat,
               'Repetição',
               RecurrenceRule.parse(rule).describe(),
             ),
           if (task.reminderMinutesBefore != null)
             _Info(
-              Icons.alarm,
+              AppIcons.alarm,
               'Alarme',
               reminderOptions[task.reminderMinutesBefore] ??
                   '${task.reminderMinutesBefore} min antes',
@@ -193,13 +192,13 @@ class _TaskHub extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: done
                 ? OutlinedButton.icon(
-                    icon: const Icon(Icons.undo),
+                    icon: const Icon(AppIcons.undo),
                     label: const Text('Reabrir'),
                     onPressed: () =>
                         toggleDone(ScaffoldMessenger.of(context), ref, task),
                   )
                 : FilledButton.icon(
-                    icon: const Icon(Icons.check),
+                    icon: const Icon(AppIcons.check),
                     label: const Text('Concluir'),
                     onPressed: () =>
                         toggleDone(ScaffoldMessenger.of(context), ref, task),
@@ -326,7 +325,10 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
                     index: index,
                     child: const Padding(
                       padding: EdgeInsets.all(8),
-                      child: Icon(Icons.drag_handle, semanticLabel: 'Arrastar'),
+                      child: Icon(
+                        AppIcons.dragHandle,
+                        semanticLabel: 'Arrastar',
+                      ),
                     ),
                   ),
                 ),
@@ -342,10 +344,10 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
             textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               hintText: 'Adicionar subtarefa',
-              prefixIcon: const Icon(Icons.add),
+              prefixIcon: const Icon(AppIcons.add),
               suffixIcon: IconButton(
                 tooltip: 'Adicionar',
-                icon: const Icon(Icons.send),
+                icon: const Icon(AppIcons.send),
                 onPressed: _add,
               ),
             ),
@@ -403,7 +405,7 @@ class _RoutineHistory extends ConsumerWidget {
         ),
         ListTile(
           leading: Icon(
-            Icons.local_fire_department_outlined,
+            AppIcons.streak,
             color: streak > 0 ? theme.colorScheme.tertiary : null,
           ),
           title: Text(streakText),
@@ -423,7 +425,7 @@ class _RoutineHistory extends ConsumerWidget {
               children: [
                 for (final c in completions.take(_shown))
                   Chip(
-                    avatar: const Icon(Icons.check, size: 16),
+                    avatar: const Icon(AppIcons.check, size: 16),
                     label: Text(formatDate(c.occurrence, today)),
                   ),
               ],

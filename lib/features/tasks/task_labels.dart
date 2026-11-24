@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_icons.dart';
 import '../../data/db/enums.dart';
 
 extension TaskKindLabel on TaskKind {
@@ -10,12 +11,7 @@ extension TaskKindLabel on TaskKind {
     TaskKind.evento => 'Evento',
   };
 
-  IconData get icon => switch (this) {
-    TaskKind.simples => Icons.check_box_outlined,
-    TaskKind.estudo => Icons.school_outlined,
-    TaskKind.rotina => Icons.repeat,
-    TaskKind.evento => Icons.event_outlined,
-  };
+  IconData get icon => AppIcons.kind(this);
 }
 
 extension TaskStatusLabel on TaskStatus {

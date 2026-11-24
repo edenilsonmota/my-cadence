@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
@@ -475,7 +476,7 @@ class _Block extends StatelessWidget {
                       if (entry.isRoutine)
                         Padding(
                           padding: const EdgeInsets.only(right: 2),
-                          child: Icon(Icons.repeat, size: 11, color: text),
+                          child: Icon(AppIcons.repeat, size: 11, color: text),
                         ),
                       Expanded(
                         child: Text(
@@ -658,9 +659,7 @@ class _AllDayStrip extends StatelessWidget {
                         ? 'Recolher dia inteiro'
                         : 'Expandir dia inteiro',
                     onPressed: onToggle,
-                    icon: Icon(
-                      expanded ? Icons.expand_less : Icons.expand_more,
-                    ),
+                    icon: Icon(expanded ? AppIcons.collapse : AppIcons.expand),
                   )
                 : Padding(
                     padding: const EdgeInsets.only(top: 4),

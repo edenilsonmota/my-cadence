@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_icons.dart';
 import '../../data/db/enums.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/skeleton.dart';
 import 'task_labels.dart';
 import 'task_lists.dart';
 import 'task_providers.dart';
@@ -61,7 +63,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
         leading: _searching
             ? IconButton(
                 tooltip: 'Fechar busca',
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(AppIcons.back),
                 onPressed: _closeSearch,
               )
             : null,
@@ -80,7 +82,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
           if (!_searching)
             IconButton(
               tooltip: 'Buscar',
-              icon: const Icon(Icons.search),
+              icon: const Icon(AppIcons.search),
               onPressed: () => setState(() => _searching = true),
             ),
           IconButton(
@@ -88,7 +90,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
             icon: Badge(
               isLabelVisible: filter.activeCount > 0,
               label: Text('${filter.activeCount}'),
-              child: const Icon(Icons.filter_list),
+              child: const Icon(AppIcons.filter),
             ),
             onPressed: () => showModalBottomSheet<void>(
               context: context,
@@ -105,19 +107,19 @@ class _TasksPageState extends ConsumerState<TasksPage> {
         heroTag: null,
         tooltip: 'Nova tarefa',
         onPressed: () => context.push(Routes.newTask()),
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
       body: tree.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonList(),
         error: (_, _) => const EmptyState(
-          icon: Icons.error_outline,
+          icon: AppIcons.error,
           message: 'Não foi possível carregar as tarefas.',
         ),
         data: (nodes) {
           if (nodes.isEmpty) {
             return expandAll
                 ? EmptyState(
-                    icon: Icons.filter_list_off,
+                    icon: AppIcons.filterOff,
                     message: 'Nenhuma tarefa com esses filtros.',
                     action: TextButton(
                       onPressed: () {
@@ -128,7 +130,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                     ),
                   )
                 : const EmptyState(
-                    icon: Icons.checklist_outlined,
+                    icon: AppIcons.tasks,
                     message: 'Nenhuma tarefa criada.',
                   );
           }
@@ -151,7 +153,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                                 ? 'Recolher subtarefas'
                                 : 'Mostrar subtarefas',
                             icon: Icon(
-                              open ? Icons.expand_less : Icons.expand_more,
+                              open ? AppIcons.collapse : AppIcons.expand,
                             ),
                             onPressed: () => setState(
                               () => open

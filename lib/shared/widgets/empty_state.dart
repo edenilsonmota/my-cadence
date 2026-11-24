@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Mensagem centralizada para telas e seções sem conteúdo.
+import '../../app/theme/app_theme.dart';
+
+/// Mensagem centralizada para telas e seções sem conteúdo: ícone num círculo
+/// suave, uma frase e, se houver, a ação.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     required this.icon,
@@ -17,22 +20,36 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.colors;
+    final space = context.space;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(space.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: colors.outline),
-            const SizedBox(height: 16),
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHigh,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: AppIconSize.feature,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            SizedBox(height: space.lg),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(color: colors.onSurfaceVariant),
+              style: context.text.bodyLarge!.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
             ),
-            if (action != null) ...[const SizedBox(height: 8), action!],
+            if (action != null) ...[SizedBox(height: space.lg), action!],
           ],
         ),
       ),

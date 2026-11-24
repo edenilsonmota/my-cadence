@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'components.dart';
 import 'palette.dart';
 import 'tokens.dart';
 import 'typography.dart';
 
+export 'app_icons.dart';
 export 'palette.dart';
 export 'tokens.dart';
 export 'typography.dart';
@@ -17,7 +19,7 @@ ThemeData buildTheme(Brightness brightness) {
     brightness: brightness,
   );
   final base = ThemeData(colorScheme: scheme, fontFamily: AppFonts.ui);
-  return base.copyWith(
+  final typed = base.copyWith(
     textTheme: base.textTheme.merge(buildTextTheme()),
     extensions: [
       const AppSpacing(),
@@ -27,6 +29,7 @@ ThemeData buildTheme(Brightness brightness) {
       AppTypography(color: scheme.onSurface, muted: scheme.onSurfaceVariant),
     ],
   );
+  return applyComponentThemes(typed);
 }
 
 /// Atalhos para os tokens: `context.space.md`, `context.palette.of(...)`.

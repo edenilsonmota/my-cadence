@@ -14,32 +14,16 @@ final _loose = RegExp(
 /// aumentar, e arquivo novo começa em zero. Ao migrar um arquivo para os
 /// tokens, baixe (ou remova) o número dele aqui.
 const _allowed = <String, int>{
-  'app/shell.dart': 10,
   'features/books/book_actions.dart': 1,
-  'features/books/book_page.dart': 6,
-  'features/books/books_page.dart': 6,
-  'features/books/page_editor_page.dart': 6,
-  'features/calendar/agenda_page.dart': 10,
+  'features/books/books_page.dart': 1,
   'features/calendar/calendar_providers.dart': 6,
   'features/calendar/month_view.dart': 1,
-  'features/calendar/timeline_view.dart': 5,
-  'features/cards/card_form_sheet.dart': 1,
-  'features/cards/cards_list_page.dart': 4,
-  'features/cards/review_page.dart': 7,
-  'features/cards/review_session_page.dart': 4,
-  'features/pomodoro/pomodoro_mini_player.dart': 6,
-  'features/pomodoro/pomodoro_page.dart': 5,
+  'features/calendar/timeline_view.dart': 2,
   'features/stats/stats_page.dart': 3,
-  'features/tasks/hub/hub_tools.dart': 15,
-  'features/tasks/task_form_page.dart': 7,
-  'features/tasks/task_labels.dart': 12,
-  'features/tasks/task_page.dart': 18,
-  'features/tasks/tasks_page.dart': 9,
-  'features/tasks/today_page.dart': 4,
-  'features/tasks/widgets/task_picker.dart': 2,
-  'features/tasks/widgets/task_tile.dart': 9,
-  'shared/widgets/app_drawer.dart': 3,
-  'shared/widgets/number_stepper.dart': 2,
+  'features/tasks/task_form_page.dart': 1,
+  'features/tasks/task_labels.dart': 8,
+  'features/tasks/today_page.dart': 1,
+  'features/tasks/widgets/task_tile.dart': 2,
 };
 
 /// Exceções permanentes (o valor precisa ser literal ali).
