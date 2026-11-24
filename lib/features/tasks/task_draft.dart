@@ -132,7 +132,7 @@ class TaskDraft {
   }
 
   /// Colunas da tarefa. Recorrência sem prazo usa hoje como prazo; alarme
-  /// sem prazo é descartado.
+  /// sem prazo nem início com hora é descartado.
   TaskFields toFields(DateTime now) {
     DateTime? combine(DateTime? date, ClockTime? time) {
       if (date == null) return null;
@@ -144,6 +144,7 @@ class TaskDraft {
     final rule = recurrence;
     final dueDay = dueDate ?? (rule != null ? startOfDay(now) : null);
     final dueAt = combine(dueDay, dueTime);
+    final startAt = combine(startDate, startTime);
     final trimmedNotes = notes.trim();
     return TaskFields(
       title: title.trim(),
@@ -151,10 +152,12 @@ class TaskDraft {
       kind: kind,
       priority: priority,
       hasTime: !allDay,
-      startAt: combine(startDate, startTime),
+      startAt: startAt,
       dueAt: dueAt,
       recurrenceRule: rule?.toRule(),
-      reminderMinutesBefore: dueAt == null ? null : reminderMinutesBefore,
+      reminderMinutesBefore: dueAt == null && (allDay || startAt == null)
+          ? null
+          : reminderMinutesBefore,
       estimatedPomodoros: estimatedPomodoros,
     );
   }

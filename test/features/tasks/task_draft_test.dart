@@ -56,6 +56,17 @@ void main() {
     expect(fields.reminderMinutesBefore, isNull);
   });
 
+  test('alarme com só início com hora é mantido', () {
+    final fields = TaskDraft(
+      title: 'Aula',
+      allDay: false,
+      startDate: DateTime(2026, 11, 24),
+      startTime: (hour: 8, minute: 0),
+      reminderMinutesBefore: 10,
+    ).toFields(now);
+    expect(fields.reminderMinutesBefore, 10);
+  });
+
   test('início depois do prazo é inválido', () {
     final draft = TaskDraft(
       title: 'Ler',

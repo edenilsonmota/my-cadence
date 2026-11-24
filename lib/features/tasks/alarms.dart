@@ -18,13 +18,25 @@ const allDayReminderHour = 9;
 const snoozeDuration = Duration(minutes: 10);
 
 /// Momento do lembrete da tarefa, ou `null` se ela não tem lembrete.
+///
+/// Com início com hora, a antecedência conta a partir do início (um bloco da
+/// agenda avisa quando começa, não quando termina). Senão, a partir do prazo;
+/// tarefa de dia inteiro usa [allDayReminderHour] no dia do prazo.
 DateTime? reminderTime(Task task) {
-  final due = task.dueAt;
   final minutes = task.reminderMinutesBefore;
-  if (due == null || minutes == null) return null;
-  final base = task.hasTime
-      ? due
-      : DateTime(due.year, due.month, due.day, allDayReminderHour);
+  if (minutes == null) return null;
+  final start = task.hasTime ? task.startAt : null;
+  final due = task.dueAt;
+  final DateTime base;
+  if (start != null) {
+    base = start;
+  } else if (due == null) {
+    return null;
+  } else {
+    base = task.hasTime
+        ? due
+        : DateTime(due.year, due.month, due.day, allDayReminderHour);
+  }
   return base.subtract(Duration(minutes: minutes));
 }
 
@@ -42,12 +54,16 @@ AlarmSpec? alarmFor(Task task, DateTime now) {
 }
 
 AlarmSpec _spec(Task task, DateTime time, DateTime now) {
+  final start = task.hasTime ? task.startAt : null;
   final due = task.dueAt;
   return AlarmSpec(
     id: notificationIdFor(task.id),
     time: time,
     title: task.title,
-    body: due == null
+    body: start != null
+        ? 'Começa: ${formatRelative(start, now, withTime: true)}'
+              '${due != null && due.isAfter(start) ? ' até ${formatTime(due)}' : ''}'
+        : due == null
         ? 'Lembrete'
         : 'Prazo: ${formatRelative(due, now, withTime: task.hasTime)}',
     payload: task.id,

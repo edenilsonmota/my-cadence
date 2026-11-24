@@ -76,7 +76,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Lembretes são **derivados das tarefas**: `AlarmSync` (`features/tasks/alarms.dart`) observa todas as
   tarefas e agenda/cancela o que mudou; na abertura reagenda tudo. Não agendar notificação de tarefa
   em outro lugar.
-- Tarefa de dia inteiro lembra às `allDayReminderHour` (9h) menos a antecedência.
+- A antecedência do lembrete conta do **início** quando ele tem hora (bloco da agenda avisa ao começar);
+  senão, do prazo. Tarefa de dia inteiro lembra às `allDayReminderHour` (9h) do prazo menos a antecedência.
 - Ações "Concluir"/"Adiar" rodam em isolate de segundo plano (`notification_actions.dart`, top-level com
   `@pragma('vm:entry-point')`), abrem o próprio banco e reagendam ali mesmo. O banco usa
   `shareAcrossIsolates`, WAL e `busy_timeout`; ao voltar ao app, as consultas são forçadas a reler.

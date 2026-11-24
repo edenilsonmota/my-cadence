@@ -208,11 +208,12 @@ Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-
   batem com o banco; legível no tema escuro. _24/11._
 - [x] **9.2 Toque nos gráficos.** Tocar numa barra mostra a dica (data e valor) e não atrapalha a rolagem. _24/11._
 
-## Para decidir
+## Decidido em 24/11
 
-- **Lembrete de tarefa com início e prazo** conta a partir do **prazo** (regra da Etapa 3). Num bloco da
-  agenda (ex.: 12:00–13:00 com "Na hora"), o aviso vem às 13:00, no fim. Proposta: quando houver início
-  com hora, contar a partir do início.
+- **Lembrete de tarefa com início e prazo** passou a contar a partir do **início** quando ele tem hora
+  (antes contava do prazo: um bloco 12:00–13:00 com "Na hora" avisava às 13:00). Texto da notificação:
+  "Começa: Hoje, 12:00 até 13:00".
+- [ ] **D.1** Conferir no aparelho uma tarefa com início e prazo e alarme "Na hora": avisa no início.
 
 ## Limitações conhecidas (não são bugs)
 

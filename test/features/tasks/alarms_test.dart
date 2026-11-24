@@ -39,6 +39,45 @@ void main() {
       expect(alarm.body, 'Prazo: Hoje, 15:00');
     });
 
+    test('com início com hora: conta a partir do início', () {
+      final alarm = alarmFor(
+        makeTask(
+          'a',
+          startAt: DateTime(2026, 11, 23, 12),
+          dueAt: DateTime(2026, 11, 23, 13),
+          hasTime: true,
+        ).copyWith(reminderMinutesBefore: const Value(10)),
+        now,
+      )!;
+      expect(alarm.time, DateTime(2026, 11, 23, 11, 50));
+      expect(alarm.body, 'Começa: Hoje, 12:00 até 13:00');
+    });
+
+    test('só início com hora (sem prazo) também lembra', () {
+      final alarm = alarmFor(
+        makeTask(
+          'a',
+          startAt: DateTime(2026, 11, 24, 8),
+          hasTime: true,
+        ).copyWith(reminderMinutesBefore: const Value(0)),
+        now,
+      )!;
+      expect(alarm.time, DateTime(2026, 11, 24, 8));
+      expect(alarm.body, 'Começa: Amanhã, 08:00');
+    });
+
+    test('dia inteiro com início ainda usa o prazo às 9h', () {
+      final alarm = alarmFor(
+        makeTask(
+          'a',
+          startAt: DateTime(2026, 11, 24),
+          dueAt: DateTime(2026, 11, 26),
+        ).copyWith(reminderMinutesBefore: const Value(0)),
+        now,
+      )!;
+      expect(alarm.time, DateTime(2026, 11, 26, allDayReminderHour));
+    });
+
     test('dia inteiro usa a hora padrão do lembrete', () {
       final alarm = alarmFor(
         withReminder(
