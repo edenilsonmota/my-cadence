@@ -320,6 +320,28 @@ nela e em que ordem.
 - Lógica pura e testada: validar e normalizar a lista (mínimo, máximo, duplicadas, chaves desconhecidas) e montar os
   itens do menu lateral com o que ficou fora da barra.
 
+### Etapa 13: Notificações e alarmes completos
+Base pronta (Etapa 3): alarme com o app fechado, "Concluir"/"Adiar 10 min" em segundo plano, deep link, reagendar
+ao editar, rotinas e hora do lembrete de dia inteiro. Esta etapa transforma os lembretes na ferramenta principal de
+organização. Fazer em fases, nesta ordem, cada uma com teste no aparelho:
+1. **Modo alarme por tarefa.** No formulário, "Notificação" (atual) ou "Alarme". O alarme toca até a pessoa interagir:
+   canal próprio com áudio de alarme (`AudioAttributesUsage.alarm`, toca no silencioso), som insistente,
+   `category: alarm` e tela cheia (`fullScreenIntent`; no Android 14+ conferir se a permissão
+   `USE_FULL_SCREEN_INTENT` precisa ser concedida e guiar até ela). Coluna nova (`textEnum`) com migração, teste e
+   upgrader do snapshot.
+2. **Diagnóstico em Ajustes.** Mostrar se as notificações estão desligadas, o canal silenciado, o alarme exato negado
+   ou a otimização de bateria ligada ("apps em suspensão" da Samsung), cada um com botão que abre a tela do sistema.
+   Avisar no formulário da tarefa quando o lembrete não vai tocar.
+3. **Adiar com opções.** O Android aceita 3 ações: Concluir, "10 min" e "1 h". "Amanhã cedo" fica no hub da tarefa.
+4. **Avisos diários opcionais**, com hora em Ajustes: "N cards para revisar" (não avisa com zero; abre Revisar) e
+   resumo do dia (tarefas de hoje e atrasadas). Reagendados quando os dados mudam; cálculo puro e testado.
+5. **Vários lembretes por tarefa** (ex.: 1 dia antes e na hora). Muda o esquema: propor antes o modelo (lista na
+   coluna ou tabela própria) e o ID de notificação de cada lembrete (hoje é o FNV-1a do UUID da tarefa).
+6. **Insistir se atrasar** (opcional por tarefa): repetir o aviso a cada X minutos até concluir, com um teto.
+
+Pendentes de testes antigos, para conferir junto: alarme depois de reiniciar o celular (precisa desbloquear com o PIN),
+lembrete no início de tarefa com início e prazo, e troca da hora do lembrete de dia inteiro.
+
 ---
 
 ## 5. Definição de pronto (vale para todas as etapas)
