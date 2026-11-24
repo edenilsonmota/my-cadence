@@ -106,9 +106,13 @@ class CardsListPage extends ConsumerWidget {
           message: 'Não foi possível carregar os cards.',
         ),
         data: (cards) => cards.isEmpty
-            ? const EmptyState(
+            ? EmptyState(
                 icon: AppIcons.flashcard,
                 message: 'Nenhum card aqui ainda.',
+                action: FilledButton.tonal(
+                  onPressed: () => createCardFlow(context, ref, deckId: deckId),
+                  child: const Text('Criar card'),
+                ),
               )
             : ListView(
                 padding: const EdgeInsets.only(bottom: 88),

@@ -129,9 +129,13 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                       child: const Text('Limpar filtros'),
                     ),
                   )
-                : const EmptyState(
+                : EmptyState(
                     icon: AppIcons.tasks,
                     message: 'Nenhuma tarefa criada.',
+                    action: FilledButton.tonal(
+                      onPressed: () => showQuickAdd(context),
+                      child: const Text('Criar tarefa'),
+                    ),
                   );
           }
           final rows = <Widget>[];

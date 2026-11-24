@@ -196,6 +196,13 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Lints estritos em `analysis_options.yaml` (inclui `prefer_const_constructors`, `always_declare_return_types`,
   `avoid_dynamic_calls`, `require_trailing_commas`). Rodar `dart format` antes do commit.
 
+## Regra do design
+
+- **Toda tela nova usa os tokens, o `AppIcons`, a paleta e o catálogo; componente que falta entra no catálogo,
+  nunca dentro da tela.** A catraca (`visual_debt_test.dart`) está zerada: qualquer valor visual solto falha.
+- Goldens dos componentes em `test/golden/` (fontes reais via `test/helpers/golden_fonts.dart`).
+  Atualizar com `flutter test --update-goldens test/golden` e conferir a imagem antes do commit.
+
 ## Ambiente
 
 - Flutter 3.47 / Dart 3.13. `flutter_local_notifications` 23 exige `compileSdk = 37` e AGP ≥ 9.1.1.

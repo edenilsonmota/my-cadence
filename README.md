@@ -18,7 +18,7 @@ Tudo funciona sem internet e fica no próprio aparelho. A sincronização com um
 
 | Tema | Pacote |
 |---|---|
-| Interface | Flutter (Material 3, tema claro e escuro, pt-BR) |
+| Interface | Flutter (Material 3 com sistema de design próprio, tema claro e escuro, pt-BR) |
 | Navegação | `go_router` (`StatefulShellRoute` com 5 abas) |
 | Estado | Riverpod |
 | Banco local | drift (SQLite) |
@@ -27,6 +27,8 @@ Tudo funciona sem internet e fica no próprio aparelho. A sincronização com um
 | Editor de páginas | AppFlowy Editor ([fork](https://github.com/edenilsonmota/appflowy-editor/tree/cadence/file-picker-13) com suporte a file_picker 13) |
 | Arquivos | `file_picker` (CSV, Markdown, zip) e `archive` |
 | Gráficos | `fl_chart` |
+| Ícones | Lucide (`lucide_icons_flutter`), família única |
+| Fontes | Inter (interface), Literata (leitura) e JetBrains Mono (código), empacotadas, licença OFL |
 
 Os pacotes entram no projeto conforme cada etapa precisa deles.
 
@@ -48,6 +50,13 @@ Verificações usadas em toda etapa:
 flutter analyze
 flutter test
 ```
+
+## Design
+
+Tudo que é visual sai de `lib/app/theme/`: espaçamentos, raios, movimento, paleta de 12 cores (guardadas por
+chave, com contraste testado nos dois temas), tipografia e o mapa de ícones `AppIcons`. Tarefas, tags e books
+têm cor e ícone escolhidos num seletor único, com herança (tarefa → mãe → tag → tipo). Em modo debug, o menu
+lateral abre o catálogo de componentes.
 
 ## Screenshots
 

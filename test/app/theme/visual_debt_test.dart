@@ -13,8 +13,7 @@ final _loose = RegExp(
 /// Dívida visual permitida por arquivo (catraca): pode diminuir, nunca
 /// aumentar, e arquivo novo começa em zero. Ao migrar um arquivo para os
 /// tokens, baixe (ou remova) o número dele aqui.
-const _allowed = <String, int>{
-};
+const _allowed = <String, int>{};
 
 /// Exceções permanentes (o valor precisa ser literal ali).
 const _permanent = <String, int>{

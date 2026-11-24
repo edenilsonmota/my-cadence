@@ -79,11 +79,16 @@ class BookPage extends ConsumerWidget {
                   onTap: () => context.push(Routes.task(task.id)),
                 ),
               if (tree.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(top: 64),
+                Padding(
+                  padding: EdgeInsets.only(top: context.space.xxxl),
                   child: EmptyState(
                     icon: AppIcons.page,
                     message: 'Nenhuma página ainda.',
+                    action: FilledButton.tonal(
+                      onPressed: () =>
+                          createPageFlow(context, ref, notebookId: notebookId),
+                      child: const Text('Criar página'),
+                    ),
                   ),
                 ),
               for (final (page, depth) in tree)
