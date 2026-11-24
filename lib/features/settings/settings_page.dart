@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/nav_tabs_providers.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
+import '../../app/theme/theme_providers.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/number_stepper.dart';
 import '../../shared/widgets/section_header.dart';
@@ -30,6 +31,7 @@ class SettingsPage extends ConsumerWidget {
         ref.watch(pomodoroSettingsProvider).value ?? const PomodoroSettings();
     final cards = ref.watch(cardSettingsProvider).value ?? const CardSettings();
     final navTabs = ref.watch(navTabsProvider);
+    final themeSettings = ref.watch(themeSettingsProvider);
     final allDayHour = parseAllDayHour(ref.watch(_allDayHourProvider).value);
     final repo = ref.read(settingsRepositoryProvider);
     void setInt(String key, int v) => repo.setString(key, '$v');
@@ -51,7 +53,42 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
-          const _Header('Navegação'),
+          const _Header('Aparência'),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.space.page,
+              context.space.xs,
+              context.space.page,
+              context.space.sm,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Tema', style: context.text.bodyLarge),
+                SizedBox(height: context.space.sm),
+                SegmentedButton<AppThemeMode>(
+                  showSelectedIcon: false,
+                  segments: [
+                    for (final mode in AppThemeMode.values)
+                      ButtonSegment(value: mode, label: Text(mode.label)),
+                  ],
+                  selected: {themeSettings.mode},
+                  onSelectionChanged: (s) =>
+                      repo.setString(themeModeSettingKey, s.single.name),
+                ),
+              ],
+            ),
+          ),
+          SwitchListTile(
+            title: const Text('Lights out (alto contraste)'),
+            subtitle: Text(
+              themeSettings.mode == AppThemeMode.light
+                  ? 'Usado no modo escuro ou automático (preto puro e alto contraste)'
+                  : 'Preto puro (OLED) e texto em alto contraste no modo escuro',
+            ),
+            value: themeSettings.lightsOut,
+            onChanged: (v) => setBool(lightsOutSettingKey, v),
+          ),
           ListTile(
             leading: const Icon(AppIcons.navBar),
             title: const Text('Barra de navegação'),

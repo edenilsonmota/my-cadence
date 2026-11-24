@@ -11,6 +11,8 @@ import 'package:my_cadence/app/app.dart';
 import 'package:my_cadence/app/clock.dart';
 import 'package:my_cadence/app/nav_tabs.dart';
 import 'package:my_cadence/app/nav_tabs_providers.dart';
+import 'package:my_cadence/app/theme/theme_providers.dart';
+import 'package:my_cadence/app/theme/theme_settings.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/providers.dart';
 import 'package:my_cadence/data/repositories/settings_repository.dart';
@@ -64,6 +66,18 @@ Future<AppDatabase> pumpApp(
       () => SettingsRepository(db.settingsDao).getString(navTabsSettingKey),
     ),
   );
+  final initialTheme = ThemeSettings(
+    mode: ThemeSettings.parseThemeMode(
+      await tester.runAsync<String?>(
+        () => SettingsRepository(db.settingsDao).getString(themeModeSettingKey),
+      ),
+    ),
+    lightsOut: ThemeSettings.parseLightsOut(
+      await tester.runAsync<String?>(
+        () => SettingsRepository(db.settingsDao).getString(lightsOutSettingKey),
+      ),
+    ),
+  );
 
   // Plugin de altura do teclado (usado pela barra do editor) não existe no
   // ambiente de teste.
@@ -81,6 +95,7 @@ Future<AppDatabase> pumpApp(
         ...overrides,
         databaseProvider.overrideWithValue(db),
         initialNavTabsProvider.overrideWithValue(initialTabs),
+        initialThemeSettingsProvider.overrideWithValue(initialTheme),
         // Sem Google nem Drive de verdade nos testes.
         googleAccountApiProvider.overrideWithValue(
           accountApi ?? FakeAccountApi(),

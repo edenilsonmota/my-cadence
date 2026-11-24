@@ -212,13 +212,21 @@ void main() {
 
     // Foco: 25 → 26.
     final focusRow = find.widgetWithText(ListTile, 'Foco (min)');
-    await tester.ensureVisible(focusRow);
+    await tester.dragUntilVisible(
+      focusRow,
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
     await settle(tester);
     await tester.tap(
       find.descendant(of: focusRow, matching: find.byTooltip('Aumentar')),
     );
     await settle(tester);
-    await tester.ensureVisible(find.text('Iniciar pausas sozinho'));
+    await tester.dragUntilVisible(
+      find.text('Iniciar pausas sozinho'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
     await settle(tester);
     await tester.tap(find.text('Iniciar pausas sozinho'));
     await settle(tester);

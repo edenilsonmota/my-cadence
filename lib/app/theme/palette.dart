@@ -65,14 +65,34 @@ class Tones {
 
   /// Tons a partir de uma cor qualquer, pelo HCT (mesma luminosidade
   /// percebida para todos os matizes, logo o mesmo contraste).
-  factory Tones.fromSeed(int argb, Brightness brightness) {
+  factory Tones.fromSeed(
+    int argb,
+    Brightness brightness, {
+    bool lightsOut = false,
+  }) {
     final hct = Hct.fromInt(argb);
     final hue = hct.hue, chroma = hct.chroma;
     Color tone(double t, double maxChroma) =>
         Color(Hct.from(hue, math.min(chroma, maxChroma), t).toInt());
-    return brightness == Brightness.light
-        ? Tones(tint: tone(92, 18), strong: tone(45, 80), onTint: tone(24, 48))
-        : Tones(tint: tone(24, 24), strong: tone(76, 60), onTint: tone(90, 20));
+    if (brightness == Brightness.light) {
+      return Tones(
+        tint: tone(92, 18),
+        strong: tone(45, 80),
+        onTint: tone(24, 48),
+      );
+    }
+    if (lightsOut) {
+      return Tones(
+        tint: tone(16, 28),
+        strong: tone(82, 68),
+        onTint: tone(96, 16),
+      );
+    }
+    return Tones(
+      tint: tone(24, 24),
+      strong: tone(76, 60),
+      onTint: tone(90, 20),
+    );
   }
 }
 
@@ -82,10 +102,11 @@ class Tones {
 class AppPalette extends ThemeExtension<AppPalette> {
   const AppPalette._(this.brightness, this._tones);
 
-  factory AppPalette.of(Brightness brightness) => AppPalette._(brightness, {
-    for (final key in PaletteKey.values)
-      key: Tones.fromSeed(key.seed, brightness),
-  });
+  factory AppPalette.of(Brightness brightness, {bool lightsOut = false}) =>
+      AppPalette._(brightness, {
+        for (final key in PaletteKey.values)
+          key: Tones.fromSeed(key.seed, brightness, lightsOut: lightsOut),
+      });
 
   final Brightness brightness;
   final Map<PaletteKey, Tones> _tones;

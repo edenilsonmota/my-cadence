@@ -10,6 +10,8 @@ import 'app/nav_tabs.dart';
 import 'app/nav_tabs_providers.dart';
 import 'app/notification_navigation.dart';
 import 'app/router.dart';
+import 'app/theme/theme_providers.dart';
+import 'app/theme/theme_settings.dart';
 import 'core/notifications.dart';
 import 'core/time_zone.dart';
 import 'data/db/database.dart';
@@ -25,8 +27,15 @@ Future<void> main() async {
   await initTimeZone();
 
   final db = AppDatabase.open();
-  final initialTabs = parseNavTabs(
-    await SettingsRepository(db.settingsDao).getString(navTabsSettingKey),
+  final settings = SettingsRepository(db.settingsDao);
+  final initialTabs = parseNavTabs(await settings.getString(navTabsSettingKey));
+  final initialTheme = ThemeSettings(
+    mode: ThemeSettings.parseThemeMode(
+      await settings.getString(themeModeSettingKey),
+    ),
+    lightsOut: ThemeSettings.parseLightsOut(
+      await settings.getString(lightsOutSettingKey),
+    ),
   );
 
   final container = ProviderContainer(
@@ -36,6 +45,7 @@ Future<void> main() async {
         return db;
       }),
       initialNavTabsProvider.overrideWithValue(initialTabs),
+      initialThemeSettingsProvider.overrideWithValue(initialTheme),
     ],
   );
   // O payload é o id da tarefa, ou `pomodoro` para o fim de um ciclo.

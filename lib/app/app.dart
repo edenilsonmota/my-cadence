@@ -8,6 +8,7 @@ import '../features/pomodoro/pomodoro_controller.dart';
 import '../features/tasks/alarms.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_providers.dart';
 
 class CadenceApp extends ConsumerStatefulWidget {
   const CadenceApp({super.key});
@@ -44,11 +45,16 @@ class _CadenceAppState extends ConsumerState<CadenceApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeSettings = ref.watch(themeSettingsProvider);
     return MaterialApp.router(
       title: 'My Cadence',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(Brightness.light),
-      darkTheme: buildTheme(Brightness.dark),
+      darkTheme: buildTheme(
+        Brightness.dark,
+        lightsOut: themeSettings.lightsOut,
+      ),
+      themeMode: themeSettings.mode.material,
       locale: const Locale('pt', 'BR'),
       supportedLocales: const [Locale('pt', 'BR')],
       localizationsDelegates: const [
