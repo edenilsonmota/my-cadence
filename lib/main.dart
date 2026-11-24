@@ -13,8 +13,12 @@ Future<void> main() async {
   await initTimeZone();
 
   final container = ProviderContainer();
-  void openTask(String taskId) =>
-      container.read(routerProvider).push(Routes.task(taskId));
+  // O payload é o id da tarefa, ou `pomodoro` para o fim de um ciclo.
+  void openTask(String payload) => container
+      .read(routerProvider)
+      .push(
+        payload == pomodoroPayload ? Routes.pomodoro() : Routes.task(payload),
+      );
 
   final notifications = NotificationService.instance;
   await notifications.init(

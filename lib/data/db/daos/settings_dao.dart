@@ -21,6 +21,13 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
   Stream<String?> watchValue(String key) =>
       _byKey(key).watchSingleOrNull().map((s) => s?.value);
 
+  /// Todos os ajustes cujas chaves começam com [prefix], como mapa.
+  Stream<Map<String, String>> watchPrefix(String prefix) =>
+      (select(appSettings)
+            ..where((s) => s.key.like('$prefix%') & s.deletedAt.isNull()))
+          .watch()
+          .map((rows) => {for (final r in rows) r.key: r.value});
+
   /// Grava o valor da chave (cria, atualiza ou revive a linha da chave).
   Future<void> setValue(String key, String value) => transaction(() async {
     final existing = await (select(

@@ -88,6 +88,7 @@ class AlarmSync {
       // Cancela o que sobrou de tarefas que não querem mais lembrete. Os de
       // tarefas que ainda querem, com horário passado, ficam (ex.: um "Adiar").
       final keep = {
+        pomodoroNotificationId, // cuidado pelo controlador do pomodoro
         for (final task in tasks)
           if (wantsAlarm(task)) notificationIdFor(task.id),
       };

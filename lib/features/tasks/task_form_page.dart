@@ -5,6 +5,7 @@ import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
+import '../../shared/widgets/number_stepper.dart';
 import 'alarms.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
@@ -240,7 +241,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
               : null,
         ),
         const _Label('Pomodoros estimados'),
-        _Stepper(
+        NumberStepper(
           value: d.estimatedPomodoros ?? 0,
           min: 0,
           onChanged: (v) =>
@@ -264,7 +265,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         children: [
           const Text('A cada'),
           const SizedBox(width: 8),
-          _Stepper(
+          NumberStepper(
             value: d.interval,
             min: 1,
             onChanged: (v) => _edit((d) => d.interval = v),
@@ -408,48 +409,6 @@ class _DateTimeRow extends StatelessWidget {
               onTime?.call(null);
             },
           ),
-      ],
-    );
-  }
-}
-
-class _Stepper extends StatelessWidget {
-  const _Stepper({
-    required this.value,
-    required this.min,
-    required this.onChanged,
-    required this.semanticLabel,
-  });
-
-  final int value;
-  final int min;
-  final ValueChanged<int> onChanged;
-  final String semanticLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton.outlined(
-          tooltip: 'Diminuir',
-          icon: const Icon(Icons.remove),
-          onPressed: value > min ? () => onChanged(value - 1) : null,
-        ),
-        SizedBox(
-          width: 40,
-          child: Text(
-            '$value',
-            textAlign: TextAlign.center,
-            semanticsLabel: '$semanticLabel: $value',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ),
-        IconButton.outlined(
-          tooltip: 'Aumentar',
-          icon: const Icon(Icons.add),
-          onPressed: () => onChanged(value + 1),
-        ),
       ],
     );
   }

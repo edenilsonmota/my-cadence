@@ -80,6 +80,35 @@ Preparação: criar pela aba Hoje uma rotina com **Dia inteiro desligado**, praz
 - [ ] **4.4 Telas provisórias.** "Revisar desta tarefa", "Iniciar foco" e tocar numa página abrem as telas
   "em construção" e o voltar retorna ao hub.
 
+## Pendentes: Etapa 5 (pomodoro)
+
+Critério de pronto da etapa: **fechar e reabrir o app no meio de um foco mantém o tempo certo e a
+notificação chega.** Para testar rápido, em Ajustes deixar Foco = 1 min e Pausa curta = 1 min.
+
+- [ ] **5.1 Fechar no meio do foco.** Iniciar um foco de 2 min, anotar o tempo restante, fechar o app
+  (Home + `am kill`), esperar 30 s e reabrir: o relógio mostra ~30 s a menos que o anotado (não
+  recomeça, não congela). `dumpsys alarm` mostra o alarme do fim.
+- [ ] **5.2 Notificação do fim com o app fechado.** Iniciar foco de 1 min e fechar o app: chega
+  "Foco concluído / Hora de uma pausa." com som e vibração. Tocar abre a tela do pomodoro com o
+  cartão "Foco concluído!" e "Próximo: Pausa curta".
+- [ ] **5.3 Reabrir depois do fim sem tocar na notificação.** A sessão aparece como concluída (cartão
+  e mini-player "Foco concluído"), e o tempo de foco no hub da tarefa é o planejado, não o tempo
+  até reabrir.
+- [ ] **5.4 Pausar e retomar.** Pausar cancela o alarme (`dumpsys alarm` sem o do app); retomar
+  agenda de novo, empurrado pelo tempo pausado.
+- [ ] **5.5 Mini-player.** Com sessão rodando, a faixa aparece acima das abas em todas as abas, o tempo
+  anda a cada segundo, o botão pausa/retoma e o toque abre a tela.
+- [ ] **5.6 Manter a tela ligada.** Com o ajuste ligado e um foco rodando, a tela do pomodoro não apaga
+  sozinha; ao sair da tela ou pausar, volta a apagar normalmente.
+- [ ] **5.7 Som e vibração.** Desligar "Som ao terminar" e confirmar que o próximo aviso vem sem som
+  (canal "Pomodoro (sem som)"); idem para vibração.
+- [ ] **5.8 Iniciar pausas sozinho.** Com o ajuste ligado, ao fim do foco a pausa começa sozinha e
+  chega outra notificação no fim da pausa.
+- [ ] **5.9 Concluir tarefa ao fim do foco.** No cartão "Foco concluído!", "Concluir \"…\"" conclui a
+  tarefa (rotina avança).
+- [ ] **5.10 Notificação de pomodoro não some ao abrir o app.** Com um foco rodando e o app fechado,
+  abrir o app (que reagenda os lembretes de tarefas): o aviso do fim continua agendado.
+
 ## Limitações conhecidas (não são bugs)
 
 - iOS: configuração feita, mas nada foi compilado nem testado (o ambiente é Linux).

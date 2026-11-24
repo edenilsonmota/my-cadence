@@ -10,4 +10,8 @@ class SettingsRepository {
   Future<String?> getString(String key) => _dao.getValue(key);
   Stream<String?> watchString(String key) => _dao.watchValue(key);
   Future<void> setString(String key, String value) => _dao.setValue(key, value);
+
+  /// Ajustes de um grupo (ex.: `pomodoro.`), como mapa chave → texto.
+  Stream<Map<String, String>> watchPrefix(String prefix) =>
+      _dao.watchPrefix(prefix);
 }

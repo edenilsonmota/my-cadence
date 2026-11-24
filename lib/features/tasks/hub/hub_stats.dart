@@ -3,6 +3,7 @@ library;
 
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
+import '../../pomodoro/pomodoro_logic.dart';
 
 /// Ids de [rootId] e de todas as descendentes, a partir da lista de tarefas.
 List<String> subtreeIds(Iterable<Task> tasks, String rootId) {
@@ -36,15 +37,6 @@ class FocusSummary {
   final Duration total;
 }
 
-/// Tempo efetivo de uma sessão: do início ao fim (ou até agora, se em
-/// andamento; ou até a pausa, se pausada), menos as pausas já encerradas.
-Duration focusTime(PomodoroSession s, DateTime now) {
-  final end = s.endedAt ?? s.pausedAt ?? now;
-  final time =
-      end.difference(s.startedAt) - Duration(milliseconds: s.pausedTotalMs);
-  return time.isNegative ? Duration.zero : time;
-}
-
 FocusSummary summarizeFocus(Iterable<PomodoroSession> sessions, DateTime now) {
   var count = 0, completed = 0;
   var total = Duration.zero;
@@ -52,7 +44,7 @@ FocusSummary summarizeFocus(Iterable<PomodoroSession> sessions, DateTime now) {
     if (s.kind != PomodoroKind.foco) continue;
     count++;
     if (s.completed) completed++;
-    total += focusTime(s, now);
+    total += elapsed(s, now);
   }
   return FocusSummary(sessions: count, completed: completed, total: total);
 }

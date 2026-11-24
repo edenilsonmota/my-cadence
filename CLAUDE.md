@@ -83,6 +83,20 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Nos testes, `alarmSchedulerProvider` é trocado por `FakeScheduler` (`test/helpers/fake_scheduler.dart`).
 - Testar alarme no aparelho: fechar com `adb shell am kill` (o `force-stop` apaga os alarmes do app).
 
+## Pomodoro
+
+- Fonte da verdade é a linha em `PomodoroSessions`; tempo sempre por `pomodoro_logic.dart`
+  (`elapsed`, `remaining`, `endTime`), nunca acumulado em Timer.
+- `PomodoroController` (Riverpod) inicia/pausa/retoma/para, agenda o aviso de fim (id fixo
+  `pomodoroNotificationId`, payload `pomodoro`) e fecha a sessão vencida em `checkDue()`, chamado pelo
+  timer do fim, pela batida de 1 s da tela e ao voltar o app. Sessão vencida fecha com
+  `endedAt = endTime`, não com a hora em que o app percebeu.
+- Ajustes do pomodoro ficam em `AppSettings` com prefixo `pomodoro.` (`PomodoroSettings`).
+- Riverpod 3: provider só lido com `ref.read(x.future)`, sem ninguém escutando, fica pausado e não
+  completa. Quem precisa ler assim deve manter um `ref.listen` no provider.
+- Nos testes, `tickerProvider` é um stream parado e `screenAwakeProvider` é falso (ver `pumpApp`);
+  para simular o fim, avance o relógio do teste e `tester.pump(duração)`.
+
 ## UI e testes
 
 - Telas leem providers (`features/<domínio>/*_providers.dart`); ações chamam o repositório via

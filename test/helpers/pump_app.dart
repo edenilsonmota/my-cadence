@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/app/app.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/providers.dart';
+import 'package:my_cadence/features/pomodoro/pomodoro_controller.dart';
 import 'package:my_cadence/features/tasks/alarms.dart';
 import 'package:my_cadence/features/tasks/hub/hub_providers.dart';
 import 'package:my_cadence/features/tasks/task_providers.dart';
@@ -29,6 +30,8 @@ Future<AppDatabase> pumpApp(
   DateTime? today,
   Future<void> Function(AppDatabase db)? seed,
   FakeScheduler? scheduler,
+  DateTime Function()? clock,
+  List<bool>? screenAwake,
 }) async {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   final db = AppDatabase(
@@ -48,10 +51,18 @@ Future<AppDatabase> pumpApp(
       overrides: [
         databaseProvider.overrideWithValue(db),
         alarmSchedulerProvider.overrideWithValue(scheduler ?? FakeScheduler()),
-        // Meio-dia do "hoje" fixo.
+        // Padrão: meio-dia do "hoje" fixo.
         clockProvider.overrideWithValue(
-          () =>
-              (today ?? DateTime(2026, 11, 23)).add(const Duration(hours: 12)),
+          clock ??
+              () => (today ?? DateTime(2026, 11, 23)).add(
+                const Duration(hours: 12),
+              ),
+        ),
+        // Sem batida de segundo (o pumpAndSettle nunca terminaria); as telas
+        // usam o relógio acima.
+        tickerProvider.overrideWith((ref) => const Stream.empty()),
+        screenAwakeProvider.overrideWithValue(
+          (on) async => screenAwake?.add(on),
         ),
         todayProvider.overrideWith(
           () => FixedToday(today ?? DateTime(2026, 11, 23)),

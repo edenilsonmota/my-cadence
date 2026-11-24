@@ -63,6 +63,42 @@ void main() {
     expect(sessions.map((s) => s.startedAt.hour), [8, 9]);
   });
 
+  test('pausar e retomar acumulam o tempo pausado', () async {
+    final id = await repo.startSession(
+      kind: PomodoroKind.foco,
+      plannedMinutes: 25,
+      startedAt: DateTime(2026, 11, 23, 9),
+    );
+    await repo.pauseSession(id, at: DateTime(2026, 11, 23, 9, 10));
+    var s = (await repo.getRunning())!;
+    expect(s.pausedAt, DateTime(2026, 11, 23, 9, 10));
+
+    await repo.resumeSession(s, at: DateTime(2026, 11, 23, 9, 13));
+    s = (await repo.getRunning())!;
+    expect(s.pausedAt, isNull);
+    expect(s.pausedTotalMs, 3 * 60 * 1000);
+
+    await repo.pauseSession(id, at: DateTime(2026, 11, 23, 9, 20));
+    await repo.resumeSession(
+      (await repo.getRunning())!,
+      at: DateTime(2026, 11, 23, 9, 22),
+    );
+    expect((await repo.getRunning())!.pausedTotalMs, 5 * 60 * 1000);
+  });
+
+  test('troca a tarefa da sessão', () async {
+    final task = await tasks.createTask(title: 'T');
+    final id = await repo.startSession(
+      kind: PomodoroKind.foco,
+      plannedMinutes: 25,
+      startedAt: DateTime(2026, 11, 23, 9),
+    );
+    await repo.setSessionTask(id, task);
+    expect((await repo.getRunning())!.taskId, task);
+    await repo.setSessionTask(id, null);
+    expect((await repo.getRunning())!.taskId, isNull);
+  });
+
   test('sessões por período e exclusão', () async {
     final early = await repo.startSession(
       kind: PomodoroKind.foco,

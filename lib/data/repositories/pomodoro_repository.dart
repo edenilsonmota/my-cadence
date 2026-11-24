@@ -5,8 +5,8 @@ import '../db/daos/pomodoro_dao.dart';
 import '../db/database.dart';
 import '../db/enums.dart';
 
-/// Sessões de pomodoro. Pausar e retomar entram na Etapa 5, junto com a
-/// notificação de fim do ciclo.
+/// Sessões de pomodoro. O tempo restante é sempre calculado a partir das
+/// colunas (ver `features/pomodoro/pomodoro_logic.dart`), nunca acumulado.
 class PomodoroRepository {
   PomodoroRepository(this._dao);
 
@@ -56,6 +56,28 @@ class PomodoroRepository {
       pausedAt: const Value(null),
     ),
   );
+
+  /// Pausa: grava o momento da pausa.
+  Future<void> pauseSession(String id, {required DateTime at}) =>
+      _dao.updateSession(id, PomodoroSessionsCompanion(pausedAt: Value(at)));
+
+  /// Retoma: soma a pausa em `pausedTotalMs` e limpa `pausedAt`.
+  Future<void> resumeSession(PomodoroSession session, {required DateTime at}) {
+    final pausedAt = session.pausedAt;
+    if (pausedAt == null) return Future.value();
+    final pause = at.difference(pausedAt).inMilliseconds;
+    return _dao.updateSession(
+      session.id,
+      PomodoroSessionsCompanion(
+        pausedAt: const Value(null),
+        pausedTotalMs: Value(session.pausedTotalMs + (pause < 0 ? 0 : pause)),
+      ),
+    );
+  }
+
+  /// Troca (ou remove) a tarefa vinculada à sessão.
+  Future<void> setSessionTask(String id, String? taskId) =>
+      _dao.updateSession(id, PomodoroSessionsCompanion(taskId: Value(taskId)));
 
   Future<void> deleteSession(String id) => _dao.softDeleteSession(id);
 }

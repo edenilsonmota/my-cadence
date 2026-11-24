@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/providers.dart';
+import '../features/pomodoro/pomodoro_controller.dart';
 import '../features/tasks/alarms.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -28,6 +29,8 @@ class _CadenceAppState extends ConsumerState<CadenceApp> {
   /// reconcilia os lembretes com o que está agendado no sistema.
   void _onResume() {
     ref.read(alarmSyncProvider).reset();
+    // O ciclo pode ter acabado com o app em segundo plano.
+    ref.read(pomodoroControllerProvider.notifier).checkDue();
     final db = ref.read(databaseProvider);
     db.markTablesUpdated(db.allTables);
   }

@@ -9,7 +9,19 @@ abstract final class AlarmActions {
   static const snooze = 'adiar';
 }
 
-/// Um lembrete a agendar. [payload] é o id da tarefa (deep link).
+/// Payload da notificação de fim do pomodoro (abre a tela do pomodoro).
+const pomodoroPayload = 'pomodoro';
+
+enum AlarmKind {
+  /// Lembrete de tarefa, com as ações "Concluir" e "Adiar".
+  task,
+
+  /// Fim de um ciclo do pomodoro, sem ações.
+  pomodoro,
+}
+
+/// Uma notificação a agendar. Em lembrete de tarefa, [payload] é o id da
+/// tarefa (deep link); no pomodoro, [pomodoroPayload].
 class AlarmSpec {
   const AlarmSpec({
     required this.id,
@@ -17,6 +29,9 @@ class AlarmSpec {
     required this.title,
     required this.body,
     required this.payload,
+    this.kind = AlarmKind.task,
+    this.sound = true,
+    this.vibrate = true,
   });
 
   final int id;
@@ -24,6 +39,9 @@ class AlarmSpec {
   final String title;
   final String body;
   final String payload;
+  final AlarmKind kind;
+  final bool sound;
+  final bool vibrate;
 
   AlarmSpec copyWith({DateTime? time}) => AlarmSpec(
     id: id,
@@ -31,6 +49,9 @@ class AlarmSpec {
     title: title,
     body: body,
     payload: payload,
+    kind: kind,
+    sound: sound,
+    vibrate: vibrate,
   );
 
   @override
@@ -40,10 +61,14 @@ class AlarmSpec {
       other.time == time &&
       other.title == title &&
       other.body == body &&
-      other.payload == payload;
+      other.payload == payload &&
+      other.kind == kind &&
+      other.sound == sound &&
+      other.vibrate == vibrate;
 
   @override
-  int get hashCode => Object.hash(id, time, title, body, payload);
+  int get hashCode =>
+      Object.hash(id, time, title, body, payload, kind, sound, vibrate);
 
   @override
   String toString() => 'AlarmSpec($id, $time, $title)';
@@ -151,11 +176,34 @@ class NotificationService implements AlarmScheduler {
     iOS: DarwinNotificationDetails(categoryIdentifier: _iosCategory),
   );
 
+  /// Fim do pomodoro. No Android, som e vibração pertencem ao canal (fixos
+  /// depois de criado), então cada combinação tem o seu canal.
+  static NotificationDetails _pomodoroDetails(AlarmSpec alarm) {
+    final variant = '${alarm.sound ? 's' : 'm'}${alarm.vibrate ? 'v' : 'n'}';
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        'pomodoro_$variant',
+        'Pomodoro${alarm.sound ? '' : ' (sem som)'}'
+            '${alarm.vibrate ? '' : ' (sem vibração)'}',
+        channelDescription: 'Aviso de fim de foco ou de pausa',
+        importance: Importance.max,
+        priority: Priority.high,
+        category: AndroidNotificationCategory.alarm,
+        icon: '@mipmap/ic_launcher',
+        playSound: alarm.sound,
+        enableVibration: alarm.vibrate,
+      ),
+      iOS: DarwinNotificationDetails(presentSound: alarm.sound),
+    );
+  }
+
   @override
   Future<void> schedule(AlarmSpec alarm) => plugin.zonedSchedule(
     id: alarm.id,
     scheduledDate: tz.TZDateTime.from(alarm.time, tz.local),
-    notificationDetails: _details,
+    notificationDetails: alarm.kind == AlarmKind.pomodoro
+        ? _pomodoroDetails(alarm)
+        : _details,
     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     title: alarm.title,
     body: alarm.body,

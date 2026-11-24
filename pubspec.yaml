@@ -41,6 +41,7 @@ dependencies:
   drift: ^2.35.4
   drift_flutter: ^0.3.1
   uuid: ^4.6.0
+  wakelock_plus: ^1.8.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
