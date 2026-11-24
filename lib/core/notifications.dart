@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'dart:ui' show Color;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -98,6 +99,9 @@ class NotificationService implements AlarmScheduler {
   final FlutterLocalNotificationsPlugin plugin =
       FlutterLocalNotificationsPlugin();
 
+  /// Cor do ícone nas notificações (a semente do tema).
+  static const brandColor = Color(0xFF00796B);
+
   static const _channelId = 'lembretes';
   static const _iosCategory = 'lembrete_tarefa';
 
@@ -110,7 +114,7 @@ class NotificationService implements AlarmScheduler {
     onBackgroundAction,
   }) async {
     final settings = InitializationSettings(
-      android: const AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: const AndroidInitializationSettings('@drawable/ic_notification'),
       // A permissão no iOS é pedida quando o primeiro alarme for criado.
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
@@ -159,7 +163,8 @@ class NotificationService implements AlarmScheduler {
       priority: Priority.high,
       category: AndroidNotificationCategory.reminder,
       // Ícone explícito: no isolate das ações o plugin não é inicializado.
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
+      color: brandColor,
       actions: [
         AndroidNotificationAction(
           AlarmActions.complete,
@@ -189,7 +194,8 @@ class NotificationService implements AlarmScheduler {
         importance: Importance.max,
         priority: Priority.high,
         category: AndroidNotificationCategory.alarm,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
+        color: brandColor,
         playSound: alarm.sound,
         enableVibration: alarm.vibrate,
       ),

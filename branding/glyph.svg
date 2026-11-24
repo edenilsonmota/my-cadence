@@ -1,0 +1,8 @@
+<!-- Símbolo do My Cadence (branco, fundo transparente), em grade de 108 (ícone adaptativo do Android). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+  <g fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M74.78 42 A24 24 0 1 1 58.17 30.36"/>
+    <path d="M43 55 L51 63 L66 46"/>
+  </g>
+  <circle cx="67.77" cy="34.34" r="4" fill="#FFFFFF"/>
+</svg>

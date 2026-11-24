@@ -24,9 +24,23 @@ class AppDrawer extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-          child: Text(
-            'My Cadence',
-            style: Theme.of(context).textTheme.titleSmall,
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/branding/logo.png',
+                  width: 32,
+                  height: 32,
+                  excludeFromSemantics: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'My Cadence',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
           ),
         ),
         const NavigationDrawerDestination(

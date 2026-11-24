@@ -167,6 +167,16 @@ Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-
   origem): mesma árvore e conteúdo.
 - [ ] **7.7 Livro longo.** Página com umas 300 linhas: rolar e digitar continuam fluidos.
 
+## Pendentes: logo do app
+
+- [ ] **L.1 Ícone.** Na tela inicial e na gaveta de apps aparece o anel com check em fundo verde-azulado
+  (sem o logo do Flutter), recortado certo no formato do launcher. Com "ícones temáticos" do Android 13+
+  ligado, o ícone segue as cores do sistema.
+- [ ] **L.2 Notificação.** Lembrete de tarefa e fim de pomodoro mostram o símbolo branco na barra de
+  status (não um quadrado cinza) e o símbolo em verde-azulado na notificação aberta.
+- [ ] **L.3 Splash e menu.** Ao abrir (Android 12+), o splash mostra o novo ícone; o menu lateral mostra o
+  logo ao lado de "My Cadence".
+
 ## Limitações conhecidas (não são bugs)
 
 - iOS: configuração feita, mas nada foi compilado nem testado (o ambiente é Linux).
