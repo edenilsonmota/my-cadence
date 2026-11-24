@@ -15,8 +15,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   silenciosamente numa versão antiga.
 - Na dúvida entre simples e "arquiteturalmente bonito", escolher o simples.
 - Se uma decisão do plano se mostrar ruim na prática, parar e explicar antes de mudar.
-- O que só dá para validar no celular (alarmes, notificações, reboot, gestos reais) vai como checklist em
-  [docs/TESTES_APARELHO.md](docs/TESTES_APARELHO.md); rodar e marcar quando o aparelho estiver disponível.
+- O que só dá para validar no celular (alarmes, notificações, reboot, gestos reais): testar no aparelho
+  quando estiver conectado e registrar o resultado na mensagem do commit (não há checklist versionado).
 - Repositório público: nunca commitar chaves, keystores, `.env`, `google-services.json` ou dados pessoais.
 
 ## Identidade

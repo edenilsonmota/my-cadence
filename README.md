@@ -1,84 +1,58 @@
 # My Cadence
 
-App pessoal, offline-first, que junta num lugar só:
+App pessoal de organização para Android, offline-first, que junta num lugar só:
 
-- **Tarefas** e subtarefas, com rotinas recorrentes e alarmes;
+- **Tarefas** e subtarefas, com rotinas recorrentes e lembretes com alarme;
 - **Flashcards** com repetição espaçada (algoritmo FSRS, o mesmo do Anki moderno);
-- **Pomodoro** vinculado às tarefas;
-- **Books**: cadernos de páginas estilo Notion;
-- **Agenda** com visões de dia, semana e mês;
+- **Pomodoro** ligado às tarefas;
+- **Books**: cadernos de páginas com editor rico (listas, tarefas, citações, tabelas, imagens, código);
+- **Agenda** com visões de dia, semana e mês, arrastando os blocos;
 - **Métricas** de foco, revisões e rotinas.
 
-A tarefa é o centro: cada uma vira um hub onde ficam os cards, o tempo de foco e as páginas dela.
-Tudo funciona sem internet e fica no próprio aparelho. Para usar em mais de um aparelho, o app sincroniza pelo
-Google Drive da própria pessoa (pasta privada do app, sem servidor próprio); também há backup manual em JSON.
+A tarefa é o centro: cada uma vira um hub com os cards, o tempo de foco e as páginas dela. Tudo funciona sem
+internet e fica no aparelho. Para usar em mais de um aparelho, o app sincroniza pelo Google Drive da própria
+pessoa (pasta privada do app, sem servidor próprio); também há backup manual em JSON.
 
-> Em desenvolvimento. O plano completo, etapa por etapa, está em [docs/PLANO.md](docs/PLANO.md).
+<p>
+  <img src="docs/screenshots/hoje.png" width="200" alt="Hoje">
+  <img src="docs/screenshots/agenda.png" width="200" alt="Agenda">
+  <img src="docs/screenshots/revisar.png" width="200" alt="Revisar">
+  <img src="docs/screenshots/books.png" width="200" alt="Books">
+</p>
 
-## Stack
+## Instalar
 
-| Tema | Pacote |
-|---|---|
-| Interface | Flutter (Material 3 com sistema de design próprio, tema claro e escuro, pt-BR) |
-| Navegação | `go_router` (`StatefulShellRoute` com 5 abas) |
-| Estado | Riverpod |
-| Banco local | drift (SQLite) |
-| Repetição espaçada | `fsrs` |
-| Notificações | `flutter_local_notifications` + `timezone` |
-| Editor de páginas | AppFlowy Editor ([fork](https://github.com/edenilsonmota/appflowy-editor/tree/cadence/file-picker-13) com suporte a file_picker 13) |
-| Arquivos | `file_picker` (CSV, Markdown, zip, JSON) e `archive` |
-| Sincronização | `google_sign_in` + `googleapis` (Drive, `appDataFolder`) |
-| Gráficos | `fl_chart` |
-| Ícones | Lucide (`lucide_icons_flutter`), família única |
-| Fontes | Inter (interface), Literata (leitura) e JetBrains Mono (código), empacotadas, licença OFL |
+Baixe o `cadence-X.Y.Z.apk` da [última release](https://github.com/edenilsonmota/my-cadence/releases/latest)
+e abra no celular (o Android pede para permitir a instalação dessa fonte). As versões novas instalam por cima,
+sem perder dados, e o próprio app avisa quando sai uma (Ajustes → Atualizações).
 
-Os pacotes entram no projeto conforme cada etapa precisa deles.
+Em celulares Samsung, tire o Cadence das "apps em suspensão" (Bateria → Limites de uso em segundo plano) para
+os alarmes não atrasarem.
 
-## Como rodar
+[Política de privacidade](docs/PRIVACIDADE.md)
 
-Pré-requisitos: Flutter 3.47 ou mais novo (Dart 3.13) e Android SDK com a plataforma **37**
-(exigida pelo `flutter_local_notifications`).
+## Desenvolvimento
+
+Flutter 3.47+ (Dart 3.13) e Android SDK com a plataforma 37.
 
 ```bash
 git clone https://github.com/edenilsonmota/my-cadence.git
 cd my-cadence
 flutter pub get
 flutter run
+flutter analyze && flutter test
 ```
 
-Para a sincronização pelo Google Drive, siga [docs/google-cloud.md](docs/google-cloud.md) e rode com
-`--dart-define-from-file=config/google.json`. Sem isso o app funciona normalmente, sem login.
+O login com Google precisa dos IDs do cliente OAuth ([docs/google-cloud.md](docs/google-cloud.md)); sem eles o
+app funciona normalmente, só sem sincronização. Versões e APK assinado: [docs/RELEASE.md](docs/RELEASE.md).
 
-Verificações usadas em toda etapa:
+**Stack:** Flutter (Material 3 com sistema de design próprio, tema claro e escuro), Riverpod, go_router,
+drift (SQLite), `fsrs`, `flutter_local_notifications`, AppFlowy Editor
+([fork](https://github.com/edenilsonmota/appflowy-editor/tree/cadence/file-picker-13)), `google_sign_in` +
+Drive API, `fl_chart`, ícones Lucide e fontes Inter, Literata e JetBrains Mono (OFL).
 
-```bash
-flutter analyze
-flutter test
-```
-
-## Uso no dia a dia (Android)
-
-Para usar de verdade, instale o build de **release** (mais rápido e sem as telas de desenvolvimento):
-
-```bash
-flutter build apk --release --split-per-abi
-adb install -r build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-```
-
-O release ainda é assinado com a chave de debug, então instala por cima do app de desenvolvimento sem perder
-dados. Quando houver uma chave de release própria, a troca de assinatura exige desinstalar: antes, exporte um
-backup JSON (ou sincronize pelo Drive) e importe depois.
-
-## Design
-
-Tudo que é visual sai de `lib/app/theme/`: espaçamentos, raios, movimento, paleta de 12 cores (guardadas por
-chave, com contraste testado nos dois temas), tipografia e o mapa de ícones `AppIcons`. Tarefas, tags e books
-têm cor e ícone escolhidos num seletor único, com herança (tarefa → mãe → tag → tipo). Em modo debug, o menu
-lateral abre o catálogo de componentes.
-
-## Screenshots
-
-_As capturas de tela entram aqui conforme as telas forem ficando prontas._
+Mais detalhes: [plano do projeto](docs/PLANO.md), [sincronização](docs/SINCRONIZACAO.md) e
+[sistema visual](docs/EVOLUCAO-VISUAL.md).
 
 ## Licença
 
