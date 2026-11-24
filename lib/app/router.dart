@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/dates.dart';
+
 import '../features/books/book_page.dart';
 import '../features/books/books_page.dart';
 import '../features/books/page_editor_page.dart';
@@ -48,11 +50,25 @@ abstract final class Routes {
       edit ? '/pagina/$id?editar=1' : '/pagina/$id';
   static String book(String id) => '/book/$id';
 
-  /// Formulário de nova tarefa, opcionalmente como subtarefa ou com prazo hoje.
-  static String newTask({String? parentId, bool dueToday = false}) => Uri(
+  /// Formulário de nova tarefa, opcionalmente como subtarefa, com prazo hoje,
+  /// com prazo num dia ([date], dia inteiro) ou começando num horário ([at]).
+  static String newTask({
+    String? parentId,
+    bool dueToday = false,
+    DateTime? date,
+    DateTime? at,
+  }) => Uri(
     path: '/tarefa/nova',
-    queryParameters: {'pai': ?parentId, if (dueToday) 'prazo': 'hoje'},
+    queryParameters: {
+      'pai': ?parentId,
+      if (dueToday) 'prazo': 'hoje',
+      if (date != null) 'data': _isoDate(date),
+      if (at != null) 'inicio': '${_isoDate(at)}T${formatTime(at)}',
+    },
   ).toString();
+
+  static String _isoDate(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${two(d.month)}-${two(d.day)}';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -135,6 +151,8 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         builder: (_, state) => TaskFormPage(
           parentId: state.uri.queryParameters['pai'],
           dueToday: state.uri.queryParameters['prazo'] == 'hoje',
+          date: DateTime.tryParse(state.uri.queryParameters['data'] ?? ''),
+          startAt: DateTime.tryParse(state.uri.queryParameters['inicio'] ?? ''),
         ),
       ),
       GoRoute(

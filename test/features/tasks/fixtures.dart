@@ -9,8 +9,10 @@ Task makeTask(
   TaskKind kind = TaskKind.simples,
   TaskStatus status = TaskStatus.aFazer,
   int priority = 0,
+  DateTime? startAt,
   DateTime? dueAt,
   bool hasTime = false,
+  String? recurrenceRule,
   int sortOrder = 0,
 }) => Task(
   id: id,
@@ -22,7 +24,9 @@ Task makeTask(
   kind: kind,
   status: status,
   priority: priority,
+  startAt: startAt,
   dueAt: dueAt,
   hasTime: hasTime,
+  recurrenceRule: recurrenceRule,
   sortOrder: sortOrder,
 );

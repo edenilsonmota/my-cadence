@@ -18,6 +18,8 @@ class TaskFormPage extends ConsumerStatefulWidget {
     this.taskId,
     this.parentId,
     this.dueToday = false,
+    this.date,
+    this.startAt,
     super.key,
   });
 
@@ -26,6 +28,13 @@ class TaskFormPage extends ConsumerStatefulWidget {
 
   /// Nova tarefa já com prazo hoje (atalho da aba Hoje).
   final bool dueToday;
+
+  /// Nova tarefa de dia inteiro com prazo neste dia (agenda).
+  final DateTime? date;
+
+  /// Nova tarefa com hora: começa aqui e termina 1 h depois (toque longo na
+  /// agenda).
+  final DateTime? startAt;
 
   @override
   ConsumerState<TaskFormPage> createState() => _TaskFormPageState();
@@ -46,9 +55,23 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     if (_editing) {
       _load();
     } else {
-      _draft = TaskDraft(
-        dueDate: widget.dueToday ? ref.read(todayProvider) : null,
-      );
+      final start = widget.startAt;
+      final end = start?.add(const Duration(hours: 1));
+      _draft = start != null && end != null
+          ? TaskDraft(
+              allDay: false,
+              startDate: startOfDay(start),
+              startTime: (hour: start.hour, minute: start.minute),
+              dueDate: startOfDay(end),
+              dueTime: (hour: end.hour, minute: end.minute),
+            )
+          : TaskDraft(
+              dueDate: widget.dueToday
+                  ? ref.read(todayProvider)
+                  : widget.date == null
+                  ? null
+                  : startOfDay(widget.date!),
+            );
     }
   }
 

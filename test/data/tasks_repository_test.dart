@@ -240,4 +240,75 @@ void main() {
       expect(link.deletedAt, isNotNull);
     });
   });
+
+  group('calendário', () {
+    DateTime d(int day, [int h = 0]) => DateTime(2026, 11, day, h);
+
+    test(
+      'watchTasksInRange pega o que toca o intervalo e as rotinas',
+      () async {
+        await repo.createTask(title: 'dentro', dueAt: d(24, 9), hasTime: true);
+        await repo.createTask(title: 'só início', startAt: d(25, 9));
+        await repo.createTask(
+          title: 'vários dias',
+          startAt: d(20),
+          dueAt: d(23),
+        );
+        await repo.createTask(title: 'antes', dueAt: d(20));
+        await repo.createTask(title: 'depois', dueAt: d(30));
+        await repo.createTask(title: 'sem data');
+        await repo.createTask(
+          title: 'rotina antiga',
+          dueAt: d(1),
+          recurrenceRule: 'FREQ=DAILY',
+        );
+        await repo.createTask(
+          title: 'rotina futura',
+          dueAt: d(30),
+          recurrenceRule: 'FREQ=DAILY',
+        );
+        final excluded = await repo.createTask(title: 'excluída', dueAt: d(24));
+        await repo.deleteTask(excluded);
+
+        final tasks = await repo.watchTasksInRange(d(23), d(30)).first;
+        expect(tasks.map((t) => t.title).toSet(), {
+          'dentro',
+          'só início',
+          'vários dias',
+          'rotina antiga',
+        });
+      },
+    );
+
+    test('conclusões por intervalo', () async {
+      final id = await repo.createTask(
+        title: 'r',
+        dueAt: d(20),
+        recurrenceRule: 'FREQ=DAILY',
+      );
+      await repo.addCompletion(id, d(22));
+      await repo.addCompletion(id, d(24));
+      final list = await repo.watchCompletionsBetween(d(23), d(30)).first;
+      expect(list.map((c) => c.occurrence), [d(24)]);
+    });
+
+    test('rescheduleTask grava só início, prazo e hora', () async {
+      final id = await repo.createTask(
+        title: 'a',
+        notes: 'n',
+        dueAt: d(24),
+        reminderMinutesBefore: 10,
+      );
+      await repo.rescheduleTask(id, startAt: d(25, 9), dueAt: d(25, 10));
+      final task = (await repo.getTask(id))!;
+      expect(
+        (task.startAt, task.dueAt, task.hasTime),
+        (d(25, 9), d(25, 10), true),
+      );
+      expect(
+        (task.notes, task.reminderMinutesBefore, task.dirty),
+        ('n', 10, true),
+      );
+    });
+  });
 }

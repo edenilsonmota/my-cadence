@@ -126,6 +126,21 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Testes com o editor: `pumpApp` simula o canal `keyboardHeightEventChannel`; pegar o `EditorState`
   com `tester.widget<AppFlowyEditor>(...).editorState` e aplicar transações.
 
+## Agenda (calendário)
+
+- Linha do tempo própria (`Stack` + `Positioned`), sem pacote de calendário: `calendar_view` não arrasta
+  blocos e `kalender` (0.x) traz controlador e layout próprios.
+- Dados: `watchTasksInRange(from, to)` (o que toca o intervalo + todas as rotinas com prazo antes de `to`)
+  e `expandOccurrences` (`features/calendar/calendar_entries.dart`, puro): o prazo atual da rotina é a
+  ocorrência real, as seguintes são virtuais e o histórico (`TaskCompletions`) vira ocorrências feitas.
+- Bloco de tarefa com hora: `startAt..dueAt`; só um dos dois (ou iguais) = 30 min. Dia inteiro vai na faixa
+  de cima. Sobreposição em colunas por `layoutOverlaps` (`core/calendar_layout.dart`).
+- Arrastar (toque longo) chama `moveEntry`/`resizeEntry` e grava por `TasksRepository.rescheduleTask`
+  (só início, prazo e `hasTime`). Rotina: mover qualquer ocorrência move a série. Os 16 dp de baixo do
+  bloco redimensionam. Toque longo no vazio abre `Routes.newTask(at:)` arredondado em 15 min.
+- Ajustes com prefixo `calendar.` (`CalendarSettings`: modo e camada de pomodoros). Zoom (pinça) fica só
+  em memória (`hourHeightProvider`). Semana mostra 3 dias abaixo de 600 dp.
+
 ## UI e testes
 
 - Telas leem providers (`features/<domínio>/*_providers.dart`); ações chamam o repositório via

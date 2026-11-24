@@ -167,6 +167,22 @@ Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-
   origem): mesma árvore e conteúdo.
 - [ ] **7.7 Livro longo.** Página com umas 300 linhas: rolar e digitar continuam fluidos.
 
+## Pendentes: Etapa 8 (agenda)
+
+- [ ] **8.1 Visões.** Dia, 3 dias e Mês pelo menu da agenda; o modo volta igual ao reabrir o app. Deslizar
+  para os lados troca de período; o título abre o seletor de data; "Ir para hoje" volta.
+- [ ] **8.2 Arrastar.** Toque longo num bloco e arrastar: ele segue o dedo em passos de 15 min (e para o dia
+  ao lado no modo 3 dias), com vibração curta ao pegar; ao soltar, o horário muda e o lembrete é
+  reagendado. Rolar a tela com o dedo sobre um bloco continua funcionando.
+- [ ] **8.3 Redimensionar.** Toque longo na parte de baixo (alça) e arrastar muda só o fim.
+- [ ] **8.4 Pinça.** Dois dedos aumentam e diminuem a altura das horas sem pular a rolagem.
+- [ ] **8.5 Criar.** Toque longo num horário vazio abre "Nova tarefa" com início no horário (15 min) e
+  fim 1 h depois.
+- [ ] **8.6 Hora atual.** A linha vermelha anda sozinha a cada minuto; o aviso "Próxima tarefa em X min"
+  diminui e some quando ela começa.
+- [ ] **8.7 Temas.** Blocos legíveis no tema claro e no escuro (fundo claro, barra e título coloridos);
+  concluídas esmaecidas e riscadas; pomodoros hachurados na beira direita quando a camada está ligada.
+
 ## Pendentes: logo do app
 
 - [ ] **L.1 Ícone.** Na tela inicial e na gaveta de apps aparece o anel com check em fundo verde-azulado

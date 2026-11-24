@@ -109,6 +109,32 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
             ..orderBy([(t) => OrderingTerm.asc(t.dueAt)]))
           .watch();
 
+  /// Tarefas do calendário em `[from, to)`: as que têm início ou prazo
+  /// tocando o intervalo, mais todas as rotinas com prazo antes de [to] (as
+  /// ocorrências delas são calculadas depois).
+  Stream<List<Task>> watchTasksInRange(DateTime from, DateTime to) =>
+      (_alive()..where((t) {
+            final first = coalesce([t.startAt, t.dueAt]);
+            final last = coalesce([t.dueAt, t.startAt]);
+            return (first.isSmallerThanValue(to) &
+                    last.isBiggerOrEqualValue(from)) |
+                (t.recurrenceRule.isNotNull() & t.dueAt.isSmallerThanValue(to));
+          }))
+          .watch();
+
+  /// Conclusões de rotina com ocorrência em `[from, to)`.
+  Stream<List<TaskCompletion>> watchCompletionsBetween(
+    DateTime from,
+    DateTime to,
+  ) =>
+      (select(taskCompletions)..where(
+            (c) =>
+                c.occurrence.isBiggerOrEqualValue(from) &
+                c.occurrence.isSmallerThanValue(to) &
+                c.deletedAt.isNull(),
+          ))
+          .watch();
+
   /// Ids da tarefa e de todas as subtarefas vivas, em qualquer profundidade.
   Future<List<String>> taskTreeIds(String rootId) async {
     final ids = [rootId];

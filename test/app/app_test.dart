@@ -33,7 +33,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(appBarTitle(label), findsOneWidget);
+      // A Agenda mostra o mês no título.
+      expect(
+        appBarTitle(label == 'Agenda' ? 'Novembro' : label),
+        findsOneWidget,
+      );
     }
   });
 

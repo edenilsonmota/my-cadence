@@ -84,6 +84,15 @@ class RecurrenceRule {
     );
   }
 
+  /// Como [RecurrenceRule.parse], mas devolve `null` para regra inválida.
+  static RecurrenceRule? tryParse(String rule) {
+    try {
+      return RecurrenceRule.parse(rule);
+    } on FormatException {
+      return null;
+    }
+  }
+
   final Frequency frequency;
 
   /// A cada quantos dias ou semanas.

@@ -30,6 +30,12 @@ class TasksRepository {
       _tasks.watchTasksDueBetween(from, to);
 
   /// Ids da tarefa e de todas as subtarefas (para somar pomodoros, cards etc.).
+  Stream<List<Task>> watchTasksInRange(DateTime from, DateTime to) =>
+      _tasks.watchTasksInRange(from, to);
+  Stream<List<TaskCompletion>> watchCompletionsBetween(
+    DateTime from,
+    DateTime to,
+  ) => _tasks.watchCompletionsBetween(from, to);
   Future<List<String>> taskTreeIds(String id) => _tasks.taskTreeIds(id);
 
   // Escrita
@@ -73,6 +79,20 @@ class TasksRepository {
     );
     return id;
   }
+
+  /// Reagenda pelo calendário: grava só início e prazo (com hora).
+  Future<void> rescheduleTask(
+    String id, {
+    required DateTime? startAt,
+    required DateTime? dueAt,
+  }) => _tasks.updateTask(
+    id,
+    TasksCompanion(
+      startAt: Value(startAt),
+      dueAt: Value(dueAt),
+      hasTime: const Value(true),
+    ),
+  );
 
   /// Grava os campos editáveis de [task] (as colunas de sync não são tocadas).
   Future<void> saveTask(Task task) => _tasks.updateTask(
