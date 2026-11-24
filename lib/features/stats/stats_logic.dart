@@ -220,3 +220,23 @@ List<List<int?>> routineHeatmap(
 /// Primeiro dia da grade de [routineHeatmap].
 DateTime heatmapStart(DateTime today, int weeks) =>
     addDays(weekStart(today), -7 * (weeks - 1));
+
+// ─── Variação ────────────────────────────────────────────────────────────────
+
+/// Variação de tempo entre o período atual e o anterior: "+15 min", "−1 h 05
+/// min" ou "igual". `up` é `null` quando não mudou.
+({String text, bool? up}) durationDelta(Duration current, Duration previous) {
+  final diff = current - previous;
+  if (diff.inMinutes == 0) return (text: 'igual', up: null);
+  final abs = diff.abs();
+  final h = abs.inHours, m = abs.inMinutes % 60;
+  final value = h == 0 ? '$m min' : '$h h ${m.toString().padLeft(2, '0')} min';
+  return (text: '${diff.isNegative ? '−' : '+'}$value', up: !diff.isNegative);
+}
+
+/// Variação de contagem: "+3", "−1" ou "igual".
+({String text, bool? up}) countDelta(int current, int previous) {
+  final diff = current - previous;
+  if (diff == 0) return (text: 'igual', up: null);
+  return (text: diff > 0 ? '+$diff' : '−${diff.abs()}', up: diff > 0);
+}

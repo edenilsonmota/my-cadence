@@ -14,7 +14,6 @@ final _loose = RegExp(
 /// aumentar, e arquivo novo começa em zero. Ao migrar um arquivo para os
 /// tokens, baixe (ou remova) o número dele aqui.
 const _allowed = <String, int>{
-  'features/stats/stats_page.dart': 3,
 };
 
 /// Exceções permanentes (o valor precisa ser literal ali).

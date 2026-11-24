@@ -3,10 +3,15 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
+import '../../app/router.dart';
+import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
+import '../../data/db/enums.dart';
+import '../../shared/widgets/metric_card.dart';
 import '../tasks/hub/hub_stats.dart' show formatDuration;
 import '../tasks/task_labels.dart';
 import '../tasks/task_providers.dart';
@@ -49,60 +54,51 @@ class _SectionTitle extends StatelessWidget {
   );
 }
 
-/// Número em destaque com legenda.
+/// Indicador da linha de resumo.
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label});
+  const _Stat({required this.value, required this.label, this.delta});
 
   final String value;
   final String label;
+  final ({String text, bool? up})? delta;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Expanded(
-      child: Card.filled(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          child: Column(
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  value,
-                  style: theme.textTheme.titleLarge,
-                  maxLines: 1,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelSmall!.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
+  Widget build(BuildContext context) => Expanded(
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: context.space.xs),
+      child: MetricCard(
+        value: value,
+        label: label,
+        delta: delta?.text,
+        deltaUp: delta?.up,
       ),
-    );
-  }
+    ),
+  );
 }
 
+/// Sem dados: frase e, se houver, a ação (nunca um gráfico vazio).
 class _Empty extends StatelessWidget {
-  const _Empty(this.text);
+  const _Empty(this.text, {this.action, this.onAction});
 
   final String text;
+  final String? action;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 16),
-    child: Text(
-      text,
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.bodyMedium!
-          .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+    padding: EdgeInsets.symmetric(vertical: context.space.lg),
+    child: Column(
+      children: [
+        Text(
+          text,
+          textAlign: TextAlign.center,
+          style: context.text.bodyMedium!.copyWith(
+            color: context.colors.onSurfaceVariant,
+          ),
+        ),
+        if (action != null)
+          TextButton(onPressed: onAction, child: Text(action!)),
+      ],
     ),
   );
 }
@@ -198,7 +194,9 @@ class _Bars extends StatelessWidget {
                 getTooltipColor: (_) => scheme.inverseSurface,
                 getTooltipItem: (group, _, _, _) => BarTooltipItem(
                   tooltip(group.x),
-                  TextStyle(color: scheme.onInverseSurface, fontSize: 12),
+                  context.text.labelMedium!.copyWith(
+                    color: scheme.onInverseSurface,
+                  ),
                 ),
               ),
             ),
@@ -237,17 +235,21 @@ class _ShareRow extends StatelessWidget {
     required this.label,
     required this.value,
     required this.fraction,
+    this.color,
   });
 
   final String label;
   final String value;
   final double fraction;
 
+  /// Cor da barra (da tarefa, tag ou tipo); padrão, a do tema.
+  final Color? color;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: context.space.xs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -261,15 +263,15 @@ class _ShareRow extends StatelessWidget {
                   style: theme.textTheme.bodyMedium,
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(value, style: theme.textTheme.labelLarge),
+              SizedBox(width: context.space.sm),
+              Text(value, style: theme.textTheme.labelLarge!.tabular),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: context.space.xs),
           LinearProgressIndicator(
             value: fraction.clamp(0, 1).toDouble(),
             minHeight: 6,
-            borderRadius: BorderRadius.circular(3),
+            color: color,
           ),
         ],
       ),
@@ -296,6 +298,20 @@ class _FocusSection extends ConsumerWidget {
       return focusBetween(sessions, start, nextBucket(b, start), now);
     }
 
+    /// Variação em relação ao período anterior (ontem, semana, mês).
+    ({String text, bool? up}) delta(Bucket b, String vs) {
+      final start = bucketStart(b, today);
+      final previous = lastBuckets(b, today, 2).first;
+      final d = durationDelta(
+        total(b),
+        focusBetween(sessions, previous, start, now),
+      );
+      return (
+        text: d.up == null ? 'igual a $vs' : '${d.text} vs $vs',
+        up: d.up,
+      );
+    }
+
     String label(DateTime start) => switch (bucket) {
       Bucket.dia => '${start.day}',
       Bucket.semana => '${start.day}/${start.month}',
@@ -317,12 +333,21 @@ class _FocusSection extends ConsumerWidget {
         const _SectionTitle('Tempo de foco'),
         Row(
           children: [
-            _Stat(value: formatDuration(total(Bucket.dia)), label: 'Hoje'),
+            _Stat(
+              value: formatDuration(total(Bucket.dia)),
+              label: 'Hoje',
+              delta: delta(Bucket.dia, 'ontem'),
+            ),
             _Stat(
               value: formatDuration(total(Bucket.semana)),
               label: 'Esta semana',
+              delta: delta(Bucket.semana, 'anterior'),
             ),
-            _Stat(value: formatDuration(total(Bucket.mes)), label: 'Este mês'),
+            _Stat(
+              value: formatDuration(total(Bucket.mes)),
+              label: 'Este mês',
+              delta: delta(Bucket.mes, 'anterior'),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -347,13 +372,20 @@ class _FocusSection extends ConsumerWidget {
           style: Theme.of(context).textTheme.labelLarge,
         ),
         const SizedBox(height: 8),
-        _Bars(
-          values: [for (final t in totals) t.inMinutes / 60],
-          labels: [for (final b in buckets) label(b)],
-          labelEvery: bucket == Bucket.mes ? 2 : 3,
-          tooltip: tip,
-          semanticLabel: 'Gráfico de horas de foco',
-        ),
+        if (totals.every((t) => t.inMinutes == 0))
+          _Empty(
+            'Nenhum foco registrado nestes períodos.',
+            action: 'Iniciar foco',
+            onAction: () => context.push(Routes.pomodoro()),
+          )
+        else
+          _Bars(
+            values: [for (final t in totals) t.inMinutes / 60],
+            labels: [for (final b in buckets) label(b)],
+            labelEvery: bucket == Bucket.mes ? 2 : 3,
+            tooltip: tip,
+            semanticLabel: 'Gráfico de horas de foco',
+          ),
       ],
     );
   }
@@ -409,6 +441,18 @@ class _FocusBySection extends ConsumerWidget {
 
     final top = rows.take(8).toList();
     final max = top.isEmpty ? Duration.zero : top.first.total;
+    final palette = context.palette;
+    final resolver = ref.watch(appearanceResolverProvider);
+    Color? colorOf(String? key) => switch (group) {
+      _ when key == null => context.colors.outline,
+      FocusGroup.tarefa when tasks[key] != null =>
+        palette.byName(resolver.colorKeyOf(tasks[key]!)).strong,
+      FocusGroup.tag when tags[key] != null =>
+        palette.byName(tags[key]!.colorKey).strong,
+      FocusGroup.tipo =>
+        palette.of(AppPalette.kindKey(TaskKind.values.byName(key))).strong,
+      _ => null,
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -432,6 +476,7 @@ class _FocusBySection extends ConsumerWidget {
             _ShareRow(
               label: name(r.key),
               value: formatDuration(r.total),
+              color: colorOf(r.key),
               fraction: max == Duration.zero
                   ? 0
                   : r.total.inSeconds / max.inSeconds,
@@ -488,6 +533,7 @@ class _ReviewSection extends ConsumerWidget {
     final streak = studyStreak(logs, today);
     final forecast = dueForecast(cards, today, 7);
     final todayCount = perDay.last;
+    final vsYesterday = countDelta(todayCount, perDay[perDay.length - 2]);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -495,7 +541,16 @@ class _ReviewSection extends ConsumerWidget {
         const _SectionTitle('Revisões'),
         Row(
           children: [
-            _Stat(value: '$todayCount', label: 'Hoje'),
+            _Stat(
+              value: '$todayCount',
+              label: 'Hoje',
+              delta: (
+                text: vsYesterday.up == null
+                    ? 'igual a ontem'
+                    : '${vsYesterday.text} vs ontem',
+                up: vsYesterday.up,
+              ),
+            ),
             _Stat(
               value: rate == null ? '–' : '${(rate * 100).round()}%',
               label: 'Acerto (30 dias)',
@@ -509,34 +564,44 @@ class _ReviewSection extends ConsumerWidget {
         const SizedBox(height: 12),
         Text('Revisões por dia', style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 8),
-        _Bars(
-          values: [for (final c in perDay) c.toDouble()],
-          labels: [for (final d in days) '${d.day}'],
-          labelEvery: 3,
-          integers: true,
-          tooltip: (i) =>
-              '${formatDate(days[i], today)}\n${perDay[i]} '
-              '${perDay[i] == 1 ? 'revisão' : 'revisões'}',
-          semanticLabel: 'Gráfico de revisões por dia',
-        ),
+        if (perDay.every((c) => c == 0))
+          _Empty(
+            'Nenhuma revisão nos últimos 14 dias.',
+            action: 'Revisar agora',
+            onAction: () => context.go(Routes.review),
+          )
+        else
+          _Bars(
+            values: [for (final c in perDay) c.toDouble()],
+            labels: [for (final d in days) '${d.day}'],
+            labelEvery: 3,
+            integers: true,
+            tooltip: (i) =>
+                '${formatDate(days[i], today)}\n${perDay[i]} '
+                '${perDay[i] == 1 ? 'revisão' : 'revisões'}',
+            semanticLabel: 'Gráfico de revisões por dia',
+          ),
         const SizedBox(height: 16),
         Text(
           'Cards a vencer nos próximos 7 dias',
           style: Theme.of(context).textTheme.labelLarge,
         ),
         const SizedBox(height: 8),
-        _Bars(
-          integers: true,
-          values: [for (final c in forecast) c.toDouble()],
-          labels: [
-            for (var i = 0; i < 7; i++)
-              i == 0 ? 'hoje' : weekdayShort[addDays(today, i).weekday - 1],
-          ],
-          tooltip: (i) =>
-              '${i == 0 ? 'Hoje (com atrasados)' : formatDate(addDays(today, i), today)}'
-              '\n${forecast[i]} ${forecast[i] == 1 ? 'card' : 'cards'}',
-          semanticLabel: 'Gráfico de cards a vencer',
-        ),
+        if (forecast.every((c) => c == 0))
+          const _Empty('Nenhum card a vencer nesta semana.')
+        else
+          _Bars(
+            integers: true,
+            values: [for (final c in forecast) c.toDouble()],
+            labels: [
+              for (var i = 0; i < 7; i++)
+                i == 0 ? 'hoje' : weekdayShort[addDays(today, i).weekday - 1],
+            ],
+            tooltip: (i) =>
+                '${i == 0 ? 'Hoje (com atrasados)' : formatDate(addDays(today, i), today)}'
+                '\n${forecast[i]} ${forecast[i] == 1 ? 'card' : 'cards'}',
+            semanticLabel: 'Gráfico de cards a vencer',
+          ),
       ],
     );
   }
@@ -554,29 +619,25 @@ class _RoutineSection extends ConsumerWidget {
     final grid = routineHeatmap(completions, today, heatmapWeeks);
     final start = heatmapStart(today, heatmapWeeks);
     final scheme = Theme.of(context).colorScheme;
-    final small = Theme.of(context).textTheme.labelSmall!
-        .copyWith(color: scheme.onSurfaceVariant, fontSize: 10);
+    final small = context.type.micro;
+    // Tons de uma única cor, do claro ao forte.
+    final heat = context.palette.of(PaletteKey.verde);
     final total = completions.length;
 
-    Color colorOf(int? count) {
-      if (count == null) return Colors.transparent;
+    Color? colorOf(int? count) {
+      if (count == null) return null; // dia futuro
       if (count == 0) return scheme.surfaceContainerHighest;
-      final level = math.min(count, 4) / 4;
-      return Color.lerp(
-        scheme.primary.withValues(alpha: 0.3),
-        scheme.primary,
-        level,
-      )!;
+      return Color.lerp(heat.tint, heat.strong, math.min(count, 4) / 4)!;
     }
 
-    Widget cell(Color color, {String? tip}) {
+    Widget cell(Color? color, {String? tip}) {
       final box = Container(
         width: 13,
         height: 13,
         margin: const EdgeInsets.all(1.5),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(3),
+          borderRadius: context.radius.xsAll,
         ),
       );
       return tip == null ? box : Tooltip(message: tip, child: box);

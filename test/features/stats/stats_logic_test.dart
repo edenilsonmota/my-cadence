@@ -211,4 +211,22 @@ void main() {
       [0, 2, null, null, null, null, null],
     ]);
   });
+
+  test('variação em relação ao período anterior', () {
+    expect(
+      durationDelta(const Duration(minutes: 50), const Duration(minutes: 35)),
+      (text: '+15 min', up: true),
+    );
+    expect(durationDelta(Duration.zero, const Duration(minutes: 65)), (
+      text: '−1 h 05 min',
+      up: false,
+    ));
+    expect(
+      durationDelta(const Duration(minutes: 5), const Duration(minutes: 5)),
+      (text: 'igual', up: null),
+    );
+    expect(countDelta(3, 1), (text: '+2', up: true));
+    expect(countDelta(0, 4), (text: '−4', up: false));
+    expect(countDelta(2, 2), (text: 'igual', up: null));
+  });
 }
