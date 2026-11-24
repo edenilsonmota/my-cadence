@@ -460,35 +460,43 @@ class _Block extends StatelessWidget {
               border: Border(left: BorderSide(color: color, width: 3)),
             ),
             padding: const EdgeInsets.fromLTRB(4, 1, 2, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (entry.isRoutine)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 2),
-                        child: Icon(Icons.repeat, size: 11, color: text),
+            // Bloco curto (15 min) é mais baixo que uma linha de texto: o
+            // conteúdo pode passar da altura e é recortado pelo Material.
+            child: OverflowBox(
+              alignment: Alignment.topLeft,
+              minHeight: 0,
+              maxHeight: double.infinity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (entry.isRoutine)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2),
+                          child: Icon(Icons.repeat, size: 11, color: text),
+                        ),
+                      Expanded(
+                        child: Text(
+                          entry.task.title,
+                          maxLines: roomy ? 2 : 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: titleStyle,
+                        ),
                       ),
-                    Expanded(
-                      child: Text(
-                        entry.task.title,
-                        maxLines: roomy ? 2 : 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: titleStyle,
-                      ),
-                    ),
-                  ],
-                ),
-                if (roomy)
-                  Text(
-                    '${formatTime(start)}–${formatTime(end)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.clip,
-                    style: Theme.of(context).textTheme.labelSmall!
-                        .copyWith(color: text.withValues(alpha: 0.85)),
+                    ],
                   ),
-              ],
+                  if (roomy)
+                    Text(
+                      '${formatTime(start)}–${formatTime(end)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      style: Theme.of(context).textTheme.labelSmall!
+                          .copyWith(color: text.withValues(alpha: 0.85)),
+                    ),
+                ],
+              ),
             ),
           ),
         );

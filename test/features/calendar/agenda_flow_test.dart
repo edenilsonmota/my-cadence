@@ -317,4 +317,19 @@ void main() {
     await settle(tester);
     expect(find.text('T26').hitTestable(), findsOneWidget);
   });
+
+  testWidgets('bloco curto (15 min) não estoura a altura', (tester) async {
+    await pumpApp(
+      tester,
+      seed: (db) => tasksOf(db).createTask(
+        title: 'Rápida com título comprido',
+        startAt: d(23, 14),
+        dueAt: d(23, 14, 15),
+        hasTime: true,
+      ),
+    );
+    await goToAgenda(tester);
+    expect(find.text('Rápida com título comprido'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
