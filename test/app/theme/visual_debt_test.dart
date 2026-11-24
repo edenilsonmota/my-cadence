@@ -14,14 +14,9 @@ final _loose = RegExp(
 /// aumentar, e arquivo novo começa em zero. Ao migrar um arquivo para os
 /// tokens, baixe (ou remova) o número dele aqui.
 const _allowed = <String, int>{
-  'features/books/book_actions.dart': 1,
-  'features/books/books_page.dart': 1,
-  'features/calendar/calendar_providers.dart': 6,
   'features/calendar/month_view.dart': 1,
-  'features/calendar/timeline_view.dart': 2,
+  'features/calendar/timeline_view.dart': 1,
   'features/stats/stats_page.dart': 3,
-  'features/tasks/task_form_page.dart': 1,
-  'features/tasks/task_labels.dart': 8,
   'features/tasks/today_page.dart': 1,
   'features/tasks/widgets/task_tile.dart': 2,
 };

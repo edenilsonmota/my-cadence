@@ -58,6 +58,14 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Testes de dados usam `openTestDb()` (`test/data/test_db.dart`, banco em memória).
 - Sync (Etapa 11): ao confirmar o push, só marcar `dirty = false` se o `updatedAt` local ainda for o enviado.
 
+## Cores e ícones (dados)
+
+- `Tags.colorKey`, `Tasks.colorKey`/`iconKey`, `Notebooks.colorKey`/`iconKey`: **chaves** (paleta `PaletteKey`,
+  catálogo `IconCatalog`), nunca ARGB nem codePoint. Chave desconhecida cai na herança.
+- Herança em `features/tasks/task_appearance.dart` (puro, testado): cor da tarefa → mãe → 1ª tag (alfabética)
+  → tipo; ícone da tarefa → mãe → tipo. Na UI, `appearanceResolverProvider`.
+- Seletor único `showAppearancePicker` (`shared/widgets/appearance_picker.dart`); `AppearanceBadge` e `TagChip`.
+
 ## Regras de domínio que não podem escorregar
 
 - **Datas FSRS em UTC** na ponte (`toUtc()` ao montar, `toLocal()` ao salvar); importar

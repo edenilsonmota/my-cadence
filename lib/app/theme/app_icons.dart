@@ -3,6 +3,8 @@ import 'package:lucide_icons_flutter/lucide_icons_300.dart';
 import 'package:lucide_icons_flutter/lucide_icons_500.dart';
 
 import '../../data/db/enums.dart';
+import '../../features/tasks/task_appearance.dart';
+import 'icon_catalog.dart';
 
 typedef _I = LucideIcons300;
 
@@ -95,12 +97,12 @@ abstract final class AppIcons {
   static const viewList = _I.list;
 
   /// Ícone padrão de cada tipo de tarefa.
-  static IconData kind(TaskKind kind) => switch (kind) {
-    TaskKind.simples => _I.squareCheck,
-    TaskKind.estudo => _I.graduationCap,
-    TaskKind.rotina => _I.repeat,
-    TaskKind.evento => _I.calendarClock,
-  };
+  static IconData kind(TaskKind kind) =>
+      IconCatalog.tryIcon(kindIconKey(kind))!;
+
+  /// Ícone de uma chave do catálogo; desconhecida cai em [fallback].
+  static IconData of(String? key, {IconData fallback = _I.squareCheck}) =>
+      IconCatalog.tryIcon(key) ?? fallback;
 }
 
 /// Tamanhos fixos de ícone.

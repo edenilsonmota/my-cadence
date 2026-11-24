@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 
 /// Número com botões de diminuir e aumentar.
 class NumberStepper extends StatelessWidget {

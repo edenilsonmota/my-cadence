@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fsrs/fsrs.dart' as fsrs;
 
 import '../../app/clock.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';

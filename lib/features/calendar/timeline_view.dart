@@ -7,11 +7,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
 import '../../app/router.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
+import '../tasks/task_appearance.dart';
 import '../tasks/task_providers.dart';
 import 'calendar_entries.dart';
 import 'calendar_providers.dart';
@@ -201,7 +202,7 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
     final sessions = settings.showPomodoros
         ? ref.watch(focusSessionsProvider(_range)).value ?? const []
         : const <PomodoroSession>[];
-    final tagColors = ref.watch(tagColorByTaskProvider);
+    final resolver = ref.watch(appearanceResolverProvider);
     final hourHeight = ref.watch(hourHeightProvider);
     final today = ref.watch(todayProvider);
     final list = entries.value ?? const <CalendarEntry>[];
@@ -216,7 +217,7 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
         _AllDayStrip(
           days: widget.days,
           entries: list,
-          tagColors: tagColors,
+          resolver: resolver,
           expanded: _allDayExpanded,
           onToggle: () => setState(() => _allDayExpanded = !_allDayExpanded),
         ),
@@ -245,7 +246,7 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
                       context,
                       list,
                       sessions,
-                      tagColors,
+                      resolver,
                       hourHeight,
                       dayWidth,
                       settings.showPomodoros,
@@ -264,7 +265,7 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
     BuildContext context,
     List<CalendarEntry> entries,
     List<PomodoroSession> sessions,
-    Map<String, int> tagColors,
+    AppearanceResolver resolver,
     double hourHeight,
     double dayWidth,
     bool pomodoroLayer,
@@ -306,7 +307,8 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
               opacity: dragging ? 0.35 : 1,
               child: _Block(
                 entry: e,
-                color: entryColor(e.task, tagColors),
+                tones: entryTones(context, e.task, resolver),
+                icon: entryIcon(e.task, resolver),
                 hourHeight: hourHeight,
                 onTap: () => context.push(Routes.task(e.task.id)),
                 onDragStart: e.movable ? (mode) => _startDrag(e, mode) : null,
@@ -361,7 +363,8 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
             child: IgnorePointer(
               child: _Block(
                 entry: drag.entry,
-                color: entryColor(drag.entry.task, tagColors),
+                tones: entryTones(context, drag.entry.task, resolver),
+                icon: entryIcon(drag.entry.task, resolver),
                 hourHeight: hourHeight,
                 timeOverride: target,
                 elevated: true,
@@ -414,7 +417,8 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
 class _Block extends StatelessWidget {
   const _Block({
     required this.entry,
-    required this.color,
+    required this.tones,
+    required this.icon,
     required this.hourHeight,
     this.onTap,
     this.onDragStart,
@@ -425,7 +429,8 @@ class _Block extends StatelessWidget {
   });
 
   final CalendarEntry entry;
-  final Color color;
+  final Tones tones;
+  final IconData icon;
   final double hourHeight;
   final VoidCallback? onTap;
   final void Function(_DragMode mode)? onDragStart;
@@ -436,8 +441,7 @@ class _Block extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = entryTextColor(color, scheme.brightness);
+    final text = tones.onTint;
     final start = timeOverride?.start ?? entry.start;
     final end = timeOverride?.end ?? entry.end;
     final done = entry.done;
@@ -452,13 +456,13 @@ class _Block extends StatelessWidget {
       builder: (context, box) {
         final roomy = box.maxHeight >= 34;
         return Material(
-          color: entryBackground(color, scheme),
+          color: tones.tint,
           elevation: elevated ? 4 : 0,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: context.radius.xsAll,
           clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
-              border: Border(left: BorderSide(color: color, width: 3)),
+              border: Border(left: BorderSide(color: tones.strong, width: 3)),
             ),
             padding: const EdgeInsets.fromLTRB(4, 1, 2, 0),
             // Bloco curto (15 min) é mais baixo que uma linha de texto: o
@@ -473,10 +477,15 @@ class _Block extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      if (entry.isRoutine)
+                      // Ícone da tarefa quando cabe; rotina mostra o de repetir.
+                      if (box.maxWidth >= 56)
                         Padding(
-                          padding: const EdgeInsets.only(right: 2),
-                          child: Icon(AppIcons.repeat, size: 11, color: text),
+                          padding: const EdgeInsets.only(right: 3),
+                          child: Icon(
+                            entry.isRoutine ? AppIcons.repeat : icon,
+                            size: 12,
+                            color: text,
+                          ),
                         ),
                       Expanded(
                         child: Text(
@@ -543,7 +552,7 @@ class _Block extends StatelessWidget {
                   height: 3,
                   margin: const EdgeInsets.only(bottom: 3),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.5),
+                    color: tones.strong.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -624,7 +633,7 @@ class _AllDayStrip extends StatelessWidget {
   const _AllDayStrip({
     required this.days,
     required this.entries,
-    required this.tagColors,
+    required this.resolver,
     required this.expanded,
     required this.onToggle,
   });
@@ -633,7 +642,7 @@ class _AllDayStrip extends StatelessWidget {
 
   final List<DateTime> days;
   final List<CalendarEntry> entries;
-  final Map<String, int> tagColors;
+  final AppearanceResolver resolver;
   final bool expanded;
   final VoidCallback onToggle;
 
@@ -681,7 +690,10 @@ class _AllDayStrip extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final e in expanded ? list : list.take(_collapsed))
-                      EntryChip(entry: e, color: entryColor(e.task, tagColors)),
+                      EntryChip(
+                        entry: e,
+                        tones: entryTones(context, e.task, resolver),
+                      ),
                     if (!expanded && list.length > _collapsed)
                       InkWell(
                         onTap: onToggle,
@@ -706,7 +718,7 @@ class _AllDayStrip extends StatelessWidget {
 class EntryChip extends StatelessWidget {
   const EntryChip({
     required this.entry,
-    required this.color,
+    required this.tones,
     this.dense = false,
     super.key,
   });
@@ -714,22 +726,22 @@ class EntryChip extends StatelessWidget {
   static const denseHeight = 16.0;
 
   final CalendarEntry entry;
-  final Color color;
+  final Tones tones;
   final bool dense;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = entryTextColor(color, scheme.brightness);
+    final text = tones.onTint;
+    final base = dense ? context.type.micro : context.text.labelSmall!;
     final chip = Material(
-      color: entryBackground(color, scheme),
-      borderRadius: BorderRadius.circular(3),
+      color: tones.tint,
+      borderRadius: context.radius.xsAll,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: dense ? null : () => context.push(Routes.task(entry.task.id)),
         child: Container(
           decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: color, width: 3)),
+            border: Border(left: BorderSide(color: tones.strong, width: 3)),
           ),
           alignment: Alignment.centerLeft,
           padding: EdgeInsets.symmetric(horizontal: 3, vertical: dense ? 0 : 1),
@@ -737,11 +749,9 @@ class EntryChip extends StatelessWidget {
             entry.task.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.labelSmall!.copyWith(
+            style: base.copyWith(
               color: text,
               fontWeight: FontWeight.w600,
-              fontSize: dense ? 10 : null,
-              height: dense ? 1.2 : null,
               decoration: entry.done ? TextDecoration.lineThrough : null,
               decorationColor: text,
             ),

@@ -26,7 +26,7 @@ void main() {
           kind: TaskKind.estudo,
           estimatedPomodoros: 4,
         );
-        final tag = await tasks.createTag(name: 'Faculdade', color: 0xFF1E88E5);
+        final tag = await tasks.createTag(name: 'Faculdade', colorKey: 'azul');
         await tasks.setTaskTags(calc, {tag});
         final routine = await tasks.createTask(
           title: 'Correr',

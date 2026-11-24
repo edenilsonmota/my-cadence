@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
 
 import '../../data/db/enums.dart';
+import '../../features/tasks/task_appearance.dart';
 
 /// As 12 cores que tags, tarefas e books podem usar. Guardadas no banco pela
 /// chave (`name`), nunca por ARGB. A ordem é também a das séries nos
@@ -102,12 +103,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
   Tones get info => of(PaletteKey.azul);
 
   /// Cor padrão de cada tipo de tarefa.
-  static PaletteKey kindKey(TaskKind kind) => switch (kind) {
-    TaskKind.simples => PaletteKey.azul,
-    TaskKind.estudo => PaletteKey.violeta,
-    TaskKind.rotina => PaletteKey.verde,
-    TaskKind.evento => PaletteKey.laranja,
-  };
+  static PaletteKey kindKey(TaskKind kind) =>
+      PaletteKey.tryParse(kindColorKey(kind))!;
 
   /// Nota do flashcard (1 Errei, 2 Difícil, 3 Bom, 4 Fácil).
   Tones grade(int rating) => of(switch (rating) {

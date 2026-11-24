@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
 import '../../app/router.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/books_repository.dart';

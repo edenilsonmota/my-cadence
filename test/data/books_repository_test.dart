@@ -18,14 +18,18 @@ void main() {
 
   group('cadernos', () {
     test('books listam só cadernos que não são de tarefa', () async {
-      await repo.createBook(title: 'Flutter', icon: '📘');
+      await repo.createBook(
+        title: 'Flutter',
+        colorKey: 'azul',
+        iconKey: 'code',
+      );
       await repo.createBook(title: 'Algoritmos');
       final task = await tasks.createTask(title: 'Estudar');
       await repo.taskNotebookId(task, title: 'Estudar');
 
       final books = await repo.watchBooks().first;
       expect(books.map((b) => b.title), ['Algoritmos', 'Flutter']);
-      expect(books.last.icon, '📘');
+      expect((books.last.colorKey, books.last.iconKey), ('azul', 'code'));
     });
 
     test('caderno da tarefa é criado uma vez só', () async {

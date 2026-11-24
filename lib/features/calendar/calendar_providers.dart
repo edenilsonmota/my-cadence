@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
+import '../tasks/task_appearance.dart';
 import '../tasks/task_providers.dart';
 import 'calendar_entries.dart';
 
@@ -97,37 +99,10 @@ final focusSessionsProvider = StreamProvider.autoDispose
           ),
     );
 
-/// Cor (ARGB) da primeira tag de cada tarefa, na ordem alfabética das tags.
-final tagColorByTaskProvider = Provider.autoDispose<Map<String, int>>((ref) {
-  final tags = ref.watch(tagsProvider).value ?? const [];
-  final links = ref.watch(tagIdsByTaskProvider).value ?? const {};
-  return {
-    for (final MapEntry(key: taskId, value: ids) in links.entries)
-      if (tags.where((t) => ids.contains(t.id)).firstOrNull case final tag?)
-        taskId: tag.color,
-  };
-});
+/// Tons da tarefa no calendário (cor resolvida: tarefa, mãe, tag, tipo).
+Tones entryTones(BuildContext context, Task task, AppearanceResolver r) =>
+    context.palette.byName(r.colorKeyOf(task));
 
-/// Cor do bloco: a da tarefa, senão a da primeira tag, senão a do tipo.
-Color entryColor(Task task, Map<String, int> tagColors) => Color(
-  task.color ??
-      tagColors[task.id] ??
-      switch (task.kind) {
-        TaskKind.simples => 0xFF1E88E5,
-        TaskKind.estudo => 0xFF8E24AA,
-        TaskKind.rotina => 0xFF43A047,
-        TaskKind.evento => 0xFFF4511E,
-      },
-);
-
-/// Cor do título sobre o fundo claro do bloco, legível nos dois temas.
-Color entryTextColor(Color base, Brightness brightness) =>
-    brightness == Brightness.dark
-    ? Color.lerp(base, Colors.white, 0.45)!
-    : Color.lerp(base, Colors.black, 0.35)!;
-
-/// Fundo do bloco: a cor bem clara sobre a superfície.
-Color entryBackground(Color base, ColorScheme scheme) => Color.alphaBlend(
-  base.withValues(alpha: scheme.brightness == Brightness.dark ? 0.28 : 0.16),
-  scheme.surface,
-);
+/// Ícone resolvido da tarefa.
+IconData entryIcon(Task task, AppearanceResolver r) =>
+    AppIcons.of(r.iconKeyOf(task), fallback: AppIcons.kind(task.kind));

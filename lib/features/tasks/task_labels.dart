@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/enums.dart';
 
 extension TaskKindLabel on TaskKind {
@@ -31,15 +31,3 @@ Color? priorityColor(int priority, ColorScheme colors) => switch (priority) {
   1 => colors.primary,
   _ => null,
 };
-
-/// Paleta das tags (ARGB), escolhida para funcionar nos temas claro e escuro.
-const tagPalette = [
-  0xFF1E88E5,
-  0xFF43A047,
-  0xFFF4511E,
-  0xFF8E24AA,
-  0xFFFDD835,
-  0xFF00ACC1,
-  0xFFD81B60,
-  0xFF6D4C41,
-];

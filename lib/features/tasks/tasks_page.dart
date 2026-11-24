@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/enums.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
+import '../../shared/widgets/tag_chip.dart';
 import 'task_labels.dart';
 import 'task_lists.dart';
 import 'task_providers.dart';
@@ -269,9 +270,9 @@ class _FilterSheet extends ConsumerWidget {
                 title: 'Tags',
                 children: [
                   for (final tag in tags)
-                    FilterChip(
-                      avatar: CircleAvatar(backgroundColor: Color(tag.color)),
-                      label: Text(tag.name),
+                    TagChip(
+                      name: tag.name,
+                      colorKey: tag.colorKey,
                       selected: filter.tagIds.contains(tag.id),
                       onSelected: (_) => notifier.update(
                         (f) => f.copyWith(tagIds: toggled(f.tagIds, tag.id)),

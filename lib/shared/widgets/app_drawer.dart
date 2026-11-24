@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 
 /// Menu lateral com o que não cabe nas abas: pomodoro, métricas e ajustes.
 class AppDrawer extends StatelessWidget {

@@ -6,6 +6,7 @@ import 'tokens.dart';
 import 'typography.dart';
 
 export 'app_icons.dart';
+export 'icon_catalog.dart';
 export 'palette.dart';
 export 'tokens.dart';
 export 'typography.dart';

@@ -4,7 +4,7 @@ import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/database.dart';
 
-import 'generated/schema.dart';
+import 'app/generated/schema.dart';
 
 // Ao mudar o esquema: incrementar `schemaVersion`, rodar
 // `dart run drift_dev make-migrations` e acrescentar um teste de integridade

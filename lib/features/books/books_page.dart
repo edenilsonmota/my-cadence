@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
+import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
@@ -67,9 +68,11 @@ class _BookTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pages = ref.watch(pagesOfNotebookProvider(book.id)).value;
     return ListTile(
-      leading: book.icon == null
-          ? const Icon(AppIcons.book)
-          : Text(book.icon!, style: const TextStyle(fontSize: 26)),
+      leading: AppearanceBadge(
+        colorKey: book.colorKey ?? defaultBookColor,
+        icon: bookIcon(book),
+        size: AppIconSize.standard,
+      ),
       title: Text(book.title),
       subtitle: pages == null
           ? null
@@ -109,7 +112,7 @@ class _BookMenu extends ConsumerWidget {
       },
       itemBuilder: (_) => const [
         PopupMenuItem(value: 'renomear', child: Text('Renomear')),
-        PopupMenuItem(value: 'icone', child: Text('Ícone')),
+        PopupMenuItem(value: 'icone', child: Text('Ícone e cor')),
         PopupMenuItem(value: 'exportar', child: Text('Exportar (.zip)')),
         PopupMenuItem(value: 'excluir', child: Text('Excluir')),
       ],

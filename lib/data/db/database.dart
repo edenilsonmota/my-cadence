@@ -10,6 +10,7 @@ import 'daos/pomodoro_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/tags_dao.dart';
 import 'daos/tasks_dao.dart';
+import 'database.steps.dart';
 import 'enums.dart';
 import 'tables/books.dart';
 import 'tables/cards.dart';
@@ -54,11 +55,50 @@ class AppDatabase extends _$AppDatabase {
   // Ao mudar o esquema: incrementar a versão, rodar
   // `dart run drift_dev make-migrations` e escrever o passo em `onUpgrade`.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
+    onUpgrade: stepByStep(
+      // v2: cores por chave da paleta e ícones por chave do catálogo.
+      from1To2: (m, schema) async {
+        await m.alterTable(
+          TableMigration(
+            schema.tags,
+            columnTransformer: {
+              // As 8 cores ARGB que o app oferecia viram a chave equivalente.
+              schema.tags.colorKey: const CustomExpression<String>(
+                'CASE color '
+                "WHEN 4280191205 THEN 'azul' "
+                "WHEN 4282622023 THEN 'verde' "
+                "WHEN 4294201630 THEN 'laranja' "
+                "WHEN 4287505578 THEN 'violeta' "
+                "WHEN 4294826037 THEN 'ambar' "
+                "WHEN 4278234305 THEN 'ciano' "
+                "WHEN 4292352864 THEN 'rosa' "
+                "WHEN 4285353025 THEN 'ardosia' "
+                "ELSE 'azul' END",
+              ),
+            },
+          ),
+        );
+        // A cor ARGB das tarefas nunca foi gravada pela interface; o emoji
+        // dos books não existe no catálogo de ícones. Os dois são descartados.
+        await m.alterTable(
+          TableMigration(
+            schema.tasks,
+            newColumns: [schema.tasks.colorKey, schema.tasks.iconKey],
+          ),
+        );
+        await m.alterTable(
+          TableMigration(
+            schema.notebooks,
+            newColumns: [schema.notebooks.colorKey, schema.notebooks.iconKey],
+          ),
+        );
+      },
+    ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
       // Se a ação da notificação abrir uma segunda conexão (outra engine),

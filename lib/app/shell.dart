@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/cards/cards_providers.dart';
 import '../features/pomodoro/pomodoro_mini_player.dart';
-import 'theme/app_icons.dart';
+import 'theme/app_theme.dart';
 
 /// Shell com a barra de navegação das 5 abas. Cada aba mantém a própria pilha.
 class AppShell extends StatelessWidget {

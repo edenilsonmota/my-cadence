@@ -8,9 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/books_repository.dart';
+import '../../shared/widgets/appearance_picker.dart';
 import '../../shared/widgets/text_input_dialog.dart';
 import 'book_markdown.dart';
 
@@ -72,54 +74,34 @@ Future<void> renameBookFlow(
       .saveNotebook(book.copyWith(title: title));
 }
 
-const bookIcons = [
-  '📘',
-  '📗',
-  '📕',
-  '📙',
-  '📓',
-  '🧠',
-  '🧪',
-  '💻',
-  '📐',
-  '🌍',
-  '🎵',
-  '✏️',
-];
+/// Cor padrão dos books (sem cor própria).
+const defaultBookColor = 'ardosia';
+
+/// Ícone do book: o do catálogo, ou o ícone de book.
+IconData bookIcon(Notebook book) =>
+    AppIcons.of(book.iconKey, fallback: AppIcons.book);
 
 Future<void> pickBookIconFlow(
   BuildContext context,
   WidgetRef ref,
   Notebook book,
 ) async {
-  final icon = await showDialog<({String? icon})>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Ícone do book'),
-      content: Wrap(
-        spacing: 4,
-        runSpacing: 4,
-        children: [
-          for (final icon in bookIcons)
-            IconButton(
-              tooltip: 'Usar $icon',
-              onPressed: () => Navigator.of(context).pop((icon: icon)),
-              icon: Text(icon, style: const TextStyle(fontSize: 28)),
-            ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop((icon: null)),
-          child: const Text('Sem ícone'),
-        ),
-      ],
-    ),
+  final choice = await showAppearancePicker(
+    context,
+    colorKey: book.colorKey,
+    iconKey: book.iconKey,
+    inheritedColor: defaultBookColor,
+    inheritedIcon: AppIcons.book,
   );
-  if (icon == null) return;
+  if (choice == null) return;
   await ref
       .read(booksRepositoryProvider)
-      .saveNotebook(book.copyWith(icon: Value(icon.icon)));
+      .saveNotebook(
+        book.copyWith(
+          colorKey: Value(choice.colorKey),
+          iconKey: Value(choice.iconKey),
+        ),
+      );
 }
 
 Future<bool> confirmDelete(

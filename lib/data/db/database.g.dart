@@ -231,13 +231,26 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  static const VerificationMeta _colorKeyMeta = const VerificationMeta(
+    'colorKey',
+  );
   @override
-  late final GeneratedColumn<int> color = GeneratedColumn<int>(
-    'color',
+  late final GeneratedColumn<String> colorKey = GeneratedColumn<String>(
+    'color_key',
     aliasedName,
     true,
-    type: DriftSqlType.int,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _iconKeyMeta = const VerificationMeta(
+    'iconKey',
+  );
+  @override
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+    'icon_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
   @override
@@ -262,7 +275,8 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     estimatedPomodoros,
     sortOrder,
     completedAt,
-    color,
+    colorKey,
+    iconKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -398,10 +412,16 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         ),
       );
     }
-    if (data.containsKey('color')) {
+    if (data.containsKey('color_key')) {
       context.handle(
-        _colorMeta,
-        color.isAcceptableOrUnknown(data['color']!, _colorMeta),
+        _colorKeyMeta,
+        colorKey.isAcceptableOrUnknown(data['color_key']!, _colorKeyMeta),
+      );
+    }
+    if (data.containsKey('icon_key')) {
+      context.handle(
+        _iconKeyMeta,
+        iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta),
       );
     }
     return context;
@@ -497,9 +517,13 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}completed_at'],
       ),
-      color: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}color'],
+      colorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}color_key'],
+      ),
+      iconKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_key'],
       ),
     );
   }
@@ -545,8 +569,11 @@ class Task extends DataClass implements Insertable<Task> {
   final int sortOrder;
   final DateTime? completedAt;
 
-  /// Cor ARGB.
-  final int? color;
+  /// Chave da paleta (`PaletteKey.name`); nula = herda (mãe, tag, tipo).
+  final String? colorKey;
+
+  /// Chave do catálogo de ícones (ex.: `book-open`); nula = herda.
+  final String? iconKey;
   const Task({
     required this.id,
     required this.createdAt,
@@ -568,7 +595,8 @@ class Task extends DataClass implements Insertable<Task> {
     this.estimatedPomodoros,
     required this.sortOrder,
     this.completedAt,
-    this.color,
+    this.colorKey,
+    this.iconKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -619,8 +647,11 @@ class Task extends DataClass implements Insertable<Task> {
     if (!nullToAbsent || completedAt != null) {
       map['completed_at'] = Variable<DateTime>(completedAt);
     }
-    if (!nullToAbsent || color != null) {
-      map['color'] = Variable<int>(color);
+    if (!nullToAbsent || colorKey != null) {
+      map['color_key'] = Variable<String>(colorKey);
+    }
+    if (!nullToAbsent || iconKey != null) {
+      map['icon_key'] = Variable<String>(iconKey);
     }
     return map;
   }
@@ -667,9 +698,12 @@ class Task extends DataClass implements Insertable<Task> {
       completedAt: completedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(completedAt),
-      color: color == null && nullToAbsent
+      colorKey: colorKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(color),
+          : Value(colorKey),
+      iconKey: iconKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconKey),
     );
   }
 
@@ -705,7 +739,8 @@ class Task extends DataClass implements Insertable<Task> {
       estimatedPomodoros: serializer.fromJson<int?>(json['estimatedPomodoros']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
-      color: serializer.fromJson<int?>(json['color']),
+      colorKey: serializer.fromJson<String?>(json['colorKey']),
+      iconKey: serializer.fromJson<String?>(json['iconKey']),
     );
   }
   @override
@@ -736,7 +771,8 @@ class Task extends DataClass implements Insertable<Task> {
       'estimatedPomodoros': serializer.toJson<int?>(estimatedPomodoros),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
-      'color': serializer.toJson<int?>(color),
+      'colorKey': serializer.toJson<String?>(colorKey),
+      'iconKey': serializer.toJson<String?>(iconKey),
     };
   }
 
@@ -761,7 +797,8 @@ class Task extends DataClass implements Insertable<Task> {
     Value<int?> estimatedPomodoros = const Value.absent(),
     int? sortOrder,
     Value<DateTime?> completedAt = const Value.absent(),
-    Value<int?> color = const Value.absent(),
+    Value<String?> colorKey = const Value.absent(),
+    Value<String?> iconKey = const Value.absent(),
   }) => Task(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -791,7 +828,8 @@ class Task extends DataClass implements Insertable<Task> {
         : this.estimatedPomodoros,
     sortOrder: sortOrder ?? this.sortOrder,
     completedAt: completedAt.present ? completedAt.value : this.completedAt,
-    color: color.present ? color.value : this.color,
+    colorKey: colorKey.present ? colorKey.value : this.colorKey,
+    iconKey: iconKey.present ? iconKey.value : this.iconKey,
   );
   Task copyWithCompanion(TasksCompanion data) {
     return Task(
@@ -825,7 +863,8 @@ class Task extends DataClass implements Insertable<Task> {
       completedAt: data.completedAt.present
           ? data.completedAt.value
           : this.completedAt,
-      color: data.color.present ? data.color.value : this.color,
+      colorKey: data.colorKey.present ? data.colorKey.value : this.colorKey,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
     );
   }
 
@@ -852,7 +891,8 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
-          ..write('color: $color')
+          ..write('colorKey: $colorKey, ')
+          ..write('iconKey: $iconKey')
           ..write(')'))
         .toString();
   }
@@ -879,7 +919,8 @@ class Task extends DataClass implements Insertable<Task> {
     estimatedPomodoros,
     sortOrder,
     completedAt,
-    color,
+    colorKey,
+    iconKey,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -905,7 +946,8 @@ class Task extends DataClass implements Insertable<Task> {
           other.estimatedPomodoros == this.estimatedPomodoros &&
           other.sortOrder == this.sortOrder &&
           other.completedAt == this.completedAt &&
-          other.color == this.color);
+          other.colorKey == this.colorKey &&
+          other.iconKey == this.iconKey);
 }
 
 class TasksCompanion extends UpdateCompanion<Task> {
@@ -929,7 +971,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<int?> estimatedPomodoros;
   final Value<int> sortOrder;
   final Value<DateTime?> completedAt;
-  final Value<int?> color;
+  final Value<String?> colorKey;
+  final Value<String?> iconKey;
   final Value<int> rowid;
   const TasksCompanion({
     this.id = const Value.absent(),
@@ -952,7 +995,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.estimatedPomodoros = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
-    this.color = const Value.absent(),
+    this.colorKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TasksCompanion.insert({
@@ -976,7 +1020,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.estimatedPomodoros = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
-    this.color = const Value.absent(),
+    this.colorKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : title = Value(title);
   static Insertable<Task> custom({
@@ -1000,7 +1045,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<int>? estimatedPomodoros,
     Expression<int>? sortOrder,
     Expression<DateTime>? completedAt,
-    Expression<int>? color,
+    Expression<String>? colorKey,
+    Expression<String>? iconKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1025,7 +1071,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (estimatedPomodoros != null) 'estimated_pomodoros': estimatedPomodoros,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (completedAt != null) 'completed_at': completedAt,
-      if (color != null) 'color': color,
+      if (colorKey != null) 'color_key': colorKey,
+      if (iconKey != null) 'icon_key': iconKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1051,7 +1098,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<int?>? estimatedPomodoros,
     Value<int>? sortOrder,
     Value<DateTime?>? completedAt,
-    Value<int?>? color,
+    Value<String?>? colorKey,
+    Value<String?>? iconKey,
     Value<int>? rowid,
   }) {
     return TasksCompanion(
@@ -1076,7 +1124,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
       estimatedPomodoros: estimatedPomodoros ?? this.estimatedPomodoros,
       sortOrder: sortOrder ?? this.sortOrder,
       completedAt: completedAt ?? this.completedAt,
-      color: color ?? this.color,
+      colorKey: colorKey ?? this.colorKey,
+      iconKey: iconKey ?? this.iconKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1150,8 +1199,11 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
     }
-    if (color.present) {
-      map['color'] = Variable<int>(color.value);
+    if (colorKey.present) {
+      map['color_key'] = Variable<String>(colorKey.value);
+    }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -1182,7 +1234,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
-          ..write('color: $color, ')
+          ..write('colorKey: $colorKey, ')
+          ..write('iconKey: $iconKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1789,14 +1842,17 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  static const VerificationMeta _colorKeyMeta = const VerificationMeta(
+    'colorKey',
+  );
   @override
-  late final GeneratedColumn<int> color = GeneratedColumn<int>(
-    'color',
+  late final GeneratedColumn<String> colorKey = GeneratedColumn<String>(
+    'color_key',
     aliasedName,
     false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('azul'),
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -1807,7 +1863,7 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     dirty,
     serverVersion,
     name,
-    color,
+    colorKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1865,13 +1921,11 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('color')) {
+    if (data.containsKey('color_key')) {
       context.handle(
-        _colorMeta,
-        color.isAcceptableOrUnknown(data['color']!, _colorMeta),
+        _colorKeyMeta,
+        colorKey.isAcceptableOrUnknown(data['color_key']!, _colorKeyMeta),
       );
-    } else if (isInserting) {
-      context.missing(_colorMeta);
     }
     return context;
   }
@@ -1910,9 +1964,9 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      color: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}color'],
+      colorKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}color_key'],
       )!,
     );
   }
@@ -1932,8 +1986,8 @@ class Tag extends DataClass implements Insertable<Tag> {
   final int? serverVersion;
   final String name;
 
-  /// Cor ARGB.
-  final int color;
+  /// Chave da paleta (`PaletteKey.name`).
+  final String colorKey;
   const Tag({
     required this.id,
     required this.createdAt,
@@ -1942,7 +1996,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     required this.dirty,
     this.serverVersion,
     required this.name,
-    required this.color,
+    required this.colorKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1958,7 +2012,7 @@ class Tag extends DataClass implements Insertable<Tag> {
       map['server_version'] = Variable<int>(serverVersion);
     }
     map['name'] = Variable<String>(name);
-    map['color'] = Variable<int>(color);
+    map['color_key'] = Variable<String>(colorKey);
     return map;
   }
 
@@ -1975,7 +2029,7 @@ class Tag extends DataClass implements Insertable<Tag> {
           ? const Value.absent()
           : Value(serverVersion),
       name: Value(name),
-      color: Value(color),
+      colorKey: Value(colorKey),
     );
   }
 
@@ -1992,7 +2046,7 @@ class Tag extends DataClass implements Insertable<Tag> {
       dirty: serializer.fromJson<bool>(json['dirty']),
       serverVersion: serializer.fromJson<int?>(json['serverVersion']),
       name: serializer.fromJson<String>(json['name']),
-      color: serializer.fromJson<int>(json['color']),
+      colorKey: serializer.fromJson<String>(json['colorKey']),
     );
   }
   @override
@@ -2006,7 +2060,7 @@ class Tag extends DataClass implements Insertable<Tag> {
       'dirty': serializer.toJson<bool>(dirty),
       'serverVersion': serializer.toJson<int?>(serverVersion),
       'name': serializer.toJson<String>(name),
-      'color': serializer.toJson<int>(color),
+      'colorKey': serializer.toJson<String>(colorKey),
     };
   }
 
@@ -2018,7 +2072,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     bool? dirty,
     Value<int?> serverVersion = const Value.absent(),
     String? name,
-    int? color,
+    String? colorKey,
   }) => Tag(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -2029,7 +2083,7 @@ class Tag extends DataClass implements Insertable<Tag> {
         ? serverVersion.value
         : this.serverVersion,
     name: name ?? this.name,
-    color: color ?? this.color,
+    colorKey: colorKey ?? this.colorKey,
   );
   Tag copyWithCompanion(TagsCompanion data) {
     return Tag(
@@ -2042,7 +2096,7 @@ class Tag extends DataClass implements Insertable<Tag> {
           ? data.serverVersion.value
           : this.serverVersion,
       name: data.name.present ? data.name.value : this.name,
-      color: data.color.present ? data.color.value : this.color,
+      colorKey: data.colorKey.present ? data.colorKey.value : this.colorKey,
     );
   }
 
@@ -2056,7 +2110,7 @@ class Tag extends DataClass implements Insertable<Tag> {
           ..write('dirty: $dirty, ')
           ..write('serverVersion: $serverVersion, ')
           ..write('name: $name, ')
-          ..write('color: $color')
+          ..write('colorKey: $colorKey')
           ..write(')'))
         .toString();
   }
@@ -2070,7 +2124,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     dirty,
     serverVersion,
     name,
-    color,
+    colorKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -2083,7 +2137,7 @@ class Tag extends DataClass implements Insertable<Tag> {
           other.dirty == this.dirty &&
           other.serverVersion == this.serverVersion &&
           other.name == this.name &&
-          other.color == this.color);
+          other.colorKey == this.colorKey);
 }
 
 class TagsCompanion extends UpdateCompanion<Tag> {
@@ -2094,7 +2148,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
   final Value<bool> dirty;
   final Value<int?> serverVersion;
   final Value<String> name;
-  final Value<int> color;
+  final Value<String> colorKey;
   final Value<int> rowid;
   const TagsCompanion({
     this.id = const Value.absent(),
@@ -2104,7 +2158,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     this.dirty = const Value.absent(),
     this.serverVersion = const Value.absent(),
     this.name = const Value.absent(),
-    this.color = const Value.absent(),
+    this.colorKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TagsCompanion.insert({
@@ -2115,10 +2169,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     this.dirty = const Value.absent(),
     this.serverVersion = const Value.absent(),
     required String name,
-    required int color,
+    this.colorKey = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : name = Value(name),
-       color = Value(color);
+  }) : name = Value(name);
   static Insertable<Tag> custom({
     Expression<String>? id,
     Expression<DateTime>? createdAt,
@@ -2127,7 +2180,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Expression<bool>? dirty,
     Expression<int>? serverVersion,
     Expression<String>? name,
-    Expression<int>? color,
+    Expression<String>? colorKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2138,7 +2191,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       if (dirty != null) 'dirty': dirty,
       if (serverVersion != null) 'server_version': serverVersion,
       if (name != null) 'name': name,
-      if (color != null) 'color': color,
+      if (colorKey != null) 'color_key': colorKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2151,7 +2204,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Value<bool>? dirty,
     Value<int?>? serverVersion,
     Value<String>? name,
-    Value<int>? color,
+    Value<String>? colorKey,
     Value<int>? rowid,
   }) {
     return TagsCompanion(
@@ -2162,7 +2215,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       dirty: dirty ?? this.dirty,
       serverVersion: serverVersion ?? this.serverVersion,
       name: name ?? this.name,
-      color: color ?? this.color,
+      colorKey: colorKey ?? this.colorKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2191,8 +2244,8 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (color.present) {
-      map['color'] = Variable<int>(color.value);
+    if (colorKey.present) {
+      map['color_key'] = Variable<String>(colorKey.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -2210,7 +2263,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
           ..write('dirty: $dirty, ')
           ..write('serverVersion: $serverVersion, ')
           ..write('name: $name, ')
-          ..write('color: $color, ')
+          ..write('colorKey: $colorKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4177,10 +4230,23 @@ class $NotebooksTable extends Notebooks
       'REFERENCES tasks (id)',
     ),
   );
-  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  static const VerificationMeta _colorKeyMeta = const VerificationMeta(
+    'colorKey',
+  );
   @override
-  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
-    'icon',
+  late final GeneratedColumn<String> colorKey = GeneratedColumn<String>(
+    'color_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _iconKeyMeta = const VerificationMeta(
+    'iconKey',
+  );
+  @override
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+    'icon_key',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -4196,7 +4262,8 @@ class $NotebooksTable extends Notebooks
     serverVersion,
     title,
     taskId,
-    icon,
+    colorKey,
+    iconKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4260,10 +4327,16 @@ class $NotebooksTable extends Notebooks
         taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
       );
     }
-    if (data.containsKey('icon')) {
+    if (data.containsKey('color_key')) {
       context.handle(
-        _iconMeta,
-        icon.isAcceptableOrUnknown(data['icon']!, _iconMeta),
+        _colorKeyMeta,
+        colorKey.isAcceptableOrUnknown(data['color_key']!, _colorKeyMeta),
+      );
+    }
+    if (data.containsKey('icon_key')) {
+      context.handle(
+        _iconKeyMeta,
+        iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta),
       );
     }
     return context;
@@ -4307,9 +4380,13 @@ class $NotebooksTable extends Notebooks
         DriftSqlType.string,
         data['${effectivePrefix}task_id'],
       ),
-      icon: attachedDatabase.typeMapping.read(
+      colorKey: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}icon'],
+        data['${effectivePrefix}color_key'],
+      ),
+      iconKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_key'],
       ),
     );
   }
@@ -4331,7 +4408,12 @@ class Notebook extends DataClass implements Insertable<Notebook> {
 
   /// Preenchido = caderno próprio da tarefa.
   final String? taskId;
-  final String? icon;
+
+  /// Chave da paleta; nula = cor neutra.
+  final String? colorKey;
+
+  /// Chave do catálogo de ícones; nula = ícone de book.
+  final String? iconKey;
   const Notebook({
     required this.id,
     required this.createdAt,
@@ -4341,7 +4423,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
     this.serverVersion,
     required this.title,
     this.taskId,
-    this.icon,
+    this.colorKey,
+    this.iconKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4360,8 +4443,11 @@ class Notebook extends DataClass implements Insertable<Notebook> {
     if (!nullToAbsent || taskId != null) {
       map['task_id'] = Variable<String>(taskId);
     }
-    if (!nullToAbsent || icon != null) {
-      map['icon'] = Variable<String>(icon);
+    if (!nullToAbsent || colorKey != null) {
+      map['color_key'] = Variable<String>(colorKey);
+    }
+    if (!nullToAbsent || iconKey != null) {
+      map['icon_key'] = Variable<String>(iconKey);
     }
     return map;
   }
@@ -4382,7 +4468,12 @@ class Notebook extends DataClass implements Insertable<Notebook> {
       taskId: taskId == null && nullToAbsent
           ? const Value.absent()
           : Value(taskId),
-      icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
+      colorKey: colorKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(colorKey),
+      iconKey: iconKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconKey),
     );
   }
 
@@ -4400,7 +4491,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
       serverVersion: serializer.fromJson<int?>(json['serverVersion']),
       title: serializer.fromJson<String>(json['title']),
       taskId: serializer.fromJson<String?>(json['taskId']),
-      icon: serializer.fromJson<String?>(json['icon']),
+      colorKey: serializer.fromJson<String?>(json['colorKey']),
+      iconKey: serializer.fromJson<String?>(json['iconKey']),
     );
   }
   @override
@@ -4415,7 +4507,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
       'serverVersion': serializer.toJson<int?>(serverVersion),
       'title': serializer.toJson<String>(title),
       'taskId': serializer.toJson<String?>(taskId),
-      'icon': serializer.toJson<String?>(icon),
+      'colorKey': serializer.toJson<String?>(colorKey),
+      'iconKey': serializer.toJson<String?>(iconKey),
     };
   }
 
@@ -4428,7 +4521,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
     Value<int?> serverVersion = const Value.absent(),
     String? title,
     Value<String?> taskId = const Value.absent(),
-    Value<String?> icon = const Value.absent(),
+    Value<String?> colorKey = const Value.absent(),
+    Value<String?> iconKey = const Value.absent(),
   }) => Notebook(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -4440,7 +4534,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
         : this.serverVersion,
     title: title ?? this.title,
     taskId: taskId.present ? taskId.value : this.taskId,
-    icon: icon.present ? icon.value : this.icon,
+    colorKey: colorKey.present ? colorKey.value : this.colorKey,
+    iconKey: iconKey.present ? iconKey.value : this.iconKey,
   );
   Notebook copyWithCompanion(NotebooksCompanion data) {
     return Notebook(
@@ -4454,7 +4549,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
           : this.serverVersion,
       title: data.title.present ? data.title.value : this.title,
       taskId: data.taskId.present ? data.taskId.value : this.taskId,
-      icon: data.icon.present ? data.icon.value : this.icon,
+      colorKey: data.colorKey.present ? data.colorKey.value : this.colorKey,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
     );
   }
 
@@ -4469,7 +4565,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
           ..write('serverVersion: $serverVersion, ')
           ..write('title: $title, ')
           ..write('taskId: $taskId, ')
-          ..write('icon: $icon')
+          ..write('colorKey: $colorKey, ')
+          ..write('iconKey: $iconKey')
           ..write(')'))
         .toString();
   }
@@ -4484,7 +4581,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
     serverVersion,
     title,
     taskId,
-    icon,
+    colorKey,
+    iconKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -4498,7 +4596,8 @@ class Notebook extends DataClass implements Insertable<Notebook> {
           other.serverVersion == this.serverVersion &&
           other.title == this.title &&
           other.taskId == this.taskId &&
-          other.icon == this.icon);
+          other.colorKey == this.colorKey &&
+          other.iconKey == this.iconKey);
 }
 
 class NotebooksCompanion extends UpdateCompanion<Notebook> {
@@ -4510,7 +4609,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
   final Value<int?> serverVersion;
   final Value<String> title;
   final Value<String?> taskId;
-  final Value<String?> icon;
+  final Value<String?> colorKey;
+  final Value<String?> iconKey;
   final Value<int> rowid;
   const NotebooksCompanion({
     this.id = const Value.absent(),
@@ -4521,7 +4621,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
     this.serverVersion = const Value.absent(),
     this.title = const Value.absent(),
     this.taskId = const Value.absent(),
-    this.icon = const Value.absent(),
+    this.colorKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NotebooksCompanion.insert({
@@ -4533,7 +4634,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
     this.serverVersion = const Value.absent(),
     required String title,
     this.taskId = const Value.absent(),
-    this.icon = const Value.absent(),
+    this.colorKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : title = Value(title);
   static Insertable<Notebook> custom({
@@ -4545,7 +4647,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
     Expression<int>? serverVersion,
     Expression<String>? title,
     Expression<String>? taskId,
-    Expression<String>? icon,
+    Expression<String>? colorKey,
+    Expression<String>? iconKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4557,7 +4660,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
       if (serverVersion != null) 'server_version': serverVersion,
       if (title != null) 'title': title,
       if (taskId != null) 'task_id': taskId,
-      if (icon != null) 'icon': icon,
+      if (colorKey != null) 'color_key': colorKey,
+      if (iconKey != null) 'icon_key': iconKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4571,7 +4675,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
     Value<int?>? serverVersion,
     Value<String>? title,
     Value<String?>? taskId,
-    Value<String?>? icon,
+    Value<String?>? colorKey,
+    Value<String?>? iconKey,
     Value<int>? rowid,
   }) {
     return NotebooksCompanion(
@@ -4583,7 +4688,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
       serverVersion: serverVersion ?? this.serverVersion,
       title: title ?? this.title,
       taskId: taskId ?? this.taskId,
-      icon: icon ?? this.icon,
+      colorKey: colorKey ?? this.colorKey,
+      iconKey: iconKey ?? this.iconKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4615,8 +4721,11 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
     if (taskId.present) {
       map['task_id'] = Variable<String>(taskId.value);
     }
-    if (icon.present) {
-      map['icon'] = Variable<String>(icon.value);
+    if (colorKey.present) {
+      map['color_key'] = Variable<String>(colorKey.value);
+    }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -4635,7 +4744,8 @@ class NotebooksCompanion extends UpdateCompanion<Notebook> {
           ..write('serverVersion: $serverVersion, ')
           ..write('title: $title, ')
           ..write('taskId: $taskId, ')
-          ..write('icon: $icon, ')
+          ..write('colorKey: $colorKey, ')
+          ..write('iconKey: $iconKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8069,7 +8179,8 @@ typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
   Value<int?> estimatedPomodoros,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
-  Value<int?> color,
+  Value<String?> colorKey,
+  Value<String?> iconKey,
   Value<int> rowid,
 });
 typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
@@ -8093,7 +8204,8 @@ typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
   Value<int?> estimatedPomodoros,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
-  Value<int?> color,
+  Value<String?> colorKey,
+  Value<String?> iconKey,
   Value<int> rowid,
 });
 
@@ -8337,8 +8449,13 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get color => $composableBuilder(
-    column: $table.color,
+  ColumnFilters<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8620,8 +8737,13 @@ class $$TasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get color => $composableBuilder(
-    column: $table.color,
+  ColumnOrderings<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -8725,8 +8847,11 @@ class $$TasksTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get color =>
-      $composableBuilder(column: $table.color, builder: (column) => column);
+  GeneratedColumn<String> get colorKey =>
+      $composableBuilder(column: $table.colorKey, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
 
   $$TasksTableAnnotationComposer get parentId {
     final $$TasksTableAnnotationComposer composer = $composerBuilder(
@@ -8958,7 +9083,8 @@ class $$TasksTableTableManager
                 Value<int?> estimatedPomodoros = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
-                Value<int?> color = const Value.absent(),
+                Value<String?> colorKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TasksCompanion(
                 id: id,
@@ -8981,7 +9107,8 @@ class $$TasksTableTableManager
                 estimatedPomodoros: estimatedPomodoros,
                 sortOrder: sortOrder,
                 completedAt: completedAt,
-                color: color,
+                colorKey: colorKey,
+                iconKey: iconKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -9006,7 +9133,8 @@ class $$TasksTableTableManager
                 Value<int?> estimatedPomodoros = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
-                Value<int?> color = const Value.absent(),
+                Value<String?> colorKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TasksCompanion.insert(
                 id: id,
@@ -9029,7 +9157,8 @@ class $$TasksTableTableManager
                 estimatedPomodoros: estimatedPomodoros,
                 sortOrder: sortOrder,
                 completedAt: completedAt,
-                color: color,
+                colorKey: colorKey,
+                iconKey: iconKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -9633,7 +9762,7 @@ typedef $$TagsTableCreateCompanionBuilder = TagsCompanion Function({
   Value<bool> dirty,
   Value<int?> serverVersion,
   required String name,
-  required int color,
+  Value<String> colorKey,
   Value<int> rowid,
 });
 typedef $$TagsTableUpdateCompanionBuilder = TagsCompanion Function({
@@ -9644,7 +9773,7 @@ typedef $$TagsTableUpdateCompanionBuilder = TagsCompanion Function({
   Value<bool> dirty,
   Value<int?> serverVersion,
   Value<String> name,
-  Value<int> color,
+  Value<String> colorKey,
   Value<int> rowid,
 });
 
@@ -9715,8 +9844,8 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get color => $composableBuilder(
-    column: $table.color,
+  ColumnFilters<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9789,8 +9918,8 @@ class $$TagsTableOrderingComposer extends Composer<_$AppDatabase, $TagsTable> {
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get color => $composableBuilder(
-    column: $table.color,
+  ColumnOrderings<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -9827,8 +9956,8 @@ class $$TagsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<int> get color =>
-      $composableBuilder(column: $table.color, builder: (column) => column);
+  GeneratedColumn<String> get colorKey =>
+      $composableBuilder(column: $table.colorKey, builder: (column) => column);
 
   Expression<T> taskTagsRefs<T extends Object>(
     Expression<T> Function($$TaskTagsTableAnnotationComposer a) f,
@@ -9891,7 +10020,7 @@ class $$TagsTableTableManager
                 Value<bool> dirty = const Value.absent(),
                 Value<int?> serverVersion = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<int> color = const Value.absent(),
+                Value<String> colorKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TagsCompanion(
                 id: id,
@@ -9901,7 +10030,7 @@ class $$TagsTableTableManager
                 dirty: dirty,
                 serverVersion: serverVersion,
                 name: name,
-                color: color,
+                colorKey: colorKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -9913,7 +10042,7 @@ class $$TagsTableTableManager
                 Value<bool> dirty = const Value.absent(),
                 Value<int?> serverVersion = const Value.absent(),
                 required String name,
-                required int color,
+                Value<String> colorKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TagsCompanion.insert(
                 id: id,
@@ -9923,7 +10052,7 @@ class $$TagsTableTableManager
                 dirty: dirty,
                 serverVersion: serverVersion,
                 name: name,
-                color: color,
+                colorKey: colorKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -11303,7 +11432,8 @@ typedef $$NotebooksTableCreateCompanionBuilder = NotebooksCompanion Function({
   Value<int?> serverVersion,
   required String title,
   Value<String?> taskId,
-  Value<String?> icon,
+  Value<String?> colorKey,
+  Value<String?> iconKey,
   Value<int> rowid,
 });
 typedef $$NotebooksTableUpdateCompanionBuilder = NotebooksCompanion Function({
@@ -11315,7 +11445,8 @@ typedef $$NotebooksTableUpdateCompanionBuilder = NotebooksCompanion Function({
   Value<int?> serverVersion,
   Value<String> title,
   Value<String?> taskId,
-  Value<String?> icon,
+  Value<String?> colorKey,
+  Value<String?> iconKey,
   Value<int> rowid,
 });
 
@@ -11403,8 +11534,13 @@ class $$NotebooksTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get icon => $composableBuilder(
-    column: $table.icon,
+  ColumnFilters<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11501,8 +11637,13 @@ class $$NotebooksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get icon => $composableBuilder(
-    column: $table.icon,
+  ColumnOrderings<String> get colorKey => $composableBuilder(
+    column: $table.colorKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -11562,8 +11703,11 @@ class $$NotebooksTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
-  GeneratedColumn<String> get icon =>
-      $composableBuilder(column: $table.icon, builder: (column) => column);
+  GeneratedColumn<String> get colorKey =>
+      $composableBuilder(column: $table.colorKey, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
 
   $$TasksTableAnnotationComposer get taskId {
     final $$TasksTableAnnotationComposer composer = $composerBuilder(
@@ -11650,7 +11794,8 @@ class $$NotebooksTableTableManager
                 Value<int?> serverVersion = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String?> taskId = const Value.absent(),
-                Value<String?> icon = const Value.absent(),
+                Value<String?> colorKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotebooksCompanion(
                 id: id,
@@ -11661,7 +11806,8 @@ class $$NotebooksTableTableManager
                 serverVersion: serverVersion,
                 title: title,
                 taskId: taskId,
-                icon: icon,
+                colorKey: colorKey,
+                iconKey: iconKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -11674,7 +11820,8 @@ class $$NotebooksTableTableManager
                 Value<int?> serverVersion = const Value.absent(),
                 required String title,
                 Value<String?> taskId = const Value.absent(),
-                Value<String?> icon = const Value.absent(),
+                Value<String?> colorKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotebooksCompanion.insert(
                 id: id,
@@ -11685,7 +11832,8 @@ class $$NotebooksTableTableManager
                 serverVersion: serverVersion,
                 title: title,
                 taskId: taskId,
-                icon: icon,
+                colorKey: colorKey,
+                iconKey: iconKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

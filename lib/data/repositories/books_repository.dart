@@ -19,10 +19,19 @@ class BooksRepository {
   Future<T> transaction<T>(Future<T> Function() action) =>
       _dao.transaction(action);
 
-  Future<String> createBook({required String title, String? icon}) async {
+  Future<String> createBook({
+    required String title,
+    String? colorKey,
+    String? iconKey,
+  }) async {
     final id = newId();
     await _dao.insertNotebook(
-      NotebooksCompanion.insert(id: Value(id), title: title, icon: Value(icon)),
+      NotebooksCompanion.insert(
+        id: Value(id),
+        title: title,
+        colorKey: Value(colorKey),
+        iconKey: Value(iconKey),
+      ),
     );
     return id;
   }
@@ -47,7 +56,8 @@ class BooksRepository {
     notebook.id,
     NotebooksCompanion(
       title: Value(notebook.title),
-      icon: Value(notebook.icon),
+      colorKey: Value(notebook.colorKey),
+      iconKey: Value(notebook.iconKey),
     ),
   );
 

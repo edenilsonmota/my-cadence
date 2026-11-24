@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
+import '../../shared/widgets/appearance_badge.dart';
+import '../../shared/widgets/appearance_picker.dart';
 import '../../shared/widgets/number_stepper.dart';
 import '../../shared/widgets/skeleton.dart';
+import '../../shared/widgets/tag_chip.dart';
 import 'alarms.dart';
+import 'task_appearance.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
@@ -136,6 +140,8 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         recurrenceRule: f.recurrenceRule,
         reminderMinutesBefore: f.reminderMinutesBefore,
         estimatedPomodoros: f.estimatedPomodoros,
+        colorKey: f.colorKey,
+        iconKey: f.iconKey,
       );
     }
     await repo.setTaskTags(id, draft.tagIds);
@@ -275,6 +281,15 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         _TagPicker(
           selected: d.tagIds,
           onChanged: (ids) => _edit((d) => d.tagIds = ids),
+        ),
+        const _Label('Ícone e cor'),
+        _AppearanceField(
+          draft: d,
+          parentId: _original?.parentId ?? widget.parentId,
+          onChanged: (c) => _edit((d) {
+            d.colorKey = c.colorKey;
+            d.iconKey = c.iconKey;
+          }),
         ),
       ],
     );
@@ -445,14 +460,14 @@ class _TagPicker extends ConsumerWidget {
 
   Future<void> _createTag(BuildContext context, WidgetRef ref) async {
     _dropFocus();
-    final created = await showDialog<({String name, int color})>(
+    final created = await showDialog<({String name, String colorKey})>(
       context: context,
       builder: (_) => const _NewTagDialog(),
     );
     if (created == null) return;
     final id = await ref
         .read(tasksRepositoryProvider)
-        .createTag(name: created.name, color: created.color);
+        .createTag(name: created.name, colorKey: created.colorKey);
     onChanged({...selected, id});
   }
 
@@ -460,20 +475,20 @@ class _TagPicker extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tags = ref.watch(tagsProvider).value ?? const [];
     return Wrap(
-      spacing: 8,
-      runSpacing: 4,
+      spacing: context.space.sm,
+      runSpacing: context.space.xs,
       children: [
         for (final tag in tags)
-          FilterChip(
-            avatar: CircleAvatar(backgroundColor: Color(tag.color)),
-            label: Text(tag.name),
+          TagChip(
+            name: tag.name,
+            colorKey: tag.colorKey,
             selected: selected.contains(tag.id),
             onSelected: (on) => onChanged(
               on ? {...selected, tag.id} : ({...selected}..remove(tag.id)),
             ),
           ),
         ActionChip(
-          avatar: const Icon(AppIcons.add, size: 18),
+          avatar: const Icon(AppIcons.add),
           label: const Text('Nova tag'),
           onPressed: () => _createTag(context, ref),
         ),
@@ -491,7 +506,7 @@ class _NewTagDialog extends StatefulWidget {
 
 class _NewTagDialogState extends State<_NewTagDialog> {
   final _name = TextEditingController();
-  int _color = tagPalette.first;
+  PaletteKey _color = PaletteKey.azul;
 
   @override
   void dispose() {
@@ -502,11 +517,12 @@ class _NewTagDialogState extends State<_NewTagDialog> {
   void _submit() {
     final name = _name.text.trim();
     if (name.isEmpty) return;
-    Navigator.of(context).pop((name: name, color: _color));
+    Navigator.of(context).pop((name: name, colorKey: _color.name));
   }
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return AlertDialog(
       title: const Text('Nova tag'),
       content: Column(
@@ -519,24 +535,29 @@ class _NewTagDialogState extends State<_NewTagDialog> {
             decoration: const InputDecoration(labelText: 'Nome'),
             onSubmitted: (_) => _submit(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.space.lg),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: context.space.sm,
+            runSpacing: context.space.sm,
             children: [
-              for (final color in tagPalette)
-                InkResponse(
-                  onTap: () => setState(() => _color = color),
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Color(color),
-                    child: color == _color
-                        ? const Icon(
-                            AppIcons.check,
-                            color: Colors.white,
-                            size: 18,
-                          )
-                        : null,
+              for (final key in PaletteKey.values)
+                Semantics(
+                  button: true,
+                  selected: key == _color,
+                  label: key.label,
+                  child: InkResponse(
+                    onTap: () => setState(() => _color = key),
+                    child: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: palette.of(key).strong,
+                      child: key == _color
+                          ? Icon(
+                              AppIcons.check,
+                              color: context.colors.surface,
+                              size: AppIconSize.standard,
+                            )
+                          : null,
+                    ),
                   ),
                 ),
             ],
@@ -550,6 +571,61 @@ class _NewTagDialogState extends State<_NewTagDialog> {
         ),
         FilledButton(onPressed: _submit, child: const Text('Criar')),
       ],
+    );
+  }
+}
+
+/// Prévia do ícone e da cor; toque abre o seletor.
+class _AppearanceField extends ConsumerWidget {
+  const _AppearanceField({
+    required this.draft,
+    required this.parentId,
+    required this.onChanged,
+  });
+
+  final TaskDraft draft;
+  final String? parentId;
+  final ValueChanged<AppearanceChoice> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final resolver = ref.watch(appearanceResolverProvider);
+    final tags = ref.watch(tagsProvider).value ?? const <Tag>[];
+    // O que valeria sem escolha própria: mãe, 1ª tag escolhida, tipo.
+    final parent = parentId == null
+        ? null
+        : (ref.watch(allTasksProvider).value ?? const <Task>[])
+              .where((t) => t.id == parentId)
+              .firstOrNull;
+    final firstTag = tags.where((t) => draft.tagIds.contains(t.id)).firstOrNull;
+    final inheritedColor = parent != null && parent.colorKey != null
+        ? resolver.colorKeyOf(parent)
+        : firstTag?.colorKey ?? kindColorKey(draft.kind);
+    final inheritedIcon = parent == null
+        ? AppIcons.kind(draft.kind)
+        : AppIcons.of(resolver.iconKeyOf(parent));
+    final color = draft.colorKey ?? inheritedColor;
+    final icon = IconCatalog.tryIcon(draft.iconKey) ?? inheritedIcon;
+    final custom = draft.colorKey != null || draft.iconKey != null;
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: AppearanceBadge(colorKey: color, icon: icon),
+      title: Text(custom ? 'Personalizado' : 'Padrão'),
+      subtitle: Text(
+        custom ? 'Toque para trocar' : 'Herda da tarefa mãe, da tag ou do tipo',
+      ),
+      trailing: const Icon(AppIcons.edit),
+      onTap: () async {
+        final choice = await showAppearancePicker(
+          context,
+          colorKey: draft.colorKey,
+          iconKey: draft.iconKey,
+          inheritedColor: inheritedColor,
+          inheritedIcon: inheritedIcon,
+        );
+        if (choice != null) onChanged(choice);
+      },
     );
   }
 }

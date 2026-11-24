@@ -121,6 +121,15 @@ class AppTypography extends ThemeExtension<AppTypography> {
     color: muted,
   );
 
+  /// Texto mínimo (grade do mês, eixos de gráfico).
+  TextStyle get micro => TextStyle(
+    fontFamily: AppFonts.ui,
+    fontSize: 10,
+    fontWeight: FontWeight.w500,
+    height: 1.2,
+    color: muted,
+  );
+
   /// Corpo de leitura (books, verso dos cards).
   TextStyle get reading => TextStyle(
     fontFamily: AppFonts.reading,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
+import '../tasks/task_appearance.dart';
 import '../tasks/task_providers.dart';
 import 'calendar_entries.dart';
 import 'calendar_providers.dart';
@@ -24,7 +25,7 @@ class MonthView extends ConsumerWidget {
     final entries =
         ref.watch(calendarEntriesProvider(range)).value ??
         const <CalendarEntry>[];
-    final tagColors = ref.watch(tagColorByTaskProvider);
+    final resolver = ref.watch(appearanceResolverProvider);
     final today = ref.watch(todayProvider);
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -64,7 +65,7 @@ class MonthView extends ConsumerWidget {
                         for (final e in entries)
                           if (e.occursOn(day)) e,
                       ],
-                      tagColors: tagColors,
+                      resolver: resolver,
                       onTap: () => onOpenDay(day),
                     ),
                   ),
@@ -82,7 +83,7 @@ class _DayCell extends StatelessWidget {
     required this.inMonth,
     required this.isToday,
     required this.entries,
-    required this.tagColors,
+    required this.resolver,
     required this.onTap,
   });
 
@@ -90,7 +91,7 @@ class _DayCell extends StatelessWidget {
   final bool inMonth;
   final bool isToday;
   final List<CalendarEntry> entries;
-  final Map<String, int> tagColors;
+  final AppearanceResolver resolver;
   final VoidCallback onTap;
 
   @override
@@ -157,7 +158,7 @@ class _DayCell extends StatelessWidget {
                     for (final e in sorted.take(shown))
                       EntryChip(
                         entry: e,
-                        color: entryColor(e.task, tagColors),
+                        tones: entryTones(context, e.task, resolver),
                         dense: true,
                       ),
                     if (extra > 0)

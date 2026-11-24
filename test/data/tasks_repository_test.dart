@@ -30,7 +30,8 @@ void main() {
         recurrenceRule: 'FREQ=DAILY',
         reminderMinutesBefore: 10,
         estimatedPomodoros: 4,
-        color: 0xFF00796B,
+        colorKey: 'teal',
+        iconKey: 'brain',
       );
 
       final task = (await repo.getTask(id))!;
@@ -43,7 +44,7 @@ void main() {
       expect(task.recurrenceRule, 'FREQ=DAILY');
       expect(task.reminderMinutesBefore, 10);
       expect(task.estimatedPomodoros, 4);
-      expect(task.color, 0xFF00796B);
+      expect((task.colorKey, task.iconKey), ('teal', 'brain'));
     });
 
     test('prioridade fora de 0..3 é rejeitada pelo banco', () async {
@@ -195,22 +196,22 @@ void main() {
 
   group('tags', () {
     test('CRUD e ordenação por nome', () async {
-      final b = await repo.createTag(name: 'trabalho', color: 1);
-      await repo.createTag(name: 'estudo', color: 2);
+      final b = await repo.createTag(name: 'trabalho', colorKey: 'azul');
+      await repo.createTag(name: 'estudo', colorKey: 'verde');
 
       var tags = await repo.watchTags().first;
       expect(tags.map((t) => t.name), ['estudo', 'trabalho']);
 
       final tag = tags.firstWhere((t) => t.id == b);
-      await repo.saveTag(tag.copyWith(name: 'aulas', color: 3));
+      await repo.saveTag(tag.copyWith(name: 'aulas', colorKey: 'rosa'));
       tags = await repo.watchTags().first;
       expect(tags.map((t) => t.name), ['aulas', 'estudo']);
-      expect(tags.first.color, 3);
+      expect(tags.first.colorKey, 'rosa');
     });
 
     test('vincular, desvincular e revincular reaproveita a linha', () async {
       final task = await repo.createTask(title: 'Ler');
-      final tag = await repo.createTag(name: 'estudo', color: 1);
+      final tag = await repo.createTag(name: 'estudo', colorKey: 'azul');
 
       await repo.addTagToTask(task, tag);
       await repo.addTagToTask(task, tag); // repetir não duplica
@@ -229,7 +230,7 @@ void main() {
 
     test('excluir a tag remove os vínculos', () async {
       final task = await repo.createTask(title: 'Ler');
-      final tag = await repo.createTag(name: 'estudo', color: 1);
+      final tag = await repo.createTag(name: 'estudo', colorKey: 'azul');
       await repo.addTagToTask(task, tag);
 
       await repo.deleteTag(tag);

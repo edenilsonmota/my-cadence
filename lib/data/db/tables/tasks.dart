@@ -33,8 +33,11 @@ class Tasks extends Table with SyncColumns {
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get completedAt => dateTime().nullable()();
 
-  /// Cor ARGB.
-  IntColumn get color => integer().nullable()();
+  /// Chave da paleta (`PaletteKey.name`); nula = herda (mãe, tag, tipo).
+  TextColumn get colorKey => text().nullable()();
+
+  /// Chave do catálogo de ícones (ex.: `book-open`); nula = herda.
+  TextColumn get iconKey => text().nullable()();
 }
 
 /// Histórico de conclusões de rotinas (uma linha por ocorrência concluída).
@@ -46,8 +49,8 @@ class TaskCompletions extends Table with SyncColumns {
 class Tags extends Table with SyncColumns {
   TextColumn get name => text()();
 
-  /// Cor ARGB.
-  IntColumn get color => integer()();
+  /// Chave da paleta (`PaletteKey.name`).
+  TextColumn get colorKey => text().withDefault(const Constant('azul'))();
 }
 
 class TaskTags extends Table with SyncColumns {

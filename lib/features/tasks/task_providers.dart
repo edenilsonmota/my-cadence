@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
+import 'task_appearance.dart';
 import 'task_lists.dart';
 
 /// Dia atual (meia-noite local), atualizado sozinho na virada do dia.
@@ -119,3 +121,24 @@ final completionsProvider = StreamProvider.autoDispose
     .family<List<TaskCompletion>, String>(
       (ref, id) => ref.watch(tasksRepositoryProvider).watchCompletions(id),
     );
+
+// ─── Aparência (cor e ícone com herança) ─────────────────────────────────────
+
+/// Resolve cor e ícone de qualquer tarefa (tarefa → mãe → 1ª tag → tipo).
+final appearanceResolverProvider = Provider.autoDispose<AppearanceResolver>((
+  ref,
+) {
+  final tasks = ref.watch(allTasksProvider).value ?? const <Task>[];
+  final tags = ref.watch(tagsProvider).value ?? const <Tag>[];
+  final links = ref.watch(tagIdsByTaskProvider).value ?? const {};
+  return AppearanceResolver(
+    tasks: tasks,
+    firstTagColor: {
+      for (final MapEntry(key: taskId, value: ids) in links.entries)
+        if (tags.where((t) => ids.contains(t.id)).firstOrNull case final tag?)
+          taskId: tag.colorKey,
+    },
+    validColors: {for (final k in PaletteKey.values) k.name},
+    validIcons: {for (final i in IconCatalog.all) i.key},
+  );
+});

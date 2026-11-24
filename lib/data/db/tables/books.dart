@@ -8,7 +8,12 @@ class Notebooks extends Table with SyncColumns {
 
   /// Preenchido = caderno próprio da tarefa.
   TextColumn get taskId => text().nullable().references(Tasks, #id)();
-  TextColumn get icon => text().nullable()();
+
+  /// Chave da paleta; nula = cor neutra.
+  TextColumn get colorKey => text().nullable()();
+
+  /// Chave do catálogo de ícones; nula = ícone de book.
+  TextColumn get iconKey => text().nullable()();
 }
 
 @TableIndex(

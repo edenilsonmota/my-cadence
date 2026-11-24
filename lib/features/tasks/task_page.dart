@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../core/recurrence.dart';
 import '../../core/routine.dart';
@@ -12,6 +12,7 @@ import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
+import '../../shared/widgets/tag_chip.dart';
 import 'hub/hub_tools.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
@@ -158,10 +159,7 @@ class _TaskHub extends ConsumerWidget {
                     label: Text('Prioridade ${priorityLabels[task.priority]}'),
                   ),
                 for (final tag in tags)
-                  Chip(
-                    avatar: CircleAvatar(backgroundColor: Color(tag.color)),
-                    label: Text(tag.name),
-                  ),
+                  TagChip(name: tag.name, colorKey: tag.colorKey),
               ],
             ),
           ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/theme/app_icons.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
@@ -28,7 +28,7 @@ class BookPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(book == null ? 'Book' : [?book.icon, book.title].join(' ')),
+        title: Text(book?.title ?? 'Book'),
         actions: [
           if (book != null)
             PopupMenuButton<String>(
@@ -50,7 +50,7 @@ class BookPage extends ConsumerWidget {
                   child: Text('Exportar (.zip)'),
                 ),
                 PopupMenuItem(value: 'renomear', child: Text('Renomear')),
-                PopupMenuItem(value: 'icone', child: Text('Ícone')),
+                PopupMenuItem(value: 'icone', child: Text('Ícone e cor')),
               ],
             ),
         ],

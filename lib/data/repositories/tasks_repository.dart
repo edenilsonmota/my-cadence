@@ -54,7 +54,8 @@ class TasksRepository {
     int? reminderMinutesBefore,
     int? estimatedPomodoros,
     int? sortOrder,
-    int? color,
+    String? colorKey,
+    String? iconKey,
   }) async {
     final id = newId();
     // Sem ordem explícita, entra no fim da lista das irmãs.
@@ -74,7 +75,8 @@ class TasksRepository {
         reminderMinutesBefore: Value(reminderMinutesBefore),
         estimatedPomodoros: Value(estimatedPomodoros),
         sortOrder: Value(order),
-        color: Value(color),
+        colorKey: Value(colorKey),
+        iconKey: Value(iconKey),
       ),
     );
     return id;
@@ -112,7 +114,8 @@ class TasksRepository {
       estimatedPomodoros: Value(task.estimatedPomodoros),
       sortOrder: Value(task.sortOrder),
       completedAt: Value(task.completedAt),
-      color: Value(task.color),
+      colorKey: Value(task.colorKey),
+      iconKey: Value(task.iconKey),
     ),
   );
 
@@ -233,17 +236,24 @@ class TasksRepository {
         }
       });
 
-  Future<String> createTag({required String name, required int color}) async {
+  Future<String> createTag({
+    required String name,
+    required String colorKey,
+  }) async {
     final id = newId();
     await _tags.insertTag(
-      TagsCompanion.insert(id: Value(id), name: name, color: color),
+      TagsCompanion.insert(
+        id: Value(id),
+        name: name,
+        colorKey: Value(colorKey),
+      ),
     );
     return id;
   }
 
   Future<void> saveTag(Tag tag) => _tags.updateTag(
     tag.id,
-    TagsCompanion(name: Value(tag.name), color: Value(tag.color)),
+    TagsCompanion(name: Value(tag.name), colorKey: Value(tag.colorKey)),
   );
 
   Future<void> deleteTag(String id) => _tags.softDeleteTag(id);

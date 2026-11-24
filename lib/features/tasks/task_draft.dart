@@ -45,6 +45,8 @@ class TaskDraft {
     this.until,
     this.reminderMinutesBefore,
     this.estimatedPomodoros,
+    this.colorKey,
+    this.iconKey,
     Set<String>? tagIds,
   }) : weekdays = weekdays ?? {},
        tagIds = tagIds ?? {};
@@ -76,6 +78,8 @@ class TaskDraft {
       until: rule?.until,
       reminderMinutesBefore: task.reminderMinutesBefore,
       estimatedPomodoros: task.estimatedPomodoros,
+      colorKey: task.colorKey,
+      iconKey: task.iconKey,
       tagIds: tagIds,
     );
   }
@@ -99,6 +103,10 @@ class TaskDraft {
 
   int? reminderMinutesBefore;
   int? estimatedPomodoros;
+
+  /// Chaves de cor e ícone; nulas = herdar (mãe, tag, tipo).
+  String? colorKey;
+  String? iconKey;
   Set<String> tagIds;
 
   RecurrenceRule? get recurrence => switch (repeat) {
@@ -159,6 +167,8 @@ class TaskDraft {
           ? null
           : reminderMinutesBefore,
       estimatedPomodoros: estimatedPomodoros,
+      colorKey: colorKey,
+      iconKey: iconKey,
     );
   }
 }
@@ -176,6 +186,8 @@ class TaskFields {
     required this.recurrenceRule,
     required this.reminderMinutesBefore,
     required this.estimatedPomodoros,
+    this.colorKey,
+    this.iconKey,
   });
 
   final String title;
@@ -188,6 +200,8 @@ class TaskFields {
   final String? recurrenceRule;
   final int? reminderMinutesBefore;
   final int? estimatedPomodoros;
+  final String? colorKey;
+  final String? iconKey;
 
   /// Aplica os campos numa tarefa existente (para `saveTask`).
   Task applyTo(Task task) => task.copyWith(
@@ -201,5 +215,7 @@ class TaskFields {
     recurrenceRule: Value(recurrenceRule),
     reminderMinutesBefore: Value(reminderMinutesBefore),
     estimatedPomodoros: Value(estimatedPomodoros),
+    colorKey: Value(colorKey),
+    iconKey: Value(iconKey),
   );
 }
