@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/nav_tabs_providers.dart';
+import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/number_stepper.dart';
@@ -26,6 +29,7 @@ class SettingsPage extends ConsumerWidget {
     final s =
         ref.watch(pomodoroSettingsProvider).value ?? const PomodoroSettings();
     final cards = ref.watch(cardSettingsProvider).value ?? const CardSettings();
+    final navTabs = ref.watch(navTabsProvider);
     final allDayHour = parseAllDayHour(ref.watch(_allDayHourProvider).value);
     final repo = ref.read(settingsRepositoryProvider);
     void setInt(String key, int v) => repo.setString(key, '$v');
@@ -47,6 +51,14 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
+          const _Header('Navegação'),
+          ListTile(
+            leading: const Icon(AppIcons.navBar),
+            title: const Text('Barra de navegação'),
+            subtitle: Text(navTabs.map((t) => t.label).join(' · ')),
+            trailing: const Icon(AppIcons.chevronRight),
+            onTap: () => context.push(Routes.navBarSettings),
+          ),
           const _Header('Flashcards'),
           ListTile(
             title: const Text('Cards novos por dia'),

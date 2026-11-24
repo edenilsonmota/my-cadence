@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../app/shell.dart';
 import '../../features/sync/presentation/account_avatar.dart';
 import 'app_drawer.dart';
 
-/// Scaffold padrão das abas principais: AppBar com título e o menu lateral.
+/// Scaffold padrão das telas principais: quando está como aba no shell, mostra
+/// o menu lateral e o avatar da conta; quando abre por cima do shell, mostra o
+/// botão de voltar.
 class TabScaffold extends StatelessWidget {
   const TabScaffold({
     required this.title,
@@ -20,12 +23,13 @@ class TabScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTab = AppShell.isTab(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        actions: [...?actions, const AccountAvatar()],
+        actions: [...?actions, if (isTab) const AccountAvatar()],
       ),
-      drawer: const AppDrawer(),
+      drawer: isTab ? const AppDrawer() : null,
       body: body,
       floatingActionButton: floatingActionButton,
     );

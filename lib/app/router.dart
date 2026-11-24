@@ -13,12 +13,15 @@ import '../features/cards/review_page.dart';
 import '../features/cards/review_session_page.dart';
 import '../features/dev/components_page.dart';
 import '../features/pomodoro/pomodoro_page.dart';
+import '../features/settings/nav_bar_settings_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/stats/stats_page.dart';
 import '../features/tasks/task_form_page.dart';
 import '../features/tasks/task_page.dart';
 import '../features/tasks/tasks_page.dart';
 import '../features/tasks/today_page.dart';
+import 'nav_tabs.dart';
+import 'nav_tabs_providers.dart';
 import 'shell.dart';
 
 /// Caminhos das rotas, para não espalhar strings pelo app.
@@ -30,6 +33,7 @@ abstract final class Routes {
   static const books = '/books';
   static const stats = '/metricas';
   static const settings = '/ajustes';
+  static const navBarSettings = '/ajustes/barra';
 
   /// Catálogo de componentes (só em debug).
   static const devComponents = '/dev/componentes';
@@ -38,7 +42,7 @@ abstract final class Routes {
   static String task(String id) => '/tarefa/$id';
   static String editTask(String id) => '/tarefa/$id/editar';
 
-  /// Telas provisórias até as etapas de revisão, pomodoro e books.
+  /// Telas de revisão, cards, pomodoro e books.
   static String reviewTask(String taskId) => reviewSession(taskId: taskId);
   static String reviewSession({String? deckId, String? taskId}) => Uri(
     path: '/revisao',
@@ -78,16 +82,27 @@ abstract final class Routes {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final router = buildRouter();
+  final initialTabs = ref.read(initialNavTabsProvider);
+  final router = buildRouter(initialLocation: initialTabs.first.tabRoute);
   ref.onDispose(router.dispose);
   return router;
 });
 
+Widget _pageForTab(NavTab tab) => switch (tab) {
+  NavTab.today => const TodayPage(),
+  NavTab.tasks => const TasksPage(),
+  NavTab.agenda => const AgendaPage(),
+  NavTab.review => const ReviewPage(),
+  NavTab.books => const BooksPage(),
+  NavTab.pomodoro => const PomodoroPage(),
+  NavTab.stats => const StatsPage(),
+};
+
 GoRouter buildRouter({String initialLocation = Routes.today}) {
   final rootKey = GlobalKey<NavigatorState>();
 
-  StatefulShellBranch branch(String path, Widget page) => StatefulShellBranch(
-    routes: [GoRoute(path: path, builder: (_, _) => page)],
+  StatefulShellBranch branch(NavTab tab) => StatefulShellBranch(
+    routes: [GoRoute(path: tab.tabRoute, builder: (_, _) => _pageForTab(tab))],
   );
 
   return GoRouter(
@@ -96,24 +111,26 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
-        branches: [
-          branch(Routes.today, const TodayPage()),
-          branch(Routes.tasks, const TasksPage()),
-          branch(Routes.agenda, const AgendaPage()),
-          branch(Routes.review, const ReviewPage()),
-          branch(Routes.books, const BooksPage()),
-        ],
+        branches: [for (final tab in NavTab.values) branch(tab)],
       ),
-      // Métricas e ajustes abrem por cima do shell, a partir do menu lateral.
-      GoRoute(
-        path: Routes.stats,
-        parentNavigatorKey: rootKey,
-        builder: (_, _) => const StatsPage(),
-      ),
+      // Telas que ficaram fora da barra abrem por cima do shell pelo menu
+      // lateral (ou via deep link/hub, no caso do Pomodoro com tarefa).
+      for (final tab in NavTab.values)
+        if (tab != NavTab.pomodoro)
+          GoRoute(
+            path: tab.overlayRoute,
+            parentNavigatorKey: rootKey,
+            builder: (_, _) => _pageForTab(tab),
+          ),
       GoRoute(
         path: Routes.settings,
         parentNavigatorKey: rootKey,
         builder: (_, _) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: Routes.navBarSettings,
+        parentNavigatorKey: rootKey,
+        builder: (_, _) => const NavBarSettingsPage(),
       ),
       if (kDebugMode)
         GoRoute(

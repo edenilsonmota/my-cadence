@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
 import '../../app/router.dart';
+import '../../app/shell.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
@@ -63,8 +64,9 @@ class AgendaPage extends ConsumerWidget {
     final title = thisYear
         ? monthNames[day.month - 1]
         : '${monthShort[day.month - 1]} ${day.year}';
+    final isTab = AppShell.isTab(context);
     return Scaffold(
-      drawer: const AppDrawer(),
+      drawer: isTab ? const AppDrawer() : null,
       appBar: AppBar(
         titleSpacing: 0,
         title: TextButton.icon(
@@ -149,7 +151,7 @@ class AgendaPage extends ConsumerWidget {
               ),
             ],
           ),
-          const AccountAvatar(),
+          if (isTab) const AccountAvatar(),
         ],
       ),
       floatingActionButton: FloatingActionButton(

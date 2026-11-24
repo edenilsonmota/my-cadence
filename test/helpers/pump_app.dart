@@ -9,8 +9,11 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/app/app.dart';
 import 'package:my_cadence/app/clock.dart';
+import 'package:my_cadence/app/nav_tabs.dart';
+import 'package:my_cadence/app/nav_tabs_providers.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/providers.dart';
+import 'package:my_cadence/data/repositories/settings_repository.dart';
 import 'package:my_cadence/features/pomodoro/pomodoro_controller.dart';
 import 'package:my_cadence/features/sync/application/account_controller.dart';
 import 'package:my_cadence/features/sync/application/sync_service.dart';
@@ -56,6 +59,11 @@ Future<AppDatabase> pumpApp(
     ),
   );
   if (seed != null) await tester.runAsync(() => seed(db));
+  final initialTabs = parseNavTabs(
+    await tester.runAsync<String?>(
+      () => SettingsRepository(db.settingsDao).getString(navTabsSettingKey),
+    ),
+  );
 
   // Plugin de altura do teclado (usado pela barra do editor) não existe no
   // ambiente de teste.
@@ -72,6 +80,7 @@ Future<AppDatabase> pumpApp(
       overrides: [
         ...overrides,
         databaseProvider.overrideWithValue(db),
+        initialNavTabsProvider.overrideWithValue(initialTabs),
         // Sem Google nem Drive de verdade nos testes.
         googleAccountApiProvider.overrideWithValue(
           accountApi ?? FakeAccountApi(),

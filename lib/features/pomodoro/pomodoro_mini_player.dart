@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
-import '../../app/router.dart';
+import '../../app/nav_tabs.dart';
+import '../../app/nav_tabs_providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/enums.dart';
 import '../tasks/task_providers.dart';
@@ -24,7 +24,8 @@ class PomodoroMiniPlayer extends ConsumerWidget {
     if (running == null && finished == null) return const SizedBox.shrink();
 
     final colors = Theme.of(context).colorScheme;
-    void open() => context.push(Routes.pomodoro());
+    void open() =>
+        openNavTab(context, ref.read(navTabsProvider), NavTab.pomodoro);
 
     if (running == null) {
       return Material(

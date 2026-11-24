@@ -3,15 +3,16 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
-import '../../app/router.dart';
+import '../../app/nav_tabs.dart';
+import '../../app/nav_tabs_providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../shared/widgets/metric_card.dart';
+import '../../shared/widgets/tab_scaffold.dart';
 import '../tasks/hub/hub_stats.dart' show formatDuration;
 import '../tasks/task_labels.dart';
 import '../tasks/task_providers.dart';
@@ -24,8 +25,8 @@ class StatsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Métricas')),
+    return TabScaffold(
+      title: 'Métricas',
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: const [
@@ -376,7 +377,8 @@ class _FocusSection extends ConsumerWidget {
           _Empty(
             'Nenhum foco registrado nestes períodos.',
             action: 'Iniciar foco',
-            onAction: () => context.push(Routes.pomodoro()),
+            onAction: () =>
+                openNavTab(context, ref.read(navTabsProvider), NavTab.pomodoro),
           )
         else
           _Bars(
@@ -568,7 +570,8 @@ class _ReviewSection extends ConsumerWidget {
           _Empty(
             'Nenhuma revisão nos últimos 14 dias.',
             action: 'Revisar agora',
-            onAction: () => context.go(Routes.review),
+            onAction: () =>
+                openNavTab(context, ref.read(navTabsProvider), NavTab.review),
           )
         else
           _Bars(

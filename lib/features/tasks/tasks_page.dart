@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/shell.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/enums.dart';
 import '../../shared/widgets/app_drawer.dart';
@@ -58,6 +59,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
     final today = ref.watch(todayProvider);
     // Com busca ou filtro ativo, tudo aberto para mostrar onde estão os achados.
     final expandAll = filter.query.trim().isNotEmpty || filter.activeCount > 0;
+    final isTab = AppShell.isTab(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -100,10 +102,10 @@ class _TasksPageState extends ConsumerState<TasksPage> {
               builder: (_) => const _FilterSheet(),
             ),
           ),
-          if (!_searching) const AccountAvatar(),
+          if (!_searching && isTab) const AccountAvatar(),
         ],
       ),
-      drawer: const AppDrawer(),
+      drawer: isTab ? const AppDrawer() : null,
       floatingActionButton: FloatingActionButton(
         // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
         heroTag: null,

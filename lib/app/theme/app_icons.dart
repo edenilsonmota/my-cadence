@@ -24,7 +24,10 @@ abstract final class AppIcons {
   static const books = _I.bookOpen;
   static const booksActive = LucideIcons500.bookOpen;
   static const stats = _I.chartColumn;
+  static const statsActive = LucideIcons500.chartColumn;
   static const settings = _I.settings;
+  static const navBar = _I.panelBottom;
+  static const chevronRight = _I.chevronRight;
   static const menu = _I.menu;
   static const back = _I.arrowLeft;
   static const close = _I.x;
@@ -75,6 +78,7 @@ abstract final class AppIcons {
 
   // ─── Pomodoro ───────────────────────────────────────────────────────────
   static const pomodoro = _I.timer;
+  static const pomodoroActive = LucideIcons500.timer;
   static const play = _I.play;
   static const pause = _I.pause;
   static const stop = _I.square;

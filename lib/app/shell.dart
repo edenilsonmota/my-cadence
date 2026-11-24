@@ -2,79 +2,104 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/cards/cards_providers.dart';
 import '../features/pomodoro/pomodoro_mini_player.dart';
 import '../features/update/update_widgets.dart';
-import 'theme/app_theme.dart';
+import '../shared/widgets/nav_tab_icon.dart';
+import 'nav_tabs.dart';
+import 'nav_tabs_providers.dart';
 
-/// Shell com a barra de navegação das 5 abas. Cada aba mantém a própria pilha.
-class AppShell extends StatelessWidget {
+/// Escopo que informa às telas descendentes que elas estão rodando como aba
+/// dentro do shell (e qual aba está ativa no momento).
+class _ShellScope extends InheritedWidget {
+  const _ShellScope({required this.activeTab, required super.child});
+
+  final NavTab activeTab;
+
+  @override
+  bool updateShouldNotify(_ShellScope oldWidget) =>
+      activeTab != oldWidget.activeTab;
+}
+
+/// Shell com a barra de navegação configurável (3 a 5 abas). Cada tela mantém
+/// a própria pilha enquanto está na barra.
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
+  /// `true` se o widget está dentro de uma aba do shell (e não empilhado por
+  /// cima dele).
+  static bool isTab(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_ShellScope>() != null;
+
+  /// Aba atualmente visível no shell, ou `null` fora do shell.
+  static NavTab? activeTabOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_ShellScope>()?.activeTab;
+
+  @override
+  ConsumerState<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<AppShell> {
+  void _ensureActiveTabInBar(List<NavTab> tabs) {
+    final activeTab = NavTab.values[widget.navigationShell.currentIndex];
+    if (!tabs.contains(activeTab)) {
+      widget.navigationShell.goBranch(tabs.first.index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen<List<NavTab>>(navTabsProvider, (_, next) {
+      if (ModalRoute.of(context)?.isCurrent ?? false) {
+        _ensureActiveTabInBar(next);
+      }
+    });
+
+    final tabs = ref.watch(navTabsProvider);
+    final activeTab = NavTab.values[widget.navigationShell.currentIndex];
+    final selectedIndex = tabs.indexOf(activeTab);
+    final isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
+    if (isCurrent && selectedIndex == -1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (ModalRoute.of(context)?.isCurrent ?? false) {
+          _ensureActiveTabInBar(ref.read(navTabsProvider));
+        }
+      });
+    }
+
     return Scaffold(
-      body: UpdateWatcher(child: navigationShell),
+      body: _ShellScope(
+        activeTab: activeTab,
+        child: UpdateWatcher(child: widget.navigationShell),
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const PomodoroMiniPlayer(),
+          if (activeTab != NavTab.pomodoro) const PomodoroMiniPlayer(),
           NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
+            selectedIndex: selectedIndex == -1 ? 0 : selectedIndex,
             // Tocar de novo na aba ativa volta para a raiz dela.
-            onDestinationSelected: (index) => navigationShell.goBranch(
-              index,
-              initialLocation: index == navigationShell.currentIndex,
-            ),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(AppIcons.today),
-                selectedIcon: Icon(AppIcons.todayActive),
-                label: 'Hoje',
-              ),
-              NavigationDestination(
-                icon: Icon(AppIcons.tasks),
-                selectedIcon: Icon(AppIcons.tasksActive),
-                label: 'Tarefas',
-              ),
-              NavigationDestination(
-                icon: Icon(AppIcons.agenda),
-                selectedIcon: Icon(AppIcons.agendaActive),
-                label: 'Agenda',
-              ),
-              NavigationDestination(
-                icon: _ReviewIcon(AppIcons.review),
-                selectedIcon: _ReviewIcon(AppIcons.reviewActive),
-                label: 'Revisar',
-              ),
-              NavigationDestination(
-                icon: Icon(AppIcons.books),
-                selectedIcon: Icon(AppIcons.booksActive),
-                label: 'Books',
-              ),
+            onDestinationSelected: (barIndex) {
+              final tab = tabs[barIndex];
+              widget.navigationShell.goBranch(
+                tab.index,
+                initialLocation:
+                    tab.index == widget.navigationShell.currentIndex,
+              );
+            },
+            destinations: [
+              for (final tab in tabs)
+                NavigationDestination(
+                  icon: NavTabIcon(tab),
+                  selectedIcon: NavTabIcon(tab, active: true),
+                  label: tab.label,
+                ),
             ],
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Ícone da aba Revisar com o número de cards para revisar agora.
-class _ReviewIcon extends ConsumerWidget {
-  const _ReviewIcon(this.icon);
-
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final due = ref.watch(dueCountProvider);
-    return Badge(
-      isLabelVisible: due > 0,
-      label: Text(due > 99 ? '99+' : '$due'),
-      child: Icon(icon),
     );
   }
 }

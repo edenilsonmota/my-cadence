@@ -6,10 +6,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'app/nav_tabs.dart';
+import 'app/nav_tabs_providers.dart';
 import 'app/notification_navigation.dart';
 import 'app/router.dart';
 import 'core/notifications.dart';
 import 'core/time_zone.dart';
+import 'data/db/database.dart';
+import 'data/providers.dart';
+import 'data/repositories/settings_repository.dart';
 import 'features/sync/sync_providers.dart';
 import 'features/tasks/alarms.dart';
 import 'features/tasks/notification_actions.dart';
@@ -19,9 +24,25 @@ Future<void> main() async {
   _registerFontLicenses();
   await initTimeZone();
 
-  final container = ProviderContainer();
+  final db = AppDatabase.open();
+  final initialTabs = parseNavTabs(
+    await SettingsRepository(db.settingsDao).getString(navTabsSettingKey),
+  );
+
+  final container = ProviderContainer(
+    overrides: [
+      databaseProvider.overrideWith((ref) {
+        ref.onDispose(db.close);
+        return db;
+      }),
+      initialNavTabsProvider.overrideWithValue(initialTabs),
+    ],
+  );
   // O payload é o id da tarefa, ou `pomodoro` para o fim de um ciclo.
-  final navigator = NotificationNavigator(container.read(routerProvider));
+  final navigator = NotificationNavigator(
+    container.read(routerProvider),
+    readNavTabs: () => container.read(navTabsProvider),
+  );
 
   final notifications = NotificationService.instance;
   await notifications.init(

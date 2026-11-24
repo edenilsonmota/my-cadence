@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../core/notifications.dart';
+import 'nav_tabs.dart';
 import 'router.dart';
 
 /// Abre a tela de uma notificação tocada (hub da tarefa ou pomodoro).
@@ -13,18 +14,29 @@ import 'router.dart';
 /// - O mesmo toque pode chegar por dois caminhos (abertura do app e callback
 ///   do plugin); repetições do mesmo payload em poucos segundos são ignoradas.
 class NotificationNavigator {
-  NotificationNavigator(this._router, {DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  NotificationNavigator(
+    this._router, {
+    DateTime Function()? clock,
+    List<NavTab> Function()? readNavTabs,
+  }) : _clock = clock ?? DateTime.now,
+       _readNavTabs = readNavTabs ?? _defaultTabs;
 
   final GoRouter _router;
   final DateTime Function() _clock;
+  final List<NavTab> Function() _readNavTabs;
   String? _lastPayload;
   DateTime? _lastAt;
 
   static const _dedupeWindow = Duration(seconds: 3);
 
-  static String routeFor(String payload) =>
-      payload == pomodoroPayload ? Routes.pomodoro() : Routes.task(payload);
+  static List<NavTab> _defaultTabs() => defaultNavTabs;
+
+  static String routeFor(String payload, {bool pomodoroAsTab = false}) {
+    if (payload == pomodoroPayload) {
+      return pomodoroAsTab ? NavTab.pomodoro.tabRoute : Routes.pomodoro();
+    }
+    return Routes.task(payload);
+  }
 
   void open(String payload) {
     final now = _clock();
@@ -36,16 +48,27 @@ class NotificationNavigator {
     _lastPayload = payload;
     _lastAt = now;
 
-    final target = routeFor(payload);
+    void navigate() {
+      final pomodoroAsTab =
+          payload == pomodoroPayload &&
+          _readNavTabs().contains(NavTab.pomodoro);
+      final target = routeFor(payload, pomodoroAsTab: pomodoroAsTab);
+      if (pomodoroAsTab) {
+        _router.go(target);
+      } else {
+        _router.push(target);
+      }
+    }
+
     final delegate = _router.routerDelegate;
     if (delegate.currentConfiguration.isNotEmpty) {
-      _router.push(target);
+      navigate();
       return;
     }
     void whenReady() {
       if (delegate.currentConfiguration.isEmpty) return;
       delegate.removeListener(whenReady);
-      _router.push(target);
+      navigate();
     }
 
     delegate.addListener(whenReady);

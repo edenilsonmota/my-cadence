@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
+import '../../app/nav_tabs.dart';
+import '../../app/shell.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/appearance_badge.dart';
+import '../../shared/widgets/tab_scaffold.dart';
 import '../tasks/task_providers.dart';
 import '../tasks/widgets/task_picker.dart';
 import 'pomodoro_controller.dart';
@@ -73,13 +76,20 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
         ref.watch(pomodoroSettingsProvider).value ?? const PomodoroSettings();
     final running = state.running;
 
-    // A cada segundo: redesenha e confere se o tempo acabou.
-    ref.listen(tickerProvider, (_, _) => controller.checkDue());
-    final now = ref.watch(tickerProvider).value ?? ref.read(clockProvider)();
+    // A cada segundo: redesenha e confere se o tempo acabou (só enquanto esta
+    // tela está visível: como aba ativa ou aberta por cima do shell).
+    final activeTab = AppShell.activeTabOf(context);
+    final visible = activeTab == null || activeTab == NavTab.pomodoro;
+    if (visible) {
+      ref.listen(tickerProvider, (_, _) => controller.checkDue());
+    }
+    final now = visible
+        ? (ref.watch(tickerProvider).value ?? ref.read(clockProvider)())
+        : ref.read(clockProvider)();
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _syncScreenAwake(
-        settings.keepScreenOn && running != null && !state.isPaused,
+        visible && settings.keepScreenOn && running != null && !state.isPaused,
       ),
     );
 
@@ -106,8 +116,8 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
         ? colors.surfaceContainerHighest
         : context.palette.byName(resolver.colorKeyOf(task)).tint;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Pomodoro')),
+    return TabScaffold(
+      title: 'Pomodoro',
       body: ListView(
         padding: EdgeInsets.fromLTRB(
           space.page,
