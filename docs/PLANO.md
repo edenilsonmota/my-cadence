@@ -303,6 +303,23 @@ Especificação completa em **`docs/SINCRONIZACAO.md`** (seguir as fases da seç
   tenta de novo depois.
 - A coluna `serverVersion` fica reservada, sem uso.
 
+### Etapa 12: Barra de navegação ajustável
+A barra de baixo deixa de ser fixa (Hoje, Tarefas, Agenda, Revisar, Books): cada pessoa escolhe quais telas ficam
+nela e em que ordem.
+- **Telas disponíveis:** Hoje, Tarefas, Agenda, Revisar, Books, **Pomodoro** e **Métricas**. Ajustes continua só no
+  menu lateral.
+- **De 3 a 5 abas** na barra (regra do Material). O que não estiver na barra continua acessível pelo menu lateral, então
+  nenhuma tela fica escondida.
+- **Ajustes → Barra de navegação:** lista com um interruptor por tela e alça para arrastar a ordem, com prévia da barra;
+  "Restaurar padrão". O interruptor de quem já está no limite (mínimo ou máximo) fica desabilitado com o motivo.
+- Guardado como ajuste do aparelho (`device.navTabs`, lista de chaves em ordem; não sincroniza, porque celular e tablet
+  podem querer barras diferentes). Chave desconhecida é ignorada; lista inválida volta ao padrão.
+- Pomodoro e Métricas viram rotas de aba quando estão na barra (cada aba com a própria pilha, como hoje) e continuam
+  abrindo por cima do shell quando não estão. Deep links de notificação (tarefa, pomodoro) funcionam nos dois casos.
+- A aba inicial ao abrir o app é a primeira da barra. O selo de cards para revisar segue a aba Revisar onde ela estiver.
+- Lógica pura e testada: validar e normalizar a lista (mínimo, máximo, duplicadas, chaves desconhecidas) e montar os
+  itens do menu lateral com o que ficou fora da barra.
+
 ---
 
 ## 5. Definição de pronto (vale para todas as etapas)
