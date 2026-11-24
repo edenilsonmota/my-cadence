@@ -23,6 +23,10 @@ class PomodoroPage extends ConsumerStatefulWidget {
 class _PomodoroPageState extends ConsumerState<PomodoroPage> {
   PomodoroKind? _kind;
   late String? _taskId = widget.taskId;
+
+  /// O usuário já escolheu a tarefa nesta tela (então não herda a da sessão
+  /// que acabou).
+  bool _taskChosen = false;
   bool _screenAwake = false;
 
   // Guardado no início: no `dispose` o `ref` já não pode ser usado.
@@ -78,7 +82,12 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
     );
 
     final kind = running?.kind ?? _kind ?? state.suggestedNext;
-    final taskId = running != null ? running.taskId : _taskId;
+    // Parado: a tarefa escolhida, ou a do ciclo que acabou de terminar (para o
+    // próximo foco continuar na mesma tarefa).
+    final idleTaskId = _taskChosen || _taskId != null
+        ? _taskId
+        : state.finished?.taskId;
+    final taskId = running != null ? running.taskId : idleTaskId;
     final duration = running == null
         ? Duration(minutes: settings.minutesFor(kind))
         : remaining(running, now);
@@ -94,6 +103,9 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
             _FinishedCard(
               finished: finished,
               next: state.suggestedNext,
+              // Com a próxima sessão já rodando (pausa iniciada sozinha),
+              // "Iniciar" interromperia a que está em andamento.
+              nextAlreadyRunning: running != null,
               onStartNext: () => controller.start(
                 state.suggestedNext,
                 taskId: finished.taskId,
@@ -152,14 +164,17 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
               taskId,
               (id) => running != null
                   ? controller.setTask(id)
-                  : setState(() => _taskId = id),
+                  : setState(() {
+                      _taskId = id;
+                      _taskChosen = true;
+                    }),
             ),
           ),
           const SizedBox(height: 16),
           _Controls(
             running: running != null,
             paused: state.isPaused,
-            onStart: () => controller.start(kind, taskId: _taskId),
+            onStart: () => controller.start(kind, taskId: idleTaskId),
             onPause: controller.pause,
             onResume: controller.resume,
             onStop: controller.stop,
@@ -248,12 +263,14 @@ class _FinishedCard extends ConsumerWidget {
   const _FinishedCard({
     required this.finished,
     required this.next,
+    required this.nextAlreadyRunning,
     required this.onStartNext,
     required this.onDismiss,
   });
 
   final PomodoroSession finished;
   final PomodoroKind next;
+  final bool nextAlreadyRunning;
   final VoidCallback onStartNext;
   final VoidCallback onDismiss;
 
@@ -280,16 +297,21 @@ class _FinishedCard extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
-            Text('Próximo: ${next.label}'),
+            Text(
+              nextAlreadyRunning
+                  ? '${next.label} em andamento'
+                  : 'Próximo: ${next.label}',
+            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 4,
               children: [
-                FilledButton(
-                  onPressed: onStartNext,
-                  child: Text('Iniciar ${next.label.toLowerCase()}'),
-                ),
+                if (!nextAlreadyRunning)
+                  FilledButton(
+                    onPressed: onStartNext,
+                    child: Text('Iniciar ${next.label.toLowerCase()}'),
+                  ),
                 if (canComplete)
                   OutlinedButton(
                     onPressed: () async {

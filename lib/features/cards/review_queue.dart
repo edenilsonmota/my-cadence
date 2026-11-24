@@ -1,6 +1,7 @@
 /// Fila de revisão e ajustes dos flashcards. Puro, sem Flutter.
 library;
 
+import '../../data/db/card_schedule.dart';
 import '../../data/db/database.dart';
 
 class CardSettings {
@@ -69,4 +70,35 @@ DateTime? nextDueSoon(
     if (next == null || c.due.isBefore(next)) next = c.due;
   }
   return next;
+}
+
+/// Escolhe o card da tela de revisão.
+///
+/// - [justAnswered]: cards respondidos agora há pouco, com o agendamento de
+///   ANTES da resposta. Enquanto a consulta ainda trouxer essa cópia velha
+///   (o banco responde um instante depois), o card é ignorado; sem isso ele
+///   reaparecia e era revisado duas vezes (achado no aparelho).
+/// - [undoneId]: card cuja revisão foi desfeita; volta à tela mesmo que não
+///   esteja vencido.
+/// - [currentId]: card já na tela; continua nela enquanto estiver na fila.
+Flashcard? pickCurrentCard({
+  required List<Flashcard> queue,
+  required List<Flashcard> scopeCards,
+  String? currentId,
+  String? undoneId,
+  Map<String, CardSchedule> justAnswered = const {},
+}) {
+  bool stale(Flashcard c) => justAnswered[c.id] == CardSchedule.of(c);
+  if (undoneId != null) {
+    final undone =
+        queue.where((c) => c.id == undoneId).firstOrNull ??
+        scopeCards.where((c) => c.id == undoneId).firstOrNull;
+    if (undone != null) return undone;
+  }
+  final fresh = queue.where((c) => !stale(c));
+  if (currentId != null) {
+    final current = fresh.where((c) => c.id == currentId).firstOrNull;
+    if (current != null) return current;
+  }
+  return fresh.firstOrNull;
 }

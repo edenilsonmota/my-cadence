@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'app/notification_navigation.dart';
 import 'app/router.dart';
 import 'core/notifications.dart';
 import 'core/time_zone.dart';
@@ -14,15 +15,11 @@ Future<void> main() async {
 
   final container = ProviderContainer();
   // O payload é o id da tarefa, ou `pomodoro` para o fim de um ciclo.
-  void openTask(String payload) => container
-      .read(routerProvider)
-      .push(
-        payload == pomodoroPayload ? Routes.pomodoro() : Routes.task(payload),
-      );
+  final navigator = NotificationNavigator(container.read(routerProvider));
 
   final notifications = NotificationService.instance;
   await notifications.init(
-    onTap: openTask,
+    onTap: navigator.open,
     onBackgroundAction: onNotificationActionInBackground,
   );
   // Reagenda todos os lembretes e passa a acompanhar as mudanças nas tarefas.
@@ -33,8 +30,6 @@ Future<void> main() async {
   );
 
   // App aberto por um toque na notificação: vai direto ao hub da tarefa.
-  final launchTask = await notifications.launchPayload();
-  if (launchTask != null) {
-    WidgetsBinding.instance.addPostFrameCallback((_) => openTask(launchTask));
-  }
+  final launchPayload = await notifications.launchPayload();
+  if (launchPayload != null) navigator.open(launchPayload);
 }

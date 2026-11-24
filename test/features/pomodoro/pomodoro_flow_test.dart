@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/db/enums.dart';
+import 'package:my_cadence/data/repositories/pomodoro_repository.dart';
 import 'package:my_cadence/data/repositories/settings_repository.dart';
 import 'package:my_cadence/data/repositories/tasks_repository.dart';
 import 'package:my_cadence/features/pomodoro/pomodoro_logic.dart';
@@ -132,6 +133,78 @@ void main() {
       expect(find.text('05:00'), findsOneWidget);
     },
   );
+
+  testWidgets('pelo menu: foco vencido com o app fechado traz a tarefa junto', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      clock: () => DateTime(2026, 11, 23, 10),
+      seed: (db) async {
+        final task = await tasksOf(db).createTask(title: 'Ligar');
+        // Foco começou às 9h (25 min) e o app ficou fechado.
+        await PomodoroRepository(db.pomodoroDao).startSession(
+          kind: PomodoroKind.foco,
+          plannedMinutes: 25,
+          startedAt: DateTime(2026, 11, 23, 9),
+          taskId: task,
+        );
+      },
+    );
+    expect(find.text('Foco concluído'), findsOneWidget); // mini-player
+
+    await tester.tap(find.byTooltip('Abrir menu de navegação'));
+    await settle(tester);
+    await tester.tap(find.text('Pomodoro'));
+    await settle(tester);
+
+    expect(find.text('Foco concluído!'), findsOneWidget);
+    expect(find.text('Concluir "Ligar"'), findsOneWidget);
+    // O próximo foco já vem com a mesma tarefa.
+    expect(
+      find.descendant(of: find.byType(Card), matching: find.text('Ligar')),
+      findsWidgets,
+    );
+    await tester.dragUntilVisible(
+      find.text('Tarefa vinculada'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    expect(
+      find.ancestor(
+        of: find.text('Tarefa vinculada'),
+        matching: find.widgetWithText(ListTile, 'Ligar'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('pausa iniciada sozinha: cartão não oferece iniciar outra', (
+    tester,
+  ) async {
+    var now = DateTime(2026, 11, 23, 9);
+    await pumpApp(
+      tester,
+      clock: () => now,
+      seed: (db) async {
+        await tasksOf(db).createTask(title: 'Ler', kind: TaskKind.estudo);
+        await SettingsRepository(db.settingsDao)
+            .setString(PomodoroSettings.keyAutoBreaks, 'true');
+      },
+    );
+    await openHubAndStartFocus(tester, 'Ler');
+    await tester.tap(find.text('Iniciar'));
+    await settle(tester);
+
+    now = DateTime(2026, 11, 23, 9, 25);
+    await tester.pump(const Duration(minutes: 25));
+    await settle(tester);
+
+    expect(find.text('Foco concluído!'), findsOneWidget);
+    expect(find.text('Pausa curta em andamento'), findsOneWidget);
+    expect(find.text('Iniciar pausa curta'), findsNothing);
+    expect(find.text('Concluir "Ler"'), findsOneWidget);
+  });
 
   testWidgets('ajustes do pomodoro são gravados', (tester) async {
     final db = await pumpApp(tester);

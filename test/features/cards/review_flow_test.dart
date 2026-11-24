@@ -131,6 +131,26 @@ void main() {
     expect(find.textContaining('Próximo card em 1 min'), findsOneWidget);
   });
 
+  testWidgets('intervalos dos botões não "envelhecem" com o relógio andando', (
+    tester,
+  ) async {
+    // Cada leitura do relógio avança 200 ms, como no aparelho.
+    var t = now;
+    await pumpApp(
+      tester,
+      clock: () => t = t.add(const Duration(milliseconds: 200)),
+      seed: (db) => cardsOf(db).createCard(front: 'Q', back: 'R', now: now),
+    );
+    await goToReviewTab(tester);
+    await tester.tap(find.text('Revisar tudo'));
+    await settle(tester);
+    await tester.tap(find.text('Mostrar resposta'));
+    await settle(tester);
+
+    expect(find.text('10 min'), findsOneWidget); // passo de aprendizado
+    expect(find.text('9 min'), findsNothing);
+  });
+
   testWidgets('limite de novos por dia', (tester) async {
     await pumpApp(
       tester,

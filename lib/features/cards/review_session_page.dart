@@ -36,7 +36,19 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
   String? _currentId;
   DateTime? _shownAt;
   Map<Grade, CardSchedule>? _preview;
+
+  /// Momento em que a prévia foi calculada: os intervalos dos botões são
+  /// medidos a partir dele (e não do relógio que segue andando, senão
+  /// "10 min" vira "9 min" um instante depois).
+  DateTime? _previewAt;
   final List<_Answered> _history = [];
+
+  /// Respondidos agora há pouco → agendamento de antes da resposta (para
+  /// ignorar a cópia velha até o banco devolver a nova).
+  final Map<String, CardSchedule> _justAnswered = {};
+
+  /// Card cuja revisão foi desfeita (volta à tela fora da fila).
+  String? _undoneId;
   bool _busy = false;
 
   fsrs.Scheduler? _scheduler;
@@ -55,11 +67,13 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
   void _reveal(Flashcard card) {
     final settings =
         ref.read(cardSettingsProvider).value ?? const CardSettings();
+    final at = _now();
     setState(() {
+      _previewAt = at;
       _preview = previewReview(
         _schedulerFor(settings.desiredRetention),
         CardSchedule.of(card),
-        _now(),
+        at,
       );
     });
   }
@@ -67,7 +81,9 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
   Future<void> _answer(Flashcard card, Grade grade) async {
     if (_busy) return;
     final next = _preview![grade]!;
-    final now = _now();
+    // A revisão vale no instante da prévia (o resultado escolhido foi
+    // calculado para ele).
+    final now = _previewAt ?? _now();
     setState(() => _busy = true);
     final logId = await ref
         .read(cardsRepositoryProvider)
@@ -76,9 +92,10 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
           next: next,
           rating: grade.value,
           reviewedAt: now,
+          // Tempo de resposta: de quando o card apareceu até o toque.
           durationMs: _shownAt == null
               ? null
-              : now.difference(_shownAt!).inMilliseconds,
+              : _now().difference(_shownAt!).inMilliseconds,
         );
     if (!mounted) return;
     setState(() {
@@ -87,6 +104,8 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
         previous: CardSchedule.of(card),
         logId: logId,
       ));
+      _justAnswered[card.id] = CardSchedule.of(card);
+      if (_undoneId == card.id) _undoneId = null;
       _currentId = null;
       _preview = null;
       _busy = false;
@@ -106,6 +125,9 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
         );
     if (!mounted) return;
     setState(() {
+      // O agendamento restaurado é igual ao "de antes": não é cópia velha.
+      _justAnswered.remove(last.cardId);
+      _undoneId = last.cardId;
       _currentId = last.cardId;
       _shownAt = _now();
       _preview = null;
@@ -137,14 +159,19 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
           message: 'Não foi possível carregar os cards.',
         ),
         data: (queue) {
-          // O card desfeito volta para a tela mesmo que não esteja vencido.
-          Flashcard? card;
-          if (_currentId != null) {
-            card =
-                queue.where((c) => c.id == _currentId).firstOrNull ??
-                scopeCards.where((c) => c.id == _currentId).firstOrNull;
-          }
-          card ??= queue.firstOrNull;
+          // Esquece as cópias velhas assim que o banco devolve a nova.
+          _justAnswered.removeWhere(
+            (id, before) => scopeCards.any(
+              (c) => c.id == id && CardSchedule.of(c) != before,
+            ),
+          );
+          final card = pickCurrentCard(
+            queue: queue,
+            scopeCards: scopeCards,
+            currentId: _currentId,
+            undoneId: _undoneId,
+            justAnswered: _justAnswered,
+          );
           if (card == null) {
             return _Done(
               reviewed: _history.length,
@@ -157,15 +184,21 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
             _shownAt = _now();
             _preview = null;
           }
-          final remaining = queue.where((c) => c.id != card!.id).length + 1;
+          final remaining =
+              queue
+                  .where(
+                    (c) => c.id != card.id && !_justAnswered.containsKey(c.id),
+                  )
+                  .length +
+              1;
           return _CardView(
             card: card,
             remaining: remaining,
             preview: _preview,
-            now: now,
+            previewAt: _previewAt ?? now,
             busy: _busy,
-            onReveal: () => _reveal(card!),
-            onAnswer: (grade) => _answer(card!, grade),
+            onReveal: () => _reveal(card),
+            onAnswer: (grade) => _answer(card, grade),
           );
         },
       ),
@@ -178,7 +211,7 @@ class _CardView extends StatelessWidget {
     required this.card,
     required this.remaining,
     required this.preview,
-    required this.now,
+    required this.previewAt,
     required this.busy,
     required this.onReveal,
     required this.onAnswer,
@@ -187,7 +220,7 @@ class _CardView extends StatelessWidget {
   final Flashcard card;
   final int remaining;
   final Map<Grade, CardSchedule>? preview;
-  final DateTime now;
+  final DateTime previewAt;
   final bool busy;
   final VoidCallback onReveal;
   final ValueChanged<Grade> onAnswer;
@@ -245,7 +278,9 @@ class _CardView extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 3),
                             child: _GradeButton(
                               grade: grade,
-                              interval: preview![grade]!.due.difference(now),
+                              interval: preview![grade]!.due.difference(
+                                previewAt,
+                              ),
                               onPressed: busy ? null : () => onAnswer(grade),
                             ),
                           ),

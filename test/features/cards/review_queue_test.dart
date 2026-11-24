@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:my_cadence/data/db/card_schedule.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/db/enums.dart';
 import 'package:my_cadence/features/cards/review_queue.dart';
@@ -80,5 +81,62 @@ void main() {
       CardSettings.fromMap({CardSettings.keyRetention: '50'}).retentionPercent,
       90,
     );
+  });
+
+  group('pickCurrentCard', () {
+    final a = card('a', due: ago(10));
+    final b = card('b', due: ago(5));
+
+    test('cópia velha do card recém-respondido é ignorada', () {
+      // O banco ainda não devolveu o agendamento novo de "a".
+      final picked = pickCurrentCard(
+        queue: [a, b],
+        scopeCards: [a, b],
+        justAnswered: {'a': CardSchedule.of(a)},
+      );
+      expect(picked!.id, 'b');
+    });
+
+    test('a resposta não prende o card: sem currentId pega o próximo', () {
+      // Bug do aparelho: o card respondido voltava pela busca em scopeCards.
+      final answeredA = a.copyWith(due: inMin(60 * 24 * 15));
+      final picked = pickCurrentCard(
+        queue: [b],
+        scopeCards: [answeredA, b],
+        currentId: 'a',
+      );
+      expect(picked!.id, 'b');
+    });
+
+    test('card na tela continua enquanto estiver na fila', () {
+      final picked = pickCurrentCard(
+        queue: [a, b],
+        scopeCards: [a, b],
+        currentId: 'b',
+      );
+      expect(picked!.id, 'b');
+    });
+
+    test('desfazer traz o card de volta mesmo fora da fila', () {
+      final notDue = card('c', due: inMin(30));
+      final picked = pickCurrentCard(
+        queue: [a],
+        scopeCards: [a, notDue],
+        undoneId: 'c',
+        currentId: 'c',
+      );
+      expect(picked!.id, 'c');
+    });
+
+    test('só cópias velhas na fila: nenhum card (tela de concluído)', () {
+      expect(
+        pickCurrentCard(
+          queue: [a],
+          scopeCards: [a],
+          justAnswered: {'a': CardSchedule.of(a)},
+        ),
+        isNull,
+      );
+    });
   });
 }

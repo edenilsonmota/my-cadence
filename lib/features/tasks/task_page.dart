@@ -136,10 +136,18 @@ class _TaskHub extends ConsumerWidget {
                     for (final s in TaskStatus.values)
                       PopupMenuItem(value: s, child: Text(s.label)),
                   ],
+                  // A setinha fica dentro do rótulo: o `deleteIcon` do Chip
+                  // anunciaria "Excluir" para o leitor de tela.
                   child: Chip(
-                    label: Text(task.status.label),
-                    deleteIcon: const Icon(Icons.arrow_drop_down),
-                    onDeleted: () {},
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(task.status.label),
+                        const ExcludeSemantics(
+                          child: Icon(Icons.arrow_drop_down, size: 20),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 if (task.priority > 0)

@@ -63,6 +63,9 @@ class PomodoroState {
   );
 }
 
+/// Atraso máximo para a pausa ainda começar sozinha ao fim do foco.
+const autoStartGrace = Duration(minutes: 1);
+
 final pomodoroControllerProvider =
     NotifierProvider<PomodoroController, PomodoroState>(PomodoroController.new);
 
@@ -141,7 +144,13 @@ class PomodoroController extends Notifier<PomodoroState> {
         suggestedNext: next,
       );
       final settings = await _settings();
-      if (session.kind == PomodoroKind.foco && settings.autoStartBreaks) {
+      // Só emenda a pausa se o fim foi percebido na hora. Com o app fechado
+      // por mais tempo, começar uma pausa agora seria aleatório (achado no
+      // aparelho): fica só o aviso com a sugestão.
+      final onTime = _now().difference(end) <= autoStartGrace;
+      if (session.kind == PomodoroKind.foco &&
+          settings.autoStartBreaks &&
+          onTime) {
         await start(next, taskId: session.taskId, keepFinished: true);
       }
     } finally {

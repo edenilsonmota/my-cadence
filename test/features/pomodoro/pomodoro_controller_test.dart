@@ -201,6 +201,26 @@ void main() {
     expect(endAlarm()!.time, DateTime(2026, 11, 23, 9, 32));
   });
 
+  test('reaberto bem depois do fim: não começa pausa sozinho', () async {
+    await SettingsRepository(db.settingsDao)
+        .setString(PomodoroSettings.keyAutoBreaks, 'true');
+    final first = openApp();
+    await flush();
+    await controllerOf(first).start(PomodoroKind.foco);
+    await flush();
+    first.dispose();
+
+    now = DateTime(2026, 11, 23, 9, 40); // fim foi 9h25
+    final reopened = openApp();
+    await flush();
+    await flush();
+
+    final state = reopened.read(pomodoroControllerProvider);
+    expect(state.running, isNull);
+    expect(state.finished!.kind, PomodoroKind.foco);
+    expect(await allSessions(), hasLength(1));
+  });
+
   test('iniciar com outra sessão rodando interrompe a anterior', () async {
     final app = openApp();
     await flush();

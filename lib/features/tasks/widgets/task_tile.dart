@@ -128,7 +128,10 @@ class _TaskTileState extends ConsumerState<TaskTile> {
           color: overdue ? colors.error : null,
         ),
       if (task.recurrenceRule != null) const _Detail(icon: Icons.repeat),
-      if (task.kind != TaskKind.simples) _Detail(icon: task.kind.icon),
+      // Rotina com repetição já mostra o ícone de repetição acima.
+      if (task.kind != TaskKind.simples &&
+          !(task.kind == TaskKind.rotina && task.recurrenceRule != null))
+        _Detail(icon: task.kind.icon),
       if (task.status == TaskStatus.fazendo)
         _Detail(icon: Icons.play_circle_outline, text: task.status.label),
     ];
