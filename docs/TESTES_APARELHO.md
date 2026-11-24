@@ -240,7 +240,7 @@ Pendentes:
   nos dois offline e reconectar (vence a última); excluir no A e editar no B; concluir rotina nos dois;
   revisar cards nos dois; editar a mesma página nos dois (vence a última inteira, sem corromper);
   trocar de conta (pergunta Juntar/Usar só os da nuvem); importar um backup antigo.
-- [ ] **S.8 Status.** Modo avião: ponto neutro no avatar e "Sem conexão"; ao voltar, sincroniza sozinho.
+- [x] **S.8 Status.** Modo avião: "Sem conexão. Sincroniza quando voltar."; ao voltar, sincroniza sozinho (~30 s).
 - [ ] **S.9 Lembrete de dia inteiro** com hora mudada em Ajustes (ex.: 7h): o alarme muda de horário.
 
 ## Limitações conhecidas (não são bugs)
