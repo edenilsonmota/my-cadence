@@ -202,6 +202,12 @@ Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-
 - [x] **L.3 Splash e menu.** Ao abrir (Android 12+), o splash mostra o novo ícone; o menu lateral mostra o
   logo ao lado de "My Cadence".
 
+## Etapa 9 (métricas)
+
+- [x] **9.1 Tela com dados reais.** Abre pelo menu lateral; números de foco, revisões, previsão e heatmap
+  batem com o banco; legível no tema escuro. _24/11._
+- [ ] **9.2 Toque nos gráficos.** Tocar numa barra mostra a dica (data e valor) e não atrapalha a rolagem.
+
 ## Para decidir
 
 - **Lembrete de tarefa com início e prazo** conta a partir do **prazo** (regra da Etapa 3). Num bloco da

@@ -154,6 +154,27 @@ void main() {
       expect(await repo.getReviewLogs(id), isEmpty);
     });
 
+    test('revisões a partir de uma data, sem as desfeitas', () async {
+      final id = await repo.createCard(front: 'a', back: '-', now: now);
+      await repo.addReviewLog(
+        cardId: id,
+        rating: 3,
+        reviewedAt: DateTime(2026, 11, 1),
+      );
+      final kept = DateTime(2026, 11, 20, 9);
+      await repo.addReviewLog(cardId: id, rating: 2, reviewedAt: kept);
+      final undone = await repo.addReviewLog(
+        cardId: id,
+        rating: 4,
+        reviewedAt: DateTime(2026, 11, 21),
+      );
+      await repo.deleteReviewLog(undone);
+      final logs = await repo
+          .watchReviewLogsSince(DateTime(2026, 11, 15))
+          .first;
+      expect(logs.map((l) => (l.reviewedAt, l.rating)), [(kept, 2)]);
+    });
+
     test('conta cards com a primeira revisão a partir de hoje', () async {
       final today = DateTime(2026, 11, 23);
       final old = await repo.createCard(front: 'a', back: '-', now: now);

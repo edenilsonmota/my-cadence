@@ -106,6 +106,17 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     return query.watch().map((rows) => rows.length);
   }
 
+  /// Revisões feitas em [since] ou depois (métricas).
+  Stream<List<ReviewLog>> watchReviewLogsSince(DateTime since) =>
+      (select(reviewLogs)
+            ..where(
+              (l) =>
+                  l.reviewedAt.isBiggerOrEqualValue(since) &
+                  l.deletedAt.isNull(),
+            )
+            ..orderBy([(l) => OrderingTerm.asc(l.reviewedAt)]))
+          .watch();
+
   /// Usado para desfazer a última avaliação.
   Future<void> softDeleteReviewLog(String id) =>
       softDeleteSynced(reviewLogs, id);

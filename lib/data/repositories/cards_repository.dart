@@ -164,6 +164,9 @@ class CardsRepository {
   Stream<int> watchNewStudiedSince(DateTime since) =>
       _dao.watchNewStudiedSince(since);
 
+  Stream<List<ReviewLog>> watchReviewLogsSince(DateTime since) =>
+      _dao.watchReviewLogsSince(since);
+
   Future<List<ReviewLog>> getReviewLogs(String cardId) =>
       _dao.getReviewLogs(cardId);
 

@@ -141,6 +141,14 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Ajustes com prefixo `calendar.` (`CalendarSettings`: modo e camada de pomodoros). Zoom (pinça) fica só
   em memória (`hourHeightProvider`). Semana mostra 3 dias abaixo de 600 dp.
 
+## Métricas
+
+- Agregações puras em `features/stats/stats_logic.dart` (foco por dia/semana/mês, por tarefa/tag/tipo,
+  estimado × realizado somando subtarefas, revisões por dia, acerto, previsão de vencidos, sequência,
+  heatmap de rotinas), com testes. Foco conta só sessões `foco`, pelo início, sem as pausas (`elapsed`).
+- Gráficos com `fl_chart` (`_Bars` em `stats_page.dart`). Nos testes há duas áreas roláveis (o heatmap
+  rola de lado): use `scrollable: find.byType(Scrollable).first`.
+
 ## UI e testes
 
 - Telas leem providers (`features/<domínio>/*_providers.dart`); ações chamam o repositório via

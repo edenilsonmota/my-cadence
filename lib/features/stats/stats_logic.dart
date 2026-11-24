@@ -1,0 +1,222 @@
+/// Agregações das métricas: foco, revisões e rotinas. Puro, sem Flutter.
+library;
+
+import '../../core/calendar_layout.dart';
+import '../../core/dates.dart';
+import '../../data/db/database.dart';
+import '../../data/db/enums.dart';
+import '../pomodoro/pomodoro_logic.dart';
+
+// ─── Períodos ────────────────────────────────────────────────────────────────
+
+/// Agrupamento do gráfico de foco.
+enum Bucket { dia, semana, mes }
+
+/// Início do intervalo que contém [time] no agrupamento [bucket].
+DateTime bucketStart(Bucket bucket, DateTime time) => switch (bucket) {
+  Bucket.dia => startOfDay(time),
+  Bucket.semana => weekStart(time),
+  Bucket.mes => DateTime(time.year, time.month),
+};
+
+DateTime nextBucket(Bucket bucket, DateTime start) => switch (bucket) {
+  Bucket.dia => addDays(start, 1),
+  Bucket.semana => addDays(start, 7),
+  Bucket.mes => DateTime(start.year, start.month + 1),
+};
+
+/// Os últimos [count] intervalos até o que contém [today], do mais antigo ao
+/// atual.
+List<DateTime> lastBuckets(Bucket bucket, DateTime today, int count) {
+  var start = bucketStart(bucket, today);
+  final result = [start];
+  for (var i = 1; i < count; i++) {
+    start = switch (bucket) {
+      Bucket.dia => addDays(start, -1),
+      Bucket.semana => addDays(start, -7),
+      Bucket.mes => DateTime(start.year, start.month - 1),
+    };
+    result.add(start);
+  }
+  return result.reversed.toList();
+}
+
+// ─── Foco ────────────────────────────────────────────────────────────────────
+
+Iterable<PomodoroSession> _focus(Iterable<PomodoroSession> sessions) =>
+    sessions.where((s) => s.kind == PomodoroKind.foco);
+
+/// Tempo de foco em cada intervalo de [buckets] (pela hora de início da
+/// sessão, sem as pausas).
+List<Duration> focusPerBucket(
+  Iterable<PomodoroSession> sessions,
+  Bucket bucket,
+  List<DateTime> buckets,
+  DateTime now,
+) {
+  final index = {for (final (i, b) in buckets.indexed) b: i};
+  final totals = List.filled(buckets.length, Duration.zero);
+  for (final s in _focus(sessions)) {
+    final i = index[bucketStart(bucket, s.startedAt)];
+    if (i != null) totals[i] += elapsed(s, now);
+  }
+  return totals;
+}
+
+/// Foco total das sessões iniciadas em `[from, to)`.
+Duration focusBetween(
+  Iterable<PomodoroSession> sessions,
+  DateTime from,
+  DateTime to,
+  DateTime now,
+) {
+  var total = Duration.zero;
+  for (final s in _focus(sessions)) {
+    if (!s.startedAt.isBefore(from) && s.startedAt.isBefore(to)) {
+      total += elapsed(s, now);
+    }
+  }
+  return total;
+}
+
+/// Foco agrupado por uma chave da sessão ([keysOf] pode devolver várias,
+/// como as tags; sem chave, cai em `null`). Ordena do maior para o menor.
+List<({String? key, Duration total})> focusBy(
+  Iterable<PomodoroSession> sessions,
+  Iterable<String?> Function(PomodoroSession) keysOf,
+  DateTime now,
+) {
+  final totals = <String?, Duration>{};
+  for (final s in _focus(sessions)) {
+    final time = elapsed(s, now);
+    final keys = keysOf(s).toList();
+    for (final key in keys.isEmpty ? [null] : keys) {
+      totals[key] = (totals[key] ?? Duration.zero) + time;
+    }
+  }
+  final list = [
+    for (final MapEntry(:key, :value) in totals.entries)
+      (key: key, total: value),
+  ]..sort((a, b) => b.total.compareTo(a.total));
+  return list;
+}
+
+typedef EstimateRow = ({Task task, int estimated, int done});
+
+/// Tarefas com pomodoros estimados: estimado × focos concluídos (somando as
+/// subtarefas), das mais recentes para as mais antigas.
+List<EstimateRow> estimatedVsDone(
+  Iterable<Task> tasks,
+  Iterable<PomodoroSession> sessions,
+) {
+  final parentOf = {for (final t in tasks) t.id: t.parentId};
+  String? rootWithEstimate(String? id, Set<String> estimated) {
+    var current = id;
+    var guard = 0;
+    while (current != null && guard++ < 100) {
+      if (estimated.contains(current)) return current;
+      current = parentOf[current];
+    }
+    return null;
+  }
+
+  final withEstimate = [
+    for (final t in tasks)
+      if ((t.estimatedPomodoros ?? 0) > 0) t,
+  ];
+  final ids = {for (final t in withEstimate) t.id};
+  final done = <String, int>{};
+  for (final s in _focus(sessions)) {
+    if (!s.completed) continue;
+    final root = rootWithEstimate(s.taskId, ids);
+    if (root != null) done[root] = (done[root] ?? 0) + 1;
+  }
+  return [
+    for (final t in withEstimate)
+      (task: t, estimated: t.estimatedPomodoros!, done: done[t.id] ?? 0),
+  ]..sort((a, b) => b.task.createdAt.compareTo(a.task.createdAt));
+}
+
+// ─── Revisões ────────────────────────────────────────────────────────────────
+
+/// Revisões por dia, para cada dia de [days].
+List<int> reviewsPerDay(Iterable<ReviewLog> logs, List<DateTime> days) {
+  final index = {for (final (i, d) in days.indexed) startOfDay(d): i};
+  final counts = List.filled(days.length, 0);
+  for (final log in logs) {
+    final i = index[startOfDay(log.reviewedAt)];
+    if (i != null) counts[i]++;
+  }
+  return counts;
+}
+
+/// Fração de revisões que não foram "Errei" (nota 1), ou `null` sem revisões.
+double? accuracy(Iterable<ReviewLog> logs) {
+  var total = 0, right = 0;
+  for (final log in logs) {
+    total++;
+    if (log.rating > 1) right++;
+  }
+  return total == 0 ? null : right / total;
+}
+
+/// Cards a vencer em cada um dos próximos [days] dias a partir de [today].
+/// Os já vencidos contam no primeiro dia. Ignora suspensos.
+List<int> dueForecast(Iterable<Flashcard> cards, DateTime today, int days) {
+  final counts = List.filled(days, 0);
+  final start = startOfDay(today);
+  for (final card in cards) {
+    if (card.suspended) continue;
+    final offset = startOfDay(card.due).difference(start).inHours / 24;
+    final i = offset < 0 ? 0 : offset.round();
+    if (i < days) counts[i]++;
+  }
+  return counts;
+}
+
+/// Dias seguidos com pelo menos uma revisão, terminando hoje (ou ontem, se
+/// hoje ainda não teve revisão).
+int studyStreak(Iterable<ReviewLog> logs, DateTime today) {
+  final days = {for (final l in logs) startOfDay(l.reviewedAt)};
+  var day = startOfDay(today);
+  if (!days.contains(day)) day = addDays(day, -1);
+  var streak = 0;
+  while (days.contains(day)) {
+    streak++;
+    day = addDays(day, -1);
+  }
+  return streak;
+}
+
+// ─── Rotinas ─────────────────────────────────────────────────────────────────
+
+/// Grade do heatmap: [weeks] semanas (colunas, de segunda a domingo) até a
+/// semana de [today]. Cada célula é o número de conclusões de rotina do dia;
+/// dias depois de hoje ficam `null`.
+List<List<int?>> routineHeatmap(
+  Iterable<TaskCompletion> completions,
+  DateTime today,
+  int weeks,
+) {
+  final counts = <DateTime, int>{};
+  for (final c in completions) {
+    final day = startOfDay(c.occurrence);
+    counts[day] = (counts[day] ?? 0) + 1;
+  }
+  final last = startOfDay(today);
+  final first = addDays(weekStart(today), -7 * (weeks - 1));
+  return [
+    for (var w = 0; w < weeks; w++)
+      [
+        for (var d = 0; d < 7; d++)
+          switch (addDays(first, 7 * w + d)) {
+            final day when day.isAfter(last) => null,
+            final day => counts[day] ?? 0,
+          },
+      ],
+  ];
+}
+
+/// Primeiro dia da grade de [routineHeatmap].
+DateTime heatmapStart(DateTime today, int weeks) =>
+    addDays(weekStart(today), -7 * (weeks - 1));

@@ -26,6 +26,7 @@ Tudo funciona sem internet e fica no próprio aparelho. A sincronização com um
 | Notificações | `flutter_local_notifications` + `timezone` |
 | Editor de páginas | AppFlowy Editor ([fork](https://github.com/edenilsonmota/appflowy-editor/tree/cadence/file-picker-13) com suporte a file_picker 13) |
 | Arquivos | `file_picker` (CSV, Markdown, zip) e `archive` |
+| Gráficos | `fl_chart` |
 
 Os pacotes entram no projeto conforme cada etapa precisa deles.
 
