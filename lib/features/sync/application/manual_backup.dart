@@ -37,11 +37,33 @@ class ImportPreview {
 
 /// Exportar e importar o snapshot como arquivo.
 class ManualBackup {
-  ManualBackup(this._repo, this._store, this._clock);
+  ManualBackup(this._repo, this._store, this._clock, {this.autoStore});
 
   final SnapshotRepository _repo;
   final Future<LocalBackupStore> Function() _store;
   final DateTime Function() _clock;
+
+  /// Cópias automáticas diárias (pasta própria, para não disputar espaço
+  /// com as cópias feitas antes de substituir).
+  final Future<LocalBackupStore> Function()? autoStore;
+
+  /// Intervalo entre cópias automáticas.
+  static const autoEvery = Duration(hours: 24);
+
+  /// Faz a cópia automática se a última tiver mais de [autoEvery]. Devolve o
+  /// arquivo criado, ou `null` se ainda não era hora.
+  Future<File?> autoBackupIfDue() async {
+    final storeFn = autoStore;
+    if (storeFn == null) return null;
+    final store = await storeFn();
+    final now = _clock();
+    final files = await store.list();
+    if (files.isNotEmpty) {
+      final last = await files.first.lastModified();
+      if (now.difference(last) < autoEvery) return null;
+    }
+    return store.save(await _repo.readLocal(now: now), now);
+  }
 
   /// Arquivo com todos os dados deste aparelho: nome e conteúdo.
   Future<({String name, Snapshot snapshot})> export() async {

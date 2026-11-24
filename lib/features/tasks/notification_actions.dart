@@ -24,6 +24,9 @@ Future<void> onNotificationActionInBackground(
       repo: TasksRepository(db.tasksDao, db.tagsDao),
       scheduler: NotificationService.instance,
       now: DateTime.now(),
+      allDayHour: parseAllDayHour(
+        await db.settingsDao.getValue(allDayReminderHourKey),
+      ),
     );
   } finally {
     await db.close();

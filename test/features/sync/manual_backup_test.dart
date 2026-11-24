@@ -170,4 +170,67 @@ void main() {
     final tasks = await tester.runAsync(() => db.select(db.tasks).get());
     expect(tasks!.single.title, 'Do backup');
   });
+
+  test('cópia automática: uma por dia, guardando as 7 últimas', () async {
+    final dir = await Directory.systemTemp.createTemp('auto');
+    addTearDown(() => dir.delete(recursive: true));
+    final db = openTestDb();
+    var clock = DateTime.now();
+    ManualBackup backup() => ManualBackup(
+      SnapshotRepository(db),
+      () async => LocalBackupStore(dir),
+      () => clock,
+      autoStore: () async => LocalBackupStore(dir, keep: 7),
+    );
+    expect(await backup().autoBackupIfDue(), isNotNull);
+    // Logo depois: ainda não é hora.
+    expect(await backup().autoBackupIfDue(), isNull);
+    // Um dia depois (a data do arquivo é a real; avança o relógio do app).
+    clock = clock.add(const Duration(hours: 25));
+    final f = await backup().autoBackupIfDue();
+    expect(f, isNotNull);
+    expect(BackupFile.decode(await f!.readAsBytes()).schemaVersion, 2);
+  });
+
+  testWidgets('restaurar uma cópia guardada passa pela prévia', (tester) async {
+    late Uint8List copy;
+    await tester.runAsync(() async {
+      final other = openTestDb();
+      await TasksRepository(
+        other.tasksDao,
+        other.tagsDao,
+      ).createTask(title: 'Da cópia');
+      copy = BackupFile.encode(
+        await SnapshotRepository(other).readLocal(now: now),
+      );
+    });
+    final db = await pumpApp(
+      tester,
+      overrides: [
+        backupCopiesProvider.overrideWithValue(
+          () async => [
+            (
+              label:
+                  '${backupLabel('my-cadence-backup-2026-11-20-0830.json')} '
+                  '(automática)',
+              read: () async => copy,
+            ),
+          ],
+        ),
+      ],
+    );
+    await tester.tap(find.byTooltip('Conta e sincronização').first);
+    await settle(tester);
+    await tester.ensureVisible(find.text('Restaurar cópia'));
+    await settle(tester);
+    await tester.tap(find.text('Restaurar cópia'));
+    await settle(tester);
+    await tester.tap(find.text('20/11/2026 08:30 (automática)'));
+    await settle(tester);
+    expect(find.text('1 tarefa'), findsOneWidget);
+    await tester.tap(find.text('Importar'));
+    await settle(tester);
+    final tasks = await tester.runAsync(() => db.select(db.tasks).get());
+    expect(tasks!.single.title, 'Da cópia');
+  });
 }

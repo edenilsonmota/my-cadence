@@ -125,6 +125,40 @@ void main() {
       sync = AlarmSync(scheduler, clock: () => now);
     });
 
+    test('mudar a hora do dia inteiro reagenda só esses lembretes', () async {
+      final allDay = withReminder(
+        'a',
+        due: DateTime(2026, 11, 25),
+        minutes: 0,
+        hasTime: false,
+      );
+      final timed = withReminder(
+        'b',
+        due: DateTime(2026, 11, 25, 15),
+        minutes: 0,
+      );
+      await sync.update([allDay, timed]);
+      expect(
+        scheduler.pending[notificationIdFor('a')]!.time,
+        DateTime(2026, 11, 25, allDayReminderHour),
+      );
+      await sync.setAllDayHour(7);
+      expect(
+        scheduler.pending[notificationIdFor('a')]!.time,
+        DateTime(2026, 11, 25, 7),
+      );
+      expect(
+        scheduler.pending[notificationIdFor('b')]!.time,
+        DateTime(2026, 11, 25, 15),
+      );
+    });
+
+    test('ajuste inválido volta ao padrão', () {
+      expect(parseAllDayHour(null), allDayReminderHour);
+      expect(parseAllDayHour('25'), allDayReminderHour);
+      expect(parseAllDayHour('6'), 6);
+    });
+
     test('na abertura reagenda tudo e limpa o que sobrou', () async {
       // Sobras: de uma tarefa que não existe mais e um "adiar" ainda válido.
       await scheduler.schedule(

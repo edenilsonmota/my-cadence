@@ -56,6 +56,19 @@ flutter analyze
 flutter test
 ```
 
+## Uso no dia a dia (Android)
+
+Para usar de verdade, instale o build de **release** (mais rápido e sem as telas de desenvolvimento):
+
+```bash
+flutter build apk --release --split-per-abi
+adb install -r build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+```
+
+O release ainda é assinado com a chave de debug, então instala por cima do app de desenvolvimento sem perder
+dados. Quando houver uma chave de release própria, a troca de assinatura exige desinstalar: antes, exporte um
+backup JSON (ou sincronize pelo Drive) e importe depois.
+
 ## Design
 
 Tudo que é visual sai de `lib/app/theme/`: espaçamentos, raios, movimento, paleta de 12 cores (guardadas por

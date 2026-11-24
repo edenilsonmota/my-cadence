@@ -62,6 +62,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   `updated_at` mais recente; empate pelo JSON canônico; vínculos e ajustes pela chave natural; tombstones de
   180 dias). `SnapshotRepository` lê o banco pelos metadados das tabelas e aplica em transação com
   `defer_foreign_keys`; `markClean` só limpa `dirty` se o `updated_at` ainda é o enviado.
+- Cópia local automática diária (`autoBackupIfDue`, 7 últimas em `backups/auto`) e as de antes de substituir
+  (5 últimas); "Restaurar cópia" na folha da conta usa a mesma prévia da importação.
 - Ao mudar o esquema, acrescentar o upgrader do snapshot em `sync/domain/upgraders.dart` (e o teste).
 - Orquestração: `SyncEngine` (um ciclo: versão → fetch → merge/apply → push condicional, até 3 tentativas;
   `markClean` do que foi enviado) e `SyncService` (Riverpod: ao abrir, ao voltar após 2 min, 30 s após
@@ -100,7 +102,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   tarefas e agenda/cancela o que mudou; na abertura reagenda tudo. Não agendar notificação de tarefa
   em outro lugar.
 - A antecedência do lembrete conta do **início** quando ele tem hora (bloco da agenda avisa ao começar);
-  senão, do prazo. Tarefa de dia inteiro lembra às `allDayReminderHour` (9h) do prazo menos a antecedência.
+  senão, do prazo. Tarefa de dia inteiro lembra na hora do ajuste `tasks.allDayReminderHour`
+  (padrão 9h; `AlarmSync.setAllDayHour`; o isolate das ações lê o mesmo ajuste) menos a antecedência.
 - Ações "Concluir"/"Adiar" rodam em isolate de segundo plano (`notification_actions.dart`, top-level com
   `@pragma('vm:entry-point')`), abrem o próprio banco e reagendam ali mesmo. O banco usa
   `shareAcrossIsolates`, WAL e `busy_timeout`; ao voltar ao app, as consultas são forçadas a reler.

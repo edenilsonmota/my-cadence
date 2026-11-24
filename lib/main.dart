@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -8,6 +10,7 @@ import 'app/notification_navigation.dart';
 import 'app/router.dart';
 import 'core/notifications.dart';
 import 'core/time_zone.dart';
+import 'features/sync/sync_providers.dart';
 import 'features/tasks/alarms.dart';
 import 'features/tasks/notification_actions.dart';
 
@@ -30,6 +33,14 @@ Future<void> main() async {
 
   runApp(
     UncontrolledProviderScope(container: container, child: const CadenceApp()),
+  );
+
+  // Cópia local automática (uma por dia), sem atrasar a abertura.
+  unawaited(
+    container
+        .read(manualBackupProvider)
+        .autoBackupIfDue()
+        .catchError((_) => null),
   );
 
   // App aberto por um toque na notificação: vai direto ao hub da tarefa.

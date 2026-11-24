@@ -215,10 +215,32 @@ Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-
   "Começa: Hoje, 12:00 até 13:00".
 - [ ] **D.1** Conferir no aparelho uma tarefa com início e prazo e alarme "Na hora": avisa no início.
 
+## Etapa 11 (sincronização)
+
+Verificado em 24/11 no celular (build debug, sem o Google configurado):
+- [x] **S.1 Avatar e folha.** Avatar de nuvem no cabeçalho; a folha mostra "Conectar com Google" desabilitado
+  com "Login com Google ainda não configurado", backup manual, nome do aparelho e log.
+- [x] **S.2 Exportar.** "Salvar como" do sistema com `my-cadence-backup-AAAA-MM-DD-HHmm.json`; o arquivo traz
+  as 12 tabelas, esquema 2 e nenhum ajuste do aparelho.
+- [x] **S.3 Importar mesclando** o mesmo arquivo: prévia (data, aparelho, tarefas, cards, books, páginas) e
+  "Nada novo no arquivo."
+- [x] **S.4 Substituir tudo** pelo mesmo arquivo: confirmação, dados iguais depois e cópia guardada em
+  `files/backups/`.
+
+Pendentes:
+- [ ] **S.5 Cópia automática e restaurar.** Depois de um dia de uso, "Restaurar cópia" lista a cópia
+  automática; restaurar mostra a prévia.
+- [ ] **S.6 Login** (depois de seguir `docs/google-cloud.md` e rodar com `--dart-define-from-file`): conectar,
+  foto no avatar, "Sincronizado agora há pouco"; fechar e abrir offline mantém a foto.
+- [ ] **S.7 Dois aparelhos, mesma conta** (celular + emulador): criar no A e ver no B; editar a mesma tarefa
+  nos dois offline e reconectar (vence a última); excluir no A e editar no B; concluir rotina nos dois;
+  revisar cards nos dois; editar a mesma página nos dois (vence a última inteira, sem corromper);
+  trocar de conta (pergunta Juntar/Usar só os da nuvem); importar um backup antigo.
+- [ ] **S.8 Status.** Modo avião: ponto neutro no avatar e "Sem conexão"; ao voltar, sincroniza sozinho.
+- [ ] **S.9 Lembrete de dia inteiro** com hora mudada em Ajustes (ex.: 7h): o alarme muda de horário.
+
 ## Limitações conhecidas (não são bugs)
 
 - iOS: configuração feita, mas nada foi compilado nem testado (o ambiente é Linux).
-- A hora do lembrete de tarefas de dia inteiro (9h) ainda é fixa (a tela de Ajustes já existe; falta
-  esse item).
 - Importação de `.apkg` (Anki) não foi feita: o formato atual do Anki guarda a coleção num SQLite
   comprimido com zstd dentro de um zip; ficou fora do escopo (o plano marcava como opcional).

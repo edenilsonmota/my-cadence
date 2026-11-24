@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,13 +28,50 @@ Future<void> exportJsonFlow(BuildContext context, WidgetRef ref) async {
 
 /// Escolhe um JSON, mostra a prévia e mescla ou substitui.
 Future<void> importJsonFlow(BuildContext context, WidgetRef ref) async {
-  final messenger = ScaffoldMessenger.of(context);
   final files = await ref.read(importFilesPickerProvider)();
   if (files.isEmpty || !context.mounted) return;
+  await importBytesFlow(context, ref, files.first.bytes);
+}
+
+/// Restaura uma das cópias guardadas no app (automáticas ou feitas antes de
+/// substituir), com a mesma prévia da importação.
+Future<void> restoreCopyFlow(BuildContext context, WidgetRef ref) async {
+  final copies = await ref.read(backupCopiesProvider)();
+  if (!context.mounted) return;
+  if (copies.isEmpty) {
+    _snack(ScaffoldMessenger.of(context), 'Nenhuma cópia guardada ainda.');
+    return;
+  }
+  final picked = await showDialog<BackupCopy>(
+    context: context,
+    builder: (context) => SimpleDialog(
+      title: const Text('Restaurar cópia'),
+      children: [
+        for (final c in copies)
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(context).pop(c),
+            child: Text(c.label),
+          ),
+      ],
+    ),
+  );
+  if (picked == null || !context.mounted) return;
+  final bytes = await picked.read();
+  if (!context.mounted) return;
+  await importBytesFlow(context, ref, bytes);
+}
+
+/// Prévia e importação (mesclar ou substituir) de um backup já lido.
+Future<void> importBytesFlow(
+  BuildContext context,
+  WidgetRef ref,
+  Uint8List bytes,
+) async {
+  final messenger = ScaffoldMessenger.of(context);
   final backup = ref.read(manualBackupProvider);
   final ImportPreview preview;
   try {
-    preview = backup.preview(files.first.bytes);
+    preview = backup.preview(bytes);
   } on SnapshotFormatException catch (e) {
     _snack(messenger, e.message);
     return;

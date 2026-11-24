@@ -10,6 +10,12 @@ import '../cards/review_queue.dart';
 import '../pomodoro/pomodoro_controller.dart';
 import '../pomodoro/pomodoro_logic.dart';
 import '../sync/presentation/backup_actions.dart';
+import '../tasks/alarms.dart';
+
+final _allDayHourProvider = StreamProvider.autoDispose<String?>(
+  (ref) =>
+      ref.watch(settingsRepositoryProvider).watchString(allDayReminderHourKey),
+);
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -19,6 +25,7 @@ class SettingsPage extends ConsumerWidget {
     final s =
         ref.watch(pomodoroSettingsProvider).value ?? const PomodoroSettings();
     final cards = ref.watch(cardSettingsProvider).value ?? const CardSettings();
+    final allDayHour = parseAllDayHour(ref.watch(_allDayHourProvider).value);
     final repo = ref.read(settingsRepositoryProvider);
     void setInt(String key, int v) => repo.setString(key, '$v');
     void setBool(String key, bool v) => repo.setString(key, '$v');
@@ -109,6 +116,21 @@ class SettingsPage extends ConsumerWidget {
             subtitle: const Text('Enquanto a tela do pomodoro estiver aberta'),
             value: s.keepScreenOn,
             onChanged: (v) => setBool(PomodoroSettings.keyScreenOn, v),
+          ),
+          const _Header('Tarefas'),
+          ListTile(
+            title: const Text('Lembrete de dia inteiro'),
+            subtitle: Text(
+              'Tarefas sem hora lembram às ${allDayHour}h '
+              '(menos a antecedência escolhida)',
+            ),
+            trailing: NumberStepper(
+              value: allDayHour,
+              min: 0,
+              max: 23,
+              semanticLabel: 'Hora do lembrete de dia inteiro',
+              onChanged: (v) => setInt(allDayReminderHourKey, v),
+            ),
           ),
           const _Header('Backup'),
           ListTile(

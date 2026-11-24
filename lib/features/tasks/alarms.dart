@@ -10,9 +10,18 @@ import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/tasks_repository.dart';
 
-/// Hora do lembrete de tarefas de dia inteiro (que não têm hora própria).
-/// Vira ajuste ("alarme padrão") quando a tela de Ajustes existir.
+/// Hora padrão do lembrete de tarefas de dia inteiro (sem hora própria).
+/// A pessoa muda em Ajustes ([allDayReminderHourKey]).
 const allDayReminderHour = 9;
+
+/// Ajuste da hora do lembrete de dia inteiro (sincroniza entre aparelhos).
+const allDayReminderHourKey = 'tasks.allDayReminderHour';
+
+/// Lê o ajuste; inválido ou ausente vira [allDayReminderHour].
+int parseAllDayHour(String? value) {
+  final h = int.tryParse(value ?? '');
+  return h == null || h < 0 || h > 23 ? allDayReminderHour : h;
+}
 
 /// Quanto o "Adiar" empurra o lembrete.
 const snoozeDuration = Duration(minutes: 10);
@@ -21,8 +30,8 @@ const snoozeDuration = Duration(minutes: 10);
 ///
 /// Com início com hora, a antecedência conta a partir do início (um bloco da
 /// agenda avisa quando começa, não quando termina). Senão, a partir do prazo;
-/// tarefa de dia inteiro usa [allDayReminderHour] no dia do prazo.
-DateTime? reminderTime(Task task) {
+/// tarefa de dia inteiro usa [allDayHour] no dia do prazo.
+DateTime? reminderTime(Task task, {int allDayHour = allDayReminderHour}) {
   final minutes = task.reminderMinutesBefore;
   if (minutes == null) return null;
   final start = task.hasTime ? task.startAt : null;
@@ -35,7 +44,7 @@ DateTime? reminderTime(Task task) {
   } else {
     base = task.hasTime
         ? due
-        : DateTime(due.year, due.month, due.day, allDayReminderHour);
+        : DateTime(due.year, due.month, due.day, allDayHour);
   }
   return base.subtract(Duration(minutes: minutes));
 }
@@ -47,9 +56,13 @@ bool wantsAlarm(Task task) =>
     reminderTime(task) != null;
 
 /// Lembrete a agendar para a tarefa, ou `null` se não há ou já passou.
-AlarmSpec? alarmFor(Task task, DateTime now) {
+AlarmSpec? alarmFor(
+  Task task,
+  DateTime now, {
+  int allDayHour = allDayReminderHour,
+}) {
   if (!wantsAlarm(task)) return null;
-  final time = reminderTime(task)!;
+  final time = reminderTime(task, allDayHour: allDayHour)!;
   return time.isAfter(now) ? _spec(task, time, now) : null;
 }
 
@@ -86,10 +99,24 @@ class AlarmSync {
   Map<String, AlarmSpec> _scheduled = {};
   bool _initialized = false;
   Future<void> _queue = Future.value();
+  List<Task>? _last;
+
+  /// Hora do lembrete das tarefas de dia inteiro (ajuste).
+  int get allDayHour => _allDayHour;
+  int _allDayHour = allDayReminderHour;
+
+  /// Muda a hora e reagenda os lembretes de dia inteiro.
+  Future<void> setAllDayHour(int hour) async {
+    if (hour == _allDayHour) return;
+    _allDayHour = hour;
+    if (_last case final tasks?) await update(tasks);
+  }
 
   /// Enfileira a lista (as aplicações rodam uma de cada vez, em ordem).
-  Future<void> update(List<Task> tasks) =>
-      _queue = _queue.then((_) => _apply(tasks)).catchError((Object _) {});
+  Future<void> update(List<Task> tasks) {
+    _last = tasks;
+    return _queue = _queue.then((_) => _apply(tasks)).catchError((Object _) {});
+  }
 
   /// Esquece o que foi agendado e reagenda tudo na próxima lista.
   void reset() => _initialized = false;
@@ -97,7 +124,8 @@ class AlarmSync {
   Future<void> _apply(List<Task> tasks) async {
     final now = _clock();
     final desired = <String, AlarmSpec>{
-      for (final task in tasks) task.id: ?alarmFor(task, now),
+      for (final task in tasks)
+        task.id: ?alarmFor(task, now, allDayHour: _allDayHour),
     };
 
     if (!_initialized) {
@@ -138,7 +166,12 @@ final alarmSyncProvider = Provider<AlarmSync>((ref) {
       .watch(tasksRepositoryProvider)
       .watchAllTasks()
       .listen(sync.update);
+  final hour = ref
+      .watch(settingsRepositoryProvider)
+      .watchString(allDayReminderHourKey)
+      .listen((v) => sync.setAllDayHour(parseAllDayHour(v)));
   ref.onDispose(subscription.cancel);
+  ref.onDispose(hour.cancel);
   return sync;
 });
 
@@ -151,6 +184,7 @@ Future<void> handleAlarmAction({
   required TasksRepository repo,
   required AlarmScheduler scheduler,
   required DateTime now,
+  int allDayHour = allDayReminderHour,
 }) async {
   if (taskId == null) return;
   final task = await repo.getTask(taskId);
@@ -160,7 +194,9 @@ Future<void> handleAlarmAction({
   switch (actionId) {
     case AlarmActions.complete:
       final updated = await repo.completeTask(task.id, now: now);
-      final next = updated == null ? null : alarmFor(updated, now);
+      final next = updated == null
+          ? null
+          : alarmFor(updated, now, allDayHour: allDayHour);
       if (next != null) {
         await scheduler.schedule(next);
       } else {

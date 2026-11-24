@@ -142,6 +142,13 @@ class _AccountSheet extends ConsumerWidget {
               title: const Text('Importar JSON'),
               onTap: () => importJsonFlow(context, ref),
             ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(AppIcons.history),
+              title: const Text('Restaurar cópia'),
+              subtitle: const Text('O app guarda uma cópia por dia'),
+              onTap: () => restoreCopyFlow(context, ref),
+            ),
             const _DeviceRow(),
           ],
         ),
