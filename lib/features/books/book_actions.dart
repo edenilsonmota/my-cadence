@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,32 +11,12 @@ import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/books_repository.dart';
+import '../../shared/file_access.dart';
 import '../../shared/widgets/appearance_picker.dart';
 import '../../shared/widgets/text_input_dialog.dart';
 import 'book_markdown.dart';
 
-typedef PickedFile = ({String name, Uint8List bytes});
-
-/// Escolhe arquivos para importar (Markdown, texto ou zip). Os testes trocam
-/// por arquivos fixos.
-final importFilesPickerProvider = Provider<Future<List<PickedFile>> Function()>(
-  (ref) => () async {
-    // FileType.any: no Android, ".md" nem sempre tem tipo MIME conhecido.
-    final files = await FilePicker.pickFiles();
-    return [
-      for (final f in files) (name: f.name, bytes: await f.xFile.readAsBytes()),
-    ];
-  },
-);
-
-/// Salva um arquivo onde o usuário escolher. Devolve se salvou.
-final fileSaverProvider =
-    Provider<Future<bool> Function(String fileName, Uint8List bytes)>(
-      (ref) =>
-          (fileName, bytes) async =>
-              await FilePicker.saveFile(fileName: fileName, bytes: bytes) !=
-              null,
-    );
+export '../../shared/file_access.dart';
 
 void _snack(ScaffoldMessengerState messenger, String text) => messenger
   ..hideCurrentSnackBar()

@@ -81,10 +81,20 @@ class MergeResult {
 /// Lança [SnapshotFormatException] para esquema remoto mais novo e
 /// [DeviceInactiveException] se este aparelho está inativo há mais de 180
 /// dias no remoto.
-MergeResult merge(Snapshot local, Snapshot remote, {required DateTime now}) {
+///
+/// [checkInactive] desligado na importação manual de JSON (a pessoa escolheu
+/// mesclar aquele arquivo).
+MergeResult merge(
+  Snapshot local,
+  Snapshot remote, {
+  required DateTime now,
+  bool checkInactive = true,
+}) {
   final upgraded = upgradeSnapshot(remote, target: local.schemaVersion);
   final seen = upgraded.devices[local.deviceId]?.lastSyncAt;
-  if (seen != null && now.difference(seen) > tombstoneRetention) {
+  if (checkInactive &&
+      seen != null &&
+      now.difference(seen) > tombstoneRetention) {
     throw DeviceInactiveException(seen);
   }
 

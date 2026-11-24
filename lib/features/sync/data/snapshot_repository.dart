@@ -104,6 +104,39 @@ class SnapshotRepository {
     }
   }
 
+  /// Substitui todos os dados sincronizáveis pelos de [snapshot] (já no
+  /// esquema atual). Os ajustes do aparelho ficam. [markDirty]: as linhas
+  /// novas sobem no próximo sync (importação manual) ou já estão em sincronia
+  /// (dados vindos da nuvem).
+  Future<void> replaceAll(Snapshot snapshot, {required bool markDirty}) async {
+    final tables = _tables;
+    final localSettings = [
+      for (final p in localSettingPrefixes) "key NOT LIKE '$p%'",
+    ].join(' AND ');
+    await _db.transaction(() async {
+      await _db.customStatement('PRAGMA defer_foreign_keys = ON');
+      for (final name in syncTables.reversed) {
+        await _db.customStatement(
+          name == 'app_settings'
+              ? 'DELETE FROM "$name" WHERE $localSettings'
+              : 'DELETE FROM "$name"',
+        );
+      }
+      for (final name in syncTables) {
+        for (final row in snapshot.rows(name)) {
+          if (name == 'app_settings' && isLocalSetting(row['key']! as String)) {
+            continue;
+          }
+          await _upsert(tables[name]!, row, dirty: markDirty);
+        }
+      }
+    });
+    _db.notifyUpdates({
+      for (final t in tables.values)
+        TableUpdate.onTable(t, kind: UpdateKind.update),
+    });
+  }
+
   /// Depois de enviar [sent]: limpa `dirty` só nas linhas cujo `updated_at`
   /// local ainda é o enviado (uma edição feita durante o sync continua suja).
   Future<void> markClean(Snapshot sent) async {
@@ -135,7 +168,11 @@ class SnapshotRepository {
     return false;
   }
 
-  Future<void> _upsert(TableInfo<Table, dynamic> info, SyncRow row) async {
+  Future<void> _upsert(
+    TableInfo<Table, dynamic> info,
+    SyncRow row, {
+    bool dirty = false,
+  }) async {
     final name = info.actualTableName;
     // Tabela com chave natural: se o local tem a mesma linha com outro id,
     // ela passa a usar o id vencedor (sem nada referenciando esses ids).
@@ -151,7 +188,8 @@ class SnapshotRepository {
     for (final col in info.$columns) {
       if (col.name == 'dirty') {
         columns.add('dirty');
-        values.add(0); // veio do remoto: já está sincronizada
+        // Veio do remoto: já está sincronizada (salvo importação manual).
+        values.add(dirty ? 1 : 0);
       } else if (row.containsKey(col.name) && col.name != 'server_version') {
         columns.add(col.name);
         values.add(_toDb(col, row[col.name]));

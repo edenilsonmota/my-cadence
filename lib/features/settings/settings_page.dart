@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/app_theme.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/number_stepper.dart';
+import '../../shared/widgets/section_header.dart';
 import '../cards/cards_providers.dart';
 import '../cards/review_queue.dart';
 import '../pomodoro/pomodoro_controller.dart';
 import '../pomodoro/pomodoro_logic.dart';
+import '../sync/presentation/backup_actions.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -107,6 +110,21 @@ class SettingsPage extends ConsumerWidget {
             value: s.keepScreenOn,
             onChanged: (v) => setBool(PomodoroSettings.keyScreenOn, v),
           ),
+          const _Header('Backup'),
+          ListTile(
+            leading: const Icon(AppIcons.export),
+            title: const Text('Exportar JSON'),
+            subtitle: const Text('Todos os dados num arquivo'),
+            onTap: () => exportJsonFlow(context, ref),
+          ),
+          ListTile(
+            leading: const Icon(AppIcons.import),
+            title: const Text('Importar JSON'),
+            subtitle: const Text(
+              'Mesclar ou substituir pelos dados de um backup',
+            ),
+            onTap: () => importJsonFlow(context, ref),
+          ),
         ],
       ),
     );
@@ -120,13 +138,6 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.titleSmall!
-            .copyWith(color: Theme.of(context).colorScheme.primary),
-      ),
-    );
+    return SectionHeader(text);
   }
 }
