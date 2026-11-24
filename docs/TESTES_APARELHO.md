@@ -230,8 +230,12 @@ Verificado em 24/11 no celular (build debug, sem o Google configurado):
 Pendentes:
 - [ ] **S.5 Cópia automática e restaurar.** Depois de um dia de uso, "Restaurar cópia" lista a cópia
   automática; restaurar mostra a prévia.
-- [ ] **S.6 Login** (depois de seguir `docs/google-cloud.md` e rodar com `--dart-define-from-file`): conectar,
-  foto no avatar, "Sincronizado agora há pouco"; fechar e abrir offline mantém a foto.
+- [x] **S.6 Login** (depois de seguir `docs/google-cloud.md` e rodar com `--dart-define-from-file`): conectar,
+  foto no avatar, "Sincronizado agora há pouco". Achados e corrigidos no aparelho: requisição pendurada
+  com o app em segundo plano travava o sync (agora 30 s de limite → "offline"); o token do Drive ficava
+  guardado e expiraria em 1 h (agora um cliente por operação e 401 renova o token); ao abrir, a
+  "restauração" do plugin mostrava o seletor de contas (agora a autorização usa o e-mail guardado).
+  Falta: fechar e abrir offline mantém a foto.
 - [ ] **S.7 Dois aparelhos, mesma conta** (celular + emulador): criar no A e ver no B; editar a mesma tarefa
   nos dois offline e reconectar (vence a última); excluir no A e editar no B; concluir rotina nos dois;
   revisar cards nos dois; editar a mesma página nos dois (vence a última inteira, sem corromper);

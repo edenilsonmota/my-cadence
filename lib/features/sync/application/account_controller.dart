@@ -91,17 +91,9 @@ class AccountController extends AsyncNotifier<AccountState> {
       account: stored,
       photo: photo,
     );
-    if (stored != null && _api.configured) {
-      // Renova a sessão em segundo plano; offline, segue com a guardada.
-      unawaited(_refresh());
-    }
+    // Sem "restaurar sessão" ao abrir: o sync só precisa da autorização do
+    // Drive, pedida pelo e-mail guardado (ver `GoogleAccountApi`).
     return state;
-  }
-
-  Future<void> _refresh() async {
-    final account = await _api.restore();
-    if (account == null) return;
-    await _remember(account);
   }
 
   /// Login interativo. Devolve a conta ou lança [AccountAuthException].

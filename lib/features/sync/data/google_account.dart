@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in_platform_interface/google_sign_in_platform_interface.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../app/config/google_config.dart';
@@ -70,18 +71,19 @@ abstract interface class GoogleAccountApi {
   /// O app tem os IDs do cliente OAuth neste build.
   bool get configured;
 
-  /// Restaura uma sessão anterior sem interação (ou `null`).
-  Future<AccountInfo?> restore();
-
   /// Login interativo e autorização do Drive (pede o consentimento).
   Future<AccountInfo> signIn();
 
   /// Sai (o acesso concedido continua valendo para entrar de novo).
   Future<void> signOut();
 
-  /// Cliente HTTP autorizado para o Drive. Sem [interactive], não mostra
-  /// nada; lança [AccountAuthException] se precisar de interação.
-  Future<http.Client> driveClient({bool interactive = false});
+  /// Cliente HTTP autorizado para o Drive da [account], sem mostrar nada;
+  /// lança [AccountAuthException] se precisar de interação.
+  Future<http.Client> driveClient(AccountInfo account);
+
+  /// O Drive recusou o último token (401): descarta-o do cache do aparelho
+  /// para o próximo [driveClient] pedir outro.
+  Future<void> invalidateDriveToken();
 }
 
 /// Implementação com o `google_sign_in` 7 (autenticação e autorização
@@ -89,7 +91,7 @@ abstract interface class GoogleAccountApi {
 class GoogleSignInAccountApi implements GoogleAccountApi {
   GoogleSignIn get _signIn => GoogleSignIn.instance;
   Future<void>? _initialized;
-  GoogleSignInAccount? _current;
+  String? _token;
 
   @override
   bool get configured => GoogleConfig.configured;
@@ -109,19 +111,6 @@ class GoogleSignInAccountApi implements GoogleAccountApi {
   );
 
   @override
-  Future<AccountInfo?> restore() async {
-    if (!configured) return null;
-    await _init();
-    try {
-      final account = await _signIn.attemptLightweightAuthentication();
-      _current = account;
-      return account == null ? null : _info(account);
-    } on GoogleSignInException {
-      return null;
-    }
-  }
-
-  @override
   Future<AccountInfo> signIn() async {
     if (!configured) {
       throw const AccountAuthException(
@@ -137,7 +126,6 @@ class GoogleSignInAccountApi implements GoogleAccountApi {
       await account.authorizationClient.authorizeScopes(const [
         driveAppDataScope,
       ]);
-      _current = account;
       return _info(account);
     } on GoogleSignInException catch (e) {
       throw AccountAuthException(
@@ -153,29 +141,52 @@ class GoogleSignInAccountApi implements GoogleAccountApi {
   Future<void> signOut() async {
     if (!configured) return;
     await _init();
-    _current = null;
+    _token = null;
     await _signIn.signOut();
   }
 
+  /// Só a autorização, pelo e-mail guardado: no Android ela não depende
+  /// de uma sessão de login (a "restauração" silenciosa do plugin abre o
+  /// seletor de contas quando não consegue entrar sozinha).
   @override
-  Future<http.Client> driveClient({bool interactive = false}) async {
+  Future<http.Client> driveClient(AccountInfo account) async {
     await _init();
-    final account =
-        _current ?? await _signIn.attemptLightweightAuthentication();
-    if (account == null) {
-      throw const AccountAuthException('Entre novamente com o Google.');
-    }
-    _current = account;
     const scopes = [driveAppDataScope];
-    final client = account.authorizationClient;
-    final authorization =
-        await client.authorizationForScopes(scopes) ??
-        (interactive ? await client.authorizeScopes(scopes) : null);
-    if (authorization == null) {
+    final ClientAuthorizationTokenData? tokens;
+    try {
+      tokens = await GoogleSignInPlatform.instance
+          .clientAuthorizationTokensForScopes(
+            ClientAuthorizationTokensForScopesParameters(
+              request: AuthorizationRequestDetails(
+                scopes: scopes,
+                userId: account.id,
+                email: account.email,
+                promptIfUnauthorized: false,
+              ),
+            ),
+          );
+    } on GoogleSignInException catch (e) {
+      throw AccountAuthException(
+        'Não foi possível autorizar o Google Drive (${e.code.name}).',
+      );
+    }
+    if (tokens == null) {
       throw const AccountAuthException(
         'Autorize o acesso ao Google Drive para sincronizar.',
       );
     }
-    return authorization.authClient(scopes: scopes);
+    _token = tokens.accessToken;
+    return GoogleSignInClientAuthorization(accessToken: tokens.accessToken)
+        .authClient(scopes: scopes);
+  }
+
+  @override
+  Future<void> invalidateDriveToken() async {
+    final token = _token;
+    _token = null;
+    if (token == null) return;
+    await _signIn.authorizationClient.clearAuthorizationToken(
+      accessToken: token,
+    );
   }
 }

@@ -68,7 +68,9 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Orquestração: `SyncEngine` (um ciclo: versão → fetch → merge/apply → push condicional, até 3 tentativas;
   `markClean` do que foi enviado) e `SyncService` (Riverpod: ao abrir, ao voltar após 2 min, 30 s após
   alteração **pendente**, ao sair, botão; lock; backoff; offline silencioso; log em `sync.log`).
-  `DriveTransport` usa `appDataFolder`, `version` do arquivo e cópia `.prev`. Conta: `GoogleAccountApi`
+  `DriveTransport` usa `appDataFolder`, `version` do arquivo e cópia `.prev`; pede um cliente novo a cada
+  operação (token do Google vale 1 h), limita cada requisição a 30 s e, em 401, descarta o token e tenta
+  uma vez. Não há "restaurar sessão" ao abrir: a autorização do Drive vai pelo e-mail guardado. Conta: `GoogleAccountApi`
   (`google_sign_in` 7), configurada por `--dart-define-from-file=config/google.json` (`docs/google-cloud.md`).
 - Testes de sync: `FakeSyncTransport`/`FakeAccountApi` (`test/helpers/fake_sync.dart`); `pumpApp` aceita
   `accountApi:` e `syncTransport:` (não sobrescrever esses providers por `overrides:`).

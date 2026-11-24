@@ -16,9 +16,6 @@ class FakeAccountApi implements GoogleAccountApi {
   int signOuts = 0;
 
   @override
-  Future<AccountInfo?> restore() async => null;
-
-  @override
   Future<AccountInfo> signIn() async {
     signIns++;
     final a = account;
@@ -32,8 +29,11 @@ class FakeAccountApi implements GoogleAccountApi {
   Future<void> signOut() async => signOuts++;
 
   @override
-  Future<http.Client> driveClient({bool interactive = false}) =>
+  Future<http.Client> driveClient(AccountInfo account) =>
       throw UnimplementedError('use FakeSyncTransport');
+
+  @override
+  Future<void> invalidateDriveToken() async {}
 }
 
 /// "Drive" em memória, com versão que muda a cada gravação.

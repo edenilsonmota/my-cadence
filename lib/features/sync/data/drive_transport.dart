@@ -16,41 +16,67 @@ class DriveTransport implements SyncTransport {
     required this.client,
     required this.loadFileId,
     required this.saveFileId,
+    this.onUnauthorized,
+    this.requestTimeout = const Duration(seconds: 30),
   });
 
   static const fileName = 'my-cadence-sync.json.gz';
   static const prevFileName = 'my-cadence-sync.prev.json.gz';
   static const _space = 'appDataFolder';
 
-  /// Cliente HTTP autorizado para o Drive.
+  /// Cliente HTTP autorizado para o Drive (pedido a cada operação: o token
+  /// do Google vale uma hora e o aparelho guarda o atual).
   final Future<http.Client> Function() client;
+
+  /// O Drive recusou o token: descarta-o antes da nova tentativa.
+  final Future<void> Function()? onUnauthorized;
+
+  /// Limite de cada requisição (e da obtenção do token). Sem ele, uma
+  /// conexão que morreu com o app em segundo plano trava o sync.
+  final Duration requestTimeout;
 
   /// Id do arquivo principal guardado localmente.
   final Future<String?> Function() loadFileId;
   final Future<void> Function(String? id) saveFileId;
 
+  /// API da operação em andamento (uma por [version], [fetch] ou [push]).
   drive.DriveApi? _api;
-  Future<drive.DriveApi> _drive() async =>
-      _api ??= drive.DriveApi(await client());
+  http.Client? _http;
+  Future<drive.DriveApi> _drive() async {
+    if (_api case final api?) return api;
+    final inner = await client().timeout(requestTimeout);
+    _http = _TimeoutClient(inner, requestTimeout);
+    return _api = drive.DriveApi(_http!);
+  }
 
-  /// Erros de rede viram [SyncOfflineException]; 401/403 viram
-  /// [AccountAuthException] (entrar de novo).
+  /// Erros de rede viram [SyncOfflineException]; 401 renova o token e tenta
+  /// uma vez mais; 401/403 persistentes viram [AccountAuthException].
   Future<T> _guard<T>(Future<T> Function() call) async {
-    try {
-      return await call();
-    } on SocketException catch (e) {
-      throw SyncOfflineException(e);
-    } on http.ClientException catch (e) {
-      throw SyncOfflineException(e);
-    } on TimeoutException catch (e) {
-      throw SyncOfflineException(e);
-    } on drive.DetailedApiRequestError catch (e) {
-      if (e.status == 401 || e.status == 403) {
-        throw const AccountAuthException(
-          'O acesso ao Google Drive expirou. Entre novamente.',
-        );
+    for (var attempt = 0; ; attempt++) {
+      try {
+        return await call();
+      } on SocketException catch (e) {
+        throw SyncOfflineException(e);
+      } on http.ClientException catch (e) {
+        throw SyncOfflineException(e);
+      } on TimeoutException catch (e) {
+        throw SyncOfflineException(e);
+      } on drive.DetailedApiRequestError catch (e) {
+        if (e.status == 401 && attempt == 0 && onUnauthorized != null) {
+          await onUnauthorized!();
+          continue;
+        }
+        if (e.status == 401 || e.status == 403) {
+          throw const AccountAuthException(
+            'O acesso ao Google Drive expirou. Entre novamente.',
+          );
+        }
+        rethrow;
+      } finally {
+        _http?.close();
+        _http = null;
+        _api = null;
       }
-      rethrow;
     }
   }
 
@@ -153,4 +179,19 @@ class DriveTransport implements SyncTransport {
         );
         return updated.version!;
       });
+}
+
+/// Limita o tempo até a resposta de cada requisição.
+class _TimeoutClient extends http.BaseClient {
+  _TimeoutClient(this._inner, this._timeout);
+
+  final http.Client _inner;
+  final Duration _timeout;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) =>
+      _inner.send(request).timeout(_timeout);
+
+  @override
+  void close() => _inner.close();
 }

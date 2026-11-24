@@ -20,7 +20,15 @@ import 'sync_status.dart';
 final syncTransportProvider = Provider<SyncTransport>((ref) {
   final settings = ref.watch(settingsRepositoryProvider);
   return DriveTransport(
-    client: () => ref.read(googleAccountApiProvider).driveClient(),
+    client: () async {
+      final account = (await ref.read(accountProvider.future)).account;
+      if (account == null) {
+        throw const AccountAuthException('Entre novamente com o Google.');
+      }
+      return ref.read(googleAccountApiProvider).driveClient(account);
+    },
+    onUnauthorized: () =>
+        ref.read(googleAccountApiProvider).invalidateDriveToken(),
     loadFileId: () => settings.getString(SyncKeys.fileId),
     saveFileId: (id) => settings.setString(SyncKeys.fileId, id ?? ''),
   );
