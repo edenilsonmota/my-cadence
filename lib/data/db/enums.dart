@@ -9,3 +9,6 @@ enum PomodoroKind { foco, pausaCurta, pausaLonga }
 
 /// Espelha `fsrs.State` (pacote fsrs 2.x). Card novo começa em [learning].
 enum CardState { learning, review, relearning }
+
+/// Como o lembrete da tarefa avisa: notificação comum ou alarme insistente.
+enum ReminderMode { notificacao, alarme }

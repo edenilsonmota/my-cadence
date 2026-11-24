@@ -244,10 +244,12 @@ class _TaskHub extends ConsumerWidget {
             ),
           if (task.reminderMinutesBefore != null)
             _Info(
-              AppIcons.alarm,
-              'Alarme',
-              reminderOptions[task.reminderMinutesBefore] ??
-                  '${task.reminderMinutesBefore} min antes',
+              task.reminderMode == ReminderMode.alarme
+                  ? AppIcons.alarm
+                  : AppIcons.notification,
+              task.reminderMode == ReminderMode.alarme ? 'Alarme' : 'Lembrete',
+              '${reminderOptions[task.reminderMinutesBefore] ?? '${task.reminderMinutesBefore} min antes'}'
+              '${task.reminderMode == ReminderMode.alarme ? ' · Alarme' : ''}',
             ),
           if (task.notes case final notes?)
             Padding(

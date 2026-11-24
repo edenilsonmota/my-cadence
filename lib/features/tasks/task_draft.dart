@@ -44,6 +44,7 @@ class TaskDraft {
     Set<int>? weekdays,
     this.until,
     this.reminderMinutesBefore,
+    this.reminderMode = ReminderMode.notificacao,
     this.estimatedPomodoros,
     this.colorKey,
     this.iconKey,
@@ -77,6 +78,7 @@ class TaskDraft {
       weekdays: {...?rule?.weekdays},
       until: rule?.until,
       reminderMinutesBefore: task.reminderMinutesBefore,
+      reminderMode: task.reminderMode,
       estimatedPomodoros: task.estimatedPomodoros,
       colorKey: task.colorKey,
       iconKey: task.iconKey,
@@ -102,6 +104,7 @@ class TaskDraft {
   DateTime? until;
 
   int? reminderMinutesBefore;
+  ReminderMode reminderMode;
   int? estimatedPomodoros;
 
   /// Chaves de cor e ícone; nulas = herdar (mãe, tag, tipo).
@@ -154,6 +157,9 @@ class TaskDraft {
     final dueAt = combine(dueDay, dueTime);
     final startAt = combine(startDate, startTime);
     final trimmedNotes = notes.trim();
+    final effectiveReminder = dueAt == null && (allDay || startAt == null)
+        ? null
+        : reminderMinutesBefore;
     return TaskFields(
       title: title.trim(),
       notes: trimmedNotes.isEmpty ? null : trimmedNotes,
@@ -163,9 +169,10 @@ class TaskDraft {
       startAt: startAt,
       dueAt: dueAt,
       recurrenceRule: rule?.toRule(),
-      reminderMinutesBefore: dueAt == null && (allDay || startAt == null)
-          ? null
-          : reminderMinutesBefore,
+      reminderMinutesBefore: effectiveReminder,
+      reminderMode: effectiveReminder == null
+          ? ReminderMode.notificacao
+          : reminderMode,
       estimatedPomodoros: estimatedPomodoros,
       colorKey: colorKey,
       iconKey: iconKey,
@@ -185,6 +192,7 @@ class TaskFields {
     required this.dueAt,
     required this.recurrenceRule,
     required this.reminderMinutesBefore,
+    this.reminderMode = ReminderMode.notificacao,
     required this.estimatedPomodoros,
     this.colorKey,
     this.iconKey,
@@ -199,6 +207,7 @@ class TaskFields {
   final DateTime? dueAt;
   final String? recurrenceRule;
   final int? reminderMinutesBefore;
+  final ReminderMode reminderMode;
   final int? estimatedPomodoros;
   final String? colorKey;
   final String? iconKey;
@@ -214,6 +223,7 @@ class TaskFields {
     dueAt: Value(dueAt),
     recurrenceRule: Value(recurrenceRule),
     reminderMinutesBefore: Value(reminderMinutesBefore),
+    reminderMode: reminderMode,
     estimatedPomodoros: Value(estimatedPomodoros),
     colorKey: Value(colorKey),
     iconKey: Value(iconKey),

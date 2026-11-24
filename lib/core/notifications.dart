@@ -1,6 +1,9 @@
 import 'dart:io' show Platform;
+import 'dart:typed_data' show Int32List;
 import 'dart:ui' show Color;
 
+import 'package:flutter/services.dart'
+    show MethodChannel, MissingPluginException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -14,8 +17,12 @@ abstract final class AlarmActions {
 const pomodoroPayload = 'pomodoro';
 
 enum AlarmKind {
-  /// Lembrete de tarefa, com as ações "Concluir" e "Adiar".
+  /// Lembrete de tarefa como notificação comum, com "Concluir" e "Adiar".
   task,
+
+  /// Lembrete de tarefa em modo alarme: som de alarme insistente (toca no
+  /// silencioso) e tela cheia até a pessoa interagir.
+  taskAlarm,
 
   /// Fim de um ciclo do pomodoro, sem ações.
   pomodoro,
@@ -72,7 +79,7 @@ class AlarmSpec {
       Object.hash(id, time, title, body, payload, kind, sound, vibrate);
 
   @override
-  String toString() => 'AlarmSpec($id, $time, $title)';
+  String toString() => 'AlarmSpec($id, $time, $title, $kind)';
 }
 
 /// O que o app precisa do sistema de notificações. Nos testes, uma versão
@@ -86,6 +93,14 @@ abstract interface class AlarmScheduler {
 
   /// Pede permissão de notificação (Android 13+ e iOS). Devolve se foi dada.
   Future<bool> requestPermission();
+
+  /// No Android 14+, informa se o app pode abrir alarmes em tela cheia
+  /// (`USE_FULL_SCREEN_INTENT`). Nas outras plataformas/versões devolve `true`.
+  Future<bool> canUseFullScreenIntent();
+
+  /// Abre a tela do Android 14+ para conceder `USE_FULL_SCREEN_INTENT` (se
+  /// ainda não foi dada) e devolve o estado ao voltar.
+  Future<bool> requestFullScreenIntentPermission();
 }
 
 typedef NotificationTapCallback = void Function(String payload);
@@ -99,11 +114,25 @@ class NotificationService implements AlarmScheduler {
   final FlutterLocalNotificationsPlugin plugin =
       FlutterLocalNotificationsPlugin();
 
+  static const _permissionsChannel = MethodChannel(
+    'com.nextinfor.mycadence/alarm_permissions',
+  );
+
   /// Cor do ícone nas notificações (a semente do tema).
   static const brandColor = Color(0xFF00796B);
 
   static const _channelId = 'lembretes';
+  static const _alarmChannelId = 'alarmes_tarefas';
   static const _iosCategory = 'lembrete_tarefa';
+
+  /// `Notification.FLAG_INSISTENT` do Android: repete o toque até a pessoa
+  /// tocar na notificação, numa ação ou dispensar.
+  static const _flagInsistent = 4;
+
+  /// Som padrão de alarme do sistema (`Settings.System.DEFAULT_ALARM_ALERT_URI`).
+  static const _systemAlarmSound = UriAndroidNotificationSound(
+    'content://settings/system/alarm_alert',
+  );
 
   /// Inicializa no isolate principal. [onTap] recebe o payload de um toque na
   /// notificação (ou numa ação com interface); [onBackgroundAction] precisa
@@ -154,31 +183,57 @@ class NotificationService implements AlarmScheduler {
     return response.actionId == null ? response.payload : null;
   }
 
+  static const _taskActions = [
+    AndroidNotificationAction(
+      AlarmActions.complete,
+      'Concluir',
+      cancelNotification: true,
+    ),
+    AndroidNotificationAction(
+      AlarmActions.snooze,
+      'Adiar 10 min',
+      cancelNotification: true,
+    ),
+  ];
+
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(
       _channelId,
       'Lembretes de tarefas',
-      channelDescription: 'Alarmes das tarefas com prazo',
+      channelDescription: 'Notificações das tarefas com prazo',
       importance: Importance.max,
       priority: Priority.high,
       category: AndroidNotificationCategory.reminder,
       // Ícone explícito: no isolate das ações o plugin não é inicializado.
       icon: '@drawable/ic_notification',
       color: brandColor,
-      actions: [
-        AndroidNotificationAction(
-          AlarmActions.complete,
-          'Concluir',
-          cancelNotification: true,
-        ),
-        AndroidNotificationAction(
-          AlarmActions.snooze,
-          'Adiar 10 min',
-          cancelNotification: true,
-        ),
-      ],
+      actions: _taskActions,
     ),
     iOS: DarwinNotificationDetails(categoryIdentifier: _iosCategory),
+  );
+
+  /// Alarme insistente de tarefa: canal próprio com áudio de alarme (toca no
+  /// silencioso), som de alarme do sistema em repetição e tela cheia.
+  static NotificationDetails _alarmDetails() => NotificationDetails(
+    android: AndroidNotificationDetails(
+      _alarmChannelId,
+      'Alarmes de tarefas',
+      channelDescription: 'Alarmes insistentes que tocam até você interagir',
+      importance: Importance.max,
+      priority: Priority.max,
+      category: AndroidNotificationCategory.alarm,
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+      sound: _systemAlarmSound,
+      fullScreenIntent: true,
+      additionalFlags: Int32List.fromList([_flagInsistent]),
+      icon: '@drawable/ic_notification',
+      color: brandColor,
+      actions: _taskActions,
+    ),
+    iOS: const DarwinNotificationDetails(
+      categoryIdentifier: _iosCategory,
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
   );
 
   /// Fim do pomodoro. No Android, som e vibração pertencem ao canal (fixos
@@ -207,10 +262,14 @@ class NotificationService implements AlarmScheduler {
   Future<void> schedule(AlarmSpec alarm) => plugin.zonedSchedule(
     id: alarm.id,
     scheduledDate: tz.TZDateTime.from(alarm.time, tz.local),
-    notificationDetails: alarm.kind == AlarmKind.pomodoro
-        ? _pomodoroDetails(alarm)
-        : _details,
-    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    notificationDetails: switch (alarm.kind) {
+      AlarmKind.task => _details,
+      AlarmKind.taskAlarm => _alarmDetails(),
+      AlarmKind.pomodoro => _pomodoroDetails(alarm),
+    },
+    androidScheduleMode: alarm.kind == AlarmKind.taskAlarm
+        ? AndroidScheduleMode.alarmClock
+        : AndroidScheduleMode.exactAllowWhileIdle,
     title: alarm.title,
     body: alarm.body,
     payload: alarm.payload,
@@ -247,5 +306,28 @@ class NotificationService implements AlarmScheduler {
           false;
     }
     return false;
+  }
+
+  @override
+  Future<bool> canUseFullScreenIntent() async {
+    if (!Platform.isAndroid) return true;
+    try {
+      return await _permissionsChannel.invokeMethod<bool>(
+            'canUseFullScreenIntent',
+          ) ??
+          true;
+    } on MissingPluginException {
+      return true;
+    }
+  }
+
+  @override
+  Future<bool> requestFullScreenIntentPermission() async {
+    if (!Platform.isAndroid) return true;
+    final android = plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    return await android?.requestFullScreenIntentPermission() ?? true;
   }
 }

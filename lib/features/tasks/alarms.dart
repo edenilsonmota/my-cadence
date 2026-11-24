@@ -80,6 +80,9 @@ AlarmSpec _spec(Task task, DateTime time, DateTime now) {
         ? 'Lembrete'
         : 'Prazo: ${formatRelative(due, now, withTime: task.hasTime)}',
     payload: task.id,
+    kind: task.reminderMode == ReminderMode.alarme
+        ? AlarmKind.taskAlarm
+        : AlarmKind.task,
   );
 }
 

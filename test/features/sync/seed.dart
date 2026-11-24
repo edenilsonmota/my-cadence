@@ -23,6 +23,8 @@ Future<void> seedEverything(AppDatabase db) async {
     dueAt: DateTime(2026, 11, 25, 14),
     hasTime: true,
     recurrenceRule: 'FREQ=DAILY',
+    reminderMinutesBefore: 15,
+    reminderMode: ReminderMode.alarme,
     colorKey: 'violeta',
     iconKey: 'brain',
     estimatedPomodoros: 4,

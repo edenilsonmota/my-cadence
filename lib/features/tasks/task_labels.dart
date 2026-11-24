@@ -22,6 +22,13 @@ extension TaskStatusLabel on TaskStatus {
   };
 }
 
+extension ReminderModeLabel on ReminderMode {
+  String get label => switch (this) {
+    ReminderMode.notificacao => 'Notificação',
+    ReminderMode.alarme => 'Alarme',
+  };
+}
+
 const priorityLabels = ['Nenhuma', 'Baixa', 'Média', 'Alta'];
 
 /// Cor da prioridade (nula para "nenhuma").

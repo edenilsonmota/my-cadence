@@ -5,6 +5,7 @@ import 'package:my_cadence/data/db/database.dart';
 
 import 'app/generated/schema.dart';
 import 'app/generated/schema_v1.dart' as v1;
+import 'app/generated/schema_v2.dart' as v2;
 
 /// v1 → v2: cores ARGB viram chaves da paleta; emoji dos books sai.
 void main() {
@@ -69,8 +70,14 @@ void main() {
     addTearDown(db.close);
     await verifier.migrateAndValidate(db, 2);
 
+    // Lê pelo esquema da v2 (o AppDatabase atual já tem colunas de versões
+    // posteriores em `tasks`).
+    final migrated = v2.DatabaseAtV2(schema.newConnection());
+    addTearDown(migrated.close);
+
     final tags = {
-      for (final t in await db.select(db.tags).get()) t.id: t.colorKey,
+      for (final t in await migrated.select(migrated.tags).get())
+        t.id: t.colorKey,
     };
     expect(tags, {
       'azul': 'azul',
@@ -83,9 +90,9 @@ void main() {
       'marrom': 'ardosia',
       'estranha': 'azul',
     });
-    final task = await db.select(db.tasks).getSingle();
+    final task = await migrated.select(migrated.tasks).getSingle();
     expect((task.title, task.colorKey, task.iconKey), ('Estudar', null, null));
-    final book = await db.select(db.notebooks).getSingle();
+    final book = await migrated.select(migrated.notebooks).getSingle();
     expect((book.title, book.colorKey, book.iconKey), ('Física', null, null));
   });
 }

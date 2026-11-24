@@ -71,8 +71,8 @@ void main() {
       expect(task.kind, TaskKind.estudo);
       expect(task.dueAt, DateTime(2026, 11, 25, 14));
       expect(
-        (task.colorKey, task.iconKey, task.notes),
-        ('violeta', 'brain', null),
+        (task.colorKey, task.iconKey, task.notes, task.reminderMode),
+        ('violeta', 'brain', null, ReminderMode.alarme),
       );
       final card = (await CardsRepository(
         b.cardsDao,

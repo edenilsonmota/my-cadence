@@ -56,6 +56,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
   TaskDraft? _draft;
   Task? _original;
   bool _saving = false;
+  bool _canUseFullScreenIntent = true;
 
   bool get _editing => widget.taskId != null;
 
@@ -101,6 +102,23 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
       _title.text = task.title;
       _notes.text = task.notes ?? '';
     });
+    if (task.reminderMode == ReminderMode.alarme) {
+      await _refreshFullScreenIntent();
+    }
+  }
+
+  Future<void> _refreshFullScreenIntent() async {
+    final granted = await ref
+        .read(alarmSchedulerProvider)
+        .canUseFullScreenIntent();
+    if (mounted) setState(() => _canUseFullScreenIntent = granted);
+  }
+
+  Future<void> _requestFullScreenIntent() async {
+    final granted = await ref
+        .read(alarmSchedulerProvider)
+        .requestFullScreenIntentPermission();
+    if (mounted) setState(() => _canUseFullScreenIntent = granted);
   }
 
   @override
@@ -144,6 +162,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         hasTime: f.hasTime,
         recurrenceRule: f.recurrenceRule,
         reminderMinutesBefore: f.reminderMinutesBefore,
+        reminderMode: f.reminderMode,
         estimatedPomodoros: f.estimatedPomodoros,
         colorKey: f.colorKey,
         iconKey: f.iconKey,
@@ -274,6 +293,45 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
               ? (v) => _edit((d) => d.reminderMinutesBefore = v)
               : null,
         ),
+        if (hasDate && d.reminderMinutesBefore != null) ...[
+          SizedBox(height: context.space.md),
+          SegmentedButton<ReminderMode>(
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(
+                value: ReminderMode.notificacao,
+                icon: const Icon(AppIcons.notification),
+                label: Text(ReminderMode.notificacao.label),
+              ),
+              ButtonSegment(
+                value: ReminderMode.alarme,
+                icon: const Icon(AppIcons.alarm),
+                label: Text(ReminderMode.alarme.label),
+              ),
+            ],
+            selected: {d.reminderMode},
+            onSelectionChanged: (s) {
+              final mode = s.single;
+              _edit((d) => d.reminderMode = mode);
+              if (mode == ReminderMode.alarme) _refreshFullScreenIntent();
+            },
+          ),
+          SizedBox(height: context.space.xs),
+          Text(
+            d.reminderMode == ReminderMode.alarme
+                ? 'Toca como despertador (mesmo no silencioso) até você '
+                      'interagir.'
+                : 'Aviso discreto na barra de notificações.',
+            style: context.text.bodySmall!.copyWith(
+              color: context.colors.onSurfaceVariant,
+            ),
+          ),
+          if (d.reminderMode == ReminderMode.alarme &&
+              !_canUseFullScreenIntent) ...[
+            SizedBox(height: context.space.sm),
+            _FullScreenPermissionBanner(onAllow: _requestFullScreenIntent),
+          ],
+        ],
         const _Label('Pomodoros estimados'),
         NumberStepper(
           value: d.estimatedPomodoros ?? 0,
@@ -631,6 +689,58 @@ class _AppearanceField extends ConsumerWidget {
         );
         if (choice != null) onChanged(choice);
       },
+    );
+  }
+}
+
+/// Aviso contextual no Android 14+ quando `USE_FULL_SCREEN_INTENT` ainda não
+/// foi concedida para o modo alarme.
+class _FullScreenPermissionBanner extends StatelessWidget {
+  const _FullScreenPermissionBanner({required this.onAllow});
+
+  final VoidCallback onAllow;
+
+  @override
+  Widget build(BuildContext context) {
+    final warn = context.palette.warning;
+    final space = context.space;
+    return Container(
+      padding: EdgeInsets.all(space.md),
+      decoration: BoxDecoration(
+        color: warn.tint,
+        borderRadius: context.radius.mdAll,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                AppIcons.alarm,
+                size: AppIconSize.standard,
+                color: warn.onTint,
+              ),
+              SizedBox(width: space.sm),
+              Expanded(
+                child: Text(
+                  'Para abrir na tela bloqueada, permita notificações em tela '
+                  'cheia nas configurações do Android.',
+                  style: context.text.bodySmall!.copyWith(color: warn.onTint),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: space.xs),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: onAllow,
+              child: const Text('Permitir tela cheia'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

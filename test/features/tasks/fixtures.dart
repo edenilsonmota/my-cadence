@@ -13,6 +13,7 @@ Task makeTask(
   DateTime? dueAt,
   bool hasTime = false,
   String? recurrenceRule,
+  ReminderMode reminderMode = ReminderMode.notificacao,
   int sortOrder = 0,
 }) => Task(
   id: id,
@@ -28,5 +29,6 @@ Task makeTask(
   dueAt: dueAt,
   hasTime: hasTime,
   recurrenceRule: recurrenceRule,
+  reminderMode: reminderMode,
   sortOrder: sortOrder,
 );

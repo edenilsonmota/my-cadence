@@ -67,6 +67,7 @@ abstract final class AppIcons {
   static const time = _I.clock;
   static const repeat = _I.repeat;
   static const alarm = _I.alarmClock;
+  static const notification = _I.bell;
   static const priority = _I.flag;
   static const tag = _I.tag;
   static const color = _I.palette;

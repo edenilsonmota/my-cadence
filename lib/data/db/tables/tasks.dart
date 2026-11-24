@@ -29,6 +29,11 @@ class Tasks extends Table with SyncColumns {
   /// RRULE (subconjunto de `core/recurrence.dart`).
   TextColumn get recurrenceRule => text().nullable()();
   IntColumn get reminderMinutesBefore => integer().nullable()();
+
+  /// Como o lembrete avisa (`notificacao` comum ou `alarme` insistente).
+  TextColumn get reminderMode => textEnum<ReminderMode>().withDefault(
+    Constant(ReminderMode.notificacao.name),
+  )();
   IntColumn get estimatedPomodoros => integer().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get completedAt => dateTime().nullable()();

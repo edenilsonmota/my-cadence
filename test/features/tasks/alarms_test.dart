@@ -37,6 +37,19 @@ void main() {
       expect(alarm.id, notificationIdFor('a'));
       expect(alarm.payload, 'a');
       expect(alarm.body, 'Prazo: Hoje, 15:00');
+      expect(alarm.kind, AlarmKind.task);
+    });
+
+    test('modo alarme agenda com AlarmKind.taskAlarm', () {
+      final alarm = alarmFor(
+        withReminder(
+          'a',
+          due: DateTime(2026, 11, 23, 15),
+          minutes: 0,
+        ).copyWith(reminderMode: ReminderMode.alarme),
+        now,
+      )!;
+      expect(alarm.kind, AlarmKind.taskAlarm);
     });
 
     test('com início com hora: conta a partir do início', () {
@@ -212,6 +225,20 @@ void main() {
       );
       expect(scheduler.pending, isEmpty);
     });
+
+    test('trocar entre notificação e alarme reagenda', () async {
+      final a = withReminder('a', due: DateTime(2026, 11, 24, 8), minutes: 0);
+      await sync.update([a]);
+      expect(scheduler.pending[notificationIdFor('a')]!.kind, AlarmKind.task);
+      scheduler.log.clear();
+
+      await sync.update([a.copyWith(reminderMode: ReminderMode.alarme)]);
+      expect(scheduler.log, hasLength(1));
+      expect(
+        scheduler.pending[notificationIdFor('a')]!.kind,
+        AlarmKind.taskAlarm,
+      );
+    });
   });
 
   group('ações da notificação', () {
@@ -300,7 +327,31 @@ void main() {
       final alarm = scheduler.pending[notificationIdFor(id)]!;
       expect(alarm.time, now.add(snoozeDuration));
       expect(alarm.title, 'Ligar');
+      expect(alarm.kind, AlarmKind.task);
       expect((await repo.getTask(id))!.dueAt, DateTime(2026, 11, 23, 10));
+    });
+
+    test('Adiar tarefa em modo alarme mantém AlarmKind.taskAlarm', () async {
+      final id = await repo.createTask(
+        title: 'Acordar',
+        dueAt: DateTime(2026, 11, 23, 10),
+        hasTime: true,
+        reminderMinutesBefore: 0,
+        reminderMode: ReminderMode.alarme,
+      );
+
+      await handleAlarmAction(
+        actionId: AlarmActions.snooze,
+        taskId: id,
+        repo: repo,
+        scheduler: scheduler,
+        now: now,
+      );
+
+      expect(
+        scheduler.pending[notificationIdFor(id)]!.kind,
+        AlarmKind.taskAlarm,
+      );
     });
 
     test('tarefa excluída é ignorada', () async {

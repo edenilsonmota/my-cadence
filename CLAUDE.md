@@ -110,6 +110,11 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - A antecedência do lembrete conta do **início** quando ele tem hora (bloco da agenda avisa ao começar);
   senão, do prazo. Tarefa de dia inteiro lembra na hora do ajuste `tasks.allDayReminderHour`
   (padrão 9h; `AlarmSync.setAllDayHour`; o isolate das ações lê o mesmo ajuste) menos a antecedência.
+- Cada tarefa tem `reminderMode` (`notificacao` ou `alarme`, esquema v4): no modo `alarme` (`AlarmKind.taskAlarm`),
+  usa o canal `alarmes_tarefas` (`AudioAttributesUsage.alarm`, som de alarme do sistema, `FLAG_INSISTENT`,
+  `fullScreenIntent`, `AndroidScheduleMode.alarmClock`); no Android 14+, `MainActivity` expõe
+  `canUseFullScreenIntent` pelo canal `com.nextinfor.mycadence/alarm_permissions` e o formulário guia até a tela
+  do sistema se faltar permissão.
 - Ações "Concluir"/"Adiar" rodam em isolate de segundo plano (`notification_actions.dart`, top-level com
   `@pragma('vm:entry-point')`), abrem o próprio banco e reagendam ali mesmo. O banco usa
   `shareAcrossIsolates`, WAL e `busy_timeout`; ao voltar ao app, as consultas são forçadas a reler.

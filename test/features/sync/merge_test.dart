@@ -294,11 +294,25 @@ void main() {
       expect((tag['color_key'], tag.containsKey('color')), ('verde', false));
       final t = r.merged.rows('tasks').single;
       expect(
-        (t['color_key'], t['icon_key'], t.containsKey('color')),
-        (null, null, false),
+        (
+          t['color_key'],
+          t['icon_key'],
+          t['reminder_mode'],
+          t.containsKey('color'),
+        ),
+        (null, null, 'notificacao', false),
       );
       final book = r.merged.rows('notebooks').single;
       expect(book.containsKey('icon'), isFalse);
+      expect(r.merged.schemaVersion, currentSchemaVersion);
+    });
+
+    test('remoto v3 recebe reminder_mode padrão notificacao', () {
+      final remote = snap('B', {
+        'tasks': [task('t', at(20))],
+      }, schemaVersion: 3);
+      final r = merge(snap('A', const {}), remote, now: now);
+      expect(r.merged.rows('tasks').single['reminder_mode'], 'notificacao');
       expect(r.merged.schemaVersion, currentSchemaVersion);
     });
 

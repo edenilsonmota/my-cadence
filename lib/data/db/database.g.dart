@@ -198,6 +198,16 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<ReminderMode, String>
+  reminderMode = GeneratedColumn<String>(
+    'reminder_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: Constant(ReminderMode.notificacao.name),
+  ).withConverter<ReminderMode>($TasksTable.$converterreminderMode);
   static const VerificationMeta _estimatedPomodorosMeta =
       const VerificationMeta('estimatedPomodoros');
   @override
@@ -272,6 +282,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     hasTime,
     recurrenceRule,
     reminderMinutesBefore,
+    reminderMode,
     estimatedPomodoros,
     sortOrder,
     completedAt,
@@ -505,6 +516,12 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         DriftSqlType.int,
         data['${effectivePrefix}reminder_minutes_before'],
       ),
+      reminderMode: $TasksTable.$converterreminderMode.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}reminder_mode'],
+        )!,
+      ),
       estimatedPomodoros: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}estimated_pomodoros'],
@@ -537,6 +554,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
       const EnumNameConverter<TaskKind>(TaskKind.values);
   static JsonTypeConverter2<TaskStatus, String, String> $converterstatus =
       const EnumNameConverter<TaskStatus>(TaskStatus.values);
+  static JsonTypeConverter2<ReminderMode, String, String>
+  $converterreminderMode = const EnumNameConverter<ReminderMode>(
+    ReminderMode.values,
+  );
 }
 
 class Task extends DataClass implements Insertable<Task> {
@@ -565,6 +586,9 @@ class Task extends DataClass implements Insertable<Task> {
   /// RRULE (subconjunto de `core/recurrence.dart`).
   final String? recurrenceRule;
   final int? reminderMinutesBefore;
+
+  /// Como o lembrete avisa (`notificacao` comum ou `alarme` insistente).
+  final ReminderMode reminderMode;
   final int? estimatedPomodoros;
   final int sortOrder;
   final DateTime? completedAt;
@@ -592,6 +616,7 @@ class Task extends DataClass implements Insertable<Task> {
     required this.hasTime,
     this.recurrenceRule,
     this.reminderMinutesBefore,
+    required this.reminderMode,
     this.estimatedPomodoros,
     required this.sortOrder,
     this.completedAt,
@@ -639,6 +664,11 @@ class Task extends DataClass implements Insertable<Task> {
     }
     if (!nullToAbsent || reminderMinutesBefore != null) {
       map['reminder_minutes_before'] = Variable<int>(reminderMinutesBefore);
+    }
+    {
+      map['reminder_mode'] = Variable<String>(
+        $TasksTable.$converterreminderMode.toSql(reminderMode),
+      );
     }
     if (!nullToAbsent || estimatedPomodoros != null) {
       map['estimated_pomodoros'] = Variable<int>(estimatedPomodoros);
@@ -691,6 +721,7 @@ class Task extends DataClass implements Insertable<Task> {
       reminderMinutesBefore: reminderMinutesBefore == null && nullToAbsent
           ? const Value.absent()
           : Value(reminderMinutesBefore),
+      reminderMode: Value(reminderMode),
       estimatedPomodoros: estimatedPomodoros == null && nullToAbsent
           ? const Value.absent()
           : Value(estimatedPomodoros),
@@ -736,6 +767,9 @@ class Task extends DataClass implements Insertable<Task> {
       reminderMinutesBefore: serializer.fromJson<int?>(
         json['reminderMinutesBefore'],
       ),
+      reminderMode: $TasksTable.$converterreminderMode.fromJson(
+        serializer.fromJson<String>(json['reminderMode']),
+      ),
       estimatedPomodoros: serializer.fromJson<int?>(json['estimatedPomodoros']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
@@ -768,6 +802,9 @@ class Task extends DataClass implements Insertable<Task> {
       'hasTime': serializer.toJson<bool>(hasTime),
       'recurrenceRule': serializer.toJson<String?>(recurrenceRule),
       'reminderMinutesBefore': serializer.toJson<int?>(reminderMinutesBefore),
+      'reminderMode': serializer.toJson<String>(
+        $TasksTable.$converterreminderMode.toJson(reminderMode),
+      ),
       'estimatedPomodoros': serializer.toJson<int?>(estimatedPomodoros),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
@@ -794,6 +831,7 @@ class Task extends DataClass implements Insertable<Task> {
     bool? hasTime,
     Value<String?> recurrenceRule = const Value.absent(),
     Value<int?> reminderMinutesBefore = const Value.absent(),
+    ReminderMode? reminderMode,
     Value<int?> estimatedPomodoros = const Value.absent(),
     int? sortOrder,
     Value<DateTime?> completedAt = const Value.absent(),
@@ -823,6 +861,7 @@ class Task extends DataClass implements Insertable<Task> {
     reminderMinutesBefore: reminderMinutesBefore.present
         ? reminderMinutesBefore.value
         : this.reminderMinutesBefore,
+    reminderMode: reminderMode ?? this.reminderMode,
     estimatedPomodoros: estimatedPomodoros.present
         ? estimatedPomodoros.value
         : this.estimatedPomodoros,
@@ -856,6 +895,9 @@ class Task extends DataClass implements Insertable<Task> {
       reminderMinutesBefore: data.reminderMinutesBefore.present
           ? data.reminderMinutesBefore.value
           : this.reminderMinutesBefore,
+      reminderMode: data.reminderMode.present
+          ? data.reminderMode.value
+          : this.reminderMode,
       estimatedPomodoros: data.estimatedPomodoros.present
           ? data.estimatedPomodoros.value
           : this.estimatedPomodoros,
@@ -888,6 +930,7 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('hasTime: $hasTime, ')
           ..write('recurrenceRule: $recurrenceRule, ')
           ..write('reminderMinutesBefore: $reminderMinutesBefore, ')
+          ..write('reminderMode: $reminderMode, ')
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
@@ -916,6 +959,7 @@ class Task extends DataClass implements Insertable<Task> {
     hasTime,
     recurrenceRule,
     reminderMinutesBefore,
+    reminderMode,
     estimatedPomodoros,
     sortOrder,
     completedAt,
@@ -943,6 +987,7 @@ class Task extends DataClass implements Insertable<Task> {
           other.hasTime == this.hasTime &&
           other.recurrenceRule == this.recurrenceRule &&
           other.reminderMinutesBefore == this.reminderMinutesBefore &&
+          other.reminderMode == this.reminderMode &&
           other.estimatedPomodoros == this.estimatedPomodoros &&
           other.sortOrder == this.sortOrder &&
           other.completedAt == this.completedAt &&
@@ -968,6 +1013,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<bool> hasTime;
   final Value<String?> recurrenceRule;
   final Value<int?> reminderMinutesBefore;
+  final Value<ReminderMode> reminderMode;
   final Value<int?> estimatedPomodoros;
   final Value<int> sortOrder;
   final Value<DateTime?> completedAt;
@@ -992,6 +1038,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.hasTime = const Value.absent(),
     this.recurrenceRule = const Value.absent(),
     this.reminderMinutesBefore = const Value.absent(),
+    this.reminderMode = const Value.absent(),
     this.estimatedPomodoros = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
@@ -1017,6 +1064,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.hasTime = const Value.absent(),
     this.recurrenceRule = const Value.absent(),
     this.reminderMinutesBefore = const Value.absent(),
+    this.reminderMode = const Value.absent(),
     this.estimatedPomodoros = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
@@ -1042,6 +1090,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<bool>? hasTime,
     Expression<String>? recurrenceRule,
     Expression<int>? reminderMinutesBefore,
+    Expression<String>? reminderMode,
     Expression<int>? estimatedPomodoros,
     Expression<int>? sortOrder,
     Expression<DateTime>? completedAt,
@@ -1068,6 +1117,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (recurrenceRule != null) 'recurrence_rule': recurrenceRule,
       if (reminderMinutesBefore != null)
         'reminder_minutes_before': reminderMinutesBefore,
+      if (reminderMode != null) 'reminder_mode': reminderMode,
       if (estimatedPomodoros != null) 'estimated_pomodoros': estimatedPomodoros,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (completedAt != null) 'completed_at': completedAt,
@@ -1095,6 +1145,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<bool>? hasTime,
     Value<String?>? recurrenceRule,
     Value<int?>? reminderMinutesBefore,
+    Value<ReminderMode>? reminderMode,
     Value<int?>? estimatedPomodoros,
     Value<int>? sortOrder,
     Value<DateTime?>? completedAt,
@@ -1121,6 +1172,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       recurrenceRule: recurrenceRule ?? this.recurrenceRule,
       reminderMinutesBefore:
           reminderMinutesBefore ?? this.reminderMinutesBefore,
+      reminderMode: reminderMode ?? this.reminderMode,
       estimatedPomodoros: estimatedPomodoros ?? this.estimatedPomodoros,
       sortOrder: sortOrder ?? this.sortOrder,
       completedAt: completedAt ?? this.completedAt,
@@ -1190,6 +1242,11 @@ class TasksCompanion extends UpdateCompanion<Task> {
         reminderMinutesBefore.value,
       );
     }
+    if (reminderMode.present) {
+      map['reminder_mode'] = Variable<String>(
+        $TasksTable.$converterreminderMode.toSql(reminderMode.value),
+      );
+    }
     if (estimatedPomodoros.present) {
       map['estimated_pomodoros'] = Variable<int>(estimatedPomodoros.value);
     }
@@ -1231,6 +1288,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('hasTime: $hasTime, ')
           ..write('recurrenceRule: $recurrenceRule, ')
           ..write('reminderMinutesBefore: $reminderMinutesBefore, ')
+          ..write('reminderMode: $reminderMode, ')
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
@@ -8227,6 +8285,7 @@ typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
   Value<bool> hasTime,
   Value<String?> recurrenceRule,
   Value<int?> reminderMinutesBefore,
+  Value<ReminderMode> reminderMode,
   Value<int?> estimatedPomodoros,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
@@ -8252,6 +8311,7 @@ typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
   Value<bool> hasTime,
   Value<String?> recurrenceRule,
   Value<int?> reminderMinutesBefore,
+  Value<ReminderMode> reminderMode,
   Value<int?> estimatedPomodoros,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
@@ -8483,6 +8543,12 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
   ColumnFilters<int> get reminderMinutesBefore => $composableBuilder(
     column: $table.reminderMinutesBefore,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ReminderMode, ReminderMode, String>
+  get reminderMode => $composableBuilder(
+    column: $table.reminderMode,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<int> get estimatedPomodoros => $composableBuilder(
@@ -8773,6 +8839,11 @@ class $$TasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get reminderMode => $composableBuilder(
+    column: $table.reminderMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get estimatedPomodoros => $composableBuilder(
     column: $table.estimatedPomodoros,
     builder: (column) => ColumnOrderings(column),
@@ -8884,6 +8955,12 @@ class $$TasksTableAnnotationComposer
     column: $table.reminderMinutesBefore,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<ReminderMode, String> get reminderMode =>
+      $composableBuilder(
+        column: $table.reminderMode,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<int> get estimatedPomodoros => $composableBuilder(
     column: $table.estimatedPomodoros,
@@ -9131,6 +9208,7 @@ class $$TasksTableTableManager
                 Value<bool> hasTime = const Value.absent(),
                 Value<String?> recurrenceRule = const Value.absent(),
                 Value<int?> reminderMinutesBefore = const Value.absent(),
+                Value<ReminderMode> reminderMode = const Value.absent(),
                 Value<int?> estimatedPomodoros = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
@@ -9155,6 +9233,7 @@ class $$TasksTableTableManager
                 hasTime: hasTime,
                 recurrenceRule: recurrenceRule,
                 reminderMinutesBefore: reminderMinutesBefore,
+                reminderMode: reminderMode,
                 estimatedPomodoros: estimatedPomodoros,
                 sortOrder: sortOrder,
                 completedAt: completedAt,
@@ -9181,6 +9260,7 @@ class $$TasksTableTableManager
                 Value<bool> hasTime = const Value.absent(),
                 Value<String?> recurrenceRule = const Value.absent(),
                 Value<int?> reminderMinutesBefore = const Value.absent(),
+                Value<ReminderMode> reminderMode = const Value.absent(),
                 Value<int?> estimatedPomodoros = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
@@ -9205,6 +9285,7 @@ class $$TasksTableTableManager
                 hasTime: hasTime,
                 recurrenceRule: recurrenceRule,
                 reminderMinutesBefore: reminderMinutesBefore,
+                reminderMode: reminderMode,
                 estimatedPomodoros: estimatedPomodoros,
                 sortOrder: sortOrder,
                 completedAt: completedAt,
