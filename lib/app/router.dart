@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/books/book_page.dart';
 import '../features/books/books_page.dart';
-import '../features/books/note_page_page.dart';
+import '../features/books/page_editor_page.dart';
 import '../features/calendar/agenda_page.dart';
 import '../features/cards/cards_list_page.dart';
 import '../features/cards/review_page.dart';
@@ -43,7 +44,9 @@ abstract final class Routes {
       Uri(path: '/cards', queryParameters: {'deck': ?deckId}).toString();
   static String pomodoro({String? taskId}) =>
       Uri(path: '/pomodoro', queryParameters: {'tarefa': ?taskId}).toString();
-  static String page(String id) => '/pagina/$id';
+  static String page(String id, {bool edit = false}) =>
+      edit ? '/pagina/$id?editar=1' : '/pagina/$id';
+  static String book(String id) => '/book/$id';
 
   /// Formulário de nova tarefa, opcionalmente como subtarefa ou com prazo hoje.
   static String newTask({String? parentId, bool dueToday = false}) => Uri(
@@ -113,8 +116,16 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
       GoRoute(
         path: '/pagina/:id',
         parentNavigatorKey: rootKey,
+        builder: (_, state) => PageEditorPage(
+          pageId: state.pathParameters['id']!,
+          startEditing: state.uri.queryParameters['editar'] == '1',
+        ),
+      ),
+      GoRoute(
+        path: '/book/:id',
+        parentNavigatorKey: rootKey,
         builder: (_, state) =>
-            NotePagePage(pageId: state.pathParameters['id']!),
+            BookPage(notebookId: state.pathParameters['id']!),
       ),
       // Tarefas abrem em tela cheia, por cima das abas. `nova` vem antes de
       // `:id` para não ser lida como id.

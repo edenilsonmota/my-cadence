@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -44,6 +45,12 @@ Future<AppDatabase> pumpApp(
   );
   if (seed != null) await tester.runAsync(() => seed(db));
 
+  // Plugin de altura do teclado (usado pela barra do editor) não existe no
+  // ambiente de teste.
+  tester.binding.defaultBinaryMessenger.setMockStreamHandler(
+    const EventChannel('keyboardHeightEventChannel'),
+    MockStreamHandler.inline(onListen: (_, _) {}),
+  );
   tester.view.physicalSize = const Size(360, 720);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);

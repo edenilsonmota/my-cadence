@@ -24,7 +24,8 @@ Tudo funciona sem internet e fica no próprio aparelho. A sincronização com um
 | Banco local | drift (SQLite) |
 | Repetição espaçada | `fsrs` |
 | Notificações | `flutter_local_notifications` + `timezone` |
-| Editor de páginas | AppFlowy Editor (a definir na Etapa 7) |
+| Editor de páginas | AppFlowy Editor ([fork](https://github.com/edenilsonmota/appflowy-editor/tree/cadence/file-picker-13) com suporte a file_picker 13) |
+| Arquivos | `file_picker` (CSV, Markdown, zip) e `archive` |
 
 Os pacotes entram no projeto conforme cada etapa precisa deles.
 

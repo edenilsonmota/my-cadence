@@ -109,6 +109,23 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   primeira revisão de cada card hoje). Ajustes com prefixo `cards.` (`CardSettings`).
 - `clockProvider`/`tickerProvider` ficam em `lib/app/clock.dart`.
 
+## Books (AppFlowy Editor)
+
+- O editor vem do **fork** `edenilsonmota/appflowy-editor`, branch `cadence/file-picker-13`, fixado
+  por commit no `pubspec.yaml` (o pub.dev 6.2.0 não compila no Flutter 3.44+ e prende file_picker 10).
+  O fork só adapta o uso do file_picker 13 / device_info_plus 13; os arquivos do editor seguem MPL-2.0.
+  Para atualizar: rebasear o branch no `main` oficial, rodar `flutter test` no fork, trocar o commit aqui.
+- Plugins Android antigos compilam com `compileSdk 37` forçado em `android/build.gradle.kts`.
+- Fonte da verdade da página: JSON do editor (`contentFromDocument`/`documentFromContent`).
+  Markdown só em `book_markdown.dart`; exportar **sempre** com `lineBreak: '\n'` (sem linha em branco,
+  dois parágrafos voltam como um).
+- Zip do book: um `.md` por página, nome `01.02 - Título.md` (posição na árvore), que a importação
+  usa para refazer a hierarquia.
+- Editor salva com `DebouncedSaver` (800 ms) e no `dispose`; grava só título e conteúdo
+  (`savePageContent`). Ao tocar no menu o editor perde a seleção: o último trecho fica guardado.
+- Testes com o editor: `pumpApp` simula o canal `keyboardHeightEventChannel`; pegar o `EditorState`
+  com `tester.widget<AppFlowyEditor>(...).editorState` e aplicar transações.
+
 ## UI e testes
 
 - Telas leem providers (`features/<domínio>/*_providers.dart`); ações chamam o repositório via

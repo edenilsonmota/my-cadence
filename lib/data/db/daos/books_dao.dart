@@ -30,6 +30,25 @@ class BooksDao extends DatabaseAccessor<AppDatabase> with _$BooksDaoMixin {
     await softDeleteSynced(notebooks, id);
   });
 
+  Stream<Notebook?> watchNotebook(String id) => (select(
+    notebooks,
+  )..where((n) => n.id.equals(id) & n.deletedAt.isNull())).watchSingleOrNull();
+
+  Stream<NotePage?> watchPage(String id) => (select(
+    notePages,
+  )..where((p) => p.id.equals(id) & p.deletedAt.isNull())).watchSingleOrNull();
+
+  /// Grava `sortOrder` = posição, para as páginas em [orderedIds].
+  Future<void> reorderPages(List<String> orderedIds) => transaction(() async {
+    for (final (index, id) in orderedIds.indexed) {
+      await updateSynced(
+        notePages,
+        id,
+        NotePagesCompanion(sortOrder: Value(index)),
+      );
+    }
+  });
+
   /// Books (cadernos que não pertencem a uma tarefa).
   Stream<List<Notebook>> watchBooks() =>
       (select(notebooks)

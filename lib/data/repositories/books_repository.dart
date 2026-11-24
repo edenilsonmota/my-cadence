@@ -13,6 +13,11 @@ class BooksRepository {
   // Cadernos
 
   Stream<List<Notebook>> watchBooks() => _dao.watchBooks();
+  Stream<Notebook?> watchNotebook(String id) => _dao.watchNotebook(id);
+
+  /// Executa [action] numa transação (ex.: importar um book inteiro).
+  Future<T> transaction<T>(Future<T> Function() action) =>
+      _dao.transaction(action);
 
   Future<String> createBook({required String title, String? icon}) async {
     final id = newId();
@@ -58,6 +63,11 @@ class BooksRepository {
   // Páginas
 
   Future<NotePage?> getPage(String id) => _dao.getPage(id);
+  Stream<NotePage?> watchPage(String id) => _dao.watchPage(id);
+
+  /// Nova ordem das irmãs (posição na lista = `sortOrder`).
+  Future<void> reorderPages(List<String> orderedIds) =>
+      _dao.reorderPages(orderedIds);
   Stream<List<NotePage>> watchPages(String notebookId) =>
       _dao.watchPages(notebookId);
 
@@ -91,6 +101,17 @@ class BooksRepository {
       content: Value(page.content),
       sortOrder: Value(page.sortOrder),
     ),
+  );
+
+  /// Grava só título e conteúdo (o editor não mexe em ordem nem em pai, e
+  /// assim não desfaz uma reordenação feita em outra tela).
+  Future<void> savePageContent(
+    String id, {
+    required String title,
+    required String content,
+  }) => _dao.updatePage(
+    id,
+    NotePagesCompanion(title: Value(title), content: Value(content)),
   );
 
   /// Exclui a página e todas as subpáginas.

@@ -28,6 +28,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  # Fork com suporte a file_picker 13 / win32 6 (o pub.dev 6.2.0 não compila
+  # no Flutter 3.44+). Fixado num commit; ver docs/PLANO.md, Etapa 7.
+  appflowy_editor:
+    git:
+      url: https://github.com/edenilsonmota/appflowy-editor.git
+      ref: 82d3c27e137d033a61ebe06227e1a219de95f12c
+    version: ^6.1.0
   flutter:
     sdk: flutter
 
@@ -44,6 +51,7 @@ dependencies:
   wakelock_plus: ^1.8.2
   fsrs: ^2.0.1
   file_picker: ^13.4.1
+  archive: ^4.7.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -56,6 +64,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   drift_dev: ^2.35.3
   build_runner: ^2.17.1
+  fake_async: ^1.3.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

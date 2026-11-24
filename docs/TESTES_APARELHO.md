@@ -148,6 +148,25 @@ notificação chega.** Para testar rápido, em Ajustes deixar Foco = 1 min e Pau
 - [x] **6.7  (23/11: deck e tarefa no painel; tarefa já preenchida vindo do hub.)6.7 Painel do card com teclado.** Criar e editar card: o painel sobe com o teclado; deck e
   tarefa vinculada podem ser trocados.
 
+## Pendentes: Etapa 7 (books com AppFlowy)
+
+Editor vem do fork `edenilsonmota/appflowy-editor` (branch `cadence/file-picker-13`), fixado no commit
+`82d3c27`. O APK compila; falta ver o editor no aparelho (o celular estava em uso).
+
+- [ ] **7.1 Editar no celular.** Novo book → Nova página: o editor abre em modo edição com o teclado;
+  a barra móvel (estilos, cores, blocos, link, divisor) aparece acima do teclado e funciona; títulos,
+  listas e citação ficam certos no tema escuro e no claro (texto legível nos dois).
+- [ ] **7.2 Seleção.** Selecionar um trecho mostra a barra flutuante com Copiar, Recortar, Colar e
+  "Criar flashcard"; "Criar flashcard" abre o painel com o trecho na frente ou no verso.
+- [ ] **7.3 Salvamento.** Escrever, esperar 1 s e matar o app (`am kill`): ao reabrir, o texto está lá.
+  Escrever e sair logo pelo "voltar": também salvo.
+- [ ] **7.4 Modo leitura.** O olho alterna para leitura: sem teclado, sem barras; o lápis volta a editar.
+- [ ] **7.5 Exportar.** Exportar página (.md) e book (.zip) abre o "Salvar como" do sistema e o arquivo
+  abre certo em outro app (ex.: um leitor de Markdown).
+- [ ] **7.6 Importar.** Importar na aba Books o zip exportado (e também arquivos .md soltos de outra
+  origem): mesma árvore e conteúdo.
+- [ ] **7.7 Livro longo.** Página com umas 300 linhas: rolar e digitar continuam fluidos.
+
 ## Limitações conhecidas (não são bugs)
 
 - iOS: configuração feita, mas nada foi compilado nem testado (o ambiente é Linux).

@@ -149,6 +149,7 @@ class HubTools extends ConsumerWidget {
         if (visible.pages)
           _PagesSection(
             taskId: task.id,
+            notebookId: notebook?.id,
             ownPages: ownPages,
             linked: linked,
             onAdd: addPage,
@@ -318,12 +319,14 @@ class _PomodoroSection extends StatelessWidget {
 class _PagesSection extends ConsumerWidget {
   const _PagesSection({
     required this.taskId,
+    required this.notebookId,
     required this.ownPages,
     required this.linked,
     required this.onAdd,
   });
 
   final String taskId;
+  final String? notebookId;
   final List<NotePage> ownPages;
   final List<NotePage> linked;
   final VoidCallback onAdd;
@@ -360,6 +363,12 @@ class _PagesSection extends ConsumerWidget {
             label: const Text('Página'),
             onPressed: onAdd,
           ),
+          if (notebookId case final id?)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.menu_book_outlined),
+              label: const Text('Abrir caderno'),
+              onPressed: () => context.push(Routes.book(id)),
+            ),
           OutlinedButton.icon(
             icon: const Icon(Icons.link),
             label: const Text('Vincular página existente'),

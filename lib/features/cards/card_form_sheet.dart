@@ -24,6 +24,8 @@ Future<CardFormResult?> showCardForm(
   Flashcard? editing,
   String? deckId,
   String? taskId,
+  String? initialFront,
+  String? initialBack,
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<CardFormResult>(
@@ -34,6 +36,8 @@ Future<CardFormResult?> showCardForm(
       editing: editing,
       deckId: editing?.deckId ?? deckId,
       taskId: editing?.taskId ?? taskId,
+      initialFront: initialFront,
+      initialBack: initialBack,
     ),
   );
 }
@@ -43,19 +47,27 @@ class _CardForm extends ConsumerStatefulWidget {
     required this.editing,
     required this.deckId,
     required this.taskId,
+    this.initialFront,
+    this.initialBack,
   });
 
   final Flashcard? editing;
   final String? deckId;
   final String? taskId;
+  final String? initialFront;
+  final String? initialBack;
 
   @override
   ConsumerState<_CardForm> createState() => _CardFormState();
 }
 
 class _CardFormState extends ConsumerState<_CardForm> {
-  late final _front = TextEditingController(text: widget.editing?.front);
-  late final _back = TextEditingController(text: widget.editing?.back);
+  late final _front = TextEditingController(
+    text: widget.editing?.front ?? widget.initialFront,
+  );
+  late final _back = TextEditingController(
+    text: widget.editing?.back ?? widget.initialBack,
+  );
   late String? _deckId = widget.deckId;
   late String? _taskId = widget.taskId;
 

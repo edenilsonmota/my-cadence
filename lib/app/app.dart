@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +51,10 @@ class _CadenceAppState extends ConsumerState<CadenceApp> {
       darkTheme: buildTheme(Brightness.dark),
       locale: const Locale('pt', 'BR'),
       supportedLocales: const [Locale('pt', 'BR')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      localizationsDelegates: const [
+        ...GlobalMaterialLocalizations.delegates,
+        AppFlowyEditorLocalizations.delegate,
+      ],
       routerConfig: ref.watch(routerProvider),
     );
   }
