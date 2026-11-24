@@ -290,22 +290,18 @@ alarme padrão, modo do calendário etc.).
 - Estados vazios, onboarding curto, haptics, acessibilidade (tamanhos de fonte), performance (listas grandes, editor longo).
 - Ícone e splash.
 
-### Etapa 11: Sincronização com backend Go
-Fazer em **repositório separado** (`my-cadence-api`) ou pasta `backend/` (decidir comigo).
-- **Backend**: Go + PostgreSQL, autenticação JWT (login simples, um usuário por conta), migrações (`golang-migrate`),
-  mesmas tabelas com `user_id` e coluna `server_version BIGINT` preenchida por uma sequence global a cada escrita.
-- **Protocolo** (por linha, last-write-wins por `updatedAt`):
-  - `POST /sync/push` → envia linhas com `dirty = true` (incluindo tombstones); o servidor aplica se
-    `updatedAt` recebido ≥ atual e devolve as `server_version` atribuídas.
-  - `GET /sync/pull?since=<cursor>` → devolve tudo com `server_version > cursor`, paginado; o cliente grava, marca
-    `dirty = false` e guarda o novo cursor em `AppSettings`.
-  - Ao receber a confirmação do push, só marcar `dirty = false` se o `updatedAt` local ainda for igual ao enviado
-    (senão uma edição feita durante o push se perde).
-  - Ordem: push e depois pull. Rodar ao abrir o app, ao voltar do background e por botão manual.
-- **Conteúdo das páginas**: no MVP, LWW pela página inteira. Depois avaliar o `appflowy_editor_sync_plugin`
-  ou CRDT se eu editar a mesma página em dois aparelhos.
-- Indicador de status de sync e tela de conflitos simples (log do que foi sobrescrito).
-- Testes: servidor com testes de integração (Postgres em container) e cliente com servidor fake.
+### Etapa 11: Sincronização via Google Drive + JSON manual
+Especificação completa em **`docs/SINCRONIZACAO.md`** (seguir as fases da seção 9 de lá, uma por vez).
+- **Sem backend próprio.** Os dados ficam num snapshot JSON compactado na `appDataFolder` do Google Drive da pessoa
+  (escopo `drive.appdata`, não sensível, gratuito, usa o espaço da conta Google).
+- Mesclagem linha a linha por `updatedAt` (vence o mais recente), com tombstones (`deletedAt`), desempate determinístico
+  e aplicação em transação com chaves estrangeiras adiadas. Motor puro e testado.
+- **Exportar/importar JSON** no mesmo formato, com prévia e opção mesclar (padrão) ou substituir (com backup automático antes).
+- **Conta Google na interface**: avatar com a foto de perfil no cabeçalho, com o status do sync; bottom sheet com
+  "Sincronizar agora", sincronização automática, trocar conta, desconectar e backup manual.
+- Sincroniza ao abrir o app, ao voltar do segundo plano, após alterações (debounce) e manualmente; funciona offline e
+  tenta de novo depois.
+- A coluna `serverVersion` fica reservada, sem uso.
 
 ---
 
