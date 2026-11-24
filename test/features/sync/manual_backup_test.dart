@@ -8,6 +8,7 @@ import 'package:my_cadence/features/sync/application/manual_backup.dart';
 import 'package:my_cadence/features/sync/data/file_transport.dart';
 import 'package:my_cadence/features/sync/data/snapshot_repository.dart';
 import 'package:my_cadence/features/sync/domain/snapshot.dart';
+import 'package:my_cadence/features/sync/domain/upgraders.dart';
 import 'package:my_cadence/features/sync/sync_providers.dart';
 import 'package:my_cadence/shared/file_access.dart';
 
@@ -189,7 +190,10 @@ void main() {
     clock = clock.add(const Duration(hours: 25));
     final f = await backup().autoBackupIfDue();
     expect(f, isNotNull);
-    expect(BackupFile.decode(await f!.readAsBytes()).schemaVersion, 2);
+    expect(
+      BackupFile.decode(await f!.readAsBytes()).schemaVersion,
+      currentSchemaVersion,
+    );
   });
 
   testWidgets('restaurar uma cópia guardada passa pela prévia', (tester) async {

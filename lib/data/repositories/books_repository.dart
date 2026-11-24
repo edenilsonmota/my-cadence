@@ -124,6 +124,10 @@ class BooksRepository {
     NotePagesCompanion(title: Value(title), content: Value(content)),
   );
 
+  /// Troca o ícone da página (`null` = ícone padrão).
+  Future<void> setPageIcon(String id, String? iconKey) =>
+      _dao.updatePage(id, NotePagesCompanion(iconKey: Value(iconKey)));
+
   /// Exclui a página e todas as subpáginas.
   Future<void> deletePage(String id) => _dao.softDeletePageTree(id);
 

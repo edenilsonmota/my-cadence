@@ -4888,6 +4888,17 @@ class $NotePagesTable extends NotePages
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _iconKeyMeta = const VerificationMeta(
+    'iconKey',
+  );
+  @override
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+    'icon_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4901,6 +4912,7 @@ class $NotePagesTable extends NotePages
     title,
     content,
     sortOrder,
+    iconKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4987,6 +4999,12 @@ class $NotePagesTable extends NotePages
         sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
       );
     }
+    if (data.containsKey('icon_key')) {
+      context.handle(
+        _iconKeyMeta,
+        iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta),
+      );
+    }
     return context;
   }
 
@@ -5040,6 +5058,10 @@ class $NotePagesTable extends NotePages
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      iconKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_key'],
+      ),
     );
   }
 
@@ -5065,6 +5087,9 @@ class NotePage extends DataClass implements Insertable<NotePage> {
   /// JSON do documento do editor (fonte da verdade da página).
   final String content;
   final int sortOrder;
+
+  /// Chave do catálogo de ícones (`IconCatalog`); sem ícone, o de página.
+  final String? iconKey;
   const NotePage({
     required this.id,
     required this.createdAt,
@@ -5077,6 +5102,7 @@ class NotePage extends DataClass implements Insertable<NotePage> {
     required this.title,
     required this.content,
     required this.sortOrder,
+    this.iconKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5098,6 +5124,9 @@ class NotePage extends DataClass implements Insertable<NotePage> {
     map['title'] = Variable<String>(title);
     map['content'] = Variable<String>(content);
     map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || iconKey != null) {
+      map['icon_key'] = Variable<String>(iconKey);
+    }
     return map;
   }
 
@@ -5120,6 +5149,9 @@ class NotePage extends DataClass implements Insertable<NotePage> {
       title: Value(title),
       content: Value(content),
       sortOrder: Value(sortOrder),
+      iconKey: iconKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconKey),
     );
   }
 
@@ -5140,6 +5172,7 @@ class NotePage extends DataClass implements Insertable<NotePage> {
       title: serializer.fromJson<String>(json['title']),
       content: serializer.fromJson<String>(json['content']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      iconKey: serializer.fromJson<String?>(json['iconKey']),
     );
   }
   @override
@@ -5157,6 +5190,7 @@ class NotePage extends DataClass implements Insertable<NotePage> {
       'title': serializer.toJson<String>(title),
       'content': serializer.toJson<String>(content),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'iconKey': serializer.toJson<String?>(iconKey),
     };
   }
 
@@ -5172,6 +5206,7 @@ class NotePage extends DataClass implements Insertable<NotePage> {
     String? title,
     String? content,
     int? sortOrder,
+    Value<String?> iconKey = const Value.absent(),
   }) => NotePage(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -5186,6 +5221,7 @@ class NotePage extends DataClass implements Insertable<NotePage> {
     title: title ?? this.title,
     content: content ?? this.content,
     sortOrder: sortOrder ?? this.sortOrder,
+    iconKey: iconKey.present ? iconKey.value : this.iconKey,
   );
   NotePage copyWithCompanion(NotePagesCompanion data) {
     return NotePage(
@@ -5206,6 +5242,7 @@ class NotePage extends DataClass implements Insertable<NotePage> {
       title: data.title.present ? data.title.value : this.title,
       content: data.content.present ? data.content.value : this.content,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
     );
   }
 
@@ -5222,7 +5259,8 @@ class NotePage extends DataClass implements Insertable<NotePage> {
           ..write('parentPageId: $parentPageId, ')
           ..write('title: $title, ')
           ..write('content: $content, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('iconKey: $iconKey')
           ..write(')'))
         .toString();
   }
@@ -5240,6 +5278,7 @@ class NotePage extends DataClass implements Insertable<NotePage> {
     title,
     content,
     sortOrder,
+    iconKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -5255,7 +5294,8 @@ class NotePage extends DataClass implements Insertable<NotePage> {
           other.parentPageId == this.parentPageId &&
           other.title == this.title &&
           other.content == this.content &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.iconKey == this.iconKey);
 }
 
 class NotePagesCompanion extends UpdateCompanion<NotePage> {
@@ -5270,6 +5310,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
   final Value<String> title;
   final Value<String> content;
   final Value<int> sortOrder;
+  final Value<String?> iconKey;
   final Value<int> rowid;
   const NotePagesCompanion({
     this.id = const Value.absent(),
@@ -5283,6 +5324,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
     this.title = const Value.absent(),
     this.content = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.iconKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NotePagesCompanion.insert({
@@ -5297,6 +5339,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
     required String title,
     this.content = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.iconKey = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : notebookId = Value(notebookId),
        title = Value(title);
@@ -5312,6 +5355,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
     Expression<String>? title,
     Expression<String>? content,
     Expression<int>? sortOrder,
+    Expression<String>? iconKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5326,6 +5370,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
       if (title != null) 'title': title,
       if (content != null) 'content': content,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (iconKey != null) 'icon_key': iconKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5342,6 +5387,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
     Value<String>? title,
     Value<String>? content,
     Value<int>? sortOrder,
+    Value<String?>? iconKey,
     Value<int>? rowid,
   }) {
     return NotePagesCompanion(
@@ -5356,6 +5402,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
       title: title ?? this.title,
       content: content ?? this.content,
       sortOrder: sortOrder ?? this.sortOrder,
+      iconKey: iconKey ?? this.iconKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5396,6 +5443,9 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5416,6 +5466,7 @@ class NotePagesCompanion extends UpdateCompanion<NotePage> {
           ..write('title: $title, ')
           ..write('content: $content, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('iconKey: $iconKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -11934,6 +11985,7 @@ typedef $$NotePagesTableCreateCompanionBuilder = NotePagesCompanion Function({
   required String title,
   Value<String> content,
   Value<int> sortOrder,
+  Value<String?> iconKey,
   Value<int> rowid,
 });
 typedef $$NotePagesTableUpdateCompanionBuilder = NotePagesCompanion Function({
@@ -11948,6 +12000,7 @@ typedef $$NotePagesTableUpdateCompanionBuilder = NotePagesCompanion Function({
   Value<String> title,
   Value<String> content,
   Value<int> sortOrder,
+  Value<String?> iconKey,
   Value<int> rowid,
 });
 
@@ -12077,6 +12130,11 @@ class $$NotePagesTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12231,6 +12289,11 @@ class $$NotePagesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$NotebooksTableOrderingComposer get notebookId {
     final $$NotebooksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -12315,6 +12378,9 @@ class $$NotePagesTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
 
   $$NotebooksTableAnnotationComposer get notebookId {
     final $$NotebooksTableAnnotationComposer composer = $composerBuilder(
@@ -12457,6 +12523,7 @@ class $$NotePagesTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotePagesCompanion(
                 id: id,
@@ -12470,6 +12537,7 @@ class $$NotePagesTableTableManager
                 title: title,
                 content: content,
                 sortOrder: sortOrder,
+                iconKey: iconKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -12485,6 +12553,7 @@ class $$NotePagesTableTableManager
                 required String title,
                 Value<String> content = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotePagesCompanion.insert(
                 id: id,
@@ -12498,6 +12567,7 @@ class $$NotePagesTableTableManager
                 title: title,
                 content: content,
                 sortOrder: sortOrder,
+                iconKey: iconKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

@@ -1123,8 +1123,365 @@ i1.GeneratedColumn<String> _column_56(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NOT NULL',
     );
+
+final class Schema3 extends i0.VersionedSchema {
+  Schema3({required super.database}) : super(version: 3);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    tasks,
+    taskCompletions,
+    tags,
+    taskTags,
+    pomodoroSessions,
+    decks,
+    notebooks,
+    notePages,
+    flashcards,
+    reviewLogs,
+    taskPageLinks,
+    appSettings,
+    tasksParentId,
+    tasksDueAt,
+    pomodoroSessionsTaskStarted,
+    flashcardsDue,
+    flashcardsTaskId,
+    notePagesNotebookSort,
+  ];
+  late final Shape0 tasks = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'tasks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_16,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_20,
+        _column_21,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 taskCompletions = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'task_completions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_22,
+        _column_23,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 tags = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'tags',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_24,
+        _column_25,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape3 taskTags = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'task_tags',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(task_id, tag_id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_22,
+        _column_26,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 pomodoroSessions = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'pomodoro_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_27,
+        _column_28,
+        _column_29,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_34,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape5 decks = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'decks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_24,
+        _column_35,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 notebooks = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'notebooks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_7,
+        _column_27,
+        _column_20,
+        _column_21,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 notePages = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'note_pages',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_36,
+        _column_37,
+        _column_7,
+        _column_38,
+        _column_18,
+        _column_21,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape8 flashcards = Shape8(
+    source: i0.VersionedTable(
+      entityName: 'flashcards',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_39,
+        _column_27,
+        _column_40,
+        _column_41,
+        _column_42,
+        _column_43,
+        _column_44,
+        _column_45,
+        _column_46,
+        _column_47,
+        _column_48,
+        _column_49,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 reviewLogs = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'review_logs',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_50,
+        _column_51,
+        _column_52,
+        _column_53,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape10 taskPageLinks = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'task_page_links',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(task_id, page_id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_22,
+        _column_54,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 appSettings = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'app_settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_55,
+        _column_56,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Index tasksParentId = i1.Index(
+    'tasks_parent_id',
+    'CREATE INDEX tasks_parent_id ON tasks (parent_id)',
+  );
+  final i1.Index tasksDueAt = i1.Index(
+    'tasks_due_at',
+    'CREATE INDEX tasks_due_at ON tasks (due_at)',
+  );
+  final i1.Index pomodoroSessionsTaskStarted = i1.Index(
+    'pomodoro_sessions_task_started',
+    'CREATE INDEX pomodoro_sessions_task_started ON pomodoro_sessions (task_id, started_at)',
+  );
+  final i1.Index flashcardsDue = i1.Index(
+    'flashcards_due',
+    'CREATE INDEX flashcards_due ON flashcards (due)',
+  );
+  final i1.Index flashcardsTaskId = i1.Index(
+    'flashcards_task_id',
+    'CREATE INDEX flashcards_task_id ON flashcards (task_id)',
+  );
+  final i1.Index notePagesNotebookSort = i1.Index(
+    'note_pages_notebook_sort',
+    'CREATE INDEX note_pages_notebook_sort ON note_pages (notebook_id, sort_order)',
+  );
+}
+
+class Shape12 extends i0.VersionedTable {
+  Shape12({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get deletedAt =>
+      columnsByName['deleted_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get dirty =>
+      columnsByName['dirty']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get serverVersion =>
+      columnsByName['server_version']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get notebookId =>
+      columnsByName['notebook_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get parentPageId =>
+      columnsByName['parent_page_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get title =>
+      columnsByName['title']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get content =>
+      columnsByName['content']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get sortOrder =>
+      columnsByName['sort_order']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get iconKey =>
+      columnsByName['icon_key']! as i1.GeneratedColumn<String>;
+}
+
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -1133,6 +1490,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from1To2(migrator, schema);
         return 2;
+      case 2:
+        final schema = Schema3(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from2To3(migrator, schema);
+        return 3;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -1141,6 +1503,7 @@ i0.MigrationStepWithVersion migrationSteps({
 
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) => i0.VersionedSchema.stepByStepHelper(
-  step: migrationSteps(from1To2: from1To2),
+  step: migrationSteps(from1To2: from1To2, from2To3: from2To3),
 );

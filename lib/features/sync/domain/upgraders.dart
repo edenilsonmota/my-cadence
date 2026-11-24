@@ -5,14 +5,23 @@ import 'snapshot.dart';
 
 /// Esquema do banco nesta versão do app (igual a `AppDatabase.schemaVersion`;
 /// um teste garante que andam juntos).
-const currentSchemaVersion = 2;
+const currentSchemaVersion = 3;
 
 typedef SnapshotUpgrader = Map<String, List<SyncRow>> Function(
   Map<String, List<SyncRow>> tables,
 );
 
 /// `upgraders[n]` leva as linhas da versão n para a n + 1.
-final Map<int, SnapshotUpgrader> upgraders = {1: _v1ToV2};
+final Map<int, SnapshotUpgrader> upgraders = {1: _v1ToV2, 2: _v2ToV3};
+
+/// v2 → v3: páginas ganham `icon_key` (vazio).
+Map<String, List<SyncRow>> _v2ToV3(Map<String, List<SyncRow>> tables) => {
+  ...tables,
+  'note_pages': [
+    for (final row in tables['note_pages'] ?? const <SyncRow>[])
+      {...row, 'icon_key': row['icon_key']},
+  ],
+};
 
 /// O snapshot no esquema [target], aplicando os upgraders em sequência.
 /// Lança [SnapshotFormatException] se for de um esquema mais novo.

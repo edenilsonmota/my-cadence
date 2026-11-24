@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/books_repository.dart';
 import '../../shared/debounced_saver.dart';
+import '../../shared/widgets/appearance_picker.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../cards/card_form_sheet.dart';
@@ -202,6 +204,25 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
       ..showSnackBar(const SnackBar(content: Text('Flashcard criado.')));
   }
 
+  Future<void> _pickIcon() async {
+    final page = _page;
+    if (page == null) return;
+    final book = ref.read(notebookProvider(page.notebookId)).value;
+    final choice = await showAppearancePicker(
+      context,
+      colorKey: null,
+      iconKey: page.iconKey,
+      inheritedColor: book?.colorKey ?? defaultBookColor,
+      inheritedIcon: AppIcons.page,
+      withColor: false,
+    );
+    if (choice == null) return;
+    await _repo.setPageIcon(page.id, choice.iconKey);
+    if (mounted) {
+      setState(() => _page = page.copyWith(iconKey: Value(choice.iconKey)));
+    }
+  }
+
   Future<void> _linkTask() async {
     final picked = await pickTask(
       context,
@@ -295,6 +316,11 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
         .strong;
     final header = _Header(
       pageId: widget.pageId,
+      icon: page.iconKey == null
+          ? null
+          : AppIcons.of(page.iconKey, fallback: AppIcons.page),
+      iconColor: bookColor,
+      onIconTap: _pickIcon,
       title: _title,
       editing: _editing,
       onTitleChanged: (_) => _saver.schedule(),
@@ -331,6 +357,7 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
             onSelected: (v) => switch (v) {
               'card' => _createCardFromSelection(),
               'vincular' => _linkTask(),
+              'icone' => _pickIcon(),
               'exportar' => _saver.flush().then((_) async {
                 final fresh = await _repo.getPage(widget.pageId);
                 if (fresh != null && context.mounted) {
@@ -352,6 +379,7 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
                 value: 'vincular',
                 child: Text('Vincular a tarefa'),
               ),
+              PopupMenuItem(value: 'icone', child: Text('Ícone')),
               PopupMenuItem(value: 'exportar', child: Text('Exportar (.md)')),
               PopupMenuItem(value: 'excluir', child: Text('Excluir página')),
             ],
@@ -444,12 +472,18 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
 class _Header extends ConsumerWidget {
   const _Header({
     required this.pageId,
+    required this.icon,
+    required this.iconColor,
+    required this.onIconTap,
     required this.title,
     required this.editing,
     required this.onTitleChanged,
   });
 
   final String pageId;
+  final IconData? icon;
+  final Color iconColor;
+  final VoidCallback onIconTap;
   final TextEditingController title;
   final bool editing;
   final ValueChanged<String> onTitleChanged;
@@ -464,6 +498,14 @@ class _Header extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (icon case final icon?)
+            IconButton(
+              tooltip: 'Ícone da página',
+              padding: EdgeInsets.zero,
+              alignment: Alignment.centerLeft,
+              onPressed: onIconTap,
+              icon: Icon(icon, size: AppIconSize.feature, color: iconColor),
+            ),
           if (editing)
             TextField(
               controller: title,

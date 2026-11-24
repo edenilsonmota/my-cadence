@@ -30,6 +30,9 @@ class NotePages extends Table with SyncColumns {
   /// JSON do documento do editor (fonte da verdade da página).
   TextColumn get content => text().withDefault(const Constant(''))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// Chave do catálogo de ícones (`IconCatalog`); sem ícone, o de página.
+  TextColumn get iconKey => text().nullable()();
 }
 
 /// Página de um book vinculada a uma tarefa.

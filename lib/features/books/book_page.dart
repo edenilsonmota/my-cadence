@@ -133,7 +133,10 @@ class _PageTile extends ConsumerWidget {
         end: 4,
       ),
       leading: Icon(
-        depth == 0 ? AppIcons.page : AppIcons.subtask,
+        AppIcons.of(
+          page.iconKey,
+          fallback: depth == 0 ? AppIcons.page : AppIcons.subtask,
+        ),
         color: color,
       ),
       title: Text(page.title, maxLines: 2, overflow: TextOverflow.ellipsis),

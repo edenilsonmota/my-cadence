@@ -18,6 +18,7 @@ Future<AppearanceChoice?> showAppearancePicker(
   required String inheritedColor,
   required IconData inheritedIcon,
   bool withIcon = true,
+  bool withColor = true,
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<AppearanceChoice>(
@@ -29,6 +30,7 @@ Future<AppearanceChoice?> showAppearancePicker(
       inheritedColor: inheritedColor,
       inheritedIcon: inheritedIcon,
       withIcon: withIcon,
+      withColor: withColor,
     ),
   );
 }
@@ -40,6 +42,7 @@ class _AppearancePicker extends StatefulWidget {
     required this.inheritedColor,
     required this.inheritedIcon,
     required this.withIcon,
+    this.withColor = true,
   });
 
   final String? colorKey;
@@ -47,6 +50,7 @@ class _AppearancePicker extends StatefulWidget {
   final String inheritedColor;
   final IconData inheritedIcon;
   final bool withIcon;
+  final bool withColor;
 
   @override
   State<_AppearancePicker> createState() => _AppearancePickerState();
@@ -93,7 +97,11 @@ class _AppearancePickerState extends State<_AppearancePicker> {
               SizedBox(width: space.lg),
               Expanded(
                 child: Text(
-                  widget.withIcon ? 'Ícone e cor' : 'Cor',
+                  !widget.withColor
+                      ? 'Ícone'
+                      : widget.withIcon
+                      ? 'Ícone e cor'
+                      : 'Cor',
                   style: context.text.titleLarge,
                 ),
               ),
@@ -106,46 +114,48 @@ class _AppearancePickerState extends State<_AppearancePicker> {
               ),
             ],
           ),
-          SizedBox(height: space.lg),
-          Text('COR', style: context.type.section),
-          SizedBox(height: space.sm),
-          Wrap(
-            spacing: space.sm,
-            runSpacing: space.sm,
-            children: [
-              for (final key in PaletteKey.values)
-                Semantics(
-                  button: true,
-                  selected: _color == key.name,
-                  label: key.label,
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => setState(() => _color = key.name),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: palette.of(key).strong,
-                        shape: BoxShape.circle,
-                        border: _color == key.name
-                            ? Border.all(
-                                color: context.colors.onSurface,
-                                width: 2.5,
+          if (widget.withColor) ...[
+            SizedBox(height: space.lg),
+            Text('COR', style: context.type.section),
+            SizedBox(height: space.sm),
+            Wrap(
+              spacing: space.sm,
+              runSpacing: space.sm,
+              children: [
+                for (final key in PaletteKey.values)
+                  Semantics(
+                    button: true,
+                    selected: _color == key.name,
+                    label: key.label,
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => setState(() => _color = key.name),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: palette.of(key).strong,
+                          shape: BoxShape.circle,
+                          border: _color == key.name
+                              ? Border.all(
+                                  color: context.colors.onSurface,
+                                  width: 2.5,
+                                )
+                              : null,
+                        ),
+                        child: _color == key.name
+                            ? Icon(
+                                AppIcons.check,
+                                size: AppIconSize.standard,
+                                color: context.colors.surface,
                               )
                             : null,
                       ),
-                      child: _color == key.name
-                          ? Icon(
-                              AppIcons.check,
-                              size: AppIconSize.standard,
-                              color: context.colors.surface,
-                            )
-                          : null,
                     ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
+          ],
           if (widget.withIcon) ...[
             SizedBox(height: space.xl),
             TextField(
