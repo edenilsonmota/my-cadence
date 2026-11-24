@@ -141,7 +141,14 @@ void main() {
     await settle(tester);
 
     // Foco: 25 → 26.
-    await tester.tap(find.byTooltip('Aumentar').first);
+    final focusRow = find.widgetWithText(ListTile, 'Foco (min)');
+    await tester.ensureVisible(focusRow);
+    await settle(tester);
+    await tester.tap(
+      find.descendant(of: focusRow, matching: find.byTooltip('Aumentar')),
+    );
+    await settle(tester);
+    await tester.ensureVisible(find.text('Iniciar pausas sozinho'));
     await settle(tester);
     await tester.tap(find.text('Iniciar pausas sozinho'));
     await settle(tester);
@@ -154,6 +161,15 @@ void main() {
     );
     expect(values![PomodoroSettings.keyFocus], '26');
     expect(values[PomodoroSettings.keyAutoBreaks], 'true');
-    expect(find.text('26'), findsOneWidget);
+    await tester.dragUntilVisible(
+      focusRow,
+      find.byType(ListView).first,
+      const Offset(0, 200),
+    );
+    await settle(tester);
+    expect(
+      find.descendant(of: focusRow, matching: find.text('26')),
+      findsOneWidget,
+    );
   });
 }

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids.dart';
+import '../db/card_schedule.dart';
 import '../db/daos/cards_dao.dart';
 import '../db/database.dart';
 import '../db/enums.dart';
@@ -97,7 +98,71 @@ class CardsRepository {
 
   Future<void> deleteCard(String id) => _dao.softDeleteCard(id);
 
+  /// Desfaz [deleteCard].
+  Future<void> restoreCard(String id) =>
+      _dao.updateCard(id, const FlashcardsCompanion(deletedAt: Value(null)));
+
+  /// Cria vários cards de uma vez (importação). Devolve quantos criou.
+  Future<int> importCards(
+    List<({String front, String back})> cards, {
+    required DateTime now,
+    String? deckId,
+  }) => _dao.transaction(() async {
+    for (final card in cards) {
+      await createCard(
+        front: card.front,
+        back: card.back,
+        now: now,
+        deckId: deckId,
+      );
+    }
+    return cards.length;
+  });
+
   // Revisões
+
+  /// Grava o resultado de uma revisão: o novo agendamento do card e o log,
+  /// juntos. Devolve o id do log (para desfazer).
+  Future<String> applyReview({
+    required String cardId,
+    required CardSchedule next,
+    required int rating,
+    required DateTime reviewedAt,
+    int? durationMs,
+  }) => _dao.transaction(() async {
+    await _saveSchedule(cardId, next);
+    return addReviewLog(
+      cardId: cardId,
+      rating: rating,
+      reviewedAt: reviewedAt,
+      durationMs: durationMs,
+    );
+  });
+
+  /// Desfaz uma revisão: volta o agendamento anterior e apaga o log.
+  Future<void> undoReview({
+    required String cardId,
+    required CardSchedule previous,
+    required String logId,
+  }) => _dao.transaction(() async {
+    await _saveSchedule(cardId, previous);
+    await deleteReviewLog(logId);
+  });
+
+  Future<void> _saveSchedule(String cardId, CardSchedule s) => _dao.updateCard(
+    cardId,
+    FlashcardsCompanion(
+      state: Value(s.state),
+      step: Value(s.step),
+      stability: Value(s.stability),
+      difficulty: Value(s.difficulty),
+      due: Value(s.due),
+      lastReview: Value(s.lastReview),
+    ),
+  );
+
+  Stream<int> watchNewStudiedSince(DateTime since) =>
+      _dao.watchNewStudiedSince(since);
 
   Future<List<ReviewLog>> getReviewLogs(String cardId) =>
       _dao.getReviewLogs(cardId);

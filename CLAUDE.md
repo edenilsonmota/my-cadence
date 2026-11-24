@@ -97,6 +97,18 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Nos testes, `tickerProvider` é um stream parado e `screenAwakeProvider` é falso (ver `pumpApp`);
   para simular o fim, avance o relógio do teste e `tester.pump(duração)`.
 
+## Flashcards (FSRS)
+
+- Ponte em `features/cards/fsrs_bridge.dart` (pacote com prefixo `fsrs`, datas em UTC na ida e
+  local na volta). `CardSchedule` (colunas FSRS) mora em `data/db/card_schedule.dart`.
+- A revisão calcula a prévia das 4 notas (`previewReview`) ao mostrar a resposta e grava **exatamente**
+  o resultado do botão escolhido (o "fuzz" faz duas chamadas darem intervalos diferentes).
+- Gravar revisão sempre por `CardsRepository.applyReview` (agendamento + log na mesma transação);
+  desfazer por `undoReview`.
+- Fila: `buildQueue` (estudados por vencimento, depois novos até o limite do dia, contado pela
+  primeira revisão de cada card hoje). Ajustes com prefixo `cards.` (`CardSettings`).
+- `clockProvider`/`tickerProvider` ficam em `lib/app/clock.dart`.
+
 ## UI e testes
 
 - Telas leem providers (`features/<domínio>/*_providers.dart`); ações chamam o repositório via
@@ -113,8 +125,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   responde em tempo real. Ler o banco no teste com `tester.runAsync`.
   Depois de `enterText`, chamar `settle` antes de tocar em botões que dependem do texto (senão o botão
   ainda está desabilitado). Antes de tocar em algo que pode estar fora da tela, `tester.ensureVisible`.
-- O relógio vem de `clockProvider` (hub: "vencidos agora", sessão em andamento); `pumpApp` fixa ao
-  meio-dia do "hoje" do teste.
+- O relógio vem de `clockProvider` (`lib/app/clock.dart`); `pumpApp` fixa ao meio-dia do "hoje" do
+  teste, ou usa o `clock:` passado. Para trocar outros providers no teste, `overrides:`.
 
 ## Estilo
 

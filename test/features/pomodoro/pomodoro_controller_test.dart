@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:my_cadence/app/clock.dart';
 import 'package:my_cadence/core/notification_id.dart';
 import 'package:my_cadence/core/notifications.dart';
 import 'package:my_cadence/data/db/database.dart';
@@ -11,7 +12,6 @@ import 'package:my_cadence/data/repositories/tasks_repository.dart';
 import 'package:my_cadence/features/pomodoro/pomodoro_controller.dart';
 import 'package:my_cadence/features/pomodoro/pomodoro_logic.dart';
 import 'package:my_cadence/features/tasks/alarms.dart';
-import 'package:my_cadence/features/tasks/hub/hub_providers.dart';
 
 import '../../data/test_db.dart';
 import '../../helpers/fake_scheduler.dart';

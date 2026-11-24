@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/books/books_page.dart';
 import '../features/books/note_page_page.dart';
 import '../features/calendar/agenda_page.dart';
+import '../features/cards/cards_list_page.dart';
 import '../features/cards/review_page.dart';
 import '../features/cards/review_session_page.dart';
 import '../features/pomodoro/pomodoro_page.dart';
@@ -31,7 +32,15 @@ abstract final class Routes {
   static String editTask(String id) => '/tarefa/$id/editar';
 
   /// Telas provisórias até as etapas de revisão, pomodoro e books.
-  static String reviewTask(String taskId) => '/revisao?tarefa=$taskId';
+  static String reviewTask(String taskId) => reviewSession(taskId: taskId);
+  static String reviewSession({String? deckId, String? taskId}) => Uri(
+    path: '/revisao',
+    queryParameters: {'deck': ?deckId, 'tarefa': ?taskId},
+  ).toString();
+
+  /// Lista de cards (todos, ou de um deck).
+  static String cards({String? deckId}) =>
+      Uri(path: '/cards', queryParameters: {'deck': ?deckId}).toString();
   static String pomodoro({String? taskId}) =>
       Uri(path: '/pomodoro', queryParameters: {'tarefa': ?taskId}).toString();
   static String page(String id) => '/pagina/$id';
@@ -84,8 +93,16 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
       GoRoute(
         path: '/revisao',
         parentNavigatorKey: rootKey,
+        builder: (_, state) => ReviewSessionPage(
+          deckId: state.uri.queryParameters['deck'],
+          taskId: state.uri.queryParameters['tarefa'],
+        ),
+      ),
+      GoRoute(
+        path: '/cards',
+        parentNavigatorKey: rootKey,
         builder: (_, state) =>
-            ReviewSessionPage(taskId: state.uri.queryParameters['tarefa']),
+            CardsListPage(deckId: state.uri.queryParameters['deck']),
       ),
       GoRoute(
         path: '/pomodoro',

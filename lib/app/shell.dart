@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/cards/cards_providers.dart';
 import '../features/pomodoro/pomodoro_mini_player.dart';
 
 /// Shell com a barra de navegação das 5 abas. Cada aba mantém a própria pilha.
@@ -41,8 +43,8 @@ class AppShell extends StatelessWidget {
                 label: 'Agenda',
               ),
               NavigationDestination(
-                icon: Icon(Icons.style_outlined),
-                selectedIcon: Icon(Icons.style),
+                icon: _ReviewIcon(Icons.style_outlined),
+                selectedIcon: _ReviewIcon(Icons.style),
                 label: 'Revisar',
               ),
               NavigationDestination(
@@ -54,6 +56,23 @@ class AppShell extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Ícone da aba Revisar com o número de cards para revisar agora.
+class _ReviewIcon extends ConsumerWidget {
+  const _ReviewIcon(this.icon);
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final due = ref.watch(dueCountProvider);
+    return Badge(
+      isLabelVisible: due > 0,
+      label: Text(due > 99 ? '99+' : '$due'),
+      child: Icon(icon),
     );
   }
 }

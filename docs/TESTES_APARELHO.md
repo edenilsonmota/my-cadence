@@ -109,8 +109,28 @@ notificação chega.** Para testar rápido, em Ajustes deixar Foco = 1 min e Pau
 - [ ] **5.10 Notificação de pomodoro não some ao abrir o app.** Com um foco rodando e o app fechado,
   abrir o app (que reagenda os lembretes de tarefas): o aviso do fim continua agendado.
 
+## Pendentes: Etapa 6 (flashcards FSRS)
+
+- [ ] **6.1 Revisão fluida.** Com uns 20 cards, revisar em sequência: "Mostrar resposta" e os 4 botões
+  respondem sem atraso perceptível; os botões cabem em 360 dp com os intervalos ("1 min", "10 min",
+  "4 d"…) legíveis, em tema claro e escuro.
+- [ ] **6.2 Passos de aprendizado.** Card novo → Errei: aparece "Próximo card em 1 min" e, passado 1 min
+  com a tela aberta, o card volta sozinho.
+- [ ] **6.3 Badge.** O número na aba Revisar bate com "N para revisar agora" e atualiza ao revisar.
+- [ ] **6.4 Importar CSV.** Importar um `.csv` real (salvo no Excel/Google Sheets como CSV com `;`,
+  incluindo acentos, aspas e uma célula com quebra de linha): os cards entram certos no deck escolhido.
+  Conferir também um arquivo `.txt`.
+- [ ] **6.5 Markdown no card.** Card com `**negrito**`, `*itálico*`, `` `código` `` e lista `- item` aparece
+  formatado na revisão.
+- [ ] **6.6 Revisar desta tarefa.** No hub de uma tarefa com cards (inclusive de subtarefas), "Revisar desta
+  tarefa" revisa só esses.
+- [ ] **6.7 Painel do card com teclado.** Criar e editar card: o painel sobe com o teclado; deck e
+  tarefa vinculada podem ser trocados.
+
 ## Limitações conhecidas (não são bugs)
 
 - iOS: configuração feita, mas nada foi compilado nem testado (o ambiente é Linux).
-- A hora do lembrete de tarefas de dia inteiro (9h) ainda é fixa; vira ajuste quando a tela de
-  Ajustes existir.
+- A hora do lembrete de tarefas de dia inteiro (9h) ainda é fixa (a tela de Ajustes já existe; falta
+  esse item).
+- Importação de `.apkg` (Anki) não foi feita: o formato atual do Anki guarda a coleção num SQLite
+  comprimido com zstd dentro de um zip; ficou fora do escopo (o plano marcava como opcional).

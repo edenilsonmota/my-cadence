@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/clock.dart';
 import '../../../app/router.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
@@ -38,7 +39,7 @@ class HubTools extends ConsumerWidget {
   final HubToolsPart part;
 
   Future<void> _addCard(BuildContext context, WidgetRef ref) async {
-    final card = await showCardForm(context);
+    final card = await showCardForm(context, taskId: task.id);
     if (card == null) return;
     await ref
         .read(cardsRepositoryProvider)
@@ -46,7 +47,8 @@ class HubTools extends ConsumerWidget {
           front: card.front,
           back: card.back,
           now: ref.read(clockProvider)(),
-          taskId: task.id,
+          deckId: card.deckId,
+          taskId: card.taskId,
         );
   }
 

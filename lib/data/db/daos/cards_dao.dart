@@ -95,6 +95,17 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
   Future<void> insertReviewLog(ReviewLogsCompanion row) =>
       insertSynced(reviewLogs, row);
 
+  /// Quantos cards tiveram a primeira revisão em [since] ou depois (os
+  /// "novos estudados hoje", para o limite diário).
+  Stream<int> watchNewStudiedSince(DateTime since) {
+    final first = reviewLogs.reviewedAt.min();
+    final query = selectOnly(reviewLogs)
+      ..addColumns([reviewLogs.cardId, first])
+      ..where(reviewLogs.deletedAt.isNull())
+      ..groupBy([reviewLogs.cardId], having: first.isBiggerOrEqualValue(since));
+    return query.watch().map((rows) => rows.length);
+  }
+
   /// Usado para desfazer a última avaliação.
   Future<void> softDeleteReviewLog(String id) =>
       softDeleteSynced(reviewLogs, id);

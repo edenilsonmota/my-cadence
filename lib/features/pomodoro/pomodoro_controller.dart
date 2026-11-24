@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../app/clock.dart';
 import '../../core/dates.dart';
 import '../../core/notification_id.dart';
 import '../../core/notifications.dart';
@@ -11,7 +12,6 @@ import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../tasks/alarms.dart';
-import '../tasks/hub/hub_providers.dart';
 import 'pomodoro_logic.dart';
 
 final pomodoroSettingsProvider = StreamProvider<PomodoroSettings>(
@@ -20,13 +20,6 @@ final pomodoroSettingsProvider = StreamProvider<PomodoroSettings>(
       .watchPrefix(PomodoroSettings.prefix)
       .map(PomodoroSettings.fromMap),
 );
-
-/// Batida de um segundo para redesenhar o relógio (só a tela; o tempo vem
-/// sempre do banco). Os testes trocam por um stream parado.
-final tickerProvider = StreamProvider.autoDispose<DateTime>((ref) {
-  final clock = ref.watch(clockProvider);
-  return Stream.periodic(const Duration(seconds: 1), (_) => clock());
-});
 
 /// Liga ou desliga o "manter a tela ligada". Os testes trocam por um no-op.
 final screenAwakeProvider = Provider<Future<void> Function(bool on)>(

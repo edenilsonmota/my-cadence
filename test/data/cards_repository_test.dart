@@ -1,5 +1,6 @@
 import 'package:drift/native.dart' show SqliteException;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:my_cadence/data/db/card_schedule.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/db/enums.dart';
 import 'package:my_cadence/data/repositories/cards_repository.dart';
@@ -127,6 +128,56 @@ void main() {
   });
 
   group('revisões', () {
+    test('aplicar grava agendamento e log; desfazer volta os dois', () async {
+      final id = await repo.createCard(front: 'F', back: 'V', now: now);
+      final before = CardSchedule.of((await repo.getCard(id))!);
+      final next = CardSchedule(
+        state: CardState.review,
+        stability: 3.2,
+        difficulty: 5.1,
+        due: now.add(const Duration(days: 3)),
+        lastReview: now,
+      );
+
+      final logId = await repo.applyReview(
+        cardId: id,
+        next: next,
+        rating: 4,
+        reviewedAt: now,
+        durationMs: 2500,
+      );
+      expect(CardSchedule.of((await repo.getCard(id))!), next);
+      expect((await repo.getReviewLogs(id)).single.rating, 4);
+
+      await repo.undoReview(cardId: id, previous: before, logId: logId);
+      expect(CardSchedule.of((await repo.getCard(id))!), before);
+      expect(await repo.getReviewLogs(id), isEmpty);
+    });
+
+    test('conta cards com a primeira revisão a partir de hoje', () async {
+      final today = DateTime(2026, 11, 23);
+      final old = await repo.createCard(front: 'a', back: '-', now: now);
+      final fresh1 = await repo.createCard(front: 'b', back: '-', now: now);
+      final fresh2 = await repo.createCard(front: 'c', back: '-', now: now);
+      await repo.addReviewLog(
+        cardId: old,
+        rating: 3,
+        reviewedAt: DateTime(2026, 11, 20),
+      );
+      await repo.addReviewLog(cardId: old, rating: 3, reviewedAt: now);
+      await repo.addReviewLog(cardId: fresh1, rating: 3, reviewedAt: now);
+      await repo.addReviewLog(cardId: fresh1, rating: 1, reviewedAt: now);
+      final undone = await repo.addReviewLog(
+        cardId: fresh2,
+        rating: 3,
+        reviewedAt: now,
+      );
+
+      expect(await repo.watchNewStudiedSince(today).first, 2);
+      await repo.deleteReviewLog(undone); // desfazer devolve o "novo"
+      expect(await repo.watchNewStudiedSince(today).first, 1);
+    });
+
     test('registra, lista e desfaz', () async {
       final card = await repo.createCard(front: 'F', back: 'V', now: now);
       await repo.addReviewLog(

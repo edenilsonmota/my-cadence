@@ -5,10 +5,6 @@ import '../../../data/providers.dart';
 import '../task_providers.dart';
 import 'hub_stats.dart';
 
-/// Relógio do app (para "vencidos agora" e sessões em andamento). Os testes
-/// trocam por um horário fixo.
-final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
-
 /// Ids da tarefa e de todas as subtarefas (só a própria, até a lista carregar).
 final taskTreeIdsProvider = Provider.autoDispose.family<List<String>, String>((
   ref,

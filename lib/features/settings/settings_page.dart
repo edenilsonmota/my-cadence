@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
 import '../../shared/widgets/number_stepper.dart';
+import '../cards/cards_providers.dart';
+import '../cards/review_queue.dart';
 import '../pomodoro/pomodoro_controller.dart';
 import '../pomodoro/pomodoro_logic.dart';
 
@@ -13,6 +15,7 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s =
         ref.watch(pomodoroSettingsProvider).value ?? const PomodoroSettings();
+    final cards = ref.watch(cardSettingsProvider).value ?? const CardSettings();
     final repo = ref.read(settingsRepositoryProvider);
     void setInt(String key, int v) => repo.setString(key, '$v');
     void setBool(String key, bool v) => repo.setString(key, '$v');
@@ -33,6 +36,30 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
+          const _Header('Flashcards'),
+          ListTile(
+            title: const Text('Cards novos por dia'),
+            trailing: NumberStepper(
+              value: cards.newPerDay,
+              min: 0,
+              max: 500,
+              semanticLabel: 'Cards novos por dia',
+              onChanged: (v) => setInt(CardSettings.keyNewPerDay, v),
+            ),
+          ),
+          ListTile(
+            title: const Text('Retenção desejada'),
+            subtitle: Text(
+              '${cards.retentionPercent}%: mais alta = revisões mais frequentes',
+            ),
+            trailing: NumberStepper(
+              value: cards.retentionPercent,
+              min: 70,
+              max: 99,
+              semanticLabel: 'Retenção desejada em porcentagem',
+              onChanged: (v) => setInt(CardSettings.keyRetention, v),
+            ),
+          ),
           const _Header('Pomodoro'),
           minutes('Foco (min)', PomodoroSettings.keyFocus, s.focusMinutes),
           minutes(
