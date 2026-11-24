@@ -5,9 +5,9 @@ library;
 /// Chave em `AppSettings` (prefixo `device.` → não sincroniza entre aparelhos).
 const navTabsSettingKey = 'device.navTabs';
 
-/// Regra do Material: a barra de navegação tem entre 3 e 5 abas.
+/// A barra de navegação aceita de 3 a 6 abas (padrão: 5).
 const minNavTabs = 3;
-const maxNavTabs = 5;
+const maxNavTabs = 6;
 
 /// Telas que podem ficar na barra de navegação ou no menu lateral.
 ///

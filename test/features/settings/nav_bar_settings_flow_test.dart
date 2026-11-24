@@ -37,19 +37,10 @@ void main() {
       await openNavBarSettings(tester);
 
       expect(appBarTitle('Barra de navegação'), findsOneWidget);
-      expect(find.text('PRÉVIA · 5 de 5 abas'), findsOneWidget);
+      expect(find.text('PRÉVIA · 5 de 6 abas'), findsOneWidget);
 
-      // No máximo (5): interruptores do menu lateral ficam desabilitados com
-      // o motivo, e "Restaurar padrão" já começa desabilitado.
-      await tester.dragUntilVisible(
-        find.text('Pomodoro'),
-        find.byType(ListView).first,
-        const Offset(0, -200),
-      );
-      await settle(tester);
-      expect(find.text('Máximo de 5 abas atingido'), findsNWidgets(2));
-      expect(tester.widget<Switch>(switchOf('Pomodoro')).onChanged, isNull);
-
+      // No padrão (5 de 6): "Restaurar padrão" começa desabilitado, e ainda
+      // cabe ligar a 6ª aba (Pomodoro).
       await tester.dragUntilVisible(
         find.text('Restaurar padrão'),
         find.byType(ListView).first,
@@ -65,9 +56,29 @@ void main() {
         isNull,
       );
 
-      // Volta ao topo e desliga Books e Agenda (cai para o mínimo: 3 abas).
+      // Liga a 6ª aba (Pomodoro): atinge o máximo (6) e trava a 7ª (Métricas).
+      await tester.tap(switchOf('Pomodoro'));
+      await settle(tester);
+      expect(find.text('Máximo de 6 abas atingido'), findsOneWidget);
+      expect(tester.widget<Switch>(switchOf('Métricas')).onChanged, isNull);
+
+      // Volta ao topo e desliga Pomodoro, Books e Agenda (cai para o mínimo: 3).
       await tester.dragUntilVisible(
-        find.text('PRÉVIA · 5 de 5 abas'),
+        find.text('PRÉVIA · 6 de 6 abas'),
+        find.byType(ListView).first,
+        const Offset(0, 300),
+      );
+      await settle(tester);
+      await tester.dragUntilVisible(
+        find.widgetWithText(ListTile, 'Pomodoro'),
+        find.byType(ListView).first,
+        const Offset(0, -150),
+      );
+      await settle(tester);
+      await tester.tap(switchOf('Pomodoro'));
+      await settle(tester);
+      await tester.dragUntilVisible(
+        find.text('PRÉVIA · 5 de 6 abas'),
         find.byType(ListView).first,
         const Offset(0, 300),
       );
@@ -77,7 +88,7 @@ void main() {
       await tester.tap(switchOf('Agenda'));
       await settle(tester);
 
-      expect(find.text('PRÉVIA · 3 de 5 abas'), findsOneWidget);
+      expect(find.text('PRÉVIA · 3 de 6 abas'), findsOneWidget);
       expect(find.text('Aba inicial · mínimo de 3 abas'), findsOneWidget);
       expect(find.text('Mínimo de 3 abas na barra'), findsNWidgets(2));
       expect(tester.widget<Switch>(switchOf('Hoje')).onChanged, isNull);

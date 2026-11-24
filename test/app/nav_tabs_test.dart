@@ -16,7 +16,7 @@ void main() {
     expect(isLocalSetting(navTabsSettingKey), isTrue);
   });
 
-  test('isValidNavTabs valida mínimo, máximo e duplicadas', () {
+  test('isValidNavTabs valida mínimo (3), máximo (6) e duplicadas', () {
     expect(isValidNavTabs([NavTab.today, NavTab.tasks]), isFalse);
     expect(isValidNavTabs([NavTab.today, NavTab.tasks, NavTab.agenda]), isTrue);
     expect(
@@ -28,8 +28,9 @@ void main() {
         NavTab.books,
         NavTab.pomodoro,
       ]),
-      isFalse,
+      isTrue,
     );
+    expect(isValidNavTabs(NavTab.values), isFalse);
     expect(isValidNavTabs([NavTab.today, NavTab.today, NavTab.tasks]), isFalse);
   });
 
@@ -57,21 +58,29 @@ void main() {
       expect(parseNavTabs('foo,bar,baz'), defaultNavTabs);
       expect(parseNavTabs('today,today,today'), defaultNavTabs);
 
-      // Mais que o máximo limita às 5 primeiras válidas.
+      // Mais que o máximo limita às 6 primeiras válidas.
       expect(parseNavTabs('stats,pomodoro,books,review,agenda,tasks,today'), [
         NavTab.stats,
         NavTab.pomodoro,
         NavTab.books,
         NavTab.review,
         NavTab.agenda,
+        NavTab.tasks,
       ]);
     },
   );
 
   test('encodeNavTabs e parseNavTabs fazem ida e volta sem perda', () {
-    const custom = [NavTab.pomodoro, NavTab.today, NavTab.stats, NavTab.review];
+    const custom = [
+      NavTab.pomodoro,
+      NavTab.today,
+      NavTab.tasks,
+      NavTab.agenda,
+      NavTab.stats,
+      NavTab.review,
+    ];
     final encoded = encodeNavTabs(custom);
-    expect(encoded, 'pomodoro,today,stats,review');
+    expect(encoded, 'pomodoro,today,tasks,agenda,stats,review');
     expect(parseNavTabs(encoded), custom);
   });
 
@@ -90,21 +99,26 @@ void main() {
         NavTab.today,
         NavTab.tasks,
         NavTab.agenda,
+        NavTab.books,
       ]),
-      [NavTab.review, NavTab.books],
+      [NavTab.review],
     );
   });
 
-  test('canToggleNavTab e toggleNavTab respeitam mínimo 3 e máximo 5', () {
-    // No máximo (5): pode desligar, não pode ligar mais uma.
-    expect(canToggleNavTab(defaultNavTabs, NavTab.pomodoro), isFalse);
-    expect(toggleNavTab(defaultNavTabs, NavTab.pomodoro), defaultNavTabs);
+  test('canToggleNavTab e toggleNavTab respeitam mínimo 3 e máximo 6', () {
+    // No padrão (5): pode tanto ligar a 6ª quanto desligar.
+    expect(canToggleNavTab(defaultNavTabs, NavTab.pomodoro), isTrue);
     expect(canToggleNavTab(defaultNavTabs, NavTab.books), isTrue);
+
+    // No máximo (6): pode desligar, não pode ligar a 7ª.
+    final six = toggleNavTab(defaultNavTabs, NavTab.pomodoro);
+    expect(six.length, 6);
+    expect(canToggleNavTab(six, NavTab.stats), isFalse);
+    expect(toggleNavTab(six, NavTab.stats), six);
+    expect(canToggleNavTab(six, NavTab.books), isTrue);
 
     final four = toggleNavTab(defaultNavTabs, NavTab.books);
     expect(four, [NavTab.today, NavTab.tasks, NavTab.agenda, NavTab.review]);
-    expect(canToggleNavTab(four, NavTab.pomodoro), isTrue);
-    expect(canToggleNavTab(four, NavTab.agenda), isTrue);
 
     final three = toggleNavTab(four, NavTab.agenda);
     expect(three, [NavTab.today, NavTab.tasks, NavTab.review]);

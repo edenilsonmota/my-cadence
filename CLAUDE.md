@@ -33,9 +33,9 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Lógica pura (recorrência, ocorrências, layout do calendário, ponte FSRS, métricas) fica **sem Flutter** e tem
   teste unitário.
 - Rotas centralizadas em `lib/app/router.dart` (`Routes`). Barra de navegação ajustável (`lib/app/nav_tabs.dart`,
-  puro e testado; salvo em `device.navTabs`, não sincroniza): de 3 a 5 abas dentre Hoje, Tarefas, Agenda, Revisar,
-  Books, Pomodoro e Métricas; o restante e Ajustes ficam no menu lateral (`AppDrawer`) e abrem por cima do shell.
-  `AppShell.isTab(context)` distingue tela em aba de tela empilhada; `openNavTab` troca para a aba ou empilha
+  puro e testado; salvo em `device.navTabs`, não sincroniza): de 3 a 6 abas (padrão 5) dentre Hoje, Tarefas, Agenda,
+  Revisar, Books, Pomodoro e Métricas; o restante e Ajustes ficam no menu lateral (`AppDrawer`) e abrem por cima do
+  shell. `AppShell.isTab(context)` distingue tela em aba de tela empilhada; `openNavTab` troca para a aba ou empilha
   conforme a barra atual. `main.dart` e `pumpApp` carregam `device.navTabs` antes de criar o roteador
   (`initialNavTabsProvider`) para abrir na primeira aba sem piscar.
 

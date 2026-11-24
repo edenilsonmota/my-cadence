@@ -17,7 +17,7 @@ final _navTabsStreamProvider = StreamProvider<List<NavTab>>(
       .map(parseNavTabs),
 );
 
-/// Lista atual (sempre válida, de 3 a 5 abas) da barra de navegação.
+/// Lista atual (sempre válida, de 3 a 6 abas) da barra de navegação.
 final navTabsProvider = Provider<List<NavTab>>(
   (ref) =>
       ref.watch(_navTabsStreamProvider).value ??

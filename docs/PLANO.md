@@ -308,8 +308,8 @@ A barra de baixo deixa de ser fixa (Hoje, Tarefas, Agenda, Revisar, Books): cada
 nela e em que ordem.
 - **Telas disponíveis:** Hoje, Tarefas, Agenda, Revisar, Books, **Pomodoro** e **Métricas**. Ajustes continua só no
   menu lateral.
-- **De 3 a 5 abas** na barra (regra do Material). O que não estiver na barra continua acessível pelo menu lateral, então
-  nenhuma tela fica escondida.
+- **De 3 a 6 abas** na barra (padrão 5; com 6 abas, ícones e rótulos ficam levemente compactos). O que não estiver na
+  barra continua acessível pelo menu lateral, então nenhuma tela fica escondida.
 - **Ajustes → Barra de navegação:** lista com um interruptor por tela e alça para arrastar a ordem, com prévia da barra;
   "Restaurar padrão". O interruptor de quem já está no limite (mínimo ou máximo) fica desabilitado com o motivo.
 - Guardado como ajuste do aparelho (`device.navTabs`, lista de chaves em ordem; não sincroniza, porque celular e tablet

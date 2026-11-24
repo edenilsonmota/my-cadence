@@ -5,10 +5,11 @@ import '../../app/nav_tabs.dart';
 import '../../app/nav_tabs_providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/providers.dart';
+import '../../shared/widgets/cadence_navigation_bar.dart';
 import '../../shared/widgets/nav_tab_icon.dart';
 import '../../shared/widgets/section_header.dart';
 
-/// Ajustes → Barra de navegação: escolhe quais telas ficam na barra (3 a 5),
+/// Ajustes → Barra de navegação: escolhe quais telas ficam na barra (3 a 6),
 /// em qual ordem, com prévia ao vivo e opção de restaurar o padrão.
 class NavBarSettingsPage extends ConsumerStatefulWidget {
   const NavBarSettingsPage({super.key});
@@ -70,17 +71,10 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
                 borderRadius: context.radius.lgAll,
                 border: Border.all(color: colors.outlineVariant),
               ),
-              child: NavigationBar(
+              child: CadenceNavigationBar(
+                tabs: tabs,
                 selectedIndex: previewSelected,
                 onDestinationSelected: (i) => setState(() => _previewIndex = i),
-                destinations: [
-                  for (final tab in tabs)
-                    NavigationDestination(
-                      icon: NavTabIcon(tab),
-                      selectedIcon: NavTabIcon(tab, active: true),
-                      label: tab.label,
-                    ),
-                ],
               ),
             ),
           ),

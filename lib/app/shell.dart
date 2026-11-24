@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/pomodoro/pomodoro_mini_player.dart';
 import '../features/update/update_widgets.dart';
-import '../shared/widgets/nav_tab_icon.dart';
+import '../shared/widgets/cadence_navigation_bar.dart';
 import 'nav_tabs.dart';
 import 'nav_tabs_providers.dart';
 
@@ -20,7 +20,7 @@ class _ShellScope extends InheritedWidget {
       activeTab != oldWidget.activeTab;
 }
 
-/// Shell com a barra de navegação configurável (3 a 5 abas). Cada tela mantém
+/// Shell com a barra de navegação configurável (3 a 6 abas). Cada tela mantém
 /// a própria pilha enquanto está na barra.
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({required this.navigationShell, super.key});
@@ -78,7 +78,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (activeTab != NavTab.pomodoro) const PomodoroMiniPlayer(),
-          NavigationBar(
+          CadenceNavigationBar(
+            tabs: tabs,
             selectedIndex: selectedIndex == -1 ? 0 : selectedIndex,
             // Tocar de novo na aba ativa volta para a raiz dela.
             onDestinationSelected: (barIndex) {
@@ -89,14 +90,6 @@ class _AppShellState extends ConsumerState<AppShell> {
                     tab.index == widget.navigationShell.currentIndex,
               );
             },
-            destinations: [
-              for (final tab in tabs)
-                NavigationDestination(
-                  icon: NavTabIcon(tab),
-                  selectedIcon: NavTabIcon(tab, active: true),
-                  label: tab.label,
-                ),
-            ],
           ),
         ],
       ),
