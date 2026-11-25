@@ -342,6 +342,26 @@ organização. Fazer em fases, nesta ordem, cada uma com teste no aparelho:
 Pendentes de testes antigos, para conferir junto: alarme depois de reiniciar o celular (precisa desbloquear com o PIN),
 lembrete no início de tarefa com início e prazo, e troca da hora do lembrete de dia inteiro.
 
+### Etapa 14: Configurações adicionais(dentro de Ajustes)
+1. Além de Português-BR adicionar opções de idioma: inglês, Espanhol
+2. Adicionar opção de trocar manualmente o modo light e dark, além do modo automatico para seguir a configuração do celular
+3. Opção de tema “lights out” (alto contraste)
+
+### Etapa 15: Widgets de calendário na tela inicial (Android)
+Três widgets nativos redimensionáveis na tela inicial (sem pacote externo: snapshot JSON leve gravado em
+`SharedPreferences` via `MethodChannel` + `AppWidgetProvider`/`RemoteViews` em Kotlin), acompanhando o tema
+escolhido (Claro, Escuro neutro, Lights out), a cor de destaque e o idioma (`pt`, `en`, `es`), com atualização
+automática ao mudar tarefas/aparência e na virada da meia-noite. Fazer em fases:
+1. **Base + Widget "Hoje" (`4 × 2`, redimensionável `2 × 2` a `5 × 5`).** Camada pura de snapshot (testada),
+   ponte Android (`MethodChannel` + `SharedPreferences` + alarme de meia-noite), deep links (`cadence://today`,
+   `cadence://task/<id>`, `cadence://new-task`, `cadence://agenda?date=...`) e widget **Hoje** com cabeçalho
+   (data + contagem + botão `+`) e lista rolável de tarefas atrasadas e de hoje com barrinha colorida e horário.
+2. **Widget "Semanal" (`4 × 3`, redimensionável `4 × 2` a `5 × 5`).** Grade de 7 dias da semana com o dia atual
+   destacado na cor de destaque, tarefas coloridas por dia e toque abrindo o dia na Agenda.
+3. **Widget "Mensal" (`4 × 4`, redimensionável `4 × 3` a `5 × 5`).** Grade mensal 7×6 com navegação de mês
+   (`‹ ›`), dia atual destacado, indicadores/chips coloridos por dia e toque abrindo o dia na Agenda.
+4. **Concluir direto pelo widget *(opcional)*.** Ação rápida no widget **Hoje** para marcar tarefa concluída
+   em segundo plano sem abrir o app.
 ---
 
 ## 5. Definição de pronto (vale para todas as etapas)

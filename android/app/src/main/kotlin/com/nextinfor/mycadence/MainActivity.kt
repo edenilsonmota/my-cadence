@@ -6,13 +6,40 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import com.nextinfor.mycadence.widgets.WidgetStore
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private var widgetChannel: MethodChannel? = null
+    private var pendingWidgetUri: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        captureWidgetIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        captureWidgetIntent(intent)
+    }
+
+    private fun captureWidgetIntent(intent: Intent?) {
+        val uri = intent?.getStringExtra(WidgetStore.EXTRA_WIDGET_URI) ?: return
+        intent.removeExtra(WidgetStore.EXTRA_WIDGET_URI)
+        val ch = widgetChannel
+        if (ch != null) {
+            ch.invokeMethod("onWidgetUri", uri)
+        } else {
+            pendingWidgetUri = uri
+        }
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
@@ -42,6 +69,29 @@ class MainActivity : FlutterActivity() {
                 "openBatteryOptimizationSettings" -> {
                     openBatteryOptimizationSettings()
                     result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        val homeWidgets = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.nextinfor.mycadence/home_widgets",
+        )
+        widgetChannel = homeWidgets
+        homeWidgets.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "updateSnapshot" -> {
+                    val snapshot = call.argument<String>("snapshot")
+                    if (snapshot != null) {
+                        WidgetStore.saveSnapshot(applicationContext, snapshot)
+                    }
+                    result.success(null)
+                }
+                "consumeLaunchUri" -> {
+                    val uri = pendingWidgetUri
+                    pendingWidgetUri = null
+                    result.success(uri)
                 }
                 else -> result.notImplemented()
             }
@@ -153,7 +203,7 @@ class MainActivity : FlutterActivity() {
             val fallback = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = Uri.parse("package:$packageName")
             }
-            startSettingsIntent(fallback)
+            startActivity(fallback)
         }
     }
 }

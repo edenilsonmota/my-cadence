@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_today_label">Cadence · Hoy</string>
+    <string name="widget_today_description">Tareas de hoy y atrasadas en una lista desplazable con acceso rápido.</string>
+    <string name="widget_today_empty">Nada para hoy todavía.</string>
+    <string name="widget_add_task">Nueva tarea</string>
+</resources>

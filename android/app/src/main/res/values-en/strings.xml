@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_today_label">Cadence · Today</string>
+    <string name="widget_today_description">Today\'s and overdue tasks in a scrollable list with quick add.</string>
+    <string name="widget_today_empty">Nothing for today yet.</string>
+    <string name="widget_add_task">New task</string>
+</resources>

@@ -26,7 +26,9 @@ import 'package:my_cadence/features/sync/domain/sync_transport.dart';
 import 'package:my_cadence/features/tasks/alarms.dart';
 import 'package:my_cadence/features/tasks/task_providers.dart';
 import 'package:my_cadence/features/update/update_providers.dart';
+import 'package:my_cadence/features/widgets/home_widget_sync.dart';
 
+import 'fake_home_widget.dart';
 import 'fake_scheduler.dart';
 import 'fake_sync.dart';
 
@@ -125,6 +127,7 @@ Future<AppDatabase> pumpApp(
           Future.value(File('${Directory.systemTemp.path}/cadence_test_photo')),
         ),
         alarmSchedulerProvider.overrideWithValue(scheduler ?? FakeScheduler()),
+        homeWidgetBridgeProvider.overrideWithValue(FakeHomeWidgetBridge()),
         // Sem GitHub nem plugin de versão nos testes.
         releaseFetcherProvider.overrideWithValue(
           releaseFetcher ?? () async => null,
