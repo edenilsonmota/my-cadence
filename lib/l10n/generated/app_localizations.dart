@@ -1057,7 +1057,7 @@ abstract class AppLocalizations {
   /// No description provided for @appearanceInherited.
   ///
   /// In pt, this message translates to:
-  /// **'Herda da tarefa mãe, da tag ou do tipo'**
+  /// **'Herda da tarefa mãe, da tag ou da repetição'**
   String get appearanceInherited;
 
   /// No description provided for @quickDateToday.

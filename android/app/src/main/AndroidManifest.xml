@@ -10,7 +10,7 @@
     <!-- Modo alarme: abre o aviso sobre a tela bloqueada (Android 14+ pede confirmação). -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <application
-        android:label="Cadence"
+        android:label="${appLabel}"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -28,17 +28,19 @@ Future<void> createCardFlow(
   String? deckId,
   String? taskId,
 }) async {
+  // Lidos antes do await: quem chamou pode sair da árvore enquanto o teclado
+  // está aberto.
+  final cards = ref.read(cardsRepositoryProvider);
+  final clock = ref.read(clockProvider);
   final result = await showCardForm(context, deckId: deckId, taskId: taskId);
   if (result == null) return;
-  await ref
-      .read(cardsRepositoryProvider)
-      .createCard(
-        front: result.front,
-        back: result.back,
-        now: ref.read(clockProvider)(),
-        deckId: result.deckId,
-        taskId: result.taskId,
-      );
+  await cards.createCard(
+    front: result.front,
+    back: result.back,
+    now: clock(),
+    deckId: result.deckId,
+    taskId: result.taskId,
+  );
 }
 
 Future<void> editCardFlow(
@@ -93,18 +95,18 @@ Future<void> importCsvFlow(BuildContext context, WidgetRef ref) async {
     messenger.showSnackBar(SnackBar(content: Text(l10n.cardsNoneInFile)));
     return;
   }
+  final cards = ref.read(cardsRepositoryProvider);
+  final clock = ref.read(clockProvider);
   final deckId = await showDialog<({String? deckId})>(
     context: context,
     builder: (_) => _ImportDialog(parsed: parsed),
   );
   if (deckId == null) return;
-  final count = await ref
-      .read(cardsRepositoryProvider)
-      .importCards(
-        parsed.cards,
-        now: ref.read(clockProvider)(),
-        deckId: deckId.deckId,
-      );
+  final count = await cards.importCards(
+    parsed.cards,
+    now: clock(),
+    deckId: deckId.deckId,
+  );
   messenger.showSnackBar(SnackBar(content: Text(l10n.cardsImported(count))));
 }
 

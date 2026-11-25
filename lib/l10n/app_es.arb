@@ -159,7 +159,7 @@
   "appearanceCustom": "Personalizado",
   "appearanceDefault": "Predeterminado",
   "appearanceTapToChange": "Toca para cambiar",
-  "appearanceInherited": "Hereda de la tarea padre, etiqueta o tipo",
+  "appearanceInherited": "Hereda de la tarea padre, la etiqueta o la repetición",
   "quickDateToday": "Hoy",
   "quickDateTomorrow": "Mañana",
   "quickDateNextWeek": "En una semana",

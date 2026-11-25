@@ -34,29 +34,31 @@ class HubTools extends ConsumerWidget {
   final Task task;
   final HubToolsPart part;
 
+  // Repositórios lidos antes dos diálogos: com o teclado aberto, esta seção
+  // pode sair da tela e a lista a descarta (o `ref` deixa de valer).
   Future<void> _addCard(BuildContext context, WidgetRef ref) async {
+    final cards = ref.read(cardsRepositoryProvider);
+    final clock = ref.read(clockProvider);
     final card = await showCardForm(context, taskId: task.id);
     if (card == null) return;
-    await ref
-        .read(cardsRepositoryProvider)
-        .createCard(
-          front: card.front,
-          back: card.back,
-          now: ref.read(clockProvider)(),
-          deckId: card.deckId,
-          taskId: card.taskId,
-        );
+    await cards.createCard(
+      front: card.front,
+      back: card.back,
+      now: clock(),
+      deckId: card.deckId,
+      taskId: card.taskId,
+    );
   }
 
   Future<void> _addPage(BuildContext context, WidgetRef ref, int order) async {
     final l10n = context.l10n;
+    final books = ref.read(booksRepositoryProvider);
     final title = await showTextInputDialog(
       context,
       title: l10n.hubNewPage,
       label: l10n.fieldTitle,
     );
     if (title == null) return;
-    final books = ref.read(booksRepositoryProvider);
     final notebookId = await books.taskNotebookId(task.id, title: task.title);
     await books.createPage(
       notebookId: notebookId,

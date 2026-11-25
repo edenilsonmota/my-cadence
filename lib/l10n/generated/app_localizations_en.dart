@@ -518,7 +518,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceTapToChange => 'Tap to change';
 
   @override
-  String get appearanceInherited => 'Inherits from parent task, tag, or type';
+  String get appearanceInherited =>
+      'Inherits from parent task, tag, or repetition';
 
   @override
   String get quickDateToday => 'Today';

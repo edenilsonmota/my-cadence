@@ -47,6 +47,10 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Busca geral (`features/search/`, `searchAll` puro; botão em todo `TabScaffold` de aba), revisão da semana
   (`features/week/`, `buildWeekReview` puro; menu lateral), `#tag` na adição rápida (`quick_tags.dart`) e
   modelos (`TaskTemplates`, `task_template.dart` puro, `templates.dart`; criar usa `ProviderScope.containerOf`).
+- Layouts de widget (RemoteViews) só aceitam FrameLayout, LinearLayout, RelativeLayout, GridLayout, TextView,
+  ImageView, Button, ImageButton, ProgressBar, ListView/GridView/StackView etc.; **`<View>` puro quebra o widget**
+  ("Não foi possível adicionar widget"). Testar widgets no aparelho.
+- Debug convive com a Release: `com.nextinfor.mycadence.debug`, nome "Cadence Dev" (`applicationIdSuffix`).
 - Widget "Mês": o snapshot leva `months` (−2..+3) e o deslocamento fica por widget em `SharedPreferences`.
   O ✓ do widget "Hoje" abre `cadence://complete/<id>`.
 - Toda tabela usa o mixin `SyncColumns` (id UUID v7, `createdAt`, `updatedAt`, `deletedAt`, `dirty`, `serverVersion`).
@@ -92,6 +96,9 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   `accountApi:` e `syncTransport:` (não sobrescrever esses providers por `overrides:`).
 - Callbacks de UI que trocam de conta: depois de `await`, usar `ProviderScope.containerOf(context)`, não o
   `ref` do widget (o trecho da tela que chamou pode ter sumido).
+- **Ler repositórios ANTES de abrir diálogo/folha** (`final repo = ref.read(...)` e depois `await show...`):
+  com o teclado aberto, o trecho que chamou sai da tela, a lista o descarta e o `ref` deixa de valer. Os testes
+  de widget não têm teclado e não pegam isso (foi o bug das tags no formulário, 1.5.1).
 
 ## Cores e ícones (dados)
 

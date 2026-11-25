@@ -520,7 +520,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appearanceTapToChange => 'Toca para cambiar';
 
   @override
-  String get appearanceInherited => 'Hereda de la tarea padre, etiqueta o tipo';
+  String get appearanceInherited =>
+      'Hereda de la tarea padre, la etiqueta o la repetición';
 
   @override
   String get quickDateToday => 'Hoy';

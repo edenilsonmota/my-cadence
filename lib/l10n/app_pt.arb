@@ -239,7 +239,7 @@
   "appearanceCustom": "Personalizado",
   "appearanceDefault": "Padrão",
   "appearanceTapToChange": "Toque para trocar",
-  "appearanceInherited": "Herda da tarefa mãe, da tag ou do tipo",
+  "appearanceInherited": "Herda da tarefa mãe, da tag ou da repetição",
   "quickDateToday": "Hoje",
   "quickDateTomorrow": "Amanhã",
   "quickDateNextWeek": "Daqui a uma semana",

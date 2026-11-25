@@ -8,7 +8,8 @@
     android:layout_weight="1"
     android:orientation="vertical">
 
-    <View
+    <!-- Linha da grade. RemoteViews não aceita <View> puro: FrameLayout vazio. -->
+    <FrameLayout
         android:id="@+id/month_cell_line"
         android:layout_width="match_parent"
         android:layout_height="1px"

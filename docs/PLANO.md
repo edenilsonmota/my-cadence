@@ -390,6 +390,12 @@ A 16.1 saiu sozinha (1.4.0); da 16.2 à 16.8 saíram juntas (1.5.0).
 8. **Modelos de taref — feito (1.5.0).** Salvar uma tarefa como modelo (título, notas, tags, aparência, estimativa, lembretes,
    subtarefas, books e decks) e criar a partir dele.
 
+
+### Etapa 17: Gerenciar tags (a fazer)
+- Menu **Tags** (menu lateral): lista com cor e quantas tarefas usam cada uma; **renomear**, trocar a cor e
+  **excluir**. Ao excluir, avisar quantas tarefas estão vinculadas ("Esta tag está em N tarefas; elas perdem a
+  tag") antes de confirmar. Exclusão continua sendo `softDeleteTag` (tag → vínculos).
+
 ---
 
 ## 5. Definição de pronto (vale para todas as etapas)

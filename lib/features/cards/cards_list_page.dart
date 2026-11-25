@@ -49,6 +49,8 @@ class CardsListPage extends ConsumerWidget {
     WidgetRef ref,
     Deck deck,
   ) async {
+    // Lido antes: a tela sai da pilha antes de excluir.
+    final cards = ref.read(cardsRepositoryProvider);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -68,7 +70,7 @@ class CardsListPage extends ConsumerWidget {
     );
     if (confirmed != true || !context.mounted) return;
     Navigator.of(context).pop();
-    await ref.read(cardsRepositoryProvider).deleteDeck(deck.id);
+    await cards.deleteDeck(deck.id);
   }
 
   @override

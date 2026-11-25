@@ -24,14 +24,13 @@ class ReviewPage extends ConsumerWidget {
 
   Future<void> _newDeck(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
+    final cards = ref.read(cardsRepositoryProvider);
     final name = await showTextInputDialog(
       context,
       title: l10n.reviewNewDeck,
       label: l10n.reviewNameLabel,
     );
-    if (name != null) {
-      await ref.read(cardsRepositoryProvider).createDeck(name: name);
-    }
+    if (name != null) await cards.createDeck(name: name);
   }
 
   @override

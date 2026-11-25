@@ -26,13 +26,14 @@ void _snack(ScaffoldMessengerState messenger, String text) => messenger
 // ─── Books ───────────────────────────────────────────────────────────────────
 
 Future<void> createBookFlow(BuildContext context, WidgetRef ref) async {
+  final repo = ref.read(booksRepositoryProvider);
   final title = await showTextInputDialog(
     context,
     title: context.l10n.booksNew,
     label: context.l10n.fieldTitle,
   );
   if (title == null) return;
-  final id = await ref.read(booksRepositoryProvider).createBook(title: title);
+  final id = await repo.createBook(title: title);
   if (context.mounted) await context.push(Routes.book(id));
 }
 
@@ -188,6 +189,7 @@ Future<void> importBookFlow(BuildContext context, WidgetRef ref) async {
       ? _withoutExtension(files.single.name)
       : l10n.booksImportedDefault;
   if (!context.mounted) return;
+  final repo = ref.read(booksRepositoryProvider);
   final title = await showTextInputDialog(
     context,
     title: l10n.booksImportAsBook,
@@ -196,7 +198,6 @@ Future<void> importBookFlow(BuildContext context, WidgetRef ref) async {
     initialValue: suggested,
   );
   if (title == null) return;
-  final repo = ref.read(booksRepositoryProvider);
   final (bookId, count) = await repo.transaction(() async {
     final bookId = await repo.createBook(title: title);
     return (bookId, await _createPages(repo, bookId, pages));
@@ -242,13 +243,13 @@ Future<void> createPageFlow(
   required String notebookId,
   String? parentId,
 }) async {
+  final repo = ref.read(booksRepositoryProvider);
   final title = await showTextInputDialog(
     context,
     title: parentId == null ? context.l10n.pageNew : context.l10n.pageNewSub,
     label: context.l10n.fieldTitle,
   );
   if (title == null) return;
-  final repo = ref.read(booksRepositoryProvider);
   final pages = await repo.watchPages(notebookId).first;
   final id = await repo.createPage(
     notebookId: notebookId,
@@ -264,6 +265,7 @@ Future<void> renamePageFlow(
   WidgetRef ref,
   NotePage page,
 ) async {
+  final repo = ref.read(booksRepositoryProvider);
   final title = await showTextInputDialog(
     context,
     title: context.l10n.pageRename,
@@ -272,7 +274,7 @@ Future<void> renamePageFlow(
     initialValue: page.title,
   );
   if (title == null) return;
-  await ref.read(booksRepositoryProvider).savePage(page.copyWith(title: title));
+  await repo.savePage(page.copyWith(title: title));
 }
 
 /// Sobe (`-1`) ou desce (`+1`) a página entre as irmãs.

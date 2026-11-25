@@ -338,6 +338,7 @@ class _DeviceRowState extends ConsumerState<_DeviceRow> {
   }
 
   Future<void> _rename() async {
+    final snapshots = ref.read(snapshotRepositoryProvider);
     final name = await showTextInputDialog(
       context,
       title: context.l10n.syncDeviceName,
@@ -346,7 +347,7 @@ class _DeviceRowState extends ConsumerState<_DeviceRow> {
       initialValue: _name ?? '',
     );
     if (name == null) return;
-    await ref.read(snapshotRepositoryProvider).setDeviceName(name);
+    await snapshots.setDeviceName(name);
     if (mounted) setState(() => _name = name);
   }
 

@@ -811,6 +811,10 @@ class _LinkedStudy extends ConsumerWidget {
     final books = ref.watch(booksProvider).value ?? const <Notebook>[];
     final decks = ref.watch(decksProvider).value ?? const <Deck>[];
 
+    // Repositórios lidos antes dos diálogos (ver `_TagPicker._createTag`).
+    final booksRepo = ref.read(booksRepositoryProvider);
+    final cardsRepo = ref.read(cardsRepositoryProvider);
+
     Future<void> createBook() async {
       final title = await showTextInputDialog(
         context,
@@ -818,9 +822,7 @@ class _LinkedStudy extends ConsumerWidget {
         label: l10n.fieldTitle,
       );
       if (title == null || title.trim().isEmpty) return;
-      final id = await ref
-          .read(booksRepositoryProvider)
-          .createBook(title: title.trim());
+      final id = await booksRepo.createBook(title: title.trim());
       onBooks({...notebookIds, id});
     }
 
@@ -831,9 +833,7 @@ class _LinkedStudy extends ConsumerWidget {
         label: l10n.reviewNameLabel,
       );
       if (name == null || name.trim().isEmpty) return;
-      final id = await ref
-          .read(cardsRepositoryProvider)
-          .createDeck(name: name.trim());
+      final id = await cardsRepo.createDeck(name: name.trim());
       onDecks({...deckIds, id});
     }
 
@@ -1107,14 +1107,18 @@ class _TagPicker extends ConsumerWidget {
 
   Future<void> _createTag(BuildContext context, WidgetRef ref) async {
     _dropFocus();
+    // Lido antes do diálogo: com o teclado aberto, este trecho sai da tela e
+    // a lista o descarta; depois do await o `ref` não vale mais.
+    final repo = ref.read(tasksRepositoryProvider);
     final created = await showDialog<({String name, String colorKey})>(
       context: context,
       builder: (_) => const _NewTagDialog(),
     );
     if (created == null) return;
-    final id = await ref
-        .read(tasksRepositoryProvider)
-        .createTag(name: created.name, colorKey: created.colorKey);
+    final id = await repo.createTag(
+      name: created.name,
+      colorKey: created.colorKey,
+    );
     onChanged({...selected, id});
   }
 

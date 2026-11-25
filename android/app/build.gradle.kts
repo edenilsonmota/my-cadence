@@ -31,6 +31,7 @@ android {
     }
 
     defaultConfig {
+        manifestPlaceholders["appLabel"] = "Cadence"
         applicationId = "com.nextinfor.mycadence"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
@@ -57,6 +58,11 @@ android {
     }
 
     buildTypes {
+        // Debug convive com a versão da Release no mesmo celular (outro ID e nome).
+        debug {
+            applicationIdSuffix = ".debug"
+            manifestPlaceholders["appLabel"] = "Cadence Dev"
+        }
         release {
             signingConfig = signingConfigs.findByName("release")
                 ?: signingConfigs.getByName("debug")

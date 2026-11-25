@@ -159,7 +159,7 @@
   "appearanceCustom": "Custom",
   "appearanceDefault": "Default",
   "appearanceTapToChange": "Tap to change",
-  "appearanceInherited": "Inherits from parent task, tag, or type",
+  "appearanceInherited": "Inherits from parent task, tag, or repetition",
   "quickDateToday": "Today",
   "quickDateTomorrow": "Tomorrow",
   "quickDateNextWeek": "In a week",
