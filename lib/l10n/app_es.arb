@@ -605,5 +605,16 @@
   "speechDefault": "Voz predeterminada",
   "speechDefaultHint": "Vale para todos los mazos sin ajuste propio.",
   "speechUseDefault": "Usar la voz predeterminada",
-  "speechDeckTooltip": "Voz del mazo"
+  "speechDeckTooltip": "Voz del mazo",
+  "manualTimeLog": "Registrar tiempo",
+  "manualTimeTitle": "Registrar tiempo dedicado",
+  "manualTimeHint": "Para cuando trabajaste sin el pomodoro. Cuenta en el tiempo de foco y en las métricas, pero no como pomodoro completado.",
+  "manualTimeHours": "Horas",
+  "manualTimeMinutes": "Minutos",
+  "manualTimeDay": "Día",
+  "manualTimeStart": "Empezó a las",
+  "manualTimeSaved": "{duration} registrados.",
+  "manualTimeEntries": "Registros manuales",
+  "manualTimeDelete": "Eliminar registro",
+  "statsTagHint": "Una tarea con varias etiquetas cuenta su tiempo en cada una; las subtareas heredan las etiquetas de la madre."
 }

@@ -9,13 +9,15 @@ O APK sai assinado pela **chave de release** e é publicado nas
 1. Suba a versão no `pubspec.yaml`: `version: 1.1.0+2`.
    - `1.1.0` é o que aparece para as pessoas e precisa bater com a tag.
    - O número depois do `+` **sempre aumenta** (o Android não instala versão com número menor).
-2. Commit e tag:
+2. Escreva as notas em `docs/releases/vX.Y.Z.md` (o que entrou: novidades e correções, em português).
+   O CI usa esse arquivo como texto da Release, e o app mostra o texto na tela de atualização.
+3. Commit e tag:
    ```bash
    git commit -am "Versão 1.1.0"
    git tag v1.1.0
    git push && git push --tags
    ```
-3. Em ~10 min a release aparece com dois arquivos:
+4. Em ~10 min a release aparece com dois arquivos:
    - `cadence-1.1.0.apk`: celulares atuais (arm64). **É este que se usa.**
    - `cadence-1.1.0-aparelhos-antigos.apk`: celulares 32 bits antigos.
 

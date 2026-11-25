@@ -3132,6 +3132,19 @@ class $PomodoroSessionsTable extends PomodoroSessions
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _manualMeta = const VerificationMeta('manual');
+  @override
+  late final GeneratedColumn<bool> manual = GeneratedColumn<bool>(
+    'manual',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("manual" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3148,6 +3161,7 @@ class $PomodoroSessionsTable extends PomodoroSessions
     pausedAt,
     pausedTotalMs,
     completed,
+    manual,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3249,6 +3263,12 @@ class $PomodoroSessionsTable extends PomodoroSessions
         completed.isAcceptableOrUnknown(data['completed']!, _completedMeta),
       );
     }
+    if (data.containsKey('manual')) {
+      context.handle(
+        _manualMeta,
+        manual.isAcceptableOrUnknown(data['manual']!, _manualMeta),
+      );
+    }
     return context;
   }
 
@@ -3316,6 +3336,10 @@ class $PomodoroSessionsTable extends PomodoroSessions
         DriftSqlType.bool,
         data['${effectivePrefix}completed'],
       )!,
+      manual: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}manual'],
+      )!,
     );
   }
 
@@ -3351,6 +3375,10 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
 
   /// `true` se chegou ao fim; `false` se foi interrompida.
   final bool completed;
+
+  /// Tempo registrado à mão (esquema v7): conta no foco e nas métricas, mas
+  /// não como pomodoro concluído nem no ciclo de pausas.
+  final bool manual;
   const PomodoroSession({
     required this.id,
     required this.createdAt,
@@ -3366,6 +3394,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
     this.pausedAt,
     required this.pausedTotalMs,
     required this.completed,
+    required this.manual,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3398,6 +3427,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
     }
     map['paused_total_ms'] = Variable<int>(pausedTotalMs);
     map['completed'] = Variable<bool>(completed);
+    map['manual'] = Variable<bool>(manual);
     return map;
   }
 
@@ -3427,6 +3457,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
           : Value(pausedAt),
       pausedTotalMs: Value(pausedTotalMs),
       completed: Value(completed),
+      manual: Value(manual),
     );
   }
 
@@ -3452,6 +3483,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
       pausedAt: serializer.fromJson<DateTime?>(json['pausedAt']),
       pausedTotalMs: serializer.fromJson<int>(json['pausedTotalMs']),
       completed: serializer.fromJson<bool>(json['completed']),
+      manual: serializer.fromJson<bool>(json['manual']),
     );
   }
   @override
@@ -3474,6 +3506,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
       'pausedAt': serializer.toJson<DateTime?>(pausedAt),
       'pausedTotalMs': serializer.toJson<int>(pausedTotalMs),
       'completed': serializer.toJson<bool>(completed),
+      'manual': serializer.toJson<bool>(manual),
     };
   }
 
@@ -3492,6 +3525,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
     Value<DateTime?> pausedAt = const Value.absent(),
     int? pausedTotalMs,
     bool? completed,
+    bool? manual,
   }) => PomodoroSession(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -3509,6 +3543,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
     pausedAt: pausedAt.present ? pausedAt.value : this.pausedAt,
     pausedTotalMs: pausedTotalMs ?? this.pausedTotalMs,
     completed: completed ?? this.completed,
+    manual: manual ?? this.manual,
   );
   PomodoroSession copyWithCompanion(PomodoroSessionsCompanion data) {
     return PomodoroSession(
@@ -3532,6 +3567,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
           ? data.pausedTotalMs.value
           : this.pausedTotalMs,
       completed: data.completed.present ? data.completed.value : this.completed,
+      manual: data.manual.present ? data.manual.value : this.manual,
     );
   }
 
@@ -3551,7 +3587,8 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
           ..write('plannedMinutes: $plannedMinutes, ')
           ..write('pausedAt: $pausedAt, ')
           ..write('pausedTotalMs: $pausedTotalMs, ')
-          ..write('completed: $completed')
+          ..write('completed: $completed, ')
+          ..write('manual: $manual')
           ..write(')'))
         .toString();
   }
@@ -3572,6 +3609,7 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
     pausedAt,
     pausedTotalMs,
     completed,
+    manual,
   );
   @override
   bool operator ==(Object other) =>
@@ -3590,7 +3628,8 @@ class PomodoroSession extends DataClass implements Insertable<PomodoroSession> {
           other.plannedMinutes == this.plannedMinutes &&
           other.pausedAt == this.pausedAt &&
           other.pausedTotalMs == this.pausedTotalMs &&
-          other.completed == this.completed);
+          other.completed == this.completed &&
+          other.manual == this.manual);
 }
 
 class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
@@ -3608,6 +3647,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
   final Value<DateTime?> pausedAt;
   final Value<int> pausedTotalMs;
   final Value<bool> completed;
+  final Value<bool> manual;
   final Value<int> rowid;
   const PomodoroSessionsCompanion({
     this.id = const Value.absent(),
@@ -3624,6 +3664,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
     this.pausedAt = const Value.absent(),
     this.pausedTotalMs = const Value.absent(),
     this.completed = const Value.absent(),
+    this.manual = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PomodoroSessionsCompanion.insert({
@@ -3641,6 +3682,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
     this.pausedAt = const Value.absent(),
     this.pausedTotalMs = const Value.absent(),
     this.completed = const Value.absent(),
+    this.manual = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : kind = Value(kind),
        startedAt = Value(startedAt),
@@ -3660,6 +3702,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
     Expression<DateTime>? pausedAt,
     Expression<int>? pausedTotalMs,
     Expression<bool>? completed,
+    Expression<bool>? manual,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3677,6 +3720,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
       if (pausedAt != null) 'paused_at': pausedAt,
       if (pausedTotalMs != null) 'paused_total_ms': pausedTotalMs,
       if (completed != null) 'completed': completed,
+      if (manual != null) 'manual': manual,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3696,6 +3740,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
     Value<DateTime?>? pausedAt,
     Value<int>? pausedTotalMs,
     Value<bool>? completed,
+    Value<bool>? manual,
     Value<int>? rowid,
   }) {
     return PomodoroSessionsCompanion(
@@ -3713,6 +3758,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
       pausedAt: pausedAt ?? this.pausedAt,
       pausedTotalMs: pausedTotalMs ?? this.pausedTotalMs,
       completed: completed ?? this.completed,
+      manual: manual ?? this.manual,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3764,6 +3810,9 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
     if (completed.present) {
       map['completed'] = Variable<bool>(completed.value);
     }
+    if (manual.present) {
+      map['manual'] = Variable<bool>(manual.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3787,6 +3836,7 @@ class PomodoroSessionsCompanion extends UpdateCompanion<PomodoroSession> {
           ..write('pausedAt: $pausedAt, ')
           ..write('pausedTotalMs: $pausedTotalMs, ')
           ..write('completed: $completed, ')
+          ..write('manual: $manual, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -12113,6 +12163,7 @@ typedef $$PomodoroSessionsTableCreateCompanionBuilder =
       Value<DateTime?> pausedAt,
       Value<int> pausedTotalMs,
       Value<bool> completed,
+      Value<bool> manual,
       Value<int> rowid,
     });
 typedef $$PomodoroSessionsTableUpdateCompanionBuilder =
@@ -12131,6 +12182,7 @@ typedef $$PomodoroSessionsTableUpdateCompanionBuilder =
       Value<DateTime?> pausedAt,
       Value<int> pausedTotalMs,
       Value<bool> completed,
+      Value<bool> manual,
       Value<int> rowid,
     });
 
@@ -12236,6 +12288,11 @@ class $$PomodoroSessionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get manual => $composableBuilder(
+    column: $table.manual,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$TasksTableFilterComposer get taskId {
     final $$TasksTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -12334,6 +12391,11 @@ class $$PomodoroSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get manual => $composableBuilder(
+    column: $table.manual,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$TasksTableOrderingComposer get taskId {
     final $$TasksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -12412,6 +12474,9 @@ class $$PomodoroSessionsTableAnnotationComposer
   GeneratedColumn<bool> get completed =>
       $composableBuilder(column: $table.completed, builder: (column) => column);
 
+  GeneratedColumn<bool> get manual =>
+      $composableBuilder(column: $table.manual, builder: (column) => column);
+
   $$TasksTableAnnotationComposer get taskId {
     final $$TasksTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -12480,6 +12545,7 @@ class $$PomodoroSessionsTableTableManager
                 Value<DateTime?> pausedAt = const Value.absent(),
                 Value<int> pausedTotalMs = const Value.absent(),
                 Value<bool> completed = const Value.absent(),
+                Value<bool> manual = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PomodoroSessionsCompanion(
                 id: id,
@@ -12496,6 +12562,7 @@ class $$PomodoroSessionsTableTableManager
                 pausedAt: pausedAt,
                 pausedTotalMs: pausedTotalMs,
                 completed: completed,
+                manual: manual,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -12514,6 +12581,7 @@ class $$PomodoroSessionsTableTableManager
                 Value<DateTime?> pausedAt = const Value.absent(),
                 Value<int> pausedTotalMs = const Value.absent(),
                 Value<bool> completed = const Value.absent(),
+                Value<bool> manual = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PomodoroSessionsCompanion.insert(
                 id: id,
@@ -12530,6 +12598,7 @@ class $$PomodoroSessionsTableTableManager
                 pausedAt: pausedAt,
                 pausedTotalMs: pausedTotalMs,
                 completed: completed,
+                manual: manual,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

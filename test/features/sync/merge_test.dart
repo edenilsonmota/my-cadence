@@ -316,6 +316,30 @@ void main() {
       expect(r.merged.schemaVersion, currentSchemaVersion);
     });
 
+    test('remoto v6: sessões ganham manual falso', () {
+      final remote = snap('B', {
+        'pomodoro_sessions': [
+          {
+            'id': 's',
+            'created_at': at(1),
+            'updated_at': at(20),
+            'deleted_at': null,
+            'task_id': null,
+            'kind': 'foco',
+            'started_at': at(1),
+            'ended_at': at(2),
+            'planned_minutes': 25,
+            'paused_at': null,
+            'paused_total_ms': 0,
+            'completed': true,
+          },
+        ],
+      }, schemaVersion: 6);
+      final r = merge(snap('A', const {}), remote, now: now);
+      expect(r.merged.rows('pomodoro_sessions').single['manual'], isFalse);
+      expect(r.merged.schemaVersion, currentSchemaVersion);
+    });
+
     test('remoto v5 ganha as tabelas de vínculo de books e decks', () {
       final remote = snap('B', {
         'tasks': [task('t', at(20))],

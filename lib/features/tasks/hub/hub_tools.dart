@@ -6,12 +6,14 @@ import '../../../app/clock.dart';
 import '../../../app/l10n/l10n.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../core/dates.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
 import '../../../data/providers.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/text_input_dialog.dart';
 import '../../cards/card_form_sheet.dart';
+import '../../pomodoro/manual_time_sheet.dart';
 import 'hub_providers.dart';
 import 'hub_stats.dart';
 
@@ -99,6 +101,7 @@ class HubTools extends ConsumerWidget {
     void addCard() => _addCard(context, ref);
     void startFocus() => context.push(Routes.pomodoro(taskId: task.id));
     void addPage() => _addPage(context, ref, ownPages.length);
+    void logTime() => showManualTimeSheet(context, taskId: task.id);
 
     final shortcuts = [
       if (!visible.cards)
@@ -107,12 +110,18 @@ class HubTools extends ConsumerWidget {
           label: Text(l10n.hubFlashcard),
           onPressed: addCard,
         ),
-      if (!visible.pomodoro)
+      if (!visible.pomodoro) ...[
         ActionChip(
           avatar: const Icon(AppIcons.pomodoro),
           label: Text(l10n.navPomodoro),
           onPressed: startFocus,
         ),
+        ActionChip(
+          avatar: const Icon(AppIcons.time),
+          label: Text(l10n.manualTimeLog),
+          onPressed: logTime,
+        ),
+      ],
       if (!visible.pages)
         ActionChip(
           avatar: const Icon(AppIcons.page),
@@ -158,7 +167,12 @@ class HubTools extends ConsumerWidget {
           _PomodoroSection(
             summary: summarizeFocus(sessions, now),
             estimated: task.estimatedPomodoros,
+            manual: [
+              for (final s in sessions)
+                if (s.manual && s.taskId == task.id) s,
+            ]..sort((a, b) => b.startedAt.compareTo(a.startedAt)),
             onStart: startFocus,
+            onLogTime: logTime,
           ),
         if (visible.pages)
           _PagesSection(
@@ -287,20 +301,28 @@ class _CardsSection extends ConsumerWidget {
   }
 }
 
-class _PomodoroSection extends StatelessWidget {
+class _PomodoroSection extends ConsumerWidget {
   const _PomodoroSection({
     required this.summary,
     required this.estimated,
+    required this.manual,
     required this.onStart,
+    required this.onLogTime,
   });
 
   final FocusSummary summary;
   final int? estimated;
+
+  /// Registros manuais da própria tarefa, do mais recente ao mais antigo.
+  final List<PomodoroSession> manual;
   final VoidCallback onStart;
+  final VoidCallback onLogTime;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final lang = context.lang;
+    final now = ref.watch(clockProvider)();
     final sessions = summary.sessions;
     return _Section(
       title: l10n.navPomodoro,
@@ -332,11 +354,42 @@ class _PomodoroSection extends StatelessWidget {
               ],
             ),
           ),
+        if (manual.isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.space.page,
+              context.space.sm,
+              context.space.page,
+              0,
+            ),
+            child: Text(l10n.manualTimeEntries, style: context.type.section),
+          ),
+          for (final s in manual.take(5))
+            ListTile(
+              dense: true,
+              leading: const Icon(AppIcons.time, size: AppIconSize.standard),
+              title: Text(formatDuration(s.endedAt!.difference(s.startedAt))),
+              subtitle: Text(
+                formatRelative(s.startedAt, now, withTime: true, lang: lang),
+              ),
+              trailing: IconButton(
+                tooltip: l10n.manualTimeDelete,
+                icon: const Icon(AppIcons.delete),
+                onPressed: () =>
+                    ref.read(pomodoroRepositoryProvider).deleteSession(s.id),
+              ),
+            ),
+        ],
         _Actions([
           FilledButton.tonalIcon(
             icon: const Icon(AppIcons.play),
             label: Text(l10n.statsStartFocus),
             onPressed: onStart,
+          ),
+          OutlinedButton.icon(
+            icon: const Icon(AppIcons.time),
+            label: Text(l10n.manualTimeLog),
+            onPressed: onLogTime,
           ),
         ]),
       ],

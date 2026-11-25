@@ -25,4 +25,8 @@ class PomodoroSessions extends Table with SyncColumns {
 
   /// `true` se chegou ao fim; `false` se foi interrompida.
   BoolColumn get completed => boolean().withDefault(const Constant(false))();
+
+  /// Tempo registrado à mão (esquema v7): conta no foco e nas métricas, mas
+  /// não como pomodoro concluído nem no ciclo de pausas.
+  BoolColumn get manual => boolean().withDefault(const Constant(false))();
 }

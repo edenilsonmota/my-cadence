@@ -2121,4 +2121,41 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get speechDeckTooltip => 'Voz do deck';
+
+  @override
+  String get manualTimeLog => 'Registrar tempo';
+
+  @override
+  String get manualTimeTitle => 'Registrar tempo feito';
+
+  @override
+  String get manualTimeHint =>
+      'Para quando você trabalhou sem o pomodoro. Conta no tempo de foco e nas métricas, mas não como pomodoro concluído.';
+
+  @override
+  String get manualTimeHours => 'Horas';
+
+  @override
+  String get manualTimeMinutes => 'Minutos';
+
+  @override
+  String get manualTimeDay => 'Dia';
+
+  @override
+  String get manualTimeStart => 'Começou às';
+
+  @override
+  String manualTimeSaved(String duration) {
+    return '$duration registrados.';
+  }
+
+  @override
+  String get manualTimeEntries => 'Registros manuais';
+
+  @override
+  String get manualTimeDelete => 'Excluir registro';
+
+  @override
+  String get statsTagHint =>
+      'Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe.';
 }

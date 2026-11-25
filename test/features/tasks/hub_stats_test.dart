@@ -28,6 +28,7 @@ PomodoroSession session(
   pausedAt: pausedAt,
   pausedTotalMs: pausedMs,
   completed: completed,
+  manual: false,
 );
 
 Flashcard card(String id, {required DateTime due, bool suspended = false}) =>

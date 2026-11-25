@@ -30,7 +30,8 @@ class FocusSummary {
   /// Sessões de foco (inclui interrompidas e a em andamento).
   final int sessions;
 
-  /// Sessões de foco que chegaram ao fim (o "realizado" do estimado).
+  /// Sessões de foco que chegaram ao fim (o "realizado" do estimado); o
+  /// tempo registrado à mão não conta como pomodoro.
   final int completed;
 
   /// Tempo efetivo de foco, sem as pausas.
@@ -43,7 +44,7 @@ FocusSummary summarizeFocus(Iterable<PomodoroSession> sessions, DateTime now) {
   for (final s in sessions) {
     if (s.kind != PomodoroKind.foco) continue;
     count++;
-    if (s.completed) completed++;
+    if (s.completed && !s.manual) completed++;
     total += elapsed(s, now);
   }
   return FocusSummary(sessions: count, completed: completed, total: total);

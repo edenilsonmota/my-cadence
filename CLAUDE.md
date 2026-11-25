@@ -147,6 +147,10 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   `pomodoroNotificationId`, payload `pomodoro`) e fecha a sessão vencida em `checkDue()`, chamado pelo
   timer do fim, pela batida de 1 s da tela e ao voltar o app. Sessão vencida fecha com
   `endedAt = endTime`, não com a hora em que o app percebeu.
+- Tempo registrado à mão (esquema v7, `PomodoroSessions.manual`): `PomodoroRepository.logManualFocus` grava uma
+  sessão de foco já encerrada (`completed` e `manual`). Conta no foco e nas métricas, **não** como pomodoro
+  concluído (estimado × realizado, `summarizeFocus`) nem no ciclo de pausas. Folha `showManualTimeSheet`
+  (`features/pomodoro/manual_time_sheet.dart`), aberta pelo hub ("Registrar tempo").
 - Ajustes do pomodoro ficam em `AppSettings` com prefixo `pomodoro.` (`PomodoroSettings`).
 - Riverpod 3: provider só lido com `ref.read(x.future)`, sem ninguém escutando, fica pausado e não
   completa. Quem precisa ler assim deve manter um `ref.listen` no provider.
@@ -208,6 +212,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Agregações puras em `features/stats/stats_logic.dart` (foco por dia/semana/mês, por tarefa/tag/tipo,
   estimado × realizado somando subtarefas, revisões por dia, acerto, previsão de vencidos, sequência,
   heatmap de rotinas), com testes. Foco conta só sessões `foco`, pelo início, sem as pausas (`elapsed`).
+- Foco por tag: cada tag da tarefa recebe o tempo inteiro, e subtarefa herda as tags das tarefas acima
+  (`tagsWithAncestors`).
 - Gráficos com `fl_chart` (`_Bars` em `stats_page.dart`). Nos testes há duas áreas roláveis (o heatmap
   rola de lado): use `scrollable: find.byType(Scrollable).first`.
 
@@ -267,6 +273,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 
 ## Release e atualizações
 
+- Ao fim de cada tarefa: subir a versão, escrever `docs/releases/vX.Y.Z.md` (notas que o CI põe na Release e o
+  app mostra na atualização), commit, tag e push.
 - APK assinado pela chave de release (`~/keys`, fora do git; `android/key.properties` ou variáveis
   `ANDROID_*` no CI; sem elas, cai na chave debug). Tag `vX.Y.Z` (igual à versão do `pubspec.yaml`) →
   GitHub Actions publica a Release (`docs/RELEASE.md`). O `+n` da versão sempre sobe.

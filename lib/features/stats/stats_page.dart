@@ -428,6 +428,7 @@ class _FocusBySection extends ConsumerWidget {
       for (final t in ref.watch(tagsProvider).value ?? const <Tag>[]) t.id: t,
     };
     final links = ref.watch(tagIdsByTaskProvider).value ?? const {};
+    final parentOf = {for (final t in tasks.values) t.id: t.parentId};
 
     // Mesmo período do gráfico acima.
     final from = lastBuckets(bucket, today, bucketCount[bucket]!).first;
@@ -439,7 +440,7 @@ class _FocusBySection extends ConsumerWidget {
       final id = s.taskId;
       return switch (group) {
         FocusGroup.tarefa => [id],
-        FocusGroup.tag => id == null ? const [] : (links[id] ?? const {}),
+        FocusGroup.tag => tagsWithAncestors(id, parentOf, links),
         FocusGroup.tipo => [if (tasks[id] case final t?) t.kind.name],
       };
     }, now);
@@ -496,6 +497,16 @@ class _FocusBySection extends ConsumerWidget {
           onSelectionChanged: (s) =>
               ref.read(focusGroupProvider.notifier).set(s.single),
         ),
+        if (group == FocusGroup.tag)
+          Padding(
+            padding: EdgeInsets.only(top: context.space.xs),
+            child: Text(
+              l10n.statsTagHint,
+              style: context.text.bodySmall!.copyWith(
+                color: context.colors.onSurfaceVariant,
+              ),
+            ),
+          ),
         const SizedBox(height: 8),
         if (top.isEmpty)
           _Empty(l10n.statsNoFocusGroup)

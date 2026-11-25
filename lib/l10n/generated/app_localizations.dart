@@ -3735,6 +3735,72 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Voz do deck'**
   String get speechDeckTooltip;
+
+  /// No description provided for @manualTimeLog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar tempo'**
+  String get manualTimeLog;
+
+  /// No description provided for @manualTimeTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar tempo feito'**
+  String get manualTimeTitle;
+
+  /// No description provided for @manualTimeHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para quando você trabalhou sem o pomodoro. Conta no tempo de foco e nas métricas, mas não como pomodoro concluído.'**
+  String get manualTimeHint;
+
+  /// No description provided for @manualTimeHours.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horas'**
+  String get manualTimeHours;
+
+  /// No description provided for @manualTimeMinutes.
+  ///
+  /// In pt, this message translates to:
+  /// **'Minutos'**
+  String get manualTimeMinutes;
+
+  /// No description provided for @manualTimeDay.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dia'**
+  String get manualTimeDay;
+
+  /// No description provided for @manualTimeStart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Começou às'**
+  String get manualTimeStart;
+
+  /// No description provided for @manualTimeSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'{duration} registrados.'**
+  String manualTimeSaved(String duration);
+
+  /// No description provided for @manualTimeEntries.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registros manuais'**
+  String get manualTimeEntries;
+
+  /// No description provided for @manualTimeDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir registro'**
+  String get manualTimeDelete;
+
+  /// No description provided for @statsTagHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe.'**
+  String get statsTagHint;
 }
 
 class _AppLocalizationsDelegate

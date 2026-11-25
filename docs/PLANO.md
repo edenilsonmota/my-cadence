@@ -120,7 +120,8 @@ AppSettings (chave/valor)
 **Tags**: `name`, `color`. **TaskTags**: `taskId`, `tagId`.
 
 **PomodoroSessions**: `taskId?`, `kind` (foco, pausaCurta, pausaLonga), `startedAt`, `endedAt?`, `plannedMinutes`,
-`pausedAt?`, `pausedTotalMs` (padrão 0), `completed` (chegou ao fim ou foi interrompida).
+`pausedAt?`, `pausedTotalMs` (padrão 0), `completed` (chegou ao fim ou foi interrompida), `manual` (v7: tempo
+registrado à mão, sem cronômetro).
 
 **Decks**: `name`, `description?`. **Flashcards**: `deckId?`, `taskId?`, `sourcePageId?` (card criado de uma página),
 `front`, `back`, estado FSRS (`state`, `step?`, `stability?`, `difficulty?`, `due`, `lastReview?`), `suspended`.

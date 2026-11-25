@@ -101,6 +101,24 @@ List<({String? key, Duration total})> focusBy(
   return list;
 }
 
+/// Tags que contam para o tempo de uma tarefa: as dela e as das tarefas
+/// acima (subtarefa herda as tags da mãe). Uma tarefa com várias tags conta
+/// o tempo inteiro em cada uma.
+Set<String> tagsWithAncestors(
+  String? taskId,
+  Map<String, String?> parentOf,
+  Map<String, Set<String>> tagsOf,
+) {
+  final result = <String>{};
+  var current = taskId;
+  var guard = 0;
+  while (current != null && guard++ < 100) {
+    result.addAll(tagsOf[current] ?? const {});
+    current = parentOf[current];
+  }
+  return result;
+}
+
 typedef EstimateRow = ({Task task, int estimated, int done});
 
 /// Tarefas com pomodoros estimados: estimado × focos concluídos (somando as
@@ -127,7 +145,7 @@ List<EstimateRow> estimatedVsDone(
   final ids = {for (final t in withEstimate) t.id};
   final done = <String, int>{};
   for (final s in _focus(sessions)) {
-    if (!s.completed) continue;
+    if (!s.completed || s.manual) continue;
     final root = rootWithEstimate(s.taskId, ids);
     if (root != null) done[root] = (done[root] ?? 0) + 1;
   }

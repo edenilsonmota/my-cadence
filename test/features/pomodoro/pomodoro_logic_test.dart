@@ -25,6 +25,7 @@ PomodoroSession session({
   pausedTotalMs: pausedMs,
   endedAt: endedAt,
   completed: completed,
+  manual: false,
 );
 
 DateTime at(int minute, [int second = 0]) =>

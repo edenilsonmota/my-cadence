@@ -57,7 +57,7 @@ class AppDatabase extends _$AppDatabase {
   // Ao mudar o esquema: incrementar a versão, rodar
   // `dart run drift_dev make-migrations` e escrever o passo em `onUpgrade`.
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -117,6 +117,13 @@ class AppDatabase extends _$AppDatabase {
       from5To6: (m, schema) async {
         await m.createTable(schema.taskNotebookLinks);
         await m.createTable(schema.taskDeckLinks);
+      },
+      // v7: tempo de foco registrado à mão.
+      from6To7: (m, schema) async {
+        await m.addColumn(
+          schema.pomodoroSessions,
+          schema.pomodoroSessions.manual,
+        );
       },
     ),
     beforeOpen: (details) async {

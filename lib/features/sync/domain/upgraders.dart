@@ -5,7 +5,7 @@ import 'snapshot.dart';
 
 /// Esquema do banco nesta versão do app (igual a `AppDatabase.schemaVersion`;
 /// um teste garante que andam juntos).
-const currentSchemaVersion = 6;
+const currentSchemaVersion = 7;
 
 typedef SnapshotUpgrader = Map<String, List<SyncRow>> Function(
   Map<String, List<SyncRow>> tables,
@@ -18,6 +18,16 @@ final Map<int, SnapshotUpgrader> upgraders = {
   3: _v3ToV4,
   4: _v4ToV5,
   5: _v5ToV6,
+  6: _v6ToV7,
+};
+
+/// v6 → v7: sessões de pomodoro ganham `manual` (falso).
+Map<String, List<SyncRow>> _v6ToV7(Map<String, List<SyncRow>> tables) => {
+  ...tables,
+  'pomodoro_sessions': [
+    for (final row in tables['pomodoro_sessions'] ?? const <SyncRow>[])
+      {...row, 'manual': row['manual'] ?? false},
+  ],
 };
 
 /// v5 → v6: novas tabelas `task_notebook_links` e `task_deck_links` (vazias).

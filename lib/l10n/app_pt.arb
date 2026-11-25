@@ -1214,5 +1214,23 @@
   "speechDefault": "Voz padrão",
   "speechDefaultHint": "Vale para todos os decks que não têm ajuste próprio.",
   "speechUseDefault": "Usar a voz padrão",
-  "speechDeckTooltip": "Voz do deck"
+  "speechDeckTooltip": "Voz do deck",
+  "manualTimeLog": "Registrar tempo",
+  "manualTimeTitle": "Registrar tempo feito",
+  "manualTimeHint": "Para quando você trabalhou sem o pomodoro. Conta no tempo de foco e nas métricas, mas não como pomodoro concluído.",
+  "manualTimeHours": "Horas",
+  "manualTimeMinutes": "Minutos",
+  "manualTimeDay": "Dia",
+  "manualTimeStart": "Começou às",
+  "manualTimeSaved": "{duration} registrados.",
+  "@manualTimeSaved": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "manualTimeEntries": "Registros manuais",
+  "manualTimeDelete": "Excluir registro",
+  "statsTagHint": "Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe."
 }

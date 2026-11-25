@@ -43,6 +43,29 @@ class PomodoroRepository {
     return id;
   }
 
+  /// Registra à mão um tempo de foco já feito (sem cronômetro): sessão de
+  /// foco encerrada, marcada como `manual`.
+  Future<String> logManualFocus({
+    required String? taskId,
+    required DateTime startedAt,
+    required Duration duration,
+  }) async {
+    final id = newId();
+    await _dao.insertSession(
+      PomodoroSessionsCompanion.insert(
+        id: Value(id),
+        taskId: Value(taskId),
+        kind: PomodoroKind.foco,
+        startedAt: startedAt,
+        endedAt: Value(startedAt.add(duration)),
+        plannedMinutes: duration.inMinutes,
+        completed: const Value(true),
+        manual: const Value(true),
+      ),
+    );
+    return id;
+  }
+
   /// Encerra a sessão. [completed] = chegou ao fim (e não foi interrompida).
   Future<void> finishSession(
     String id, {

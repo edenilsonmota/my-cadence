@@ -2120,4 +2120,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get speechDeckTooltip => 'Deck voice';
+
+  @override
+  String get manualTimeLog => 'Log time';
+
+  @override
+  String get manualTimeTitle => 'Log time spent';
+
+  @override
+  String get manualTimeHint =>
+      'For when you worked without the pomodoro. It counts toward focus time and stats, but not as a completed pomodoro.';
+
+  @override
+  String get manualTimeHours => 'Hours';
+
+  @override
+  String get manualTimeMinutes => 'Minutes';
+
+  @override
+  String get manualTimeDay => 'Day';
+
+  @override
+  String get manualTimeStart => 'Started at';
+
+  @override
+  String manualTimeSaved(String duration) {
+    return '$duration logged.';
+  }
+
+  @override
+  String get manualTimeEntries => 'Manual entries';
+
+  @override
+  String get manualTimeDelete => 'Delete entry';
+
+  @override
+  String get statsTagHint =>
+      'A task with several tags counts its time in each; subtasks inherit the parent\'s tags.';
 }

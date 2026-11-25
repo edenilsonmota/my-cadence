@@ -35,6 +35,7 @@ void main() {
         plannedMinutes: 25,
         pausedTotalMs: 0,
         completed: true,
+        manual: false,
       );
 
   test('subtarefas, cards vencidos e foco por tarefa', () {

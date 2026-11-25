@@ -16,6 +16,7 @@ PomodoroSession session(
   PomodoroKind kind = PomodoroKind.foco,
   String? taskId,
   bool completed = true,
+  bool manual = false,
   int pausedMs = 0,
 }) => PomodoroSession(
   id: 's${_n++}',
@@ -29,6 +30,7 @@ PomodoroSession session(
   plannedMinutes: 25,
   pausedTotalMs: pausedMs,
   completed: completed,
+  manual: manual,
 );
 
 ReviewLog review(DateTime at, int rating) => ReviewLog(
@@ -127,6 +129,7 @@ void main() {
         plannedMinutes: 25,
         pausedTotalMs: 0,
         completed: false,
+        manual: false,
       );
       expect(focusBetween([running], d(24), d(25), now).inMinutes, 10);
     });
@@ -158,8 +161,36 @@ void main() {
         session(d(24, 10), 25, taskId: 'a1'),
         session(d(24, 11), 10, taskId: 'a1', completed: false),
         session(d(24, 12), 25, taskId: 'b'),
+        // Tempo registrado à mão não vira pomodoro.
+        session(d(24, 13), 120, taskId: 'a', manual: true),
       ]);
       expect(rows.map((r) => (r.task.id, r.estimated, r.done)), [('a', 4, 2)]);
+    });
+
+    test('tempo manual soma no foco', () {
+      final manual = session(d(24, 14), 90, taskId: 'a', manual: true);
+      expect(focusBetween([manual], d(24), d(25), now).inMinutes, 90);
+    });
+
+    test('tags: várias contam cada uma e subtarefa herda as da mãe', () {
+      final parentOf = {'estudo': null, 'aula': 'estudo', 'prog': null};
+      final tagsOf = {
+        'estudo': {'estudos', 'ingles'},
+        'prog': {'estudos', 'programacao'},
+      };
+      final all = [
+        session(d(24, 9), 60, taskId: 'aula'), // sem tag própria
+        session(d(24, 11), 30, taskId: 'prog'),
+      ];
+      final byTag = focusBy(
+        all,
+        (s) => tagsWithAncestors(s.taskId, parentOf, tagsOf),
+        now,
+      );
+      expect(
+        {for (final r in byTag) r.key: r.total.inMinutes},
+        {'estudos': 90, 'ingles': 60, 'programacao': 30},
+      );
     });
   });
 

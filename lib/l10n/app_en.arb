@@ -605,5 +605,16 @@
   "speechDefault": "Default voice",
   "speechDefaultHint": "Applies to every deck without its own setting.",
   "speechUseDefault": "Use the default voice",
-  "speechDeckTooltip": "Deck voice"
+  "speechDeckTooltip": "Deck voice",
+  "manualTimeLog": "Log time",
+  "manualTimeTitle": "Log time spent",
+  "manualTimeHint": "For when you worked without the pomodoro. It counts toward focus time and stats, but not as a completed pomodoro.",
+  "manualTimeHours": "Hours",
+  "manualTimeMinutes": "Minutes",
+  "manualTimeDay": "Day",
+  "manualTimeStart": "Started at",
+  "manualTimeSaved": "{duration} logged.",
+  "manualTimeEntries": "Manual entries",
+  "manualTimeDelete": "Delete entry",
+  "statsTagHint": "A task with several tags counts its time in each; subtasks inherit the parent's tags."
 }

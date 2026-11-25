@@ -114,7 +114,7 @@ bool isDue(PomodoroSession s, DateTime now) =>
 /// Focos concluídos desde a última pausa longa concluída (sessões em
 /// qualquer ordem; normalmente as do dia).
 int focusesSinceLongBreak(Iterable<PomodoroSession> sessions) {
-  final done = sessions.where((s) => s.completed).toList()
+  final done = sessions.where((s) => s.completed && !s.manual).toList()
     ..sort((a, b) => a.startedAt.compareTo(b.startedAt));
   var count = 0;
   for (final s in done) {
