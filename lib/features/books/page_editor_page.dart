@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
@@ -146,16 +147,13 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
   }
 
   Future<void> _createCardFromSelection() async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     final text = _selectedText() ?? _lastSelectedText;
     if (text == null) {
       messenger
         ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text('Selecione um trecho do texto primeiro.'),
-          ),
-        );
+        ..showSnackBar(SnackBar(content: Text(l10n.pageSelectTextFirst)));
       return;
     }
     final side = await showModalBottomSheet<String>(
@@ -167,12 +165,12 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
           children: [
             ListTile(
               leading: const Icon(AppIcons.cardFront),
-              title: const Text('Usar como frente'),
+              title: Text(l10n.pageUseAsFront),
               onTap: () => Navigator.of(context).pop('frente'),
             ),
             ListTile(
               leading: const Icon(AppIcons.cardBack),
-              title: const Text('Usar como verso'),
+              title: Text(l10n.pageUseAsBack),
               onTap: () => Navigator.of(context).pop('verso'),
             ),
           ],
@@ -201,7 +199,7 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
         );
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Flashcard criado.')));
+      ..showSnackBar(SnackBar(content: Text(l10n.pageFlashcardCreated)));
   }
 
   Future<void> _pickIcon() async {
@@ -227,7 +225,7 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
     final picked = await pickTask(
       context,
       current: null,
-      title: 'Vincular a tarefa',
+      title: context.l10n.pageLinkTask,
     );
     final taskId = picked?.id;
     if (taskId == null) return;
@@ -270,7 +268,7 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
       ...standardBlockComponentBuilderMap,
       ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
         configuration: BlockComponentConfiguration(
-          placeholderText: (_) => _editing ? 'Escreva aqui…' : '',
+          placeholderText: (_) => _editing ? context.l10n.pageWriteHere : '',
         ),
       ),
       HeadingBlockKeys.type: HeadingBlockComponentBuilder(
@@ -300,9 +298,9 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
     if (_missing) {
       return Scaffold(
         appBar: AppBar(),
-        body: const EmptyState(
+        body: EmptyState(
           icon: AppIcons.searchEmpty,
-          message: 'Página não encontrada.',
+          message: context.l10n.pageNotFound,
         ),
       );
     }
@@ -348,12 +346,14 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
       appBar: AppBar(
         actions: [
           IconButton(
-            tooltip: _editing ? 'Modo leitura' : 'Editar',
+            tooltip: _editing
+                ? context.l10n.pageReadMode
+                : context.l10n.actionEdit,
             icon: Icon(_editing ? AppIcons.read : AppIcons.edit),
             onPressed: _toggleEditing,
           ),
           PopupMenuButton<String>(
-            tooltip: 'Opções da página',
+            tooltip: context.l10n.pageOptions,
             onSelected: (v) => switch (v) {
               'card' => _createCardFromSelection(),
               'vincular' => _linkTask(),
@@ -370,18 +370,24 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
               }(),
               _ => null,
             },
-            itemBuilder: (_) => const [
+            itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'card',
-                child: Text('Criar flashcard da seleção'),
+                child: Text(context.l10n.pageCreateCardFromSelection),
               ),
               PopupMenuItem(
                 value: 'vincular',
-                child: Text('Vincular a tarefa'),
+                child: Text(context.l10n.pageLinkTask),
               ),
-              PopupMenuItem(value: 'icone', child: Text('Ícone')),
-              PopupMenuItem(value: 'exportar', child: Text('Exportar (.md)')),
-              PopupMenuItem(value: 'excluir', child: Text('Excluir página')),
+              PopupMenuItem(value: 'icone', child: Text(context.l10n.pageIcon)),
+              PopupMenuItem(
+                value: 'exportar',
+                child: Text(context.l10n.pageExportMd),
+              ),
+              PopupMenuItem(
+                value: 'excluir',
+                child: Text(context.l10n.pageDelete),
+              ),
             ],
           ),
         ],
@@ -427,28 +433,28 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
                               ),
                               buttonItems: [
                                 ContextMenuButtonItem(
-                                  label: 'Copiar',
+                                  label: context.l10n.actionCopy,
                                   onPressed: () {
                                     copyCommand.execute(editor);
                                     closeToolbar();
                                   },
                                 ),
                                 ContextMenuButtonItem(
-                                  label: 'Recortar',
+                                  label: context.l10n.actionCut,
                                   onPressed: () {
                                     cutCommand.execute(editor);
                                     closeToolbar();
                                   },
                                 ),
                                 ContextMenuButtonItem(
-                                  label: 'Colar',
+                                  label: context.l10n.actionPaste,
                                   onPressed: () {
                                     pasteCommand.execute(editor);
                                     closeToolbar();
                                   },
                                 ),
                                 ContextMenuButtonItem(
-                                  label: 'Criar flashcard',
+                                  label: context.l10n.pageCreateCard,
                                   onPressed: () {
                                     closeToolbar();
                                     _createCardFromSelection();
@@ -500,7 +506,7 @@ class _Header extends ConsumerWidget {
         children: [
           if (icon case final icon?)
             IconButton(
-              tooltip: 'Ícone da página',
+              tooltip: context.l10n.pageIconTooltip,
               padding: EdgeInsets.zero,
               alignment: Alignment.centerLeft,
               onPressed: onIconTap,
@@ -511,8 +517,8 @@ class _Header extends ConsumerWidget {
               controller: title,
               style: theme.textTheme.headlineSmall,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'Título',
+              decoration: InputDecoration(
+                hintText: context.l10n.fieldTitle,
                 border: InputBorder.none,
               ),
               onChanged: onTitleChanged,

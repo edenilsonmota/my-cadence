@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
@@ -28,11 +29,11 @@ class BookPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(book?.title ?? 'Book'),
+        title: Text(book?.title ?? context.l10n.bookFallbackTitle),
         actions: [
           if (book != null)
             PopupMenuButton<String>(
-              tooltip: 'Opções do book',
+              tooltip: context.l10n.bookOptions,
               onSelected: (v) => switch (v) {
                 'importar' => importPagesFlow(context, ref, notebookId),
                 'exportar' => exportBookFlow(context, ref, book),
@@ -40,31 +41,37 @@ class BookPage extends ConsumerWidget {
                 'icone' => pickBookIconFlow(context, ref, book),
                 _ => null,
               },
-              itemBuilder: (_) => const [
+              itemBuilder: (_) => [
                 PopupMenuItem(
                   value: 'importar',
-                  child: Text('Importar páginas (.md)'),
+                  child: Text(context.l10n.bookImportPages),
                 ),
                 PopupMenuItem(
                   value: 'exportar',
-                  child: Text('Exportar (.zip)'),
+                  child: Text(context.l10n.bookExportZip),
                 ),
-                PopupMenuItem(value: 'renomear', child: Text('Renomear')),
-                PopupMenuItem(value: 'icone', child: Text('Ícone e cor')),
+                PopupMenuItem(
+                  value: 'renomear',
+                  child: Text(context.l10n.actionRename),
+                ),
+                PopupMenuItem(
+                  value: 'icone',
+                  child: Text(context.l10n.fieldIconAndColor),
+                ),
               ],
             ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Nova página',
+        tooltip: context.l10n.pageNew,
         onPressed: () => createPageFlow(context, ref, notebookId: notebookId),
         child: const Icon(AppIcons.add),
       ),
       body: pages.when(
         loading: () => const SkeletonList(),
-        error: (_, _) => const EmptyState(
+        error: (_, _) => EmptyState(
           icon: AppIcons.error,
-          message: 'Não foi possível carregar as páginas.',
+          message: context.l10n.pagesLoadError,
         ),
         data: (pages) {
           final tree = flattenPages(pages);
@@ -75,7 +82,7 @@ class BookPage extends ConsumerWidget {
                 ListTile(
                   dense: true,
                   leading: const Icon(AppIcons.task),
-                  title: Text('Caderno da tarefa ${task.title}'),
+                  title: Text(context.l10n.bookTaskNotebook(task.title)),
                   onTap: () => context.push(Routes.task(task.id)),
                 ),
               if (tree.isEmpty)
@@ -83,11 +90,11 @@ class BookPage extends ConsumerWidget {
                   padding: EdgeInsets.only(top: context.space.xxxl),
                   child: EmptyState(
                     icon: AppIcons.page,
-                    message: 'Nenhuma página ainda.',
+                    message: context.l10n.pagesEmpty,
                     action: FilledButton.tonal(
                       onPressed: () =>
                           createPageFlow(context, ref, notebookId: notebookId),
-                      child: const Text('Criar página'),
+                      child: Text(context.l10n.pageCreate),
                     ),
                   ),
                 ),
@@ -142,7 +149,7 @@ class _PageTile extends ConsumerWidget {
       title: Text(page.title, maxLines: 2, overflow: TextOverflow.ellipsis),
       onTap: () => context.push(Routes.page(page.id)),
       trailing: PopupMenuButton<String>(
-        tooltip: 'Opções da página',
+        tooltip: context.l10n.pageOptions,
         onSelected: (v) => switch (v) {
           'sub' => createPageFlow(
             context,
@@ -158,17 +165,29 @@ class _PageTile extends ConsumerWidget {
           _ => null,
         },
         itemBuilder: (_) => [
-          const PopupMenuItem(value: 'sub', child: Text('Nova subpágina')),
+          PopupMenuItem(value: 'sub', child: Text(context.l10n.pageNewSub)),
           if (index > 0)
-            const PopupMenuItem(value: 'subir', child: Text('Mover para cima')),
-          if (index >= 0 && index < siblings.length - 1)
-            const PopupMenuItem(
-              value: 'descer',
-              child: Text('Mover para baixo'),
+            PopupMenuItem(
+              value: 'subir',
+              child: Text(context.l10n.actionMoveUp),
             ),
-          const PopupMenuItem(value: 'renomear', child: Text('Renomear')),
-          const PopupMenuItem(value: 'exportar', child: Text('Exportar (.md)')),
-          const PopupMenuItem(value: 'excluir', child: Text('Excluir')),
+          if (index >= 0 && index < siblings.length - 1)
+            PopupMenuItem(
+              value: 'descer',
+              child: Text(context.l10n.actionMoveDown),
+            ),
+          PopupMenuItem(
+            value: 'renomear',
+            child: Text(context.l10n.actionRename),
+          ),
+          PopupMenuItem(
+            value: 'exportar',
+            child: Text(context.l10n.pageExportMd),
+          ),
+          PopupMenuItem(
+            value: 'excluir',
+            child: Text(context.l10n.actionDelete),
+          ),
         ],
       ),
     );

@@ -176,6 +176,7 @@ class DailyReminderSync {
   List<Task> _tasks = const [];
   List<Flashcard> _cards = const [];
   int _newStudiedToday = 0;
+  String _lang = 'pt';
 
   AlarmSpec? _scheduledReview;
   AlarmSpec? _scheduledSummary;
@@ -190,7 +191,9 @@ class DailyReminderSync {
     List<Task>? tasks,
     List<Flashcard>? cards,
     int? newStudiedToday,
+    String? lang,
   }) {
+    if (lang != null) _lang = lang;
     if (settings != null) _settings = settings;
     if (cardSettings != null) _cardSettings = cardSettings;
     if (tasks != null) _tasks = tasks;
@@ -207,11 +210,13 @@ class DailyReminderSync {
       cardSettings: _cardSettings,
       newStudiedToday: _newStudiedToday,
       now: now,
+      lang: _lang,
     );
     final summary = dailySummaryAlarm(
       settings: _settings,
       tasks: _tasks,
       now: now,
+      lang: _lang,
     );
 
     Future<void> syncOne(int id, AlarmSpec? desired, AlarmSpec? current) async {

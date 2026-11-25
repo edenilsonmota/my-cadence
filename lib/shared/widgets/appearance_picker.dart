@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import 'appearance_badge.dart';
 
@@ -98,10 +99,10 @@ class _AppearancePickerState extends State<_AppearancePicker> {
               Expanded(
                 child: Text(
                   !widget.withColor
-                      ? 'Ícone'
+                      ? context.l10n.pickerIcon
                       : widget.withIcon
-                      ? 'Ícone e cor'
-                      : 'Cor',
+                      ? context.l10n.fieldIconAndColor
+                      : context.l10n.pickerColor,
                   style: context.text.titleLarge,
                 ),
               ),
@@ -110,13 +111,13 @@ class _AppearancePickerState extends State<_AppearancePicker> {
                   _color = null;
                   _icon = null;
                 }),
-                child: const Text('Usar padrão'),
+                child: Text(context.l10n.pickerUseDefault),
               ),
             ],
           ),
           if (widget.withColor) ...[
             SizedBox(height: space.lg),
-            Text('COR', style: context.type.section),
+            Text(context.l10n.pickerColorSection, style: context.type.section),
             SizedBox(height: space.sm),
             Wrap(
               spacing: space.sm,
@@ -159,9 +160,9 @@ class _AppearancePickerState extends State<_AppearancePicker> {
           if (widget.withIcon) ...[
             SizedBox(height: space.xl),
             TextField(
-              decoration: const InputDecoration(
-                hintText: 'Buscar ícone',
-                prefixIcon: Icon(AppIcons.search),
+              decoration: InputDecoration(
+                hintText: context.l10n.pickerSearchIcon,
+                prefixIcon: const Icon(AppIcons.search),
               ),
               onChanged: (v) => setState(() => _query = v),
             ),
@@ -220,7 +221,7 @@ class _AppearancePickerState extends State<_AppearancePicker> {
           FilledButton(
             onPressed: () =>
                 Navigator.of(context).pop((colorKey: _color, iconKey: _icon)),
-            child: const Text('Aplicar'),
+            child: Text(context.l10n.actionApply),
           ),
         ],
       ),

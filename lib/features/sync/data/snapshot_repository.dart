@@ -32,7 +32,11 @@ class SnapshotRepository {
   }
 
   Future<String> deviceName() async =>
-      await _db.settingsDao.getValue(deviceNameKey) ?? 'Este aparelho';
+      await customDeviceName() ?? 'Este aparelho';
+
+  /// Nome dado pela pessoa (`null` se ainda não deu; a tela mostra o padrão
+  /// no idioma dela).
+  Future<String?> customDeviceName() => _db.settingsDao.getValue(deviceNameKey);
 
   Future<void> setDeviceName(String name) =>
       _db.settingsDao.setValue(deviceNameKey, name);

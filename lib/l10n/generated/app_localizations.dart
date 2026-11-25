@@ -2565,6 +2565,798 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'A cada {minutes} min (até {max}×)'**
   String nagHubDetail(int minutes, int max);
+
+  /// No description provided for @booksRename.
+  ///
+  /// In pt, this message translates to:
+  /// **'Renomear book'**
+  String get booksRename;
+
+  /// No description provided for @booksExported.
+  ///
+  /// In pt, this message translates to:
+  /// **'Book exportado ({count} páginas).'**
+  String booksExported(int count);
+
+  /// No description provided for @booksNoMarkdown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum arquivo .md encontrado.'**
+  String get booksNoMarkdown;
+
+  /// No description provided for @booksImportedDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Importado'**
+  String get booksImportedDefault;
+
+  /// No description provided for @booksImportAsBook.
+  ///
+  /// In pt, this message translates to:
+  /// **'Importar como book'**
+  String get booksImportAsBook;
+
+  /// No description provided for @booksBookTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Título do book'**
+  String get booksBookTitle;
+
+  /// No description provided for @actionImport.
+  ///
+  /// In pt, this message translates to:
+  /// **'Importar'**
+  String get actionImport;
+
+  /// No description provided for @booksPagesImported.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 página importada.} other{{count} páginas importadas.}}'**
+  String booksPagesImported(int count);
+
+  /// No description provided for @pageNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova página'**
+  String get pageNew;
+
+  /// No description provided for @pageNewSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova subpágina'**
+  String get pageNewSub;
+
+  /// No description provided for @pageRename.
+  ///
+  /// In pt, this message translates to:
+  /// **'Renomear página'**
+  String get pageRename;
+
+  /// No description provided for @pageDeleteTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir \"{title}\"?'**
+  String pageDeleteTitle(String title);
+
+  /// No description provided for @pageDeleteMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'As subpáginas também serão excluídas.'**
+  String get pageDeleteMessage;
+
+  /// No description provided for @pageExported.
+  ///
+  /// In pt, this message translates to:
+  /// **'Página exportada.'**
+  String get pageExported;
+
+  /// No description provided for @bookFallbackTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Book'**
+  String get bookFallbackTitle;
+
+  /// No description provided for @bookOptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Opções do book'**
+  String get bookOptions;
+
+  /// No description provided for @bookImportPages.
+  ///
+  /// In pt, this message translates to:
+  /// **'Importar páginas (.md)'**
+  String get bookImportPages;
+
+  /// No description provided for @bookExportZip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exportar (.zip)'**
+  String get bookExportZip;
+
+  /// No description provided for @pagesLoadError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar as páginas.'**
+  String get pagesLoadError;
+
+  /// No description provided for @bookTaskNotebook.
+  ///
+  /// In pt, this message translates to:
+  /// **'Caderno da tarefa {title}'**
+  String bookTaskNotebook(String title);
+
+  /// No description provided for @pagesEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma página ainda.'**
+  String get pagesEmpty;
+
+  /// No description provided for @pageCreate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar página'**
+  String get pageCreate;
+
+  /// No description provided for @pageOptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Opções da página'**
+  String get pageOptions;
+
+  /// No description provided for @actionMoveUp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mover para cima'**
+  String get actionMoveUp;
+
+  /// No description provided for @actionMoveDown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mover para baixo'**
+  String get actionMoveDown;
+
+  /// No description provided for @pageExportMd.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exportar (.md)'**
+  String get pageExportMd;
+
+  /// No description provided for @pageSelectTextFirst.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione um trecho do texto primeiro.'**
+  String get pageSelectTextFirst;
+
+  /// No description provided for @pageUseAsFront.
+  ///
+  /// In pt, this message translates to:
+  /// **'Usar como frente'**
+  String get pageUseAsFront;
+
+  /// No description provided for @pageUseAsBack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Usar como verso'**
+  String get pageUseAsBack;
+
+  /// No description provided for @pageFlashcardCreated.
+  ///
+  /// In pt, this message translates to:
+  /// **'Flashcard criado.'**
+  String get pageFlashcardCreated;
+
+  /// No description provided for @pageLinkTask.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vincular a tarefa'**
+  String get pageLinkTask;
+
+  /// No description provided for @pageWriteHere.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escreva aqui…'**
+  String get pageWriteHere;
+
+  /// No description provided for @pageNotFound.
+  ///
+  /// In pt, this message translates to:
+  /// **'Página não encontrada.'**
+  String get pageNotFound;
+
+  /// No description provided for @pageReadMode.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modo leitura'**
+  String get pageReadMode;
+
+  /// No description provided for @pageCreateCardFromSelection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar flashcard da seleção'**
+  String get pageCreateCardFromSelection;
+
+  /// No description provided for @pageIcon.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ícone'**
+  String get pageIcon;
+
+  /// No description provided for @pageDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir página'**
+  String get pageDelete;
+
+  /// No description provided for @actionCopy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Copiar'**
+  String get actionCopy;
+
+  /// No description provided for @actionCut.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recortar'**
+  String get actionCut;
+
+  /// No description provided for @actionPaste.
+  ///
+  /// In pt, this message translates to:
+  /// **'Colar'**
+  String get actionPaste;
+
+  /// No description provided for @pageCreateCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar flashcard'**
+  String get pageCreateCard;
+
+  /// No description provided for @pageIconTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ícone da página'**
+  String get pageIconTooltip;
+
+  /// No description provided for @editorImageByLink.
+  ///
+  /// In pt, this message translates to:
+  /// **'Imagem por link'**
+  String get editorImageByLink;
+
+  /// No description provided for @editorImageUrl.
+  ///
+  /// In pt, this message translates to:
+  /// **'Endereço da imagem (https://…)'**
+  String get editorImageUrl;
+
+  /// No description provided for @actionInsert.
+  ///
+  /// In pt, this message translates to:
+  /// **'Inserir'**
+  String get actionInsert;
+
+  /// No description provided for @cardDeleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Card excluído'**
+  String get cardDeleted;
+
+  /// No description provided for @cardsNoneInFile.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum card encontrado no arquivo.'**
+  String get cardsNoneInFile;
+
+  /// No description provided for @cardsImported.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 card importado.} other{{count} cards importados.}}'**
+  String cardsImported(int count);
+
+  /// No description provided for @cardsImportTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Importar cards'**
+  String get cardsImportTitle;
+
+  /// No description provided for @cardsFound.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 card encontrado.} other{{count} cards encontrados.}}'**
+  String cardsFound(int count);
+
+  /// No description provided for @cardsSkippedLines.
+  ///
+  /// In pt, this message translates to:
+  /// **'Linhas ignoradas (sem frente ou verso): {lines}'**
+  String cardsSkippedLines(String lines);
+
+  /// No description provided for @fieldDeck.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deck'**
+  String get fieldDeck;
+
+  /// No description provided for @deckNone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem deck'**
+  String get deckNone;
+
+  /// No description provided for @cardEdit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar card'**
+  String get cardEdit;
+
+  /// No description provided for @cardFront.
+  ///
+  /// In pt, this message translates to:
+  /// **'Frente'**
+  String get cardFront;
+
+  /// No description provided for @cardBack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verso'**
+  String get cardBack;
+
+  /// No description provided for @cardMarkdownHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aceita **negrito**, *itálico*, `código` e - listas'**
+  String get cardMarkdownHint;
+
+  /// No description provided for @cardSave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar card'**
+  String get cardSave;
+
+  /// No description provided for @deckRename.
+  ///
+  /// In pt, this message translates to:
+  /// **'Renomear deck'**
+  String get deckRename;
+
+  /// No description provided for @deckDeleteTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir \"{name}\"?'**
+  String deckDeleteTitle(String name);
+
+  /// No description provided for @deckDeleteMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os cards continuam existindo, sem deck.'**
+  String get deckDeleteMessage;
+
+  /// No description provided for @deckOptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Opções do deck'**
+  String get deckOptions;
+
+  /// No description provided for @deckDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir deck'**
+  String get deckDelete;
+
+  /// No description provided for @cardsEmptyHere.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum card aqui ainda.'**
+  String get cardsEmptyHere;
+
+  /// No description provided for @cardCreate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar card'**
+  String get cardCreate;
+
+  /// No description provided for @cardsReviewCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Revisar {count} agora'**
+  String cardsReviewCount(int count);
+
+  /// No description provided for @cardSuspended.
+  ///
+  /// In pt, this message translates to:
+  /// **'Suspenso'**
+  String get cardSuspended;
+
+  /// No description provided for @cardNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo'**
+  String get cardNew;
+
+  /// No description provided for @cardNextReview.
+  ///
+  /// In pt, this message translates to:
+  /// **'Revisão: {when}'**
+  String cardNextReview(String when);
+
+  /// No description provided for @cardOptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Opções do card'**
+  String get cardOptions;
+
+  /// No description provided for @cardReactivate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reativar'**
+  String get cardReactivate;
+
+  /// No description provided for @cardSuspend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Suspender'**
+  String get cardSuspend;
+
+  /// No description provided for @syncCloudHasData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Já existem dados na nuvem'**
+  String get syncCloudHasData;
+
+  /// No description provided for @syncCloudHasDataOtherAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'A nova conta tem um Google Drive diferente, com dados do My Cadence. O que fazer com os dados deste aparelho?'**
+  String get syncCloudHasDataOtherAccount;
+
+  /// No description provided for @syncCloudHasDataThisAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta conta já tem dados do My Cadence. O que fazer com os dados deste aparelho?'**
+  String get syncCloudHasDataThisAccount;
+
+  /// No description provided for @syncUseCloudOnly.
+  ///
+  /// In pt, this message translates to:
+  /// **'Usar só os da nuvem'**
+  String get syncUseCloudOnly;
+
+  /// No description provided for @syncMerge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Juntar'**
+  String get syncMerge;
+
+  /// No description provided for @syncCloudLoaded.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados da nuvem carregados. Uma cópia dos anteriores foi guardada.'**
+  String get syncCloudLoaded;
+
+  /// No description provided for @backupManual.
+  ///
+  /// In pt, this message translates to:
+  /// **'Backup manual'**
+  String get backupManual;
+
+  /// No description provided for @backupRestoreCopy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar cópia'**
+  String get backupRestoreCopy;
+
+  /// No description provided for @backupDailyCopyHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'O app guarda uma cópia por dia'**
+  String get backupDailyCopyHint;
+
+  /// No description provided for @syncWithDrive.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sincronize com o Google Drive'**
+  String get syncWithDrive;
+
+  /// No description provided for @syncDriveExplain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seus dados ficam numa pasta privada do app no seu Google Drive, usando o seu espaço. Só este app enxerga essa pasta.'**
+  String get syncDriveExplain;
+
+  /// No description provided for @syncConnectGoogle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conectar com Google'**
+  String get syncConnectGoogle;
+
+  /// No description provided for @syncNotConfigured.
+  ///
+  /// In pt, this message translates to:
+  /// **'Login com Google ainda não configurado neste app.'**
+  String get syncNotConfigured;
+
+  /// No description provided for @syncStatusSyncing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sincronizando…'**
+  String get syncStatusSyncing;
+
+  /// No description provided for @syncStatusOffline.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem conexão. Sincroniza quando voltar.'**
+  String get syncStatusOffline;
+
+  /// No description provided for @syncStatusPending.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alterações a sincronizar'**
+  String get syncStatusPending;
+
+  /// No description provided for @syncStatusError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao sincronizar'**
+  String get syncStatusError;
+
+  /// No description provided for @syncStatusSyncedAgo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sincronizado {ago}'**
+  String syncStatusSyncedAgo(String ago);
+
+  /// No description provided for @syncStatusNever.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ainda não sincronizado'**
+  String get syncStatusNever;
+
+  /// No description provided for @syncAgoNow.
+  ///
+  /// In pt, this message translates to:
+  /// **'agora há pouco'**
+  String get syncAgoNow;
+
+  /// No description provided for @syncAgoMinutes.
+  ///
+  /// In pt, this message translates to:
+  /// **'há {count} min'**
+  String syncAgoMinutes(int count);
+
+  /// No description provided for @syncAgoHours.
+  ///
+  /// In pt, this message translates to:
+  /// **'há {count} h'**
+  String syncAgoHours(int count);
+
+  /// No description provided for @syncAgoDays.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{há 1 dia} other{há {count} dias}}'**
+  String syncAgoDays(int count);
+
+  /// No description provided for @syncSignInAgain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar novamente'**
+  String get syncSignInAgain;
+
+  /// No description provided for @syncUseCloudData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Usar os dados da nuvem'**
+  String get syncUseCloudData;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sincronizar agora'**
+  String get syncNow;
+
+  /// No description provided for @syncAuto.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sincronização automática'**
+  String get syncAuto;
+
+  /// No description provided for @syncAutoHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ao abrir, ao voltar ao app e após alterações'**
+  String get syncAutoHint;
+
+  /// No description provided for @syncSwitchAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trocar conta'**
+  String get syncSwitchAccount;
+
+  /// No description provided for @syncDisconnect.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desconectar'**
+  String get syncDisconnect;
+
+  /// No description provided for @syncDisconnected.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desconectado. Os dados continuam neste aparelho.'**
+  String get syncDisconnected;
+
+  /// No description provided for @syncDeviceName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome deste aparelho'**
+  String get syncDeviceName;
+
+  /// No description provided for @syncThisDevice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este aparelho'**
+  String get syncThisDevice;
+
+  /// No description provided for @syncLog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Log de sync'**
+  String get syncLog;
+
+  /// No description provided for @syncLogEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma sincronização ainda.'**
+  String get syncLogEmpty;
+
+  /// No description provided for @backupExported.
+  ///
+  /// In pt, this message translates to:
+  /// **'Backup exportado.'**
+  String get backupExported;
+
+  /// No description provided for @backupNoCopies.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma cópia guardada ainda.'**
+  String get backupNoCopies;
+
+  /// No description provided for @backupReplaceAllQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Substituir tudo?'**
+  String get backupReplaceAllQuestion;
+
+  /// No description provided for @backupReplaceWarning.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os dados deste aparelho serão trocados pelos do arquivo. Antes, uma cópia dos dados atuais fica guardada no app.'**
+  String get backupReplaceWarning;
+
+  /// No description provided for @backupReplace.
+  ///
+  /// In pt, this message translates to:
+  /// **'Substituir'**
+  String get backupReplace;
+
+  /// No description provided for @backupReplaced.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados substituídos. Uma cópia dos anteriores foi guardada.'**
+  String get backupReplaced;
+
+  /// No description provided for @backupNothingNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nada novo no arquivo.'**
+  String get backupNothingNew;
+
+  /// No description provided for @backupMerged.
+  ///
+  /// In pt, this message translates to:
+  /// **'Backup mesclado: {inserted} novos, {updated} atualizados, {deleted} excluídos.'**
+  String backupMerged(int inserted, int updated, int deleted);
+
+  /// No description provided for @backupImportTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Importar backup'**
+  String get backupImportTitle;
+
+  /// No description provided for @backupFrom.
+  ///
+  /// In pt, this message translates to:
+  /// **'De {when}'**
+  String backupFrom(String when);
+
+  /// No description provided for @countTasks.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 tarefa} other{{count} tarefas}}'**
+  String countTasks(int count);
+
+  /// No description provided for @countCards.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 card} other{{count} cards}}'**
+  String countCards(int count);
+
+  /// No description provided for @countBooks.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 book} other{{count} books}}'**
+  String countBooks(int count);
+
+  /// No description provided for @countPages.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 página} other{{count} páginas}}'**
+  String countPages(int count);
+
+  /// No description provided for @backupMerge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mesclar'**
+  String get backupMerge;
+
+  /// No description provided for @backupMergeHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Junta com os dados deste aparelho. Nada é apagado.'**
+  String get backupMergeHint;
+
+  /// No description provided for @backupReplaceAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Substituir tudo'**
+  String get backupReplaceAll;
+
+  /// No description provided for @backupReplaceAllHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca os dados deste aparelho pelos do arquivo.'**
+  String get backupReplaceAllHint;
+
+  /// No description provided for @pickerIcon.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ícone'**
+  String get pickerIcon;
+
+  /// No description provided for @pickerColor.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cor'**
+  String get pickerColor;
+
+  /// No description provided for @pickerUseDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Usar padrão'**
+  String get pickerUseDefault;
+
+  /// No description provided for @pickerColorSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'COR'**
+  String get pickerColorSection;
+
+  /// No description provided for @pickerSearchIcon.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar ícone'**
+  String get pickerSearchIcon;
+
+  /// No description provided for @actionApply.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aplicar'**
+  String get actionApply;
+
+  /// No description provided for @timelineFocus.
+  ///
+  /// In pt, this message translates to:
+  /// **'Foco {range}'**
+  String timelineFocus(String range);
 }
 
 class _AppLocalizationsDelegate

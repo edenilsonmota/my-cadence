@@ -1377,4 +1377,501 @@ class AppLocalizationsPt extends AppLocalizations {
   String nagHubDetail(int minutes, int max) {
     return 'A cada $minutes min (até $max×)';
   }
+
+  @override
+  String get booksRename => 'Renomear book';
+
+  @override
+  String booksExported(int count) {
+    return 'Book exportado ($count páginas).';
+  }
+
+  @override
+  String get booksNoMarkdown => 'Nenhum arquivo .md encontrado.';
+
+  @override
+  String get booksImportedDefault => 'Importado';
+
+  @override
+  String get booksImportAsBook => 'Importar como book';
+
+  @override
+  String get booksBookTitle => 'Título do book';
+
+  @override
+  String get actionImport => 'Importar';
+
+  @override
+  String booksPagesImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count páginas importadas.',
+      one: '1 página importada.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pageNew => 'Nova página';
+
+  @override
+  String get pageNewSub => 'Nova subpágina';
+
+  @override
+  String get pageRename => 'Renomear página';
+
+  @override
+  String pageDeleteTitle(String title) {
+    return 'Excluir \"$title\"?';
+  }
+
+  @override
+  String get pageDeleteMessage => 'As subpáginas também serão excluídas.';
+
+  @override
+  String get pageExported => 'Página exportada.';
+
+  @override
+  String get bookFallbackTitle => 'Book';
+
+  @override
+  String get bookOptions => 'Opções do book';
+
+  @override
+  String get bookImportPages => 'Importar páginas (.md)';
+
+  @override
+  String get bookExportZip => 'Exportar (.zip)';
+
+  @override
+  String get pagesLoadError => 'Não foi possível carregar as páginas.';
+
+  @override
+  String bookTaskNotebook(String title) {
+    return 'Caderno da tarefa $title';
+  }
+
+  @override
+  String get pagesEmpty => 'Nenhuma página ainda.';
+
+  @override
+  String get pageCreate => 'Criar página';
+
+  @override
+  String get pageOptions => 'Opções da página';
+
+  @override
+  String get actionMoveUp => 'Mover para cima';
+
+  @override
+  String get actionMoveDown => 'Mover para baixo';
+
+  @override
+  String get pageExportMd => 'Exportar (.md)';
+
+  @override
+  String get pageSelectTextFirst => 'Selecione um trecho do texto primeiro.';
+
+  @override
+  String get pageUseAsFront => 'Usar como frente';
+
+  @override
+  String get pageUseAsBack => 'Usar como verso';
+
+  @override
+  String get pageFlashcardCreated => 'Flashcard criado.';
+
+  @override
+  String get pageLinkTask => 'Vincular a tarefa';
+
+  @override
+  String get pageWriteHere => 'Escreva aqui…';
+
+  @override
+  String get pageNotFound => 'Página não encontrada.';
+
+  @override
+  String get pageReadMode => 'Modo leitura';
+
+  @override
+  String get pageCreateCardFromSelection => 'Criar flashcard da seleção';
+
+  @override
+  String get pageIcon => 'Ícone';
+
+  @override
+  String get pageDelete => 'Excluir página';
+
+  @override
+  String get actionCopy => 'Copiar';
+
+  @override
+  String get actionCut => 'Recortar';
+
+  @override
+  String get actionPaste => 'Colar';
+
+  @override
+  String get pageCreateCard => 'Criar flashcard';
+
+  @override
+  String get pageIconTooltip => 'Ícone da página';
+
+  @override
+  String get editorImageByLink => 'Imagem por link';
+
+  @override
+  String get editorImageUrl => 'Endereço da imagem (https://…)';
+
+  @override
+  String get actionInsert => 'Inserir';
+
+  @override
+  String get cardDeleted => 'Card excluído';
+
+  @override
+  String get cardsNoneInFile => 'Nenhum card encontrado no arquivo.';
+
+  @override
+  String cardsImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards importados.',
+      one: '1 card importado.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cardsImportTitle => 'Importar cards';
+
+  @override
+  String cardsFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards encontrados.',
+      one: '1 card encontrado.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cardsSkippedLines(String lines) {
+    return 'Linhas ignoradas (sem frente ou verso): $lines';
+  }
+
+  @override
+  String get fieldDeck => 'Deck';
+
+  @override
+  String get deckNone => 'Sem deck';
+
+  @override
+  String get cardEdit => 'Editar card';
+
+  @override
+  String get cardFront => 'Frente';
+
+  @override
+  String get cardBack => 'Verso';
+
+  @override
+  String get cardMarkdownHint =>
+      'Aceita **negrito**, *itálico*, `código` e - listas';
+
+  @override
+  String get cardSave => 'Salvar card';
+
+  @override
+  String get deckRename => 'Renomear deck';
+
+  @override
+  String deckDeleteTitle(String name) {
+    return 'Excluir \"$name\"?';
+  }
+
+  @override
+  String get deckDeleteMessage => 'Os cards continuam existindo, sem deck.';
+
+  @override
+  String get deckOptions => 'Opções do deck';
+
+  @override
+  String get deckDelete => 'Excluir deck';
+
+  @override
+  String get cardsEmptyHere => 'Nenhum card aqui ainda.';
+
+  @override
+  String get cardCreate => 'Criar card';
+
+  @override
+  String cardsReviewCount(int count) {
+    return 'Revisar $count agora';
+  }
+
+  @override
+  String get cardSuspended => 'Suspenso';
+
+  @override
+  String get cardNew => 'Novo';
+
+  @override
+  String cardNextReview(String when) {
+    return 'Revisão: $when';
+  }
+
+  @override
+  String get cardOptions => 'Opções do card';
+
+  @override
+  String get cardReactivate => 'Reativar';
+
+  @override
+  String get cardSuspend => 'Suspender';
+
+  @override
+  String get syncCloudHasData => 'Já existem dados na nuvem';
+
+  @override
+  String get syncCloudHasDataOtherAccount =>
+      'A nova conta tem um Google Drive diferente, com dados do My Cadence. O que fazer com os dados deste aparelho?';
+
+  @override
+  String get syncCloudHasDataThisAccount =>
+      'Esta conta já tem dados do My Cadence. O que fazer com os dados deste aparelho?';
+
+  @override
+  String get syncUseCloudOnly => 'Usar só os da nuvem';
+
+  @override
+  String get syncMerge => 'Juntar';
+
+  @override
+  String get syncCloudLoaded =>
+      'Dados da nuvem carregados. Uma cópia dos anteriores foi guardada.';
+
+  @override
+  String get backupManual => 'Backup manual';
+
+  @override
+  String get backupRestoreCopy => 'Restaurar cópia';
+
+  @override
+  String get backupDailyCopyHint => 'O app guarda uma cópia por dia';
+
+  @override
+  String get syncWithDrive => 'Sincronize com o Google Drive';
+
+  @override
+  String get syncDriveExplain =>
+      'Seus dados ficam numa pasta privada do app no seu Google Drive, usando o seu espaço. Só este app enxerga essa pasta.';
+
+  @override
+  String get syncConnectGoogle => 'Conectar com Google';
+
+  @override
+  String get syncNotConfigured =>
+      'Login com Google ainda não configurado neste app.';
+
+  @override
+  String get syncStatusSyncing => 'Sincronizando…';
+
+  @override
+  String get syncStatusOffline => 'Sem conexão. Sincroniza quando voltar.';
+
+  @override
+  String get syncStatusPending => 'Alterações a sincronizar';
+
+  @override
+  String get syncStatusError => 'Erro ao sincronizar';
+
+  @override
+  String syncStatusSyncedAgo(String ago) {
+    return 'Sincronizado $ago';
+  }
+
+  @override
+  String get syncStatusNever => 'Ainda não sincronizado';
+
+  @override
+  String get syncAgoNow => 'agora há pouco';
+
+  @override
+  String syncAgoMinutes(int count) {
+    return 'há $count min';
+  }
+
+  @override
+  String syncAgoHours(int count) {
+    return 'há $count h';
+  }
+
+  @override
+  String syncAgoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'há $count dias',
+      one: 'há 1 dia',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncSignInAgain => 'Entrar novamente';
+
+  @override
+  String get syncUseCloudData => 'Usar os dados da nuvem';
+
+  @override
+  String get syncNow => 'Sincronizar agora';
+
+  @override
+  String get syncAuto => 'Sincronização automática';
+
+  @override
+  String get syncAutoHint => 'Ao abrir, ao voltar ao app e após alterações';
+
+  @override
+  String get syncSwitchAccount => 'Trocar conta';
+
+  @override
+  String get syncDisconnect => 'Desconectar';
+
+  @override
+  String get syncDisconnected =>
+      'Desconectado. Os dados continuam neste aparelho.';
+
+  @override
+  String get syncDeviceName => 'Nome deste aparelho';
+
+  @override
+  String get syncThisDevice => 'Este aparelho';
+
+  @override
+  String get syncLog => 'Log de sync';
+
+  @override
+  String get syncLogEmpty => 'Nenhuma sincronização ainda.';
+
+  @override
+  String get backupExported => 'Backup exportado.';
+
+  @override
+  String get backupNoCopies => 'Nenhuma cópia guardada ainda.';
+
+  @override
+  String get backupReplaceAllQuestion => 'Substituir tudo?';
+
+  @override
+  String get backupReplaceWarning =>
+      'Os dados deste aparelho serão trocados pelos do arquivo. Antes, uma cópia dos dados atuais fica guardada no app.';
+
+  @override
+  String get backupReplace => 'Substituir';
+
+  @override
+  String get backupReplaced =>
+      'Dados substituídos. Uma cópia dos anteriores foi guardada.';
+
+  @override
+  String get backupNothingNew => 'Nada novo no arquivo.';
+
+  @override
+  String backupMerged(int inserted, int updated, int deleted) {
+    return 'Backup mesclado: $inserted novos, $updated atualizados, $deleted excluídos.';
+  }
+
+  @override
+  String get backupImportTitle => 'Importar backup';
+
+  @override
+  String backupFrom(String when) {
+    return 'De $when';
+  }
+
+  @override
+  String countTasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tarefas',
+      one: '1 tarefa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String countCards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cards',
+      one: '1 card',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String countBooks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count books',
+      one: '1 book',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String countPages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count páginas',
+      one: '1 página',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupMerge => 'Mesclar';
+
+  @override
+  String get backupMergeHint =>
+      'Junta com os dados deste aparelho. Nada é apagado.';
+
+  @override
+  String get backupReplaceAll => 'Substituir tudo';
+
+  @override
+  String get backupReplaceAllHint =>
+      'Troca os dados deste aparelho pelos do arquivo.';
+
+  @override
+  String get pickerIcon => 'Ícone';
+
+  @override
+  String get pickerColor => 'Cor';
+
+  @override
+  String get pickerUseDefault => 'Usar padrão';
+
+  @override
+  String get pickerColorSection => 'COR';
+
+  @override
+  String get pickerSearchIcon => 'Buscar ícone';
+
+  @override
+  String get actionApply => 'Aplicar';
+
+  @override
+  String timelineFocus(String range) {
+    return 'Foco $range';
+  }
 }

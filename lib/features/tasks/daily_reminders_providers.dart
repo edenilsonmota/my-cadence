@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/locale_providers.dart';
 import '../../core/dates.dart';
 import '../../data/providers.dart';
 import '../cards/review_queue.dart';
@@ -45,6 +46,12 @@ final dailyReminderSyncProvider = Provider<DailyReminderSync>((ref) {
       .watchPrefix(DailyReminderSettings.prefix)
       .map(DailyReminderSettings.fromMap)
       .listen((s) => sync.update(settings: s));
+
+  sync.update(lang: langOfLocale(ref.read(appLocaleProvider)));
+  ref.listen(
+    appLocaleProvider,
+    (_, next) => sync.update(lang: langOfLocale(next)),
+  );
 
   ref.onDispose(() {
     tasksSub.cancel();

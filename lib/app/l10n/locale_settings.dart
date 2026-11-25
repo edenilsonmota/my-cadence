@@ -20,3 +20,19 @@ enum AppLocale {
 /// Interpreta o valor salvo; desconhecido ou nulo volta para [AppLocale.system].
 AppLocale parseAppLocale(String? raw) =>
     AppLocale.values.asNameMap()[raw?.trim()] ?? AppLocale.system;
+
+/// Código do idioma efetivo (`pt`, `en` ou `es`). Em [AppLocale.system], usa
+/// o idioma do aparelho ([systemCode]); fora dos três, português.
+String resolveLangCode(AppLocale locale, {required String systemCode}) {
+  final code = switch (locale) {
+    AppLocale.pt => 'pt',
+    AppLocale.en => 'en',
+    AppLocale.es => 'es',
+    AppLocale.system => systemCode,
+  };
+  return switch (code) {
+    'en' => 'en',
+    'es' => 'es',
+    _ => 'pt',
+  };
+}

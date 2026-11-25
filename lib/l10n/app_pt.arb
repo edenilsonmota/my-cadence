@@ -1,7 +1,6 @@
 {
   "@@locale": "pt",
   "appTitle": "My Cadence",
-
   "navToday": "Hoje",
   "navTasks": "Tarefas",
   "navAgenda": "Agenda",
@@ -11,7 +10,6 @@
   "navStats": "Métricas",
   "navSettings": "Ajustes",
   "navComponents": "Componentes",
-
   "actionSave": "Salvar",
   "actionCancel": "Cancelar",
   "actionCreate": "Criar",
@@ -28,7 +26,6 @@
   "actionMoreOptions": "Mais opções",
   "actionDecrease": "Diminuir",
   "actionIncrease": "Aumentar",
-
   "settingsAppearance": "Aparência",
   "settingsTheme": "Tema",
   "themeAutomatic": "Automático",
@@ -47,13 +44,16 @@
   "settingsLanguage": "Idioma",
   "languageAutomatic": "Automático (celular)",
   "settingsNavBar": "Barra de navegação",
-
   "navBarPreview": "Prévia",
   "navBarPreviewDetail": "{count} de {max} abas",
   "@navBarPreviewDetail": {
     "placeholders": {
-      "count": {"type": "int"},
-      "max": {"type": "int"}
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
   },
   "navBarHelper": "A primeira aba abre com o app. As telas fora da barra continuam no menu lateral.",
@@ -64,19 +64,25 @@
   "navBarInitialTabMin": "Aba inicial · mínimo de {min} abas",
   "@navBarInitialTabMin": {
     "placeholders": {
-      "min": {"type": "int"}
+      "min": {
+        "type": "int"
+      }
     }
   },
   "navBarMinLimit": "Mínimo de {min} abas na barra",
   "@navBarMinLimit": {
     "placeholders": {
-      "min": {"type": "int"}
+      "min": {
+        "type": "int"
+      }
     }
   },
   "navBarMaxLimit": "Máximo de {max} abas atingido",
   "@navBarMaxLimit": {
     "placeholders": {
-      "max": {"type": "int"}
+      "max": {
+        "type": "int"
+      }
     }
   },
   "navBarDrawerHint": "Acessível pelo menu lateral",
@@ -84,17 +90,20 @@
   "navBarDragSemantics": "Arrastar {label}",
   "@navBarDragSemantics": {
     "placeholders": {
-      "label": {"type": "String"}
+      "label": {
+        "type": "String"
+      }
     }
   },
-
   "settingsFlashcards": "Flashcards",
   "settingsNewCardsPerDay": "Cards novos por dia",
   "settingsDesiredRetention": "Retenção desejada",
   "settingsDesiredRetentionHint": "{percent}%: mais alta = revisões mais frequentes",
   "@settingsDesiredRetentionHint": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "settingsDesiredRetentionSemantics": "Retenção desejada em porcentagem",
@@ -106,7 +115,9 @@
   "settingsLongBreakEveryDetail": "{count} focos",
   "@settingsLongBreakEveryDetail": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "settingsLongBreakEverySemantics": "Focos até a pausa longa",
@@ -121,7 +132,9 @@
   "settingsAllDayReminderHint": "Tarefas sem hora lembram às {hour}h (menos a antecedência escolhida)",
   "@settingsAllDayReminderHint": {
     "placeholders": {
-      "hour": {"type": "int"}
+      "hour": {
+        "type": "int"
+      }
     }
   },
   "settingsAllDayReminderSemantics": "Hora do lembrete de dia inteiro",
@@ -134,7 +147,9 @@
   "updateVersion": "Versão {version}",
   "@updateVersion": {
     "placeholders": {
-      "version": {"type": "String"}
+      "version": {
+        "type": "String"
+      }
     }
   },
   "updateIdle": "Toque para procurar uma versão nova",
@@ -143,11 +158,12 @@
   "updateAvailable": "Versão {version} disponível",
   "@updateAvailable": {
     "placeholders": {
-      "version": {"type": "String"}
+      "version": {
+        "type": "String"
+      }
     }
   },
   "updateError": "Não foi possível verificar. Tente de novo.",
-
   "todayEmpty": "Nada para hoje ainda.",
   "todayOverdue": "Atrasadas",
   "todayUndated": "Sem data",
@@ -166,10 +182,11 @@
   "tasksCreated": "Criada: {title}",
   "@tasksCreated": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
-
   "taskKindSimple": "Simples",
   "taskKindStudy": "Estudo",
   "taskKindRoutine": "Rotina",
@@ -187,7 +204,6 @@
   "reminderModeAlarmHint": "Toca como despertador (mesmo no silencioso) até você interagir.",
   "reminderFullScreenBanner": "Para abrir na tela bloqueada, permita notificações em tela cheia nas configurações do Android.",
   "reminderAllowFullScreen": "Permitir tela cheia",
-
   "fieldTitle": "Título",
   "fieldNotes": "Notas",
   "fieldType": "Tipo",
@@ -227,7 +243,6 @@
   "quickDateToday": "Hoje",
   "quickDateTomorrow": "Amanhã",
   "quickDateNextWeek": "Daqui a uma semana",
-
   "pomodoroFocus": "Foco",
   "pomodoroShortBreak": "Pausa curta",
   "pomodoroLongBreak": "Pausa longa",
@@ -244,35 +259,44 @@
   "pomodoroBreakDone": "{kind} concluída",
   "@pomodoroBreakDone": {
     "placeholders": {
-      "kind": {"type": "String"}
+      "kind": {
+        "type": "String"
+      }
     }
   },
   "pomodoroNextRunning": "{kind} em andamento",
   "@pomodoroNextRunning": {
     "placeholders": {
-      "kind": {"type": "String"}
+      "kind": {
+        "type": "String"
+      }
     }
   },
   "pomodoroNextLabel": "Próximo: {kind}",
   "@pomodoroNextLabel": {
     "placeholders": {
-      "kind": {"type": "String"}
+      "kind": {
+        "type": "String"
+      }
     }
   },
   "pomodoroStartNext": "Iniciar {kind}",
   "@pomodoroStartNext": {
     "placeholders": {
-      "kind": {"type": "String"}
+      "kind": {
+        "type": "String"
+      }
     }
   },
   "pomodoroCompleteTask": "Concluir \"{title}\"",
   "@pomodoroCompleteTask": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "pomodoroCycleProgress": "Progresso do ciclo",
-
   "agendaGoToday": "Ir para hoje",
   "agendaGoToDate": "Ir para a data",
   "agendaView": "Visualização",
@@ -281,7 +305,6 @@
   "agenda3Days": "3 dias",
   "agendaMonth": "Mês",
   "agendaCompletedPomodoros": "Pomodoros realizados",
-
   "reviewNewDeck": "Novo deck",
   "reviewImportCsv": "Importar CSV",
   "reviewNewCard": "Novo card",
@@ -291,12 +314,10 @@
   "reviewAllCards": "Todos os cards",
   "reviewDecks": "Decks",
   "reviewNameLabel": "Nome",
-
   "booksImportMarkdown": "Importar Markdown",
   "booksNew": "Novo book",
   "booksLoadError": "Não foi possível carregar os books.",
   "booksEmpty": "Nenhum book criado.\nCrie um no + ou importe arquivos .md.",
-
   "statsFocusTime": "Tempo de foco",
   "statsThisWeek": "Esta semana",
   "statsThisMonth": "Este mês",
@@ -323,20 +344,17 @@
   "statsRoutinesDone": "Rotinas concluídas",
   "statsLess": "menos",
   "statsMore": "mais",
-
   "accountTooltip": "Conta e sincronização",
   "accountSyncing": "Sincronizando",
   "accountOffline": "Sem conexão: sincroniza depois",
   "accountPending": "Alterações a sincronizar",
   "accountError": "Erro na sincronização",
   "accountSynced": "Sincronizado",
-
   "actionClear": "Limpar",
   "actionBack": "Voltar",
   "actionAdd": "Adicionar",
   "actionRename": "Renomear",
   "actionDrag": "Arrastar",
-
   "tasksEmptyCreated": "Nenhuma tarefa criada.",
   "tasksExpandSubtasks": "Mostrar subtarefas",
   "tasksCollapseSubtasks": "Recolher subtarefas",
@@ -351,7 +369,9 @@
   "taskTagCount": "{count} tags",
   "@taskTagCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "taskLoadOneError": "Não foi possível carregar a tarefa.",
@@ -361,14 +381,18 @@
   "subtaskOf": "Subtarefa de {title}",
   "@subtaskOf": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "taskChangeStatus": "Mudar status",
   "taskPriorityBadge": "Prioridade {label}",
   "@taskPriorityBadge": {
     "placeholders": {
-      "label": {"type": "String"}
+      "label": {
+        "type": "String"
+      }
     }
   },
   "fieldRecurrence": "Repetição",
@@ -380,15 +404,23 @@
   "routineTotalCompletions": "{count} {unit} no total",
   "@routineTotalCompletions": {
     "placeholders": {
-      "count": {"type": "int"},
-      "unit": {"type": "String"}
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "routineStreakDays": "{count} {unit}",
   "@routineStreakDays": {
     "placeholders": {
-      "count": {"type": "int"},
-      "unit": {"type": "String"}
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "routineDaySingular": "dia seguido",
@@ -399,20 +431,28 @@
   "routineNext": "Rotina concluída. Próxima: {when}.",
   "@routineNext": {
     "placeholders": {
-      "when": {"type": "String"}
+      "when": {
+        "type": "String"
+      }
     }
   },
   "taskDeleted": "\"{title}\" excluída",
   "@taskDeleted": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "taskDeletedWithSubtasks": "\"{title}\" e {count} subtarefa(s) excluídas",
   "@taskDeletedWithSubtasks": {
     "placeholders": {
-      "title": {"type": "String"},
-      "count": {"type": "int"}
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "repeatIntervalSemantics": "Intervalo da repetição",
@@ -423,16 +463,19 @@
   "fieldClearLabel": "Limpar {label}",
   "@fieldClearLabel": {
     "placeholders": {
-      "label": {"type": "String"}
+      "label": {
+        "type": "String"
+      }
     }
   },
   "reminderMinutesBefore": "{minutes} min antes",
   "@reminderMinutesBefore": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
-
   "hubAdd": "ADICIONAR",
   "hubFlashcard": "Flashcard",
   "hubPage": "Página",
@@ -444,15 +487,21 @@
   "hubFocusTimeValue": "Tempo de foco: {duration}",
   "@hubFocusTimeValue": {
     "placeholders": {
-      "duration": {"type": "String"}
+      "duration": {
+        "type": "String"
+      }
     }
   },
   "hubNoSessionsYet": "Nenhuma sessão ainda",
   "hubFocusSessions": "{count} {unit} de foco (inclui subtarefas)",
   "@hubFocusSessions": {
     "placeholders": {
-      "count": {"type": "int"},
-      "unit": {"type": "String"}
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "unitSession": "sessão",
@@ -467,15 +516,20 @@
   "hubEstimatedVsDone": "Estimado × realizado: {done} de {estimated}",
   "@hubEstimatedVsDone": {
     "placeholders": {
-      "done": {"type": "int"},
-      "estimated": {"type": "int"}
+      "done": {
+        "type": "int"
+      },
+      "estimated": {
+        "type": "int"
+      }
     }
   },
-
   "agendaNextTaskIn": "Próxima tarefa em {wait}",
   "@agendaNextTaskIn": {
     "placeholders": {
-      "wait": {"type": "String"}
+      "wait": {
+        "type": "String"
+      }
     }
   },
   "agendaSearchTask": "Buscar tarefa",
@@ -484,27 +538,32 @@
   "agendaExpandAllDay": "Expandir dia inteiro",
   "agendaCollapseAllDay": "Recolher dia inteiro",
   "agendaRoutineRescheduled": "Rotina reagendada (todas as ocorrências).",
-
   "reviewEmptyAction": "Criar deck",
   "reviewEmptyAlt": "Nenhum card ainda.\nCrie um card no + ou importe um CSV.",
   "reviewNothingDue": "Nada para revisar agora",
   "reviewDueNow": "{count} para revisar agora",
   "@reviewDueNow": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "reviewNextIn": "Próximo card em {minutes} min.",
   "@reviewNextIn": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "reviewAll": "Revisar tudo",
   "reviewDeckDueSuffix": "{count} para revisar",
   "@reviewDeckDueSuffix": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "reviewSessionTitle": "Revisão",
@@ -519,43 +578,55 @@
   "reviewNextCardSoon": "Próximo card em {minutes} min.\nEle aparece aqui sozinho.",
   "@reviewNextCardSoon": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "reviewNothingDueDot": "Nada para revisar agora.",
   "reviewAllDone": "Tudo revisado por agora! {count} {unit} nesta sessão.",
   "@reviewAllDone": {
     "placeholders": {
-      "count": {"type": "int"},
-      "unit": {"type": "String"}
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "unitCard": "card",
   "unitCards": "cards",
   "reviewRemainingSingular": "card restante",
   "reviewRemainingPlural": "cards restantes",
-
   "booksOptions": "Opções do book",
   "booksExportZip": "Exportar (.zip)",
   "booksDeleteTitle": "Excluir \"{title}\"?",
   "@booksDeleteTitle": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "booksDeleteMessage": "Todas as páginas do book serão excluídas.",
-
   "statsSameAs": "igual a {period}",
   "@statsSameAs": {
     "placeholders": {
-      "period": {"type": "String"}
+      "period": {
+        "type": "String"
+      }
     }
   },
   "statsVs": "{delta} vs {period}",
   "@statsVs": {
     "placeholders": {
-      "delta": {"type": "String"},
-      "period": {"type": "String"}
+      "delta": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
     }
   },
   "statsYesterday": "ontem",
@@ -563,7 +634,9 @@
   "statsFocusHoursPer": "Horas de foco por {unit}",
   "@statsFocusHoursPer": {
     "placeholders": {
-      "unit": {"type": "String"}
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "statsUnitDay": "dia",
@@ -576,8 +649,12 @@
   "statsOf": "{done} de {total}",
   "@statsOf": {
     "placeholders": {
-      "done": {"type": "int"},
-      "total": {"type": "int"}
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "statsReviewsChartSemantics": "Gráfico de revisões por dia",
@@ -589,9 +666,15 @@
   "statsRoutineTotal": "{count} {unit} nas últimas {weeks} semanas",
   "@statsRoutineTotal": {
     "placeholders": {
-      "count": {"type": "int"},
-      "unit": {"type": "String"},
-      "weeks": {"type": "int"}
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "weeks": {
+        "type": "int"
+      }
     }
   },
   "unitCompletion": "conclusão",
@@ -599,16 +682,19 @@
   "statsWeekOf": "Semana de {date}",
   "@statsWeekOf": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
-
   "settingsAlarmDiagnostics": "Diagnóstico de alarmes",
   "settingsAlarmDiagnosticsOk": "Tudo certo para tocar",
   "settingsAlarmDiagnosticsIssues": "{count, plural, =1{1 ajuste recomendado} other{{count} ajustes recomendados}}",
   "@settingsAlarmDiagnosticsIssues": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "diagnosticsRefresh": "Verificar novamente",
@@ -637,29 +723,33 @@
   "diagBatteryRestricted": "Com restrição — aparelhos (ex.: \"apps em suspensão\" da Samsung) podem atrasar alarmes.",
   "formDiagnosticsWarning": "Este lembrete pode não tocar: confira as permissões de notificação e alarme.",
   "formDiagnosticsAction": "Ver diagnóstico",
-
   "actionSnooze": "Adiar",
   "snooze10Min": "10 min",
   "snooze1Hour": "1 h",
   "snoozeTomorrowMorning": "Amanhã cedo ({time})",
   "@snoozeTomorrowMorning": {
     "placeholders": {
-      "time": {"type": "String"}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "snoozedUntil": "Lembrete adiado para {when}.",
   "@snoozedUntil": {
     "placeholders": {
-      "when": {"type": "String"}
+      "when": {
+        "type": "String"
+      }
     }
   },
-
   "settingsDailyReminders": "Avisos diários",
   "settingsDailySummary": "Resumo diário de tarefas",
   "settingsDailySummaryHint": "Avisa sobre tarefas de hoje e atrasadas às {hour}h",
   "@settingsDailySummaryHint": {
     "placeholders": {
-      "hour": {"type": "int"}
+      "hour": {
+        "type": "int"
+      }
     }
   },
   "settingsDailySummaryOffHint": "Receba um resumo diário de tarefas pendentes",
@@ -668,13 +758,14 @@
   "settingsDailyReviewHint": "Lembra às {hour}h quando houver cards para revisar",
   "@settingsDailyReviewHint": {
     "placeholders": {
-      "hour": {"type": "int"}
+      "hour": {
+        "type": "int"
+      }
     }
   },
   "settingsDailyReviewOffHint": "Avisa quando houver cards vencidos (não avisa com zero)",
   "settingsDailyReviewHourSemantics": "Hora do aviso diário de flashcards",
   "settingsHourLabel": "Horário (h)",
-
   "fieldReminders": "Lembretes",
   "remindersHelperMultiple": "Escolha um ou mais horários para lembrar.",
   "fieldNagIfOverdue": "Insistir se atrasar",
@@ -682,20 +773,313 @@
   "nagEveryMinutes": "A cada {minutes} min",
   "@nagEveryMinutes": {
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "nagHint": "Repete até {max}× após o horário enquanto a tarefa não for concluída.",
   "@nagHint": {
     "placeholders": {
-      "max": {"type": "int"}
+      "max": {
+        "type": "int"
+      }
     }
   },
   "nagHubDetail": "A cada {minutes} min (até {max}×)",
   "@nagHubDetail": {
     "placeholders": {
-      "minutes": {"type": "int"},
-      "max": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "booksRename": "Renomear book",
+  "booksExported": "Book exportado ({count} páginas).",
+  "@booksExported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booksNoMarkdown": "Nenhum arquivo .md encontrado.",
+  "booksImportedDefault": "Importado",
+  "booksImportAsBook": "Importar como book",
+  "booksBookTitle": "Título do book",
+  "actionImport": "Importar",
+  "booksPagesImported": "{count, plural, =1{1 página importada.} other{{count} páginas importadas.}}",
+  "@booksPagesImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pageNew": "Nova página",
+  "pageNewSub": "Nova subpágina",
+  "pageRename": "Renomear página",
+  "pageDeleteTitle": "Excluir \"{title}\"?",
+  "@pageDeleteTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pageDeleteMessage": "As subpáginas também serão excluídas.",
+  "pageExported": "Página exportada.",
+  "bookFallbackTitle": "Book",
+  "bookOptions": "Opções do book",
+  "bookImportPages": "Importar páginas (.md)",
+  "bookExportZip": "Exportar (.zip)",
+  "pagesLoadError": "Não foi possível carregar as páginas.",
+  "bookTaskNotebook": "Caderno da tarefa {title}",
+  "@bookTaskNotebook": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pagesEmpty": "Nenhuma página ainda.",
+  "pageCreate": "Criar página",
+  "pageOptions": "Opções da página",
+  "actionMoveUp": "Mover para cima",
+  "actionMoveDown": "Mover para baixo",
+  "pageExportMd": "Exportar (.md)",
+  "pageSelectTextFirst": "Selecione um trecho do texto primeiro.",
+  "pageUseAsFront": "Usar como frente",
+  "pageUseAsBack": "Usar como verso",
+  "pageFlashcardCreated": "Flashcard criado.",
+  "pageLinkTask": "Vincular a tarefa",
+  "pageWriteHere": "Escreva aqui…",
+  "pageNotFound": "Página não encontrada.",
+  "pageReadMode": "Modo leitura",
+  "pageCreateCardFromSelection": "Criar flashcard da seleção",
+  "pageIcon": "Ícone",
+  "pageDelete": "Excluir página",
+  "actionCopy": "Copiar",
+  "actionCut": "Recortar",
+  "actionPaste": "Colar",
+  "pageCreateCard": "Criar flashcard",
+  "pageIconTooltip": "Ícone da página",
+  "editorImageByLink": "Imagem por link",
+  "editorImageUrl": "Endereço da imagem (https://…)",
+  "actionInsert": "Inserir",
+  "cardDeleted": "Card excluído",
+  "cardsNoneInFile": "Nenhum card encontrado no arquivo.",
+  "cardsImported": "{count, plural, =1{1 card importado.} other{{count} cards importados.}}",
+  "@cardsImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsImportTitle": "Importar cards",
+  "cardsFound": "{count, plural, =1{1 card encontrado.} other{{count} cards encontrados.}}",
+  "@cardsFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsSkippedLines": "Linhas ignoradas (sem frente ou verso): {lines}",
+  "@cardsSkippedLines": {
+    "placeholders": {
+      "lines": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldDeck": "Deck",
+  "deckNone": "Sem deck",
+  "cardEdit": "Editar card",
+  "cardFront": "Frente",
+  "cardBack": "Verso",
+  "cardMarkdownHint": "Aceita **negrito**, *itálico*, `código` e - listas",
+  "cardSave": "Salvar card",
+  "deckRename": "Renomear deck",
+  "deckDeleteTitle": "Excluir \"{name}\"?",
+  "@deckDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deckDeleteMessage": "Os cards continuam existindo, sem deck.",
+  "deckOptions": "Opções do deck",
+  "deckDelete": "Excluir deck",
+  "cardsEmptyHere": "Nenhum card aqui ainda.",
+  "cardCreate": "Criar card",
+  "cardsReviewCount": "Revisar {count} agora",
+  "@cardsReviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardSuspended": "Suspenso",
+  "cardNew": "Novo",
+  "cardNextReview": "Revisão: {when}",
+  "@cardNextReview": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "cardOptions": "Opções do card",
+  "cardReactivate": "Reativar",
+  "cardSuspend": "Suspender",
+  "syncCloudHasData": "Já existem dados na nuvem",
+  "syncCloudHasDataOtherAccount": "A nova conta tem um Google Drive diferente, com dados do My Cadence. O que fazer com os dados deste aparelho?",
+  "syncCloudHasDataThisAccount": "Esta conta já tem dados do My Cadence. O que fazer com os dados deste aparelho?",
+  "syncUseCloudOnly": "Usar só os da nuvem",
+  "syncMerge": "Juntar",
+  "syncCloudLoaded": "Dados da nuvem carregados. Uma cópia dos anteriores foi guardada.",
+  "backupManual": "Backup manual",
+  "backupRestoreCopy": "Restaurar cópia",
+  "backupDailyCopyHint": "O app guarda uma cópia por dia",
+  "syncWithDrive": "Sincronize com o Google Drive",
+  "syncDriveExplain": "Seus dados ficam numa pasta privada do app no seu Google Drive, usando o seu espaço. Só este app enxerga essa pasta.",
+  "syncConnectGoogle": "Conectar com Google",
+  "syncNotConfigured": "Login com Google ainda não configurado neste app.",
+  "syncStatusSyncing": "Sincronizando…",
+  "syncStatusOffline": "Sem conexão. Sincroniza quando voltar.",
+  "syncStatusPending": "Alterações a sincronizar",
+  "syncStatusError": "Erro ao sincronizar",
+  "syncStatusSyncedAgo": "Sincronizado {ago}",
+  "@syncStatusSyncedAgo": {
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "syncStatusNever": "Ainda não sincronizado",
+  "syncAgoNow": "agora há pouco",
+  "syncAgoMinutes": "há {count} min",
+  "@syncAgoMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncAgoHours": "há {count} h",
+  "@syncAgoHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncAgoDays": "{count, plural, =1{há 1 dia} other{há {count} dias}}",
+  "@syncAgoDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncSignInAgain": "Entrar novamente",
+  "syncUseCloudData": "Usar os dados da nuvem",
+  "syncNow": "Sincronizar agora",
+  "syncAuto": "Sincronização automática",
+  "syncAutoHint": "Ao abrir, ao voltar ao app e após alterações",
+  "syncSwitchAccount": "Trocar conta",
+  "syncDisconnect": "Desconectar",
+  "syncDisconnected": "Desconectado. Os dados continuam neste aparelho.",
+  "syncDeviceName": "Nome deste aparelho",
+  "syncThisDevice": "Este aparelho",
+  "syncLog": "Log de sync",
+  "syncLogEmpty": "Nenhuma sincronização ainda.",
+  "backupExported": "Backup exportado.",
+  "backupNoCopies": "Nenhuma cópia guardada ainda.",
+  "backupReplaceAllQuestion": "Substituir tudo?",
+  "backupReplaceWarning": "Os dados deste aparelho serão trocados pelos do arquivo. Antes, uma cópia dos dados atuais fica guardada no app.",
+  "backupReplace": "Substituir",
+  "backupReplaced": "Dados substituídos. Uma cópia dos anteriores foi guardada.",
+  "backupNothingNew": "Nada novo no arquivo.",
+  "backupMerged": "Backup mesclado: {inserted} novos, {updated} atualizados, {deleted} excluídos.",
+  "@backupMerged": {
+    "placeholders": {
+      "inserted": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportTitle": "Importar backup",
+  "backupFrom": "De {when}",
+  "@backupFrom": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "countTasks": "{count, plural, =1{1 tarefa} other{{count} tarefas}}",
+  "@countTasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "countCards": "{count, plural, =1{1 card} other{{count} cards}}",
+  "@countCards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "countBooks": "{count, plural, =1{1 book} other{{count} books}}",
+  "@countBooks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "countPages": "{count, plural, =1{1 página} other{{count} páginas}}",
+  "@countPages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupMerge": "Mesclar",
+  "backupMergeHint": "Junta com os dados deste aparelho. Nada é apagado.",
+  "backupReplaceAll": "Substituir tudo",
+  "backupReplaceAllHint": "Troca os dados deste aparelho pelos do arquivo.",
+  "pickerIcon": "Ícone",
+  "pickerColor": "Cor",
+  "pickerUseDefault": "Usar padrão",
+  "pickerColorSection": "COR",
+  "pickerSearchIcon": "Buscar ícone",
+  "actionApply": "Aplicar",
+  "timelineFocus": "Foco {range}",
+  "@timelineFocus": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
     }
   }
 }

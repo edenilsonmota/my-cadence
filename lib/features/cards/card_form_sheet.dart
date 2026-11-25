@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
@@ -102,7 +103,9 @@ class _CardFormState extends ConsumerState<_CardForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.editing == null ? 'Novo card' : 'Editar card',
+              widget.editing == null
+                  ? context.l10n.reviewNewCard
+                  : context.l10n.cardEdit,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -112,7 +115,7 @@ class _CardFormState extends ConsumerState<_CardForm> {
               minLines: 1,
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(labelText: 'Frente'),
+              decoration: InputDecoration(labelText: context.l10n.cardFront),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -121,19 +124,21 @@ class _CardFormState extends ConsumerState<_CardForm> {
               minLines: 1,
               maxLines: 6,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Verso',
-                helperText:
-                    'Aceita **negrito**, *itálico*, `código` e - listas',
+              decoration: InputDecoration(
+                labelText: context.l10n.cardBack,
+                helperText: context.l10n.cardMarkdownHint,
               ),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String?>(
               initialValue: decks.any((d) => d.id == _deckId) ? _deckId : null,
-              decoration: const InputDecoration(labelText: 'Deck'),
+              decoration: InputDecoration(labelText: context.l10n.fieldDeck),
               items: [
-                const DropdownMenuItem(value: null, child: Text('Sem deck')),
+                DropdownMenuItem(
+                  value: null,
+                  child: Text(context.l10n.deckNone),
+                ),
                 for (final d in decks)
                   DropdownMenuItem(value: d.id, child: Text(d.name)),
               ],
@@ -142,10 +147,10 @@ class _CardFormState extends ConsumerState<_CardForm> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(AppIcons.task),
-              title: Text(task?.title ?? 'Sem tarefa'),
-              subtitle: const Text('Tarefa vinculada'),
+              title: Text(task?.title ?? context.l10n.pomodoroNoTask),
+              subtitle: Text(context.l10n.pomodoroLinkedTask),
               trailing: TextButton(
-                child: const Text('Trocar'),
+                child: Text(context.l10n.actionChange),
                 onPressed: () async {
                   final picked = await pickTask(context, current: _taskId);
                   if (picked != null) setState(() => _taskId = picked.id);
@@ -162,7 +167,7 @@ class _CardFormState extends ConsumerState<_CardForm> {
                       taskId: _taskId,
                     ))
                   : null,
-              child: const Text('Salvar card'),
+              child: Text(context.l10n.cardSave),
             ),
           ],
         ),

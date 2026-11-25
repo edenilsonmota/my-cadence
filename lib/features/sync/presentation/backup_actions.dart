@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/l10n/l10n.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/dates.dart';
 import '../../../shared/file_access.dart';
@@ -17,13 +18,14 @@ void _snack(ScaffoldMessengerState messenger, String text) => messenger
 
 /// Exporta todos os dados num JSON (o "Salvar como" do sistema).
 Future<void> exportJsonFlow(BuildContext context, WidgetRef ref) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   final file = await ref.read(manualBackupProvider).export();
   final saved = await ref.read(fileSaverProvider)(
     file.name,
     BackupFile.encode(file.snapshot),
   );
-  if (saved) _snack(messenger, 'Backup exportado.');
+  if (saved) _snack(messenger, l10n.backupExported);
 }
 
 /// Escolhe um JSON, mostra a prévia e mescla ou substitui.
@@ -39,13 +41,13 @@ Future<void> restoreCopyFlow(BuildContext context, WidgetRef ref) async {
   final copies = await ref.read(backupCopiesProvider)();
   if (!context.mounted) return;
   if (copies.isEmpty) {
-    _snack(ScaffoldMessenger.of(context), 'Nenhuma cópia guardada ainda.');
+    _snack(ScaffoldMessenger.of(context), context.l10n.backupNoCopies);
     return;
   }
   final picked = await showDialog<BackupCopy>(
     context: context,
     builder: (context) => SimpleDialog(
-      title: const Text('Restaurar cópia'),
+      title: Text(context.l10n.backupRestoreCopy),
       children: [
         for (final c in copies)
           SimpleDialogOption(
@@ -67,6 +69,7 @@ Future<void> importBytesFlow(
   WidgetRef ref,
   Uint8List bytes,
 ) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   final backup = ref.read(manualBackupProvider);
   final ImportPreview preview;
@@ -86,29 +89,23 @@ Future<void> importBytesFlow(
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Substituir tudo?'),
-        content: const Text(
-          'Os dados deste aparelho serão trocados pelos do arquivo. '
-          'Antes, uma cópia dos dados atuais fica guardada no app.',
-        ),
+        title: Text(l10n.backupReplaceAllQuestion),
+        content: Text(l10n.backupReplaceWarning),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Substituir'),
+            child: Text(l10n.backupReplace),
           ),
         ],
       ),
     );
     if (confirmed != true) return;
     await backup.importReplace(preview);
-    _snack(
-      messenger,
-      'Dados substituídos. Uma cópia dos anteriores foi guardada.',
-    );
+    _snack(messenger, l10n.backupReplaced);
     return;
   }
   final counts = await backup.importMerge(preview);
@@ -116,9 +113,8 @@ Future<void> importBytesFlow(
   _snack(
     messenger,
     changed == 0
-        ? 'Nada novo no arquivo.'
-        : 'Backup mesclado: ${counts.inserted} novos, '
-              '${counts.updated} atualizados, ${counts.deleted} excluídos.',
+        ? l10n.backupNothingNew
+        : l10n.backupMerged(counts.inserted, counts.updated, counts.deleted),
   );
 }
 
@@ -141,8 +137,8 @@ class _ImportPreviewSheetState extends State<_ImportPreviewSheet> {
     final p = widget.preview;
     final space = context.space;
     final local = p.generatedAt.toLocal();
-    final when = '${formatDate(local, DateTime.now())}, ${formatTime(local)}';
-    String count(int n, String one, String many) => '$n ${n == 1 ? one : many}';
+    final when =
+        '${formatDate(local, DateTime.now(), lang: context.lang)}, ${formatTime(local)}';
 
     return SafeArea(
       child: Padding(
@@ -151,10 +147,15 @@ class _ImportPreviewSheetState extends State<_ImportPreviewSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Importar backup', style: context.text.titleLarge),
+            Text(
+              context.l10n.backupImportTitle,
+              style: context.text.titleLarge,
+            ),
             SizedBox(height: space.xs),
             Text(
-              'De $when${p.deviceName.isEmpty ? '' : ' · ${p.deviceName}'}',
+              context.l10n.backupFrom(
+                '$when${p.deviceName.isEmpty ? '' : ' · ${p.deviceName}'}',
+              ),
               style: context.text.bodyMedium!.copyWith(
                 color: context.colors.onSurfaceVariant,
               ),
@@ -166,19 +167,19 @@ class _ImportPreviewSheetState extends State<_ImportPreviewSheet> {
               children: [
                 Chip(
                   avatar: const Icon(AppIcons.task),
-                  label: Text(count(p.tasks, 'tarefa', 'tarefas')),
+                  label: Text(context.l10n.countTasks(p.tasks)),
                 ),
                 Chip(
                   avatar: const Icon(AppIcons.flashcard),
-                  label: Text(count(p.cards, 'card', 'cards')),
+                  label: Text(context.l10n.countCards(p.cards)),
                 ),
                 Chip(
                   avatar: const Icon(AppIcons.book),
-                  label: Text(count(p.books, 'book', 'books')),
+                  label: Text(context.l10n.countBooks(p.books)),
                 ),
                 Chip(
                   avatar: const Icon(AppIcons.page),
-                  label: Text(count(p.pages, 'página', 'páginas')),
+                  label: Text(context.l10n.countPages(p.pages)),
                 ),
               ],
             ),
@@ -186,23 +187,19 @@ class _ImportPreviewSheetState extends State<_ImportPreviewSheet> {
             RadioGroup<_ImportChoice>(
               groupValue: _choice,
               onChanged: (v) => setState(() => _choice = v!),
-              child: const Column(
+              child: Column(
                 children: [
                   RadioListTile(
                     value: _ImportChoice.merge,
                     contentPadding: EdgeInsets.zero,
-                    title: Text('Mesclar'),
-                    subtitle: Text(
-                      'Junta com os dados deste aparelho. Nada é apagado.',
-                    ),
+                    title: Text(context.l10n.backupMerge),
+                    subtitle: Text(context.l10n.backupMergeHint),
                   ),
                   RadioListTile(
                     value: _ImportChoice.replace,
                     contentPadding: EdgeInsets.zero,
-                    title: Text('Substituir tudo'),
-                    subtitle: Text(
-                      'Troca os dados deste aparelho pelos do arquivo.',
-                    ),
+                    title: Text(context.l10n.backupReplaceAll),
+                    subtitle: Text(context.l10n.backupReplaceAllHint),
                   ),
                 ],
               ),
@@ -210,7 +207,7 @@ class _ImportPreviewSheetState extends State<_ImportPreviewSheet> {
             SizedBox(height: space.lg),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(_choice),
-              child: const Text('Importar'),
+              child: Text(context.l10n.actionImport),
             ),
           ],
         ),

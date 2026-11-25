@@ -334,7 +334,9 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
               width: _pomodoroLane,
               height: math.max(minutesFrom(day, to) * hourHeight / 60 - top, 3),
               child: Tooltip(
-                message: 'Foco ${formatTime(s.startedAt)}–${formatTime(to)}',
+                message: context.l10n.timelineFocus(
+                  '${formatTime(s.startedAt)}–${formatTime(to)}',
+                ),
                 child: CustomPaint(painter: _HatchPainter(scheme.tertiary)),
               ),
             ),

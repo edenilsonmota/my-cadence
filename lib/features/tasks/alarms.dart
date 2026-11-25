@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/locale_providers.dart';
+import '../../app/l10n/locale_settings.dart';
 import '../../core/dates.dart';
 import '../../core/notification_id.dart';
 import '../../core/notifications.dart';
@@ -185,6 +188,7 @@ AlarmSpec _spec(
     kind: task.reminderMode == ReminderMode.alarme
         ? AlarmKind.taskAlarm
         : AlarmKind.task,
+    lang: lang,
   );
 }
 
@@ -225,6 +229,16 @@ class AlarmSync {
   int get allDayHour => _allDayHour;
   int _allDayHour = allDayReminderHour;
 
+  /// Idioma do texto e dos botões das notificações.
+  String _lang = 'pt';
+
+  /// Muda o idioma e reagenda os lembretes com o texto novo.
+  Future<void> setLang(String lang) async {
+    if (lang == _lang) return;
+    _lang = lang;
+    if (_last case final tasks?) await update(tasks);
+  }
+
   /// Muda a hora e reagenda os lembretes de dia inteiro.
   Future<void> setAllDayHour(int hour) async {
     if (hour == _allDayHour) return;
@@ -245,7 +259,12 @@ class AlarmSync {
     final now = _clock();
     final desired = <int, AlarmSpec>{};
     for (final task in tasks) {
-      for (final alarm in alarmsForTask(task, now, allDayHour: _allDayHour)) {
+      for (final alarm in alarmsForTask(
+        task,
+        now,
+        allDayHour: _allDayHour,
+        lang: _lang,
+      )) {
         desired[alarm.id] = alarm;
       }
     }
@@ -299,10 +318,18 @@ final alarmSyncProvider = Provider<AlarmSync>((ref) {
       .watch(settingsRepositoryProvider)
       .watchString(allDayReminderHourKey)
       .listen((v) => sync.setAllDayHour(parseAllDayHour(v)));
+  sync.setLang(langOfLocale(ref.read(appLocaleProvider)));
+  ref.listen(appLocaleProvider, (_, next) => sync.setLang(langOfLocale(next)));
   ref.onDispose(subscription.cancel);
   ref.onDispose(hour.cancel);
   return sync;
 });
+
+/// Código do idioma efetivo para textos fora da árvore de widgets.
+String langOfLocale(AppLocale locale) => resolveLangCode(
+  locale,
+  systemCode: PlatformDispatcher.instance.locale.languageCode,
+);
 
 /// Executa uma ação de notificação ("Concluir", "Adiar 10 min" ou "Adiar 1 h").
 /// Usado pelo isolate de segundo plano, que não tem o [AlarmSync] rodando,
@@ -314,6 +341,7 @@ Future<void> handleAlarmAction({
   required AlarmScheduler scheduler,
   required DateTime now,
   int allDayHour = allDayReminderHour,
+  String lang = 'pt',
 }) async {
   if (taskId == null) return;
   final task = await repo.getTask(taskId);
@@ -325,7 +353,7 @@ Future<void> handleAlarmAction({
       final updated = await repo.completeTask(task.id, now: now);
       final nextAlarms = updated == null
           ? const <AlarmSpec>[]
-          : alarmsForTask(updated, now, allDayHour: allDayHour);
+          : alarmsForTask(updated, now, allDayHour: allDayHour, lang: lang);
       final nextIds = {for (final a in nextAlarms) a.id};
       for (final id in oldIds) {
         if (!nextIds.contains(id)) await scheduler.cancel(id);
@@ -339,6 +367,7 @@ Future<void> handleAlarmAction({
         targetTime: now.add(snoozeDuration),
         now: now,
         scheduler: scheduler,
+        lang: lang,
       );
     case AlarmActions.snooze1h:
       await snoozeTaskAlarm(
@@ -346,6 +375,7 @@ Future<void> handleAlarmAction({
         targetTime: now.add(snoozeLongDuration),
         now: now,
         scheduler: scheduler,
+        lang: lang,
       );
   }
 }

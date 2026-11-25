@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
@@ -29,9 +30,9 @@ class CardsListPage extends ConsumerWidget {
   ) async {
     final name = await showTextInputDialog(
       context,
-      title: 'Renomear deck',
-      label: 'Nome',
-      confirmLabel: 'Salvar',
+      title: context.l10n.deckRename,
+      label: context.l10n.reviewNameLabel,
+      confirmLabel: context.l10n.actionSave,
       initialValue: deck.name,
     );
     if (name != null) {
@@ -49,16 +50,16 @@ class CardsListPage extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Excluir "${deck.name}"?'),
-        content: const Text('Os cards continuam existindo, sem deck.'),
+        title: Text(context.l10n.deckDeleteTitle(deck.name)),
+        content: Text(context.l10n.deckDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Excluir'),
+            child: Text(context.l10n.actionDelete),
           ),
         ],
       ),
@@ -79,39 +80,45 @@ class CardsListPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(deck?.name ?? 'Todos os cards'),
+        title: Text(deck?.name ?? context.l10n.reviewAllCards),
         actions: [
           if (deck != null)
             PopupMenuButton<String>(
-              tooltip: 'Opções do deck',
+              tooltip: context.l10n.deckOptions,
               onSelected: (v) => v == 'renomear'
                   ? _renameDeck(context, ref, deck)
                   : _deleteDeck(context, ref, deck),
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: 'renomear', child: Text('Renomear')),
-                PopupMenuItem(value: 'excluir', child: Text('Excluir deck')),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'renomear',
+                  child: Text(context.l10n.actionRename),
+                ),
+                PopupMenuItem(
+                  value: 'excluir',
+                  child: Text(context.l10n.deckDelete),
+                ),
               ],
             ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Novo card',
+        tooltip: context.l10n.reviewNewCard,
         onPressed: () => createCardFlow(context, ref, deckId: deckId),
         child: const Icon(AppIcons.add),
       ),
       body: cards.when(
         loading: () => const SkeletonList(),
-        error: (_, _) => const EmptyState(
+        error: (_, _) => EmptyState(
           icon: AppIcons.error,
-          message: 'Não foi possível carregar os cards.',
+          message: context.l10n.reviewLoadError,
         ),
         data: (cards) => cards.isEmpty
             ? EmptyState(
                 icon: AppIcons.flashcard,
-                message: 'Nenhum card aqui ainda.',
+                message: context.l10n.cardsEmptyHere,
                 action: FilledButton.tonal(
                   onPressed: () => createCardFlow(context, ref, deckId: deckId),
-                  child: const Text('Criar card'),
+                  child: Text(context.l10n.cardCreate),
                 ),
               )
             : ListView(
@@ -122,7 +129,7 @@ class CardsListPage extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                       child: FilledButton.tonalIcon(
                         icon: const Icon(AppIcons.play),
-                        label: Text('Revisar $due agora'),
+                        label: Text(context.l10n.cardsReviewCount(due)),
                         onPressed: () =>
                             context.push(Routes.reviewSession(deckId: deckId)),
                       ),
@@ -145,10 +152,17 @@ class _CardTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final status = card.suspended
-        ? 'Suspenso'
+        ? context.l10n.cardSuspended
         : isNewCard(card)
-        ? 'Novo'
-        : 'Revisão: ${formatRelative(card.due, today, withTime: card.due.difference(today).inDays < 2)}';
+        ? context.l10n.cardNew
+        : context.l10n.cardNextReview(
+            formatRelative(
+              card.due,
+              today,
+              withTime: card.due.difference(today).inDays < 2,
+              lang: context.lang,
+            ),
+          );
     return ListTile(
       title: Text(card.front, maxLines: 2, overflow: TextOverflow.ellipsis),
       subtitle: Text(
@@ -157,7 +171,7 @@ class _CardTile extends ConsumerWidget {
       ),
       onTap: () => editCardFlow(context, ref, card),
       trailing: PopupMenuButton<String>(
-        tooltip: 'Opções do card',
+        tooltip: context.l10n.cardOptions,
         onSelected: (v) => switch (v) {
           'editar' => editCardFlow(context, ref, card),
           'suspender' =>
@@ -172,12 +186,19 @@ class _CardTile extends ConsumerWidget {
           _ => null,
         },
         itemBuilder: (_) => [
-          const PopupMenuItem(value: 'editar', child: Text('Editar')),
+          PopupMenuItem(value: 'editar', child: Text(context.l10n.actionEdit)),
           PopupMenuItem(
             value: 'suspender',
-            child: Text(card.suspended ? 'Reativar' : 'Suspender'),
+            child: Text(
+              card.suspended
+                  ? context.l10n.cardReactivate
+                  : context.l10n.cardSuspend,
+            ),
           ),
-          const PopupMenuItem(value: 'excluir', child: Text('Excluir')),
+          PopupMenuItem(
+            value: 'excluir',
+            child: Text(context.l10n.actionDelete),
+          ),
         ],
       ),
     );

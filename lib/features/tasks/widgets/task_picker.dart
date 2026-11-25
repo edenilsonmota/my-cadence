@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/l10n/l10n.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../data/db/database.dart';
 import '../../../data/db/enums.dart';
@@ -55,7 +56,7 @@ class _TaskPicker extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text(title, style: Theme.of(context).textTheme.titleMedium),
           ),
-          option(null, 'Sem tarefa'),
+          option(null, context.l10n.pomodoroNoTask),
           for (final task in tasks) option(task.id, task.title),
         ],
       ),

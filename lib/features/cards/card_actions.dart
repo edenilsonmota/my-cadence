@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import 'card_form_sheet.dart';
@@ -65,14 +66,15 @@ Future<void> deleteCardWithUndo(
   Flashcard card,
 ) async {
   final repo = ref.read(cardsRepositoryProvider);
+  final l10n = messenger.context.l10n;
   await repo.deleteCard(card.id);
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: const Text('Card excluído'),
+        content: Text(l10n.cardDeleted),
         action: SnackBarAction(
-          label: 'Desfazer',
+          label: l10n.actionUndo,
           onPressed: () => repo.restoreCard(card.id),
         ),
       ),
@@ -82,14 +84,13 @@ Future<void> deleteCardWithUndo(
 /// Escolhe um CSV (`frente;verso`), mostra quantos cards achou e importa
 /// para o deck escolhido.
 Future<void> importCsvFlow(BuildContext context, WidgetRef ref) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   final text = await ref.read(csvPickerProvider)();
   if (text == null || !context.mounted) return;
   final parsed = parseCardsCsv(text);
   if (parsed.cards.isEmpty) {
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Nenhum card encontrado no arquivo.')),
-    );
+    messenger.showSnackBar(SnackBar(content: Text(l10n.cardsNoneInFile)));
     return;
   }
   final deckId = await showDialog<({String? deckId})>(
@@ -104,13 +105,7 @@ Future<void> importCsvFlow(BuildContext context, WidgetRef ref) async {
         now: ref.read(clockProvider)(),
         deckId: deckId.deckId,
       );
-  messenger.showSnackBar(
-    SnackBar(
-      content: Text(
-        '$count ${count == 1 ? 'card importado' : 'cards importados'}.',
-      ),
-    ),
-  );
+  messenger.showSnackBar(SnackBar(content: Text(l10n.cardsImported(count))));
 }
 
 class _ImportDialog extends ConsumerStatefulWidget {
@@ -131,28 +126,26 @@ class _ImportDialogState extends ConsumerState<_ImportDialog> {
     final found = widget.parsed.cards.length;
     final skipped = widget.parsed.skippedLines;
     return AlertDialog(
-      title: const Text('Importar cards'),
+      title: Text(context.l10n.cardsImportTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$found ${found == 1 ? 'card encontrado' : 'cards encontrados'}.',
-          ),
+          Text(context.l10n.cardsFound(found)),
           if (skipped.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                'Linhas ignoradas (sem frente ou verso): ${skipped.join(', ')}',
+                context.l10n.cardsSkippedLines(skipped.join(', ')),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String?>(
             initialValue: _deckId,
-            decoration: const InputDecoration(labelText: 'Deck'),
+            decoration: InputDecoration(labelText: context.l10n.fieldDeck),
             items: [
-              const DropdownMenuItem(value: null, child: Text('Sem deck')),
+              DropdownMenuItem(value: null, child: Text(context.l10n.deckNone)),
               for (final d in decks)
                 DropdownMenuItem(value: d.id, child: Text(d.name)),
             ],
@@ -163,11 +156,11 @@ class _ImportDialogState extends ConsumerState<_ImportDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+          child: Text(context.l10n.actionCancel),
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop((deckId: _deckId)),
-          child: const Text('Importar'),
+          child: Text(context.l10n.actionImport),
         ),
       ],
     );

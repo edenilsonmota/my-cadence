@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import '../../shared/widgets/text_input_dialog.dart';
 
@@ -44,9 +45,9 @@ final imageMobileToolbarItem = MobileToolbarItem.action(
     final selection = editorState.selection;
     final url = await showTextInputDialog(
       context,
-      title: 'Imagem por link',
-      label: 'Endereço da imagem (https://…)',
-      confirmLabel: 'Inserir',
+      title: context.l10n.editorImageByLink,
+      label: context.l10n.editorImageUrl,
+      confirmLabel: context.l10n.actionInsert,
     );
     final link = url?.trim() ?? '';
     if (!link.startsWith('http')) return;

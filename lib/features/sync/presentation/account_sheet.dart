@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/clock.dart';
+import '../../../app/l10n/l10n.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/dates.dart';
 import '../../../shared/widgets/section_header.dart';
@@ -33,6 +34,7 @@ Future<void> connectFlow(
   WidgetRef ref, {
   bool switching = false,
 }) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   // O trecho da folha que chamou some ao conectar (vira o "conectado"):
   // depois dos awaits, use o container, não o `ref` do widget.
@@ -63,26 +65,24 @@ Future<void> connectFlow(
       final choice = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Já existem dados na nuvem'),
+          title: Text(l10n.syncCloudHasData),
           content: Text(
             switching
-                ? 'A nova conta tem um Google Drive diferente, com dados do '
-                      'My Cadence. O que fazer com os dados deste aparelho?'
-                : 'Esta conta já tem dados do My Cadence. O que fazer com os '
-                      'dados deste aparelho?',
+                ? l10n.syncCloudHasDataOtherAccount
+                : l10n.syncCloudHasDataThisAccount,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop('cancelar'),
-              child: const Text('Cancelar'),
+              child: Text(l10n.actionCancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop('nuvem'),
-              child: const Text('Usar só os da nuvem'),
+              child: Text(l10n.syncUseCloudOnly),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop('juntar'),
-              child: const Text('Juntar'),
+              child: Text(l10n.syncMerge),
             ),
           ],
         ),
@@ -92,10 +92,7 @@ Future<void> connectFlow(
           await container
               .read(syncServiceProvider.notifier)
               .replaceWithRemote();
-          _snack(
-            messenger,
-            'Dados da nuvem carregados. Uma cópia dos anteriores foi guardada.',
-          );
+          _snack(messenger, l10n.syncCloudLoaded);
           return;
         case 'juntar':
           break;
@@ -128,25 +125,25 @@ class _AccountSheet extends ConsumerWidget {
               _Disconnected(configured: account?.configured ?? false)
             else
               _Connected(info: info),
-            const SectionHeader('Backup manual', padding: EdgeInsets.zero),
+            SectionHeader(context.l10n.backupManual, padding: EdgeInsets.zero),
             SizedBox(height: space.xs),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(AppIcons.export),
-              title: const Text('Exportar JSON'),
+              title: Text(context.l10n.settingsExportJson),
               onTap: () => exportJsonFlow(context, ref),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(AppIcons.import),
-              title: const Text('Importar JSON'),
+              title: Text(context.l10n.settingsImportJson),
               onTap: () => importJsonFlow(context, ref),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(AppIcons.history),
-              title: const Text('Restaurar cópia'),
-              subtitle: const Text('O app guarda uma cópia por dia'),
+              title: Text(context.l10n.backupRestoreCopy),
+              subtitle: Text(context.l10n.backupDailyCopyHint),
               onTap: () => restoreCopyFlow(context, ref),
             ),
             const _DeviceRow(),
@@ -175,14 +172,13 @@ class _Disconnected extends ConsumerWidget {
         ),
         SizedBox(height: space.md),
         Text(
-          'Sincronize com o Google Drive',
+          context.l10n.syncWithDrive,
           textAlign: TextAlign.center,
           style: context.text.titleLarge,
         ),
         SizedBox(height: space.sm),
         Text(
-          'Seus dados ficam numa pasta privada do app no seu Google Drive, '
-          'usando o seu espaço. Só este app enxerga essa pasta.',
+          context.l10n.syncDriveExplain,
           textAlign: TextAlign.center,
           style: context.text.bodyMedium!.copyWith(
             color: context.colors.onSurfaceVariant,
@@ -191,13 +187,13 @@ class _Disconnected extends ConsumerWidget {
         SizedBox(height: space.lg),
         FilledButton.icon(
           icon: const Icon(AppIcons.account),
-          label: const Text('Conectar com Google'),
+          label: Text(context.l10n.syncConnectGoogle),
           onPressed: configured ? () => connectFlow(context, ref) : null,
         ),
         if (!configured) ...[
           SizedBox(height: space.sm),
           Text(
-            'Login com Google ainda não configurado neste app.',
+            context.l10n.syncNotConfigured,
             textAlign: TextAlign.center,
             style: context.text.bodySmall!.copyWith(
               color: context.colors.onSurfaceVariant,
@@ -225,12 +221,14 @@ class _Connected extends ConsumerWidget {
     final last = status.lastSyncAt;
 
     final line = switch (status.phase) {
-      SyncPhase.syncing => 'Sincronizando…',
-      SyncPhase.offline => 'Sem conexão. Sincroniza quando voltar.',
-      SyncPhase.pending => 'Alterações a sincronizar',
-      SyncPhase.error => status.message ?? 'Erro ao sincronizar',
-      _ when last != null => 'Sincronizado ${syncedAgo(last, now)}',
-      _ => 'Ainda não sincronizado',
+      SyncPhase.syncing => context.l10n.syncStatusSyncing,
+      SyncPhase.offline => context.l10n.syncStatusOffline,
+      SyncPhase.pending => context.l10n.syncStatusPending,
+      SyncPhase.error => status.message ?? context.l10n.syncStatusError,
+      _ when last != null => context.l10n.syncStatusSyncedAgo(
+        _ago(context.l10n, last, now),
+      ),
+      _ => context.l10n.syncStatusNever,
     };
 
     return Column(
@@ -267,25 +265,25 @@ class _Connected extends ConsumerWidget {
         if (status.needsSignIn)
           FilledButton.icon(
             icon: const Icon(AppIcons.account),
-            label: const Text('Entrar novamente'),
+            label: Text(context.l10n.syncSignInAgain),
             onPressed: () => connectFlow(context, ref),
           )
         else if (status.needsReplace)
           FilledButton.icon(
             icon: const Icon(AppIcons.cloud),
-            label: const Text('Usar os dados da nuvem'),
+            label: Text(context.l10n.syncUseCloudData),
             onPressed: service.replaceWithRemote,
           )
         else
           FilledButton.icon(
             icon: const Icon(AppIcons.sync),
-            label: const Text('Sincronizar agora'),
+            label: Text(context.l10n.syncNow),
             onPressed: status.phase == SyncPhase.syncing ? null : service.sync,
           ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: const Text('Sincronização automática'),
-          subtitle: const Text('Ao abrir, ao voltar ao app e após alterações'),
+          title: Text(context.l10n.syncAuto),
+          subtitle: Text(context.l10n.syncAutoHint),
           value: status.autoSync,
           onChanged: service.setAutoSync,
         ),
@@ -294,21 +292,19 @@ class _Connected extends ConsumerWidget {
             Expanded(
               child: TextButton.icon(
                 icon: const Icon(AppIcons.switchAccount),
-                label: const Text('Trocar conta'),
+                label: Text(context.l10n.syncSwitchAccount),
                 onPressed: () => connectFlow(context, ref, switching: true),
               ),
             ),
             Expanded(
               child: TextButton.icon(
                 icon: const Icon(AppIcons.signOut),
-                label: const Text('Desconectar'),
+                label: Text(context.l10n.syncDisconnect),
                 onPressed: () async {
                   final messenger = ScaffoldMessenger.of(context);
+                  final l10n = context.l10n;
                   await ref.read(accountProvider.notifier).disconnect();
-                  _snack(
-                    messenger,
-                    'Desconectado. Os dados continuam neste aparelho.',
-                  );
+                  _snack(messenger, l10n.syncDisconnected);
                 },
               ),
             ),
@@ -336,16 +332,16 @@ class _DeviceRowState extends ConsumerState<_DeviceRow> {
     super.initState();
     ref
         .read(snapshotRepositoryProvider)
-        .deviceName()
+        .customDeviceName()
         .then((n) => mounted ? setState(() => _name = n) : null);
   }
 
   Future<void> _rename() async {
     final name = await showTextInputDialog(
       context,
-      title: 'Nome deste aparelho',
-      label: 'Nome',
-      confirmLabel: 'Salvar',
+      title: context.l10n.syncDeviceName,
+      label: context.l10n.reviewNameLabel,
+      confirmLabel: context.l10n.actionSave,
       initialValue: _name ?? '',
     );
     if (name == null) return;
@@ -361,12 +357,12 @@ class _DeviceRowState extends ConsumerState<_DeviceRow> {
       children: [
         TextButton.icon(
           icon: const Icon(AppIcons.device),
-          label: Text(_name ?? 'Este aparelho'),
+          label: Text(_name ?? context.l10n.syncThisDevice),
           onPressed: _rename,
         ),
         TextButton.icon(
           icon: const Icon(AppIcons.history),
-          label: const Text('Log de sync'),
+          label: Text(context.l10n.syncLog),
           onPressed: () => showDialog<void>(
             context: context,
             builder: (_) => const _SyncLogDialog(),
@@ -385,11 +381,11 @@ class _SyncLogDialog extends ConsumerWidget {
     final entries = ref.watch(syncLogProvider).value ?? const [];
     final today = DateTime.now();
     return AlertDialog(
-      title: const Text('Log de sync'),
+      title: Text(context.l10n.syncLog),
       content: SizedBox(
         width: double.maxFinite,
         child: entries.isEmpty
-            ? const Text('Nenhuma sincronização ainda.')
+            ? Text(context.l10n.syncLogEmpty)
             : ListView(
                 shrinkWrap: true,
                 children: [
@@ -398,7 +394,7 @@ class _SyncLogDialog extends ConsumerWidget {
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       title: Text(
-                        '${formatRelative(e.at, today, withTime: true)} · '
+                        '${formatRelative(e.at, today, withTime: true, lang: context.lang)} · '
                         '${e.result} · ${e.millis} ms',
                       ),
                       subtitle: e.detail == null ? null : Text(e.detail!),
@@ -409,9 +405,18 @@ class _SyncLogDialog extends ConsumerWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Fechar'),
+          child: Text(context.l10n.actionClose),
         ),
       ],
     );
   }
+}
+
+/// "agora há pouco", "há 5 min", "há 2 h", "há 3 dias" no idioma do app.
+String _ago(AppLocalizations l10n, DateTime last, DateTime now) {
+  final d = now.difference(last);
+  if (d.inMinutes < 1) return l10n.syncAgoNow;
+  if (d.inHours < 1) return l10n.syncAgoMinutes(d.inMinutes);
+  if (d.inDays < 1) return l10n.syncAgoHours(d.inHours);
+  return l10n.syncAgoDays(d.inDays);
 }

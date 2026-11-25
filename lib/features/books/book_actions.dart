@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
@@ -27,8 +28,8 @@ void _snack(ScaffoldMessengerState messenger, String text) => messenger
 Future<void> createBookFlow(BuildContext context, WidgetRef ref) async {
   final title = await showTextInputDialog(
     context,
-    title: 'Novo book',
-    label: 'Título',
+    title: context.l10n.booksNew,
+    label: context.l10n.fieldTitle,
   );
   if (title == null) return;
   final id = await ref.read(booksRepositoryProvider).createBook(title: title);
@@ -42,9 +43,9 @@ Future<void> renameBookFlow(
 ) async {
   final title = await showTextInputDialog(
     context,
-    title: 'Renomear book',
-    label: 'Título',
-    confirmLabel: 'Salvar',
+    title: context.l10n.booksRename,
+    label: context.l10n.fieldTitle,
+    confirmLabel: context.l10n.actionSave,
     initialValue: book.title,
   );
   if (title == null) return;
@@ -96,11 +97,11 @@ Future<bool> confirmDelete(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Excluir'),
+            child: Text(context.l10n.actionDelete),
           ),
         ],
       ),
@@ -112,6 +113,7 @@ Future<void> exportBookFlow(
   WidgetRef ref,
   Notebook book,
 ) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   final pages = await ref
       .read(booksRepositoryProvider)
@@ -121,7 +123,7 @@ Future<void> exportBookFlow(
     '${safeFileName(book.title)}.zip',
     bookZip(pages),
   );
-  if (saved) _snack(messenger, 'Book exportado (${pages.length} páginas).');
+  if (saved) _snack(messenger, l10n.booksExported(pages.length));
 }
 
 // ─── Importar ────────────────────────────────────────────────────────────────
@@ -172,24 +174,25 @@ String _withoutExtension(String name) {
 /// Na lista de books: um zip ou vários arquivos viram um book novo; um
 /// arquivo só vira um book com uma página.
 Future<void> importBookFlow(BuildContext context, WidgetRef ref) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   final files = await ref.read(importFilesPickerProvider)();
   if (files.isEmpty) return;
   final markdown = _markdownFiles(files);
   if (markdown.isEmpty) {
-    _snack(messenger, 'Nenhum arquivo .md encontrado.');
+    _snack(messenger, l10n.booksNoMarkdown);
     return;
   }
   final pages = importBookPages(markdown);
   final suggested = files.length == 1
       ? _withoutExtension(files.single.name)
-      : 'Importado';
+      : l10n.booksImportedDefault;
   if (!context.mounted) return;
   final title = await showTextInputDialog(
     context,
-    title: 'Importar como book',
-    label: 'Título do book',
-    confirmLabel: 'Importar',
+    title: l10n.booksImportAsBook,
+    label: l10n.booksBookTitle,
+    confirmLabel: l10n.actionImport,
     initialValue: suggested,
   );
   if (title == null) return;
@@ -198,10 +201,7 @@ Future<void> importBookFlow(BuildContext context, WidgetRef ref) async {
     final bookId = await repo.createBook(title: title);
     return (bookId, await _createPages(repo, bookId, pages));
   });
-  _snack(
-    messenger,
-    '$count ${count == 1 ? 'página importada' : 'páginas importadas'}.',
-  );
+  _snack(messenger, l10n.booksPagesImported(count));
   if (context.mounted) await context.push(Routes.book(bookId));
 }
 
@@ -211,12 +211,13 @@ Future<void> importPagesFlow(
   WidgetRef ref,
   String notebookId,
 ) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   final files = await ref.read(importFilesPickerProvider)();
   if (files.isEmpty) return;
   final markdown = _markdownFiles(files);
   if (markdown.isEmpty) {
-    _snack(messenger, 'Nenhum arquivo .md encontrado.');
+    _snack(messenger, l10n.booksNoMarkdown);
     return;
   }
   final repo = ref.read(booksRepositoryProvider);
@@ -230,10 +231,7 @@ Future<void> importPagesFlow(
       firstOrder: roots,
     ),
   );
-  _snack(
-    messenger,
-    '$count ${count == 1 ? 'página importada' : 'páginas importadas'}.',
-  );
+  _snack(messenger, l10n.booksPagesImported(count));
 }
 
 // ─── Páginas ─────────────────────────────────────────────────────────────────
@@ -246,8 +244,8 @@ Future<void> createPageFlow(
 }) async {
   final title = await showTextInputDialog(
     context,
-    title: parentId == null ? 'Nova página' : 'Nova subpágina',
-    label: 'Título',
+    title: parentId == null ? context.l10n.pageNew : context.l10n.pageNewSub,
+    label: context.l10n.fieldTitle,
   );
   if (title == null) return;
   final repo = ref.read(booksRepositoryProvider);
@@ -268,9 +266,9 @@ Future<void> renamePageFlow(
 ) async {
   final title = await showTextInputDialog(
     context,
-    title: 'Renomear página',
-    label: 'Título',
-    confirmLabel: 'Salvar',
+    title: context.l10n.pageRename,
+    label: context.l10n.fieldTitle,
+    confirmLabel: context.l10n.actionSave,
     initialValue: page.title,
   );
   if (title == null) return;
@@ -303,8 +301,8 @@ Future<void> deletePageFlow(
 }) async {
   final ok = await confirmDelete(
     context,
-    title: 'Excluir "${page.title}"?',
-    message: 'As subpáginas também serão excluídas.',
+    title: context.l10n.pageDeleteTitle(page.title),
+    message: context.l10n.pageDeleteMessage,
   );
   if (!ok || !context.mounted) return;
   if (popAfter) Navigator.of(context).pop();
@@ -316,10 +314,11 @@ Future<void> exportPageFlow(
   WidgetRef ref,
   NotePage page,
 ) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
   final saved = await ref.read(fileSaverProvider)(
     '${safeFileName(page.title)}.md',
     Uint8List.fromList(utf8.encode(pageToMarkdown(page.title, page.content))),
   );
-  if (saved) _snack(messenger, 'Página exportada.');
+  if (saved) _snack(messenger, l10n.pageExported);
 }

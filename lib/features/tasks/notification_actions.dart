@@ -1,7 +1,8 @@
-import 'dart:ui' show DartPluginRegistrant;
+import 'dart:ui' show DartPluginRegistrant, PlatformDispatcher;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../../app/l10n/locale_settings.dart';
 import '../../core/notifications.dart';
 import '../../core/time_zone.dart';
 import '../../data/db/database.dart';
@@ -26,6 +27,10 @@ Future<void> onNotificationActionInBackground(
       now: DateTime.now(),
       allDayHour: parseAllDayHour(
         await db.settingsDao.getValue(allDayReminderHourKey),
+      ),
+      lang: resolveLangCode(
+        parseAppLocale(await db.settingsDao.getValue(appLocaleSettingKey)),
+        systemCode: PlatformDispatcher.instance.locale.languageCode,
       ),
     );
   } finally {
