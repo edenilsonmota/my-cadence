@@ -40,6 +40,16 @@ class CardsRepository {
   /// Exclui o deck; os cards dele ficam sem deck.
   Future<void> deleteDeck(String id) => _dao.softDeleteDeck(id);
 
+  /// Vincula a tarefa exatamente a estes decks (cria, revive ou desfaz).
+  Future<void> setTaskDecks(String taskId, Set<String> deckIds) =>
+      _dao.setTaskDecks(taskId, deckIds);
+
+  Future<void> unlinkDeck(String taskId, String deckId) =>
+      _dao.unlinkDeck(taskId, deckId);
+
+  Stream<List<Deck>> watchLinkedDecks(String taskId) =>
+      _dao.watchLinkedDecks(taskId);
+
   // Cards
 
   Future<Flashcard?> getCard(String id) => _dao.getCard(id);

@@ -14,18 +14,6 @@ typedef ClockTime = ({int hour, int minute});
 
 enum Repeat { nenhuma, diaria, semanal }
 
-/// Opções de alarme do formulário (minutos antes; 0 = na hora).
-const reminderOptions = <int?, String>{
-  null: 'Nenhum',
-  0: 'Na hora',
-  5: '5 min antes',
-  10: '10 min antes',
-  15: '15 min antes',
-  30: '30 min antes',
-  60: '1 hora antes',
-  1440: '1 dia antes',
-};
-
 /// Hora usada quando a tarefa deixa de ser "dia inteiro" sem hora escolhida.
 const defaultTime = (hour: 9, minute: 0);
 
@@ -52,14 +40,23 @@ class TaskDraft {
     this.colorKey,
     this.iconKey,
     Set<String>? tagIds,
+    Set<String>? notebookIds,
+    Set<String>? deckIds,
   }) : weekdays = weekdays ?? {},
+       notebookIds = notebookIds ?? {},
+       deckIds = deckIds ?? {},
        reminderOffsets =
            reminderOffsets ??
            (reminderMinutesBefore == null ? {} : {reminderMinutesBefore}),
        tagIds = tagIds ?? {};
 
   /// Preenche o formulário a partir de uma tarefa existente.
-  factory TaskDraft.fromTask(Task task, Set<String> tagIds) {
+  factory TaskDraft.fromTask(
+    Task task,
+    Set<String> tagIds, {
+    Set<String> notebookIds = const {},
+    Set<String> deckIds = const {},
+  }) {
     final rule = task.recurrenceRule == null
         ? null
         : RecurrenceRule.parse(task.recurrenceRule!);
@@ -90,6 +87,8 @@ class TaskDraft {
       colorKey: task.colorKey,
       iconKey: task.iconKey,
       tagIds: tagIds,
+      notebookIds: {...notebookIds},
+      deckIds: {...deckIds},
     );
   }
 
@@ -98,8 +97,21 @@ class TaskDraft {
   TaskKind kind;
   int priority;
 
-  /// `true` = só datas, sem hora.
+  /// `true` = só datas, sem hora. Para trocar pelo formulário, use
+  /// [setAllDay], que também ajusta os lembretes.
   bool allDay;
+
+  /// Troca entre dia inteiro e com hora, mantendo só os lembretes que fazem
+  /// sentido no novo modo ("5 min antes" não existe em tarefa de dia inteiro).
+  void setAllDay(bool value) {
+    if (value == allDay) return;
+    allDay = value;
+    final valid = (value ? allDayReminderChoices : timedReminderChoices)
+        .toSet();
+    reminderOffsets = reminderOffsets.where(valid.contains).toSet();
+  }
+
+  bool get repeats => repeat != Repeat.nenhuma;
   DateTime? startDate;
   ClockTime? startTime;
   DateTime? dueDate;
@@ -135,6 +147,12 @@ class TaskDraft {
   String? iconKey;
   Set<String> tagIds;
 
+  /// Books já existentes vinculados à tarefa.
+  Set<String> notebookIds;
+
+  /// Decks vinculados à tarefa.
+  Set<String> deckIds;
+
   RecurrenceRule? get recurrence => switch (repeat) {
     Repeat.nenhuma => null,
     Repeat.diaria => RecurrenceRule(
@@ -160,13 +178,17 @@ class TaskDraft {
       return 'O início deve ser antes do prazo.';
     }
     if (until != null && due != null && until!.isBefore(startOfDay(due))) {
-      return 'A data final da repetição é anterior ao prazo.';
+      return 'A repetição termina antes da primeira vez.';
     }
     return null;
   }
 
   /// Colunas da tarefa. Recorrência sem prazo usa hoje como prazo; lembretes
   /// sem prazo nem início com hora são descartados.
+  ///
+  /// Na rotina o formulário mostra só "Começa" (o prazo da 1ª ocorrência) e,
+  /// com hora, o horário de início e fim no mesmo dia: o início vira
+  /// prazo + hora de início, e em dia inteiro não há início.
   TaskFields toFields(DateTime now) {
     DateTime? combine(DateTime? date, ClockTime? time) {
       if (date == null) return null;
@@ -178,7 +200,11 @@ class TaskDraft {
     final rule = recurrence;
     final dueDay = dueDate ?? (rule != null ? startOfDay(now) : null);
     final dueAt = combine(dueDay, dueTime);
-    final startAt = combine(startDate, startTime);
+    final startAt = rule == null
+        ? combine(startDate, startTime)
+        : allDay || startTime == null
+        ? null
+        : combine(dueDay, startTime);
     final trimmedNotes = notes.trim();
     final canRemind = dueAt != null || (!allDay && startAt != null);
     final encodedOffsets = canRemind
@@ -209,6 +235,25 @@ class TaskDraft {
       iconKey: iconKey,
     );
   }
+}
+
+/// Base dos lembretes: o início se tem hora, senão o prazo; em dia inteiro,
+/// o dia do prazo às [allDayHour]. Mesma regra de `reminderBaseTime`.
+DateTime? draftReminderBase(TaskFields f, {required int allDayHour}) {
+  if (f.hasTime && f.startAt != null) return f.startAt;
+  final due = f.dueAt;
+  if (due == null) return null;
+  return f.hasTime ? due : DateTime(due.year, due.month, due.day, allDayHour);
+}
+
+/// Quando cada lembrete escolhido vai tocar (na 1ª ocorrência), em ordem.
+List<DateTime> draftReminderTimes(TaskFields f, {required int allDayHour}) {
+  final base = draftReminderBase(f, allDayHour: allDayHour);
+  if (base == null) return const [];
+  final offsets = parseReminderOffsets(f.reminderOffsets);
+  return [
+    for (final m in offsets.reversed) base.subtract(Duration(minutes: m)),
+  ];
 }
 
 /// Valores prontos para gravar na tabela `tasks`.

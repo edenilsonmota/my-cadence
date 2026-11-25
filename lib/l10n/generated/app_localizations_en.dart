@@ -1873,4 +1873,184 @@ class AppLocalizationsEn extends AppLocalizations {
   String timelineFocus(String range) {
     return 'Focus $range';
   }
+
+  @override
+  String get fieldWhen => 'When';
+
+  @override
+  String get fieldDetails => 'Details';
+
+  @override
+  String get fieldStudy => 'Linked study';
+
+  @override
+  String get repeatStarts => 'Starts';
+
+  @override
+  String get repeatEnds => 'Ends';
+
+  @override
+  String get repeatNever => 'Never';
+
+  @override
+  String get fieldTimeRange => 'Time';
+
+  @override
+  String get timeRangeFrom => 'Start';
+
+  @override
+  String get timeRangeTo => 'End';
+
+  @override
+  String get repeatDatesHint =>
+      '“Starts” is the first time and “Ends” the last repetition.';
+
+  @override
+  String get datesHint =>
+      'Start is when you begin; due is when it must be done.';
+
+  @override
+  String get remindersNeedDate => 'Set a date to get reminders.';
+
+  @override
+  String reminderOnTheDay(int hour) {
+    return 'On the day, at $hour:00';
+  }
+
+  @override
+  String reminderDaysBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days before',
+      one: '1 day before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reminderWeeksBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks before',
+      one: '1 week before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersBaseStart => 'Counted from the start time.';
+
+  @override
+  String get remindersBaseDue => 'Counted from the due time.';
+
+  @override
+  String remindersBaseAllDay(int hour) {
+    return 'All-day tasks remind at $hour:00 (change it in Settings).';
+  }
+
+  @override
+  String get remindersEachRepeat => 'They apply to every repetition.';
+
+  @override
+  String remindersPreview(String when) {
+    return 'Will remind: $when';
+  }
+
+  @override
+  String remindersPreviewFirst(String when) {
+    return 'First time: $when';
+  }
+
+  @override
+  String get fieldBooks => 'Books';
+
+  @override
+  String get fieldDecks => 'Decks';
+
+  @override
+  String get studyHint =>
+      'Link books and decks to this task to follow them in the hub and stats.';
+
+  @override
+  String get linkBook => 'Link book';
+
+  @override
+  String get linkDeck => 'Link deck';
+
+  @override
+  String get newBook => 'New book';
+
+  @override
+  String get newDeck => 'New deck';
+
+  @override
+  String get linkBooksTitle => 'Link books';
+
+  @override
+  String get linkDecksTitle => 'Link decks';
+
+  @override
+  String get noBooksYet => 'No books yet.';
+
+  @override
+  String get noDecksYet => 'No decks yet.';
+
+  @override
+  String unlinkItem(String name) {
+    return 'Unlink $name';
+  }
+
+  @override
+  String get hubLinkedBooks => 'Linked books';
+
+  @override
+  String get hubLinkedDecks => 'Linked decks';
+
+  @override
+  String get deleteTaskTitle => 'Delete task?';
+
+  @override
+  String get deleteTaskAlsoHint => 'Also delete what is linked to it:';
+
+  @override
+  String deleteAlsoBooks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count books (with their pages)',
+      one: '1 book (with its pages)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteAlsoPages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count linked pages',
+      one: '1 linked page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteAlsoDecks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count decks (cards stay, without a deck)',
+      one: '1 deck (cards stay, without a deck)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAlsoNoUndo =>
+      'What you check here is not restored by \"Undo\".';
+
+  @override
+  String get repeatTimeHint => 'The time applies to every repetition.';
 }

@@ -16,6 +16,7 @@ import '../../../shared/widgets/appearance_badge.dart';
 import '../../../shared/widgets/pressable.dart';
 import '../hub/hub_stats.dart' show formatDuration;
 import '../reminder_offsets.dart';
+import '../task_delete.dart';
 import '../task_providers.dart';
 
 /// Conclui ou reabre a tarefa. Rotina concluída avança para a próxima
@@ -60,11 +61,24 @@ Future<void> completeAndAnnounce(
 Future<void> deleteWithUndo(
   ScaffoldMessengerState messenger,
   WidgetRef ref,
-  Task task,
-) async {
+  Task task, {
+  TaskDeletePlan plan = TaskDeletePlan.none,
+}) async {
   final l10n = messenger.context.l10n;
+  // Lidos antes de qualquer await: quem chamou pode sair da árvore.
   final repo = ref.read(tasksRepositoryProvider);
+  final books = ref.read(booksRepositoryProvider);
+  final cards = ref.read(cardsRepositoryProvider);
   final ids = await repo.deleteTask(task.id);
+  for (final id in plan.notebookIds) {
+    await books.deleteNotebook(id);
+  }
+  for (final id in plan.pageIds) {
+    await books.deletePage(id);
+  }
+  for (final id in plan.deckIds) {
+    await cards.deleteDeck(id);
+  }
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
@@ -347,6 +361,7 @@ class _SwipeableTaskTileState extends ConsumerState<SwipeableTaskTile> {
   // Depois de deslizar para excluir, some da árvore na hora (a lista do banco
   // chega um instante depois).
   bool _dismissed = false;
+  TaskDeletePlan _plan = TaskDeletePlan.none;
 
   @override
   Widget build(BuildContext context) {
@@ -376,11 +391,14 @@ class _SwipeableTaskTileState extends ConsumerState<SwipeableTaskTile> {
           await toggleDone(ScaffoldMessenger.of(context), ref, task);
           return false; // a linha continua, só muda o estado
         }
+        final plan = await askDeleteExtras(context, ref, task);
+        if (plan == null) return false;
+        _plan = plan;
         return true;
       },
       onDismissed: (_) {
         setState(() => _dismissed = true);
-        deleteWithUndo(ScaffoldMessenger.of(context), ref, task);
+        deleteWithUndo(ScaffoldMessenger.of(context), ref, task, plan: _plan);
       },
       child: widget.tile,
     );

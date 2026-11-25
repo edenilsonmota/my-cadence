@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/enums.dart';
+import 'package:my_cadence/features/tasks/reminder_offsets.dart';
 import 'package:my_cadence/features/tasks/task_draft.dart';
 
 import 'fixtures.dart';
@@ -83,10 +84,7 @@ void main() {
       repeat: Repeat.diaria,
       until: DateTime(2026, 11, 24),
     );
-    expect(
-      draft.validate(now),
-      'A data final da repetição é anterior ao prazo.',
-    );
+    expect(draft.validate(now), 'A repetição termina antes da primeira vez.');
   });
 
   test('ida e volta a partir de uma tarefa', () {
@@ -121,5 +119,95 @@ void main() {
     expect(saved.estimatedPomodoros, 3);
     expect(saved.kind, TaskKind.estudo);
     expect(saved.priority, 2);
+  });
+
+  test('rotina com hora: início é o mesmo dia do prazo', () {
+    final fields = TaskDraft(
+      title: 'Academia',
+      allDay: false,
+      repeat: Repeat.diaria,
+      startDate: DateTime(2026, 11, 20), // ignorado na rotina
+      startTime: (hour: 7, minute: 0),
+      dueDate: DateTime(2026, 11, 25),
+      dueTime: (hour: 8, minute: 0),
+    ).toFields(now);
+    expect(fields.startAt, DateTime(2026, 11, 25, 7));
+    expect(fields.dueAt, DateTime(2026, 11, 25, 8));
+  });
+
+  test('rotina de dia inteiro não tem início', () {
+    final fields = TaskDraft(
+      title: 'Ler',
+      repeat: Repeat.diaria,
+      startDate: DateTime(2026, 11, 20),
+      dueDate: DateTime(2026, 11, 25),
+    ).toFields(now);
+    expect(fields.startAt, isNull);
+    expect(fields.dueAt, DateTime(2026, 11, 25));
+  });
+
+  test('trocar para dia inteiro descarta lembretes em minutos', () {
+    final draft = TaskDraft(
+      title: 'x',
+      allDay: false,
+      reminderOffsets: {0, 5, 1440},
+    )..setAllDay(true);
+    expect(draft.reminderOffsets, {0, 1440});
+    draft
+      ..reminderOffsets.add(10080)
+      ..setAllDay(false);
+    expect(draft.reminderOffsets, {0, 1440});
+  });
+
+  test('prévia dos lembretes: dia inteiro usa a hora do ajuste', () {
+    final fields = TaskDraft(
+      title: 'Prova',
+      dueDate: DateTime(2026, 11, 27),
+      reminderOffsets: {0, 1440},
+    ).toFields(now);
+    expect(draftReminderTimes(fields, allDayHour: 8), [
+      DateTime(2026, 11, 26, 8),
+      DateTime(2026, 11, 27, 8),
+    ]);
+  });
+
+  test('prévia dos lembretes: com hora conta do início', () {
+    final fields = TaskDraft(
+      title: 'Aula',
+      allDay: false,
+      startDate: DateTime(2026, 11, 25),
+      startTime: (hour: 14, minute: 0),
+      dueDate: DateTime(2026, 11, 25),
+      dueTime: (hour: 16, minute: 0),
+      reminderOffsets: {15},
+    ).toFields(now);
+    expect(draftReminderTimes(fields, allDayHour: 9), [
+      DateTime(2026, 11, 25, 13, 45),
+    ]);
+  });
+
+  test('books e decks vinculados voltam no rascunho', () {
+    final draft = TaskDraft.fromTask(
+      makeTask('x'),
+      {},
+      notebookIds: {'b1'},
+      deckIds: {'d1'},
+    );
+    expect(draft.notebookIds, {'b1'});
+    expect(draft.deckIds, {'d1'});
+  });
+
+  test('opções de lembrete por modo incluem as já escolhidas', () {
+    expect(reminderChoicesFor(allDay: true), [0, 1440, 2880, 10080]);
+    expect(reminderChoicesFor(allDay: false, selected: [45]), [
+      0,
+      5,
+      10,
+      15,
+      30,
+      45,
+      60,
+      1440,
+    ]);
   });
 }

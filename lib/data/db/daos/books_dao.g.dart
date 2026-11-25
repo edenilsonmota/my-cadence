@@ -8,6 +8,8 @@ mixin _$BooksDaoMixin on DatabaseAccessor<AppDatabase> {
   $NotebooksTable get notebooks => attachedDatabase.notebooks;
   $NotePagesTable get notePages => attachedDatabase.notePages;
   $TaskPageLinksTable get taskPageLinks => attachedDatabase.taskPageLinks;
+  $TaskNotebookLinksTable get taskNotebookLinks =>
+      attachedDatabase.taskNotebookLinks;
   BooksDaoManager get managers => BooksDaoManager(this);
 }
 
@@ -22,4 +24,9 @@ class BooksDaoManager {
       $$NotePagesTableTableManager(_db.attachedDatabase, _db.notePages);
   $$TaskPageLinksTableTableManager get taskPageLinks =>
       $$TaskPageLinksTableTableManager(_db.attachedDatabase, _db.taskPageLinks);
+  $$TaskNotebookLinksTableTableManager get taskNotebookLinks =>
+      $$TaskNotebookLinksTableTableManager(
+        _db.attachedDatabase,
+        _db.taskNotebookLinks,
+      );
 }

@@ -144,4 +144,17 @@ class BooksRepository {
 
   Stream<List<Task>> watchTasksLinkedToPage(String pageId) =>
       _dao.watchTasksLinkedToPage(pageId);
+
+  /// Vincula a tarefa exatamente a estes books (cria, revive ou desfaz).
+  Future<void> setTaskNotebooks(String taskId, Set<String> notebookIds) =>
+      _dao.setTaskNotebooks(taskId, notebookIds);
+
+  Future<void> unlinkNotebook(String taskId, String notebookId) =>
+      _dao.unlinkNotebook(taskId, notebookId);
+
+  Stream<List<Notebook>> watchLinkedNotebooks(String taskId) =>
+      _dao.watchLinkedNotebooks(taskId);
+
+  Stream<List<Task>> watchTasksLinkedToNotebook(String notebookId) =>
+      _dao.watchTasksLinkedToNotebook(notebookId);
 }

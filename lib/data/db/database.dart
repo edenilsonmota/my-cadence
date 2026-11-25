@@ -33,6 +33,8 @@ part 'database.g.dart';
     Notebooks,
     NotePages,
     TaskPageLinks,
+    TaskNotebookLinks,
+    TaskDeckLinks,
     AppSettings,
   ],
   daos: [TasksDao, TagsDao, PomodoroDao, CardsDao, BooksDao, SettingsDao],
@@ -55,7 +57,7 @@ class AppDatabase extends _$AppDatabase {
   // Ao mudar o esquema: incrementar a versão, rodar
   // `dart run drift_dev make-migrations` e escrever o passo em `onUpgrade`.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -110,6 +112,11 @@ class AppDatabase extends _$AppDatabase {
       from4To5: (m, schema) async {
         await m.addColumn(schema.tasks, schema.tasks.reminderOffsets);
         await m.addColumn(schema.tasks, schema.tasks.nagIntervalMinutes);
+      },
+      // v6: books e decks vinculados a tarefas.
+      from5To6: (m, schema) async {
+        await m.createTable(schema.taskNotebookLinks);
+        await m.createTable(schema.taskDeckLinks);
       },
     ),
     beforeOpen: (details) async {

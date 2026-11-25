@@ -7,7 +7,9 @@ import '../tables/tasks.dart';
 
 part 'books_dao.g.dart';
 
-@DriftAccessor(tables: [Notebooks, NotePages, TaskPageLinks, Tasks])
+@DriftAccessor(
+  tables: [Notebooks, NotePages, TaskPageLinks, TaskNotebookLinks, Tasks],
+)
 class BooksDao extends DatabaseAccessor<AppDatabase> with _$BooksDaoMixin {
   BooksDao(super.attachedDatabase);
 
@@ -205,6 +207,97 @@ class BooksDao extends DatabaseAccessor<AppDatabase> with _$BooksDaoMixin {
           ..where(
             taskPageLinks.pageId.equals(pageId) &
                 taskPageLinks.deletedAt.isNull() &
+                tasks.deletedAt.isNull(),
+          )
+          ..orderBy([OrderingTerm.asc(tasks.title)]);
+    return query.watch().map(
+      (rows) => [for (final row in rows) row.readTable(tasks)],
+    );
+  }
+
+  // Vínculos book ↔ tarefa
+
+  /// Deixa a tarefa vinculada exatamente aos books em [notebookIds]: revive
+  /// os vínculos excluídos, cria os novos e exclui os que saíram.
+  Future<void> setTaskNotebooks(String taskId, Set<String> notebookIds) =>
+      transaction(() async {
+        final existing = await (select(
+          taskNotebookLinks,
+        )..where((l) => l.taskId.equals(taskId))).get();
+        final byNotebook = {for (final l in existing) l.notebookId: l};
+        for (final link in existing) {
+          if (link.deletedAt == null &&
+              !notebookIds.contains(link.notebookId)) {
+            await softDeleteSynced(taskNotebookLinks, link.id);
+          }
+        }
+        for (final notebookId in notebookIds) {
+          final link = byNotebook[notebookId];
+          if (link == null) {
+            await insertSynced(
+              taskNotebookLinks,
+              TaskNotebookLinksCompanion.insert(
+                taskId: taskId,
+                notebookId: notebookId,
+              ),
+            );
+          } else if (link.deletedAt != null) {
+            await updateSynced(
+              taskNotebookLinks,
+              link.id,
+              const TaskNotebookLinksCompanion(deletedAt: Value(null)),
+            );
+          }
+        }
+      });
+
+  Future<void> unlinkNotebook(String taskId, String notebookId) =>
+      transaction(() async {
+        final existing =
+            await (select(taskNotebookLinks)..where(
+                  (l) =>
+                      l.taskId.equals(taskId) &
+                      l.notebookId.equals(notebookId) &
+                      l.deletedAt.isNull(),
+                ))
+                .getSingleOrNull();
+        if (existing != null) {
+          await softDeleteSynced(taskNotebookLinks, existing.id);
+        }
+      });
+
+  /// Books vinculados à tarefa (sem os excluídos), por título.
+  Stream<List<Notebook>> watchLinkedNotebooks(String taskId) {
+    final query =
+        select(notebooks).join([
+            innerJoin(
+              taskNotebookLinks,
+              taskNotebookLinks.notebookId.equalsExp(notebooks.id),
+            ),
+          ])
+          ..where(
+            taskNotebookLinks.taskId.equals(taskId) &
+                taskNotebookLinks.deletedAt.isNull() &
+                notebooks.deletedAt.isNull(),
+          )
+          ..orderBy([OrderingTerm.asc(notebooks.title)]);
+    return query.watch().map(
+      (rows) => [for (final row in rows) row.readTable(notebooks)],
+    );
+  }
+
+  /// Tarefas vinculadas ao book.
+  Stream<List<Task>> watchTasksLinkedToNotebook(String notebookId) {
+    final query =
+        select(tasks).join([
+            innerJoin(
+              taskNotebookLinks,
+              taskNotebookLinks.taskId.equalsExp(tasks.id),
+            ),
+          ])
+          ..where(
+            taskNotebookLinks.notebookId.equals(notebookId) &
+                taskNotebookLinks.deletedAt.isNull() &
                 tasks.deletedAt.isNull(),
           )
           ..orderBy([OrderingTerm.asc(tasks.title)]);

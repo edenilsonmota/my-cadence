@@ -1081,5 +1081,117 @@
         "type": "String"
       }
     }
-  }
+  },
+  "fieldWhen": "Quando",
+  "fieldDetails": "Detalhes",
+  "fieldStudy": "Estudo vinculado",
+  "repeatStarts": "Começa",
+  "repeatEnds": "Termina",
+  "repeatNever": "Nunca",
+  "fieldTimeRange": "Horário",
+  "timeRangeFrom": "Início",
+  "timeRangeTo": "Fim",
+  "repeatDatesHint": "“Começa” é a primeira vez e “Termina”, a última repetição.",
+  "datesHint": "Início é quando você começa; prazo é quando precisa estar pronta.",
+  "remindersNeedDate": "Defina uma data para receber lembretes.",
+  "reminderOnTheDay": "No dia, às {hour}h",
+  "@reminderOnTheDay": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderDaysBefore": "{count, plural, =1{1 dia antes} other{{count} dias antes}}",
+  "@reminderDaysBefore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderWeeksBefore": "{count, plural, =1{1 semana antes} other{{count} semanas antes}}",
+  "@reminderWeeksBefore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remindersBaseStart": "Contados a partir do início.",
+  "remindersBaseDue": "Contados a partir do prazo.",
+  "remindersBaseAllDay": "Dia inteiro lembra às {hour}h (muda em Ajustes).",
+  "@remindersBaseAllDay": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "remindersEachRepeat": "Valem para cada repetição.",
+  "remindersPreview": "Vai avisar: {when}",
+  "@remindersPreview": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "remindersPreviewFirst": "Primeira vez: {when}",
+  "@remindersPreviewFirst": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldBooks": "Books",
+  "fieldDecks": "Decks",
+  "studyHint": "Ligue books e decks a esta tarefa para acompanhar no hub e nas métricas.",
+  "linkBook": "Vincular book",
+  "linkDeck": "Vincular deck",
+  "newBook": "Novo book",
+  "newDeck": "Novo deck",
+  "linkBooksTitle": "Vincular books",
+  "linkDecksTitle": "Vincular decks",
+  "noBooksYet": "Nenhum book criado ainda.",
+  "noDecksYet": "Nenhum deck criado ainda.",
+  "unlinkItem": "Desvincular {name}",
+  "@unlinkItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "hubLinkedBooks": "Books vinculados",
+  "hubLinkedDecks": "Decks vinculados",
+  "deleteTaskTitle": "Excluir tarefa?",
+  "deleteTaskAlsoHint": "Excluir também o que está vinculado a ela:",
+  "deleteAlsoBooks": "{count, plural, =1{1 book (com as páginas)} other{{count} books (com as páginas)}}",
+  "@deleteAlsoBooks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteAlsoPages": "{count, plural, =1{1 página vinculada} other{{count} páginas vinculadas}}",
+  "@deleteAlsoPages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteAlsoDecks": "{count, plural, =1{1 deck (os cards ficam sem deck)} other{{count} decks (os cards ficam sem deck)}}",
+  "@deleteAlsoDecks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteAlsoNoUndo": "O que você marcar aqui não volta com \"Desfazer\".",
+  "repeatTimeHint": "O horário vale para todas as repetições."
 }

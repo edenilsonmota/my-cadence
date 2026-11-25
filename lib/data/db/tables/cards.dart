@@ -10,6 +10,18 @@ class Decks extends Table with SyncColumns {
   TextColumn get description => text().nullable()();
 }
 
+/// Deck vinculado a uma tarefa (esquema v6), para acompanhar nas métricas e
+/// no hub o que se estuda para ela. Muitos para muitos.
+class TaskDeckLinks extends Table with SyncColumns {
+  TextColumn get taskId => text().references(Tasks, #id)();
+  TextColumn get deckId => text().references(Decks, #id)();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {taskId, deckId},
+  ];
+}
+
 @TableIndex(name: 'flashcards_due', columns: {#due})
 @TableIndex(name: 'flashcards_task_id', columns: {#taskId})
 class Flashcards extends Table with SyncColumns {

@@ -7799,6 +7799,1051 @@ class TaskPageLinksCompanion extends UpdateCompanion<TaskPageLink> {
   }
 }
 
+class $TaskNotebookLinksTable extends TaskNotebookLinks
+    with TableInfo<$TaskNotebookLinksTable, TaskNotebookLink> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskNotebookLinksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: newId,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
+  @override
+  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
+    'dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _serverVersionMeta = const VerificationMeta(
+    'serverVersion',
+  );
+  @override
+  late final GeneratedColumn<int> serverVersion = GeneratedColumn<int>(
+    'server_version',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tasks (id)',
+    ),
+  );
+  static const VerificationMeta _notebookIdMeta = const VerificationMeta(
+    'notebookId',
+  );
+  @override
+  late final GeneratedColumn<String> notebookId = GeneratedColumn<String>(
+    'notebook_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES notebooks (id)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    serverVersion,
+    taskId,
+    notebookId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_notebook_links';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskNotebookLink> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('dirty')) {
+      context.handle(
+        _dirtyMeta,
+        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
+      );
+    }
+    if (data.containsKey('server_version')) {
+      context.handle(
+        _serverVersionMeta,
+        serverVersion.isAcceptableOrUnknown(
+          data['server_version']!,
+          _serverVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taskIdMeta);
+    }
+    if (data.containsKey('notebook_id')) {
+      context.handle(
+        _notebookIdMeta,
+        notebookId.isAcceptableOrUnknown(data['notebook_id']!, _notebookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_notebookIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {taskId, notebookId},
+  ];
+  @override
+  TaskNotebookLink map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskNotebookLink(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      dirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dirty'],
+      )!,
+      serverVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_version'],
+      ),
+      taskId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_id'],
+      )!,
+      notebookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notebook_id'],
+      )!,
+    );
+  }
+
+  @override
+  $TaskNotebookLinksTable createAlias(String alias) {
+    return $TaskNotebookLinksTable(attachedDatabase, alias);
+  }
+}
+
+class TaskNotebookLink extends DataClass
+    implements Insertable<TaskNotebookLink> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final bool dirty;
+  final int? serverVersion;
+  final String taskId;
+  final String notebookId;
+  const TaskNotebookLink({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.dirty,
+    this.serverVersion,
+    required this.taskId,
+    required this.notebookId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['dirty'] = Variable<bool>(dirty);
+    if (!nullToAbsent || serverVersion != null) {
+      map['server_version'] = Variable<int>(serverVersion);
+    }
+    map['task_id'] = Variable<String>(taskId);
+    map['notebook_id'] = Variable<String>(notebookId);
+    return map;
+  }
+
+  TaskNotebookLinksCompanion toCompanion(bool nullToAbsent) {
+    return TaskNotebookLinksCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      dirty: Value(dirty),
+      serverVersion: serverVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverVersion),
+      taskId: Value(taskId),
+      notebookId: Value(notebookId),
+    );
+  }
+
+  factory TaskNotebookLink.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskNotebookLink(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      dirty: serializer.fromJson<bool>(json['dirty']),
+      serverVersion: serializer.fromJson<int?>(json['serverVersion']),
+      taskId: serializer.fromJson<String>(json['taskId']),
+      notebookId: serializer.fromJson<String>(json['notebookId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'dirty': serializer.toJson<bool>(dirty),
+      'serverVersion': serializer.toJson<int?>(serverVersion),
+      'taskId': serializer.toJson<String>(taskId),
+      'notebookId': serializer.toJson<String>(notebookId),
+    };
+  }
+
+  TaskNotebookLink copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    bool? dirty,
+    Value<int?> serverVersion = const Value.absent(),
+    String? taskId,
+    String? notebookId,
+  }) => TaskNotebookLink(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    dirty: dirty ?? this.dirty,
+    serverVersion: serverVersion.present
+        ? serverVersion.value
+        : this.serverVersion,
+    taskId: taskId ?? this.taskId,
+    notebookId: notebookId ?? this.notebookId,
+  );
+  TaskNotebookLink copyWithCompanion(TaskNotebookLinksCompanion data) {
+    return TaskNotebookLink(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      dirty: data.dirty.present ? data.dirty.value : this.dirty,
+      serverVersion: data.serverVersion.present
+          ? data.serverVersion.value
+          : this.serverVersion,
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      notebookId: data.notebookId.present
+          ? data.notebookId.value
+          : this.notebookId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskNotebookLink(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('serverVersion: $serverVersion, ')
+          ..write('taskId: $taskId, ')
+          ..write('notebookId: $notebookId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    serverVersion,
+    taskId,
+    notebookId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskNotebookLink &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.dirty == this.dirty &&
+          other.serverVersion == this.serverVersion &&
+          other.taskId == this.taskId &&
+          other.notebookId == this.notebookId);
+}
+
+class TaskNotebookLinksCompanion extends UpdateCompanion<TaskNotebookLink> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<bool> dirty;
+  final Value<int?> serverVersion;
+  final Value<String> taskId;
+  final Value<String> notebookId;
+  final Value<int> rowid;
+  const TaskNotebookLinksCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.serverVersion = const Value.absent(),
+    this.taskId = const Value.absent(),
+    this.notebookId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskNotebookLinksCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.serverVersion = const Value.absent(),
+    required String taskId,
+    required String notebookId,
+    this.rowid = const Value.absent(),
+  }) : taskId = Value(taskId),
+       notebookId = Value(notebookId);
+  static Insertable<TaskNotebookLink> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<bool>? dirty,
+    Expression<int>? serverVersion,
+    Expression<String>? taskId,
+    Expression<String>? notebookId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (dirty != null) 'dirty': dirty,
+      if (serverVersion != null) 'server_version': serverVersion,
+      if (taskId != null) 'task_id': taskId,
+      if (notebookId != null) 'notebook_id': notebookId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskNotebookLinksCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<bool>? dirty,
+    Value<int?>? serverVersion,
+    Value<String>? taskId,
+    Value<String>? notebookId,
+    Value<int>? rowid,
+  }) {
+    return TaskNotebookLinksCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      dirty: dirty ?? this.dirty,
+      serverVersion: serverVersion ?? this.serverVersion,
+      taskId: taskId ?? this.taskId,
+      notebookId: notebookId ?? this.notebookId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (dirty.present) {
+      map['dirty'] = Variable<bool>(dirty.value);
+    }
+    if (serverVersion.present) {
+      map['server_version'] = Variable<int>(serverVersion.value);
+    }
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (notebookId.present) {
+      map['notebook_id'] = Variable<String>(notebookId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskNotebookLinksCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('serverVersion: $serverVersion, ')
+          ..write('taskId: $taskId, ')
+          ..write('notebookId: $notebookId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TaskDeckLinksTable extends TaskDeckLinks
+    with TableInfo<$TaskDeckLinksTable, TaskDeckLink> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskDeckLinksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: newId,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
+  @override
+  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
+    'dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _serverVersionMeta = const VerificationMeta(
+    'serverVersion',
+  );
+  @override
+  late final GeneratedColumn<int> serverVersion = GeneratedColumn<int>(
+    'server_version',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tasks (id)',
+    ),
+  );
+  static const VerificationMeta _deckIdMeta = const VerificationMeta('deckId');
+  @override
+  late final GeneratedColumn<String> deckId = GeneratedColumn<String>(
+    'deck_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES decks (id)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    serverVersion,
+    taskId,
+    deckId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_deck_links';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskDeckLink> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('dirty')) {
+      context.handle(
+        _dirtyMeta,
+        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
+      );
+    }
+    if (data.containsKey('server_version')) {
+      context.handle(
+        _serverVersionMeta,
+        serverVersion.isAcceptableOrUnknown(
+          data['server_version']!,
+          _serverVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taskIdMeta);
+    }
+    if (data.containsKey('deck_id')) {
+      context.handle(
+        _deckIdMeta,
+        deckId.isAcceptableOrUnknown(data['deck_id']!, _deckIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deckIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {taskId, deckId},
+  ];
+  @override
+  TaskDeckLink map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskDeckLink(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      dirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dirty'],
+      )!,
+      serverVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_version'],
+      ),
+      taskId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_id'],
+      )!,
+      deckId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deck_id'],
+      )!,
+    );
+  }
+
+  @override
+  $TaskDeckLinksTable createAlias(String alias) {
+    return $TaskDeckLinksTable(attachedDatabase, alias);
+  }
+}
+
+class TaskDeckLink extends DataClass implements Insertable<TaskDeckLink> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final bool dirty;
+  final int? serverVersion;
+  final String taskId;
+  final String deckId;
+  const TaskDeckLink({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.dirty,
+    this.serverVersion,
+    required this.taskId,
+    required this.deckId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['dirty'] = Variable<bool>(dirty);
+    if (!nullToAbsent || serverVersion != null) {
+      map['server_version'] = Variable<int>(serverVersion);
+    }
+    map['task_id'] = Variable<String>(taskId);
+    map['deck_id'] = Variable<String>(deckId);
+    return map;
+  }
+
+  TaskDeckLinksCompanion toCompanion(bool nullToAbsent) {
+    return TaskDeckLinksCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      dirty: Value(dirty),
+      serverVersion: serverVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverVersion),
+      taskId: Value(taskId),
+      deckId: Value(deckId),
+    );
+  }
+
+  factory TaskDeckLink.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskDeckLink(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      dirty: serializer.fromJson<bool>(json['dirty']),
+      serverVersion: serializer.fromJson<int?>(json['serverVersion']),
+      taskId: serializer.fromJson<String>(json['taskId']),
+      deckId: serializer.fromJson<String>(json['deckId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'dirty': serializer.toJson<bool>(dirty),
+      'serverVersion': serializer.toJson<int?>(serverVersion),
+      'taskId': serializer.toJson<String>(taskId),
+      'deckId': serializer.toJson<String>(deckId),
+    };
+  }
+
+  TaskDeckLink copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    bool? dirty,
+    Value<int?> serverVersion = const Value.absent(),
+    String? taskId,
+    String? deckId,
+  }) => TaskDeckLink(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    dirty: dirty ?? this.dirty,
+    serverVersion: serverVersion.present
+        ? serverVersion.value
+        : this.serverVersion,
+    taskId: taskId ?? this.taskId,
+    deckId: deckId ?? this.deckId,
+  );
+  TaskDeckLink copyWithCompanion(TaskDeckLinksCompanion data) {
+    return TaskDeckLink(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      dirty: data.dirty.present ? data.dirty.value : this.dirty,
+      serverVersion: data.serverVersion.present
+          ? data.serverVersion.value
+          : this.serverVersion,
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      deckId: data.deckId.present ? data.deckId.value : this.deckId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskDeckLink(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('serverVersion: $serverVersion, ')
+          ..write('taskId: $taskId, ')
+          ..write('deckId: $deckId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    serverVersion,
+    taskId,
+    deckId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskDeckLink &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.dirty == this.dirty &&
+          other.serverVersion == this.serverVersion &&
+          other.taskId == this.taskId &&
+          other.deckId == this.deckId);
+}
+
+class TaskDeckLinksCompanion extends UpdateCompanion<TaskDeckLink> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<bool> dirty;
+  final Value<int?> serverVersion;
+  final Value<String> taskId;
+  final Value<String> deckId;
+  final Value<int> rowid;
+  const TaskDeckLinksCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.serverVersion = const Value.absent(),
+    this.taskId = const Value.absent(),
+    this.deckId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskDeckLinksCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.serverVersion = const Value.absent(),
+    required String taskId,
+    required String deckId,
+    this.rowid = const Value.absent(),
+  }) : taskId = Value(taskId),
+       deckId = Value(deckId);
+  static Insertable<TaskDeckLink> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<bool>? dirty,
+    Expression<int>? serverVersion,
+    Expression<String>? taskId,
+    Expression<String>? deckId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (dirty != null) 'dirty': dirty,
+      if (serverVersion != null) 'server_version': serverVersion,
+      if (taskId != null) 'task_id': taskId,
+      if (deckId != null) 'deck_id': deckId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskDeckLinksCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<bool>? dirty,
+    Value<int?>? serverVersion,
+    Value<String>? taskId,
+    Value<String>? deckId,
+    Value<int>? rowid,
+  }) {
+    return TaskDeckLinksCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      dirty: dirty ?? this.dirty,
+      serverVersion: serverVersion ?? this.serverVersion,
+      taskId: taskId ?? this.taskId,
+      deckId: deckId ?? this.deckId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (dirty.present) {
+      map['dirty'] = Variable<bool>(dirty.value);
+    }
+    if (serverVersion.present) {
+      map['server_version'] = Variable<int>(serverVersion.value);
+    }
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (deckId.present) {
+      map['deck_id'] = Variable<String>(deckId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskDeckLinksCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('serverVersion: $serverVersion, ')
+          ..write('taskId: $taskId, ')
+          ..write('deckId: $deckId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AppSettingsTable extends AppSettings
     with TableInfo<$AppSettingsTable, AppSetting> {
   @override
@@ -8328,6 +9373,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $FlashcardsTable flashcards = $FlashcardsTable(this);
   late final $ReviewLogsTable reviewLogs = $ReviewLogsTable(this);
   late final $TaskPageLinksTable taskPageLinks = $TaskPageLinksTable(this);
+  late final $TaskNotebookLinksTable taskNotebookLinks =
+      $TaskNotebookLinksTable(this);
+  late final $TaskDeckLinksTable taskDeckLinks = $TaskDeckLinksTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final Index tasksParentId = Index(
     'tasks_parent_id',
@@ -8375,6 +9423,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     flashcards,
     reviewLogs,
     taskPageLinks,
+    taskNotebookLinks,
+    taskDeckLinks,
     appSettings,
     tasksParentId,
     tasksDueAt,
@@ -8571,6 +9621,45 @@ final class $$TasksTableReferences
     ).filter((f) => f.taskId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_taskPageLinksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TaskNotebookLinksTable, List<TaskNotebookLink>>
+  _taskNotebookLinksRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.taskNotebookLinks,
+        aliasName: 'tasks__id__task_notebook_links__task_id',
+      );
+
+  $$TaskNotebookLinksTableProcessedTableManager get taskNotebookLinksRefs {
+    final manager = $$TaskNotebookLinksTableTableManager(
+      $_db,
+      $_db.taskNotebookLinks,
+    ).filter((f) => f.taskId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _taskNotebookLinksRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TaskDeckLinksTable, List<TaskDeckLink>>
+  _taskDeckLinksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskDeckLinks,
+    aliasName: 'tasks__id__task_deck_links__task_id',
+  );
+
+  $$TaskDeckLinksTableProcessedTableManager get taskDeckLinksRefs {
+    final manager = $$TaskDeckLinksTableTableManager(
+      $_db,
+      $_db.taskDeckLinks,
+    ).filter((f) => f.taskId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_taskDeckLinksRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -8872,6 +9961,56 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
           }) => $$TaskPageLinksTableFilterComposer(
             $db: $db,
             $table: $db.taskPageLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> taskNotebookLinksRefs(
+    Expression<bool> Function($$TaskNotebookLinksTableFilterComposer f) f,
+  ) {
+    final $$TaskNotebookLinksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskNotebookLinks,
+      getReferencedColumn: (t) => t.taskId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskNotebookLinksTableFilterComposer(
+            $db: $db,
+            $table: $db.taskNotebookLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> taskDeckLinksRefs(
+    Expression<bool> Function($$TaskDeckLinksTableFilterComposer f) f,
+  ) {
+    final $$TaskDeckLinksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskDeckLinks,
+      getReferencedColumn: (t) => t.taskId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskDeckLinksTableFilterComposer(
+            $db: $db,
+            $table: $db.taskDeckLinks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -9305,6 +10444,57 @@ class $$TasksTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> taskNotebookLinksRefs<T extends Object>(
+    Expression<T> Function($$TaskNotebookLinksTableAnnotationComposer a) f,
+  ) {
+    final $$TaskNotebookLinksTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.taskNotebookLinks,
+          getReferencedColumn: (t) => t.taskId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskNotebookLinksTableAnnotationComposer(
+                $db: $db,
+                $table: $db.taskNotebookLinks,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> taskDeckLinksRefs<T extends Object>(
+    Expression<T> Function($$TaskDeckLinksTableAnnotationComposer a) f,
+  ) {
+    final $$TaskDeckLinksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskDeckLinks,
+      getReferencedColumn: (t) => t.taskId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskDeckLinksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskDeckLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TasksTableTableManager
@@ -9328,6 +10518,8 @@ class $$TasksTableTableManager
             bool notebooksRefs,
             bool flashcardsRefs,
             bool taskPageLinksRefs,
+            bool taskNotebookLinksRefs,
+            bool taskDeckLinksRefs,
           })
         > {
   $$TasksTableTableManager(_$AppDatabase db, $TasksTable table)
@@ -9470,6 +10662,8 @@ class $$TasksTableTableManager
                 notebooksRefs = false,
                 flashcardsRefs = false,
                 taskPageLinksRefs = false,
+                taskNotebookLinksRefs = false,
+                taskDeckLinksRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -9480,6 +10674,8 @@ class $$TasksTableTableManager
                     if (notebooksRefs) db.notebooks,
                     if (flashcardsRefs) db.flashcards,
                     if (taskPageLinksRefs) db.taskPageLinks,
+                    if (taskNotebookLinksRefs) db.taskNotebookLinks,
+                    if (taskDeckLinksRefs) db.taskDeckLinks,
                   ],
                   addJoins:
                       <
@@ -9633,6 +10829,46 @@ class $$TasksTableTableManager
                           referencedColumn: 'task_id',
                           typedResults: items,
                         ),
+                      if (taskNotebookLinksRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Task,
+                          $TasksTable,
+                          TaskNotebookLink,
+                          $TaskNotebookLinksTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TasksTableReferences
+                              ._taskNotebookLinksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TasksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskNotebookLinksRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'task_id',
+                          typedResults: items,
+                        ),
+                      if (taskDeckLinksRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Task,
+                          $TasksTable,
+                          TaskDeckLink,
+                          $TaskDeckLinksTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TasksTableReferences
+                              ._taskDeckLinksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TasksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskDeckLinksRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'task_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -9661,6 +10897,8 @@ typedef $$TasksTableProcessedTableManager =
         bool notebooksRefs,
         bool flashcardsRefs,
         bool taskPageLinksRefs,
+        bool taskNotebookLinksRefs,
+        bool taskDeckLinksRefs,
       })
     >;
 typedef $$TaskCompletionsTableCreateCompanionBuilder =
@@ -11403,6 +12641,24 @@ final class $$DecksTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$TaskDeckLinksTable, List<TaskDeckLink>>
+  _taskDeckLinksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskDeckLinks,
+    aliasName: 'decks__id__task_deck_links__deck_id',
+  );
+
+  $$TaskDeckLinksTableProcessedTableManager get taskDeckLinksRefs {
+    final manager = $$TaskDeckLinksTableTableManager(
+      $_db,
+      $_db.taskDeckLinks,
+    ).filter((f) => f.deckId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_taskDeckLinksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$DecksTableFilterComposer extends Composer<_$AppDatabase, $DecksTable> {
@@ -11469,6 +12725,31 @@ class $$DecksTableFilterComposer extends Composer<_$AppDatabase, $DecksTable> {
           }) => $$FlashcardsTableFilterComposer(
             $db: $db,
             $table: $db.flashcards,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> taskDeckLinksRefs(
+    Expression<bool> Function($$TaskDeckLinksTableFilterComposer f) f,
+  ) {
+    final $$TaskDeckLinksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskDeckLinks,
+      getReferencedColumn: (t) => t.deckId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskDeckLinksTableFilterComposer(
+            $db: $db,
+            $table: $db.taskDeckLinks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11590,6 +12871,31 @@ class $$DecksTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> taskDeckLinksRefs<T extends Object>(
+    Expression<T> Function($$TaskDeckLinksTableAnnotationComposer a) f,
+  ) {
+    final $$TaskDeckLinksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskDeckLinks,
+      getReferencedColumn: (t) => t.deckId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskDeckLinksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskDeckLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$DecksTableTableManager
@@ -11605,7 +12911,7 @@ class $$DecksTableTableManager
           $$DecksTableUpdateCompanionBuilder,
           (Deck, $$DecksTableReferences),
           Deck,
-          PrefetchHooks Function({bool flashcardsRefs})
+          PrefetchHooks Function({bool flashcardsRefs, bool taskDeckLinksRefs})
         > {
   $$DecksTableTableManager(_$AppDatabase db, $DecksTable table)
     : super(
@@ -11670,33 +12976,61 @@ class $$DecksTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({flashcardsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (flashcardsRefs) db.flashcards],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (flashcardsRefs)
-                    await $_getPrefetchedDataByColumns<
-                      Deck,
-                      $DecksTable,
-                      Flashcard,
-                      $FlashcardsTable
-                    >(
-                      currentTable: table,
-                      referencedTable: $$DecksTableReferences
-                          ._flashcardsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$DecksTableReferences(db, table, p0).flashcardsRefs,
-                      currentColumn: 'id',
-                      referencedColumn: 'deck_id',
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({flashcardsRefs = false, taskDeckLinksRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (flashcardsRefs) db.flashcards,
+                    if (taskDeckLinksRefs) db.taskDeckLinks,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (flashcardsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Deck,
+                          $DecksTable,
+                          Flashcard,
+                          $FlashcardsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DecksTableReferences
+                              ._flashcardsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DecksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).flashcardsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'deck_id',
+                          typedResults: items,
+                        ),
+                      if (taskDeckLinksRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Deck,
+                          $DecksTable,
+                          TaskDeckLink,
+                          $TaskDeckLinksTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DecksTableReferences
+                              ._taskDeckLinksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DecksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskDeckLinksRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'deck_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -11713,7 +13047,7 @@ typedef $$DecksTableProcessedTableManager =
       $$DecksTableUpdateCompanionBuilder,
       (Deck, $$DecksTableReferences),
       Deck,
-      PrefetchHooks Function({bool flashcardsRefs})
+      PrefetchHooks Function({bool flashcardsRefs, bool taskDeckLinksRefs})
     >;
 typedef $$NotebooksTableCreateCompanionBuilder = NotebooksCompanion Function({
   Value<String> id,
@@ -11776,6 +13110,27 @@ final class $$NotebooksTableReferences
     ).filter((f) => f.notebookId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_notePagesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TaskNotebookLinksTable, List<TaskNotebookLink>>
+  _taskNotebookLinksRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.taskNotebookLinks,
+        aliasName: 'notebooks__id__task_notebook_links__notebook_id',
+      );
+
+  $$TaskNotebookLinksTableProcessedTableManager get taskNotebookLinksRefs {
+    final manager = $$TaskNotebookLinksTableTableManager(
+      $_db,
+      $_db.taskNotebookLinks,
+    ).filter((f) => f.notebookId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _taskNotebookLinksRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -11875,6 +13230,31 @@ class $$NotebooksTableFilterComposer
           }) => $$NotePagesTableFilterComposer(
             $db: $db,
             $table: $db.notePages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> taskNotebookLinksRefs(
+    Expression<bool> Function($$TaskNotebookLinksTableFilterComposer f) f,
+  ) {
+    final $$TaskNotebookLinksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskNotebookLinks,
+      getReferencedColumn: (t) => t.notebookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskNotebookLinksTableFilterComposer(
+            $db: $db,
+            $table: $db.taskNotebookLinks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -12048,6 +13428,32 @@ class $$NotebooksTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> taskNotebookLinksRefs<T extends Object>(
+    Expression<T> Function($$TaskNotebookLinksTableAnnotationComposer a) f,
+  ) {
+    final $$TaskNotebookLinksTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.taskNotebookLinks,
+          getReferencedColumn: (t) => t.notebookId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskNotebookLinksTableAnnotationComposer(
+                $db: $db,
+                $table: $db.taskNotebookLinks,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$NotebooksTableTableManager
@@ -12063,7 +13469,11 @@ class $$NotebooksTableTableManager
           $$NotebooksTableUpdateCompanionBuilder,
           (Notebook, $$NotebooksTableReferences),
           Notebook,
-          PrefetchHooks Function({bool taskId, bool notePagesRefs})
+          PrefetchHooks Function({
+            bool taskId,
+            bool notePagesRefs,
+            bool taskNotebookLinksRefs,
+          })
         > {
   $$NotebooksTableTableManager(_$AppDatabase db, $NotebooksTable table)
     : super(
@@ -12136,66 +13546,94 @@ class $$NotebooksTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({taskId = false, notePagesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (notePagesRefs) db.notePages],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (taskId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.taskId,
-                        referencedTable: $$NotebooksTableReferences
-                            ._taskIdTable(db),
-                        referencedColumn: $$NotebooksTableReferences
-                            ._taskIdTable(db)
-                            .id,
-                      ) as T;
-                    }
+          prefetchHooksCallback:
+              ({
+                taskId = false,
+                notePagesRefs = false,
+                taskNotebookLinksRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (notePagesRefs) db.notePages,
+                    if (taskNotebookLinksRefs) db.taskNotebookLinks,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (taskId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.taskId,
+                            referencedTable: $$NotebooksTableReferences
+                                ._taskIdTable(db),
+                            referencedColumn: $$NotebooksTableReferences
+                                ._taskIdTable(db)
+                                .id,
+                          ) as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (notePagesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Notebook,
+                          $NotebooksTable,
+                          NotePage,
+                          $NotePagesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$NotebooksTableReferences
+                              ._notePagesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$NotebooksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).notePagesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'notebook_id',
+                          typedResults: items,
+                        ),
+                      if (taskNotebookLinksRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Notebook,
+                          $NotebooksTable,
+                          TaskNotebookLink,
+                          $TaskNotebookLinksTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$NotebooksTableReferences
+                              ._taskNotebookLinksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$NotebooksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskNotebookLinksRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'notebook_id',
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (notePagesRefs)
-                    await $_getPrefetchedDataByColumns<
-                      Notebook,
-                      $NotebooksTable,
-                      NotePage,
-                      $NotePagesTable
-                    >(
-                      currentTable: table,
-                      referencedTable: $$NotebooksTableReferences
-                          ._notePagesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$NotebooksTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).notePagesRefs,
-                      currentColumn: 'id',
-                      referencedColumn: 'notebook_id',
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -12212,7 +13650,11 @@ typedef $$NotebooksTableProcessedTableManager =
       $$NotebooksTableUpdateCompanionBuilder,
       (Notebook, $$NotebooksTableReferences),
       Notebook,
-      PrefetchHooks Function({bool taskId, bool notePagesRefs})
+      PrefetchHooks Function({
+        bool taskId,
+        bool notePagesRefs,
+        bool taskNotebookLinksRefs,
+      })
     >;
 typedef $$NotePagesTableCreateCompanionBuilder = NotePagesCompanion Function({
   Value<String> id,
@@ -14658,6 +16100,940 @@ typedef $$TaskPageLinksTableProcessedTableManager =
       TaskPageLink,
       PrefetchHooks Function({bool taskId, bool pageId})
     >;
+typedef $$TaskNotebookLinksTableCreateCompanionBuilder =
+    TaskNotebookLinksCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<int?> serverVersion,
+      required String taskId,
+      required String notebookId,
+      Value<int> rowid,
+    });
+typedef $$TaskNotebookLinksTableUpdateCompanionBuilder =
+    TaskNotebookLinksCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<int?> serverVersion,
+      Value<String> taskId,
+      Value<String> notebookId,
+      Value<int> rowid,
+    });
+
+final class $$TaskNotebookLinksTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $TaskNotebookLinksTable,
+          TaskNotebookLink
+        > {
+  $$TaskNotebookLinksTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $TasksTable _taskIdTable(_$AppDatabase db) =>
+      db.tasks.createAlias('task_notebook_links__task_id__tasks__id');
+
+  $$TasksTableProcessedTableManager get taskId {
+    final $_column = $_itemColumn<String>('task_id')!;
+
+    final manager = $$TasksTableTableManager(
+      $_db,
+      $_db.tasks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_taskIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $NotebooksTable _notebookIdTable(_$AppDatabase db) => db.notebooks
+      .createAlias('task_notebook_links__notebook_id__notebooks__id');
+
+  $$NotebooksTableProcessedTableManager get notebookId {
+    final $_column = $_itemColumn<String>('notebook_id')!;
+
+    final manager = $$NotebooksTableTableManager(
+      $_db,
+      $_db.notebooks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_notebookIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TaskNotebookLinksTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskNotebookLinksTable> {
+  $$TaskNotebookLinksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TasksTableFilterComposer get taskId {
+    final $$TasksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableFilterComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NotebooksTableFilterComposer get notebookId {
+    final $$NotebooksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.notebookId,
+      referencedTable: $db.notebooks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NotebooksTableFilterComposer(
+            $db: $db,
+            $table: $db.notebooks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskNotebookLinksTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskNotebookLinksTable> {
+  $$TaskNotebookLinksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TasksTableOrderingComposer get taskId {
+    final $$TasksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableOrderingComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NotebooksTableOrderingComposer get notebookId {
+    final $$NotebooksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.notebookId,
+      referencedTable: $db.notebooks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NotebooksTableOrderingComposer(
+            $db: $db,
+            $table: $db.notebooks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskNotebookLinksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskNotebookLinksTable> {
+  $$TaskNotebookLinksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get dirty =>
+      $composableBuilder(column: $table.dirty, builder: (column) => column);
+
+  GeneratedColumn<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => column,
+  );
+
+  $$TasksTableAnnotationComposer get taskId {
+    final $$TasksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$NotebooksTableAnnotationComposer get notebookId {
+    final $$NotebooksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.notebookId,
+      referencedTable: $db.notebooks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NotebooksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.notebooks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskNotebookLinksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskNotebookLinksTable,
+          TaskNotebookLink,
+          $$TaskNotebookLinksTableFilterComposer,
+          $$TaskNotebookLinksTableOrderingComposer,
+          $$TaskNotebookLinksTableAnnotationComposer,
+          $$TaskNotebookLinksTableCreateCompanionBuilder,
+          $$TaskNotebookLinksTableUpdateCompanionBuilder,
+          (TaskNotebookLink, $$TaskNotebookLinksTableReferences),
+          TaskNotebookLink,
+          PrefetchHooks Function({bool taskId, bool notebookId})
+        > {
+  $$TaskNotebookLinksTableTableManager(
+    _$AppDatabase db,
+    $TaskNotebookLinksTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TaskNotebookLinksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TaskNotebookLinksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TaskNotebookLinksTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<int?> serverVersion = const Value.absent(),
+                Value<String> taskId = const Value.absent(),
+                Value<String> notebookId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskNotebookLinksCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                serverVersion: serverVersion,
+                taskId: taskId,
+                notebookId: notebookId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<int?> serverVersion = const Value.absent(),
+                required String taskId,
+                required String notebookId,
+                Value<int> rowid = const Value.absent(),
+              }) => TaskNotebookLinksCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                serverVersion: serverVersion,
+                taskId: taskId,
+                notebookId: notebookId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TaskNotebookLinksTable, TaskNotebookLink>(table),
+                  $$TaskNotebookLinksTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({taskId = false, notebookId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (taskId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.taskId,
+                        referencedTable: $$TaskNotebookLinksTableReferences
+                            ._taskIdTable(db),
+                        referencedColumn: $$TaskNotebookLinksTableReferences
+                            ._taskIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (notebookId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.notebookId,
+                        referencedTable: $$TaskNotebookLinksTableReferences
+                            ._notebookIdTable(db),
+                        referencedColumn: $$TaskNotebookLinksTableReferences
+                            ._notebookIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TaskNotebookLinksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskNotebookLinksTable,
+      TaskNotebookLink,
+      $$TaskNotebookLinksTableFilterComposer,
+      $$TaskNotebookLinksTableOrderingComposer,
+      $$TaskNotebookLinksTableAnnotationComposer,
+      $$TaskNotebookLinksTableCreateCompanionBuilder,
+      $$TaskNotebookLinksTableUpdateCompanionBuilder,
+      (TaskNotebookLink, $$TaskNotebookLinksTableReferences),
+      TaskNotebookLink,
+      PrefetchHooks Function({bool taskId, bool notebookId})
+    >;
+typedef $$TaskDeckLinksTableCreateCompanionBuilder =
+    TaskDeckLinksCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<int?> serverVersion,
+      required String taskId,
+      required String deckId,
+      Value<int> rowid,
+    });
+typedef $$TaskDeckLinksTableUpdateCompanionBuilder =
+    TaskDeckLinksCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<int?> serverVersion,
+      Value<String> taskId,
+      Value<String> deckId,
+      Value<int> rowid,
+    });
+
+final class $$TaskDeckLinksTableReferences
+    extends BaseReferences<_$AppDatabase, $TaskDeckLinksTable, TaskDeckLink> {
+  $$TaskDeckLinksTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $TasksTable _taskIdTable(_$AppDatabase db) =>
+      db.tasks.createAlias('task_deck_links__task_id__tasks__id');
+
+  $$TasksTableProcessedTableManager get taskId {
+    final $_column = $_itemColumn<String>('task_id')!;
+
+    final manager = $$TasksTableTableManager(
+      $_db,
+      $_db.tasks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_taskIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $DecksTable _deckIdTable(_$AppDatabase db) =>
+      db.decks.createAlias('task_deck_links__deck_id__decks__id');
+
+  $$DecksTableProcessedTableManager get deckId {
+    final $_column = $_itemColumn<String>('deck_id')!;
+
+    final manager = $$DecksTableTableManager(
+      $_db,
+      $_db.decks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_deckIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TaskDeckLinksTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskDeckLinksTable> {
+  $$TaskDeckLinksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TasksTableFilterComposer get taskId {
+    final $$TasksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableFilterComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DecksTableFilterComposer get deckId {
+    final $$DecksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.deckId,
+      referencedTable: $db.decks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DecksTableFilterComposer(
+            $db: $db,
+            $table: $db.decks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskDeckLinksTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskDeckLinksTable> {
+  $$TaskDeckLinksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TasksTableOrderingComposer get taskId {
+    final $$TasksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableOrderingComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DecksTableOrderingComposer get deckId {
+    final $$DecksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.deckId,
+      referencedTable: $db.decks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DecksTableOrderingComposer(
+            $db: $db,
+            $table: $db.decks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskDeckLinksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskDeckLinksTable> {
+  $$TaskDeckLinksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get dirty =>
+      $composableBuilder(column: $table.dirty, builder: (column) => column);
+
+  GeneratedColumn<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => column,
+  );
+
+  $$TasksTableAnnotationComposer get taskId {
+    final $$TasksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DecksTableAnnotationComposer get deckId {
+    final $$DecksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.deckId,
+      referencedTable: $db.decks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DecksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.decks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskDeckLinksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskDeckLinksTable,
+          TaskDeckLink,
+          $$TaskDeckLinksTableFilterComposer,
+          $$TaskDeckLinksTableOrderingComposer,
+          $$TaskDeckLinksTableAnnotationComposer,
+          $$TaskDeckLinksTableCreateCompanionBuilder,
+          $$TaskDeckLinksTableUpdateCompanionBuilder,
+          (TaskDeckLink, $$TaskDeckLinksTableReferences),
+          TaskDeckLink,
+          PrefetchHooks Function({bool taskId, bool deckId})
+        > {
+  $$TaskDeckLinksTableTableManager(_$AppDatabase db, $TaskDeckLinksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TaskDeckLinksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TaskDeckLinksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TaskDeckLinksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<int?> serverVersion = const Value.absent(),
+                Value<String> taskId = const Value.absent(),
+                Value<String> deckId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskDeckLinksCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                serverVersion: serverVersion,
+                taskId: taskId,
+                deckId: deckId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<int?> serverVersion = const Value.absent(),
+                required String taskId,
+                required String deckId,
+                Value<int> rowid = const Value.absent(),
+              }) => TaskDeckLinksCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                serverVersion: serverVersion,
+                taskId: taskId,
+                deckId: deckId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TaskDeckLinksTable, TaskDeckLink>(table),
+                  $$TaskDeckLinksTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({taskId = false, deckId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (taskId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.taskId,
+                        referencedTable: $$TaskDeckLinksTableReferences
+                            ._taskIdTable(db),
+                        referencedColumn: $$TaskDeckLinksTableReferences
+                            ._taskIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (deckId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.deckId,
+                        referencedTable: $$TaskDeckLinksTableReferences
+                            ._deckIdTable(db),
+                        referencedColumn: $$TaskDeckLinksTableReferences
+                            ._deckIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TaskDeckLinksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskDeckLinksTable,
+      TaskDeckLink,
+      $$TaskDeckLinksTableFilterComposer,
+      $$TaskDeckLinksTableOrderingComposer,
+      $$TaskDeckLinksTableAnnotationComposer,
+      $$TaskDeckLinksTableCreateCompanionBuilder,
+      $$TaskDeckLinksTableUpdateCompanionBuilder,
+      (TaskDeckLink, $$TaskDeckLinksTableReferences),
+      TaskDeckLink,
+      PrefetchHooks Function({bool taskId, bool deckId})
+    >;
 typedef $$AppSettingsTableCreateCompanionBuilder =
     AppSettingsCompanion Function({
       Value<String> id,
@@ -14951,6 +17327,10 @@ class $AppDatabaseManager {
       $$ReviewLogsTableTableManager(_db, _db.reviewLogs);
   $$TaskPageLinksTableTableManager get taskPageLinks =>
       $$TaskPageLinksTableTableManager(_db, _db.taskPageLinks);
+  $$TaskNotebookLinksTableTableManager get taskNotebookLinks =>
+      $$TaskNotebookLinksTableTableManager(_db, _db.taskNotebookLinks);
+  $$TaskDeckLinksTableTableManager get taskDeckLinks =>
+      $$TaskDeckLinksTableTableManager(_db, _db.taskDeckLinks);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
 }

@@ -83,12 +83,17 @@ class HubTools extends ConsumerWidget {
         ? const <NotePage>[]
         : ref.watch(notebookPagesProvider(notebook.id)).value ?? const [];
     final linked = ref.watch(linkedPagesProvider(task.id)).value ?? const [];
+    final linkedBooks =
+        ref.watch(linkedNotebooksProvider(task.id)).value ?? const [];
+    final linkedDecks =
+        ref.watch(linkedDecksProvider(task.id)).value ?? const [];
 
     final visible = visibleTools(
       kind: task.kind,
-      hasCards: cards.isNotEmpty,
+      hasCards: cards.isNotEmpty || linkedDecks.isNotEmpty,
       hasPomodoro: sessions.isNotEmpty || task.estimatedPomodoros != null,
-      hasPages: ownPages.isNotEmpty || linked.isNotEmpty,
+      hasPages:
+          ownPages.isNotEmpty || linked.isNotEmpty || linkedBooks.isNotEmpty,
     );
 
     void addCard() => _addCard(context, ref);
@@ -143,6 +148,8 @@ class HubTools extends ConsumerWidget {
       children: [
         if (visible.cards)
           _CardsSection(
+            taskId: task.id,
+            decks: linkedDecks,
             counts: countCards(cards, now),
             onAdd: addCard,
             onReview: () => context.push(Routes.reviewTask(task.id)),
@@ -159,6 +166,7 @@ class HubTools extends ConsumerWidget {
             notebookId: notebook?.id,
             ownPages: ownPages,
             linked: linked,
+            books: linkedBooks,
             onAdd: addPage,
           ),
       ],
@@ -211,19 +219,23 @@ class _Actions extends StatelessWidget {
   }
 }
 
-class _CardsSection extends StatelessWidget {
+class _CardsSection extends ConsumerWidget {
   const _CardsSection({
+    required this.taskId,
+    required this.decks,
     required this.counts,
     required this.onAdd,
     required this.onReview,
   });
 
+  final String taskId;
+  final List<Deck> decks;
   final CardCounts counts;
   final VoidCallback onAdd;
   final VoidCallback onReview;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final total = counts.total;
     return _Section(
@@ -244,6 +256,19 @@ class _CardsSection extends StatelessWidget {
                       : l10n.reviewDueNow(counts.due),
                 ),
         ),
+        for (final deck in decks)
+          ListTile(
+            leading: const Icon(AppIcons.deck),
+            title: Text(deck.name),
+            subtitle: Text(l10n.hubLinkedDecks),
+            trailing: IconButton(
+              tooltip: l10n.unlinkItem(deck.name),
+              icon: const Icon(AppIcons.unlink),
+              onPressed: () =>
+                  ref.read(cardsRepositoryProvider).unlinkDeck(taskId, deck.id),
+            ),
+            onTap: () => context.push(Routes.cards(deckId: deck.id)),
+          ),
         _Actions([
           if (total > 0)
             FilledButton.tonalIcon(
@@ -325,6 +350,7 @@ class _PagesSection extends ConsumerWidget {
     required this.notebookId,
     required this.ownPages,
     required this.linked,
+    required this.books,
     required this.onAdd,
   });
 
@@ -332,12 +358,13 @@ class _PagesSection extends ConsumerWidget {
   final String? notebookId;
   final List<NotePage> ownPages;
   final List<NotePage> linked;
+  final List<Notebook> books;
   final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final books = ref.read(booksRepositoryProvider);
+    final booksRepo = ref.read(booksRepositoryProvider);
     Widget pageTile(NotePage page, {Widget? trailing}) => ListTile(
       leading: const Icon(AppIcons.page),
       title: Text(page.title),
@@ -349,8 +376,20 @@ class _PagesSection extends ConsumerWidget {
       title: l10n.hubPages,
       icon: AppIcons.page,
       children: [
-        if (ownPages.isEmpty && linked.isEmpty)
+        if (ownPages.isEmpty && linked.isEmpty && books.isEmpty)
           ListTile(title: Text(l10n.hubNoPagesYet)),
+        for (final book in books)
+          ListTile(
+            leading: const Icon(AppIcons.book),
+            title: Text(book.title),
+            subtitle: Text(l10n.hubLinkedBooks),
+            trailing: IconButton(
+              tooltip: l10n.unlinkItem(book.title),
+              icon: const Icon(AppIcons.unlink),
+              onPressed: () => booksRepo.unlinkNotebook(taskId, book.id),
+            ),
+            onTap: () => context.push(Routes.book(book.id)),
+          ),
         for (final page in ownPages) pageTile(page),
         for (final page in linked)
           pageTile(
@@ -358,7 +397,7 @@ class _PagesSection extends ConsumerWidget {
             trailing: IconButton(
               tooltip: l10n.hubUnlink,
               icon: const Icon(AppIcons.unlink),
-              onPressed: () => books.unlinkPage(taskId, page.id),
+              onPressed: () => booksRepo.unlinkPage(taskId, page.id),
             ),
           ),
         _Actions([

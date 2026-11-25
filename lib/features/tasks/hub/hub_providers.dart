@@ -55,6 +55,20 @@ final linkedPagesProvider = StreamProvider.autoDispose
           ref.watch(booksRepositoryProvider).watchLinkedPages(taskId),
     );
 
+/// Books inteiros vinculados à tarefa.
+final linkedNotebooksProvider = StreamProvider.autoDispose
+    .family<List<Notebook>, String>(
+      (ref, taskId) =>
+          ref.watch(booksRepositoryProvider).watchLinkedNotebooks(taskId),
+    );
+
+/// Decks vinculados à tarefa.
+final linkedDecksProvider = StreamProvider.autoDispose
+    .family<List<Deck>, String>(
+      (ref, taskId) =>
+          ref.watch(cardsRepositoryProvider).watchLinkedDecks(taskId),
+    );
+
 /// Todas as páginas de books, para escolher qual vincular.
 final bookPagesProvider =
     StreamProvider.autoDispose<List<(NotePage, Notebook)>>(

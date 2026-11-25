@@ -10,6 +10,7 @@ mixin _$CardsDaoMixin on DatabaseAccessor<AppDatabase> {
   $NotePagesTable get notePages => attachedDatabase.notePages;
   $FlashcardsTable get flashcards => attachedDatabase.flashcards;
   $ReviewLogsTable get reviewLogs => attachedDatabase.reviewLogs;
+  $TaskDeckLinksTable get taskDeckLinks => attachedDatabase.taskDeckLinks;
   CardsDaoManager get managers => CardsDaoManager(this);
 }
 
@@ -28,4 +29,6 @@ class CardsDaoManager {
       $$FlashcardsTableTableManager(_db.attachedDatabase, _db.flashcards);
   $$ReviewLogsTableTableManager get reviewLogs =>
       $$ReviewLogsTableTableManager(_db.attachedDatabase, _db.reviewLogs);
+  $$TaskDeckLinksTableTableManager get taskDeckLinks =>
+      $$TaskDeckLinksTableTableManager(_db.attachedDatabase, _db.taskDeckLinks);
 }

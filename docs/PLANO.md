@@ -129,6 +129,8 @@ AppSettings (chave/valor)
 **Notebooks**: `title`, `taskId?` (preenchido = caderno da tarefa), `icon?`.
 **NotePages**: `notebookId`, `parentPageId?`, `title`, `content` (JSON do AppFlowy), `sortOrder`.
 **TaskPageLinks**: `taskId`, `pageId`.
+**TaskNotebookLinks** (v6): `taskId`, `notebookId` — book inteiro vinculado à tarefa.
+**TaskDeckLinks** (v6): `taskId`, `deckId` — deck vinculado à tarefa (hub e métricas).
 
 **AppSettings**: `key`, `value` (durações do pomodoro, retenção desejada, limite de cards novos/dia,
 alarme padrão, modo do calendário etc.).

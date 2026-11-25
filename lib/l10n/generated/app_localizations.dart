@@ -3357,6 +3357,258 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Foco {range}'**
   String timelineFocus(String range);
+
+  /// No description provided for @fieldWhen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quando'**
+  String get fieldWhen;
+
+  /// No description provided for @fieldDetails.
+  ///
+  /// In pt, this message translates to:
+  /// **'Detalhes'**
+  String get fieldDetails;
+
+  /// No description provided for @fieldStudy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estudo vinculado'**
+  String get fieldStudy;
+
+  /// No description provided for @repeatStarts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Começa'**
+  String get repeatStarts;
+
+  /// No description provided for @repeatEnds.
+  ///
+  /// In pt, this message translates to:
+  /// **'Termina'**
+  String get repeatEnds;
+
+  /// No description provided for @repeatNever.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nunca'**
+  String get repeatNever;
+
+  /// No description provided for @fieldTimeRange.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horário'**
+  String get fieldTimeRange;
+
+  /// No description provided for @timeRangeFrom.
+  ///
+  /// In pt, this message translates to:
+  /// **'Início'**
+  String get timeRangeFrom;
+
+  /// No description provided for @timeRangeTo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fim'**
+  String get timeRangeTo;
+
+  /// No description provided for @repeatDatesHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'“Começa” é a primeira vez e “Termina”, a última repetição.'**
+  String get repeatDatesHint;
+
+  /// No description provided for @datesHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Início é quando você começa; prazo é quando precisa estar pronta.'**
+  String get datesHint;
+
+  /// No description provided for @remindersNeedDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Defina uma data para receber lembretes.'**
+  String get remindersNeedDate;
+
+  /// No description provided for @reminderOnTheDay.
+  ///
+  /// In pt, this message translates to:
+  /// **'No dia, às {hour}h'**
+  String reminderOnTheDay(int hour);
+
+  /// No description provided for @reminderDaysBefore.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 dia antes} other{{count} dias antes}}'**
+  String reminderDaysBefore(int count);
+
+  /// No description provided for @reminderWeeksBefore.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 semana antes} other{{count} semanas antes}}'**
+  String reminderWeeksBefore(int count);
+
+  /// No description provided for @remindersBaseStart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contados a partir do início.'**
+  String get remindersBaseStart;
+
+  /// No description provided for @remindersBaseDue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contados a partir do prazo.'**
+  String get remindersBaseDue;
+
+  /// No description provided for @remindersBaseAllDay.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dia inteiro lembra às {hour}h (muda em Ajustes).'**
+  String remindersBaseAllDay(int hour);
+
+  /// No description provided for @remindersEachRepeat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Valem para cada repetição.'**
+  String get remindersEachRepeat;
+
+  /// No description provided for @remindersPreview.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vai avisar: {when}'**
+  String remindersPreview(String when);
+
+  /// No description provided for @remindersPreviewFirst.
+  ///
+  /// In pt, this message translates to:
+  /// **'Primeira vez: {when}'**
+  String remindersPreviewFirst(String when);
+
+  /// No description provided for @fieldBooks.
+  ///
+  /// In pt, this message translates to:
+  /// **'Books'**
+  String get fieldBooks;
+
+  /// No description provided for @fieldDecks.
+  ///
+  /// In pt, this message translates to:
+  /// **'Decks'**
+  String get fieldDecks;
+
+  /// No description provided for @studyHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ligue books e decks a esta tarefa para acompanhar no hub e nas métricas.'**
+  String get studyHint;
+
+  /// No description provided for @linkBook.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vincular book'**
+  String get linkBook;
+
+  /// No description provided for @linkDeck.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vincular deck'**
+  String get linkDeck;
+
+  /// No description provided for @newBook.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo book'**
+  String get newBook;
+
+  /// No description provided for @newDeck.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo deck'**
+  String get newDeck;
+
+  /// No description provided for @linkBooksTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vincular books'**
+  String get linkBooksTitle;
+
+  /// No description provided for @linkDecksTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vincular decks'**
+  String get linkDecksTitle;
+
+  /// No description provided for @noBooksYet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum book criado ainda.'**
+  String get noBooksYet;
+
+  /// No description provided for @noDecksYet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum deck criado ainda.'**
+  String get noDecksYet;
+
+  /// No description provided for @unlinkItem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desvincular {name}'**
+  String unlinkItem(String name);
+
+  /// No description provided for @hubLinkedBooks.
+  ///
+  /// In pt, this message translates to:
+  /// **'Books vinculados'**
+  String get hubLinkedBooks;
+
+  /// No description provided for @hubLinkedDecks.
+  ///
+  /// In pt, this message translates to:
+  /// **'Decks vinculados'**
+  String get hubLinkedDecks;
+
+  /// No description provided for @deleteTaskTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir tarefa?'**
+  String get deleteTaskTitle;
+
+  /// No description provided for @deleteTaskAlsoHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir também o que está vinculado a ela:'**
+  String get deleteTaskAlsoHint;
+
+  /// No description provided for @deleteAlsoBooks.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 book (com as páginas)} other{{count} books (com as páginas)}}'**
+  String deleteAlsoBooks(int count);
+
+  /// No description provided for @deleteAlsoPages.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 página vinculada} other{{count} páginas vinculadas}}'**
+  String deleteAlsoPages(int count);
+
+  /// No description provided for @deleteAlsoDecks.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 deck (os cards ficam sem deck)} other{{count} decks (os cards ficam sem deck)}}'**
+  String deleteAlsoDecks(int count);
+
+  /// No description provided for @deleteAlsoNoUndo.
+  ///
+  /// In pt, this message translates to:
+  /// **'O que você marcar aqui não volta com \"Desfazer\".'**
+  String get deleteAlsoNoUndo;
+
+  /// No description provided for @repeatTimeHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'O horário vale para todas as repetições.'**
+  String get repeatTimeHint;
 }
 
 class _AppLocalizationsDelegate

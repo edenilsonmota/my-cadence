@@ -91,6 +91,8 @@ Um único documento JSON. No Drive vai compactado (`my-cadence-sync.json.gz`); n
     "notebooks": [],
     "note_pages": [],
     "task_page_links": [],
+    "task_notebook_links": [],
+    "task_deck_links": [],
     "app_settings": []
   }
 }

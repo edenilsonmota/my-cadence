@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/clock.dart';
 import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
@@ -12,8 +13,12 @@ import '../../data/providers.dart';
 import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/appearance_picker.dart';
 import '../../shared/widgets/number_stepper.dart';
+import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tag_chip.dart';
+import '../../shared/widgets/text_input_dialog.dart';
+import '../books/books_providers.dart';
+import '../cards/card_form_sheet.dart' show decksProvider;
 import 'alarm_diagnostics.dart';
 import 'alarms.dart';
 import 'reminder_offsets.dart';
@@ -96,6 +101,14 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     final repo = ref.read(tasksRepositoryProvider);
     final task = await repo.getTask(widget.taskId!);
     final tags = await repo.watchTagsOfTask(widget.taskId!).first;
+    final books = await ref
+        .read(booksRepositoryProvider)
+        .watchLinkedNotebooks(widget.taskId!)
+        .first;
+    final decks = await ref
+        .read(cardsRepositoryProvider)
+        .watchLinkedDecks(widget.taskId!)
+        .first;
     if (!mounted) return;
     if (task == null) {
       Navigator.of(context).pop();
@@ -103,7 +116,12 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     }
     setState(() {
       _original = task;
-      _draft = TaskDraft.fromTask(task, {for (final t in tags) t.id});
+      _draft = TaskDraft.fromTask(
+        task,
+        {for (final t in tags) t.id},
+        notebookIds: {for (final b in books) b.id},
+        deckIds: {for (final d in decks) d.id},
+      );
       _title.text = task.title;
       _notes.text = task.notes ?? '';
     });
@@ -176,6 +194,10 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
       );
     }
     await repo.setTaskTags(id, draft.tagIds);
+    await ref
+        .read(booksRepositoryProvider)
+        .setTaskNotebooks(id, draft.notebookIds);
+    await ref.read(cardsRepositoryProvider).setTaskDecks(id, draft.deckIds);
     if (f.reminderMinutesBefore != null || f.reminderOffsets != null) {
       // Android 13+ e iOS pedem permissão para notificar; pergunta na hora em
       // que o primeiro lembrete é criado.
@@ -214,15 +236,11 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
 
   Widget _buildForm(BuildContext context, TaskDraft d) {
     final l10n = context.l10n;
+    final space = context.space;
     final hasDate =
-        d.dueDate != null ||
-        (!d.allDay && d.startDate != null) ||
-        d.repeat != Repeat.nenhuma;
-    final hasReminders = hasDate && d.reminderOffsets.isNotEmpty;
-    final diagnostics =
-        ref.watch(alarmDiagnosticsProvider).value ?? AlarmDiagnostics.allGood;
+        d.dueDate != null || (!d.allDay && d.startDate != null) || d.repeats;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+      padding: EdgeInsets.fromLTRB(space.page, space.sm, space.page, space.xxl),
       children: [
         TextField(
           controller: _title,
@@ -230,7 +248,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(labelText: l10n.fieldTitle),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: space.md),
         TextField(
           controller: _notes,
           minLines: 2,
@@ -238,7 +256,23 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(labelText: l10n.fieldNotes),
         ),
-        _Label(l10n.fieldType),
+        _Section(l10n.fieldWhen),
+        ..._whenFields(context, d),
+        _Section(l10n.fieldReminders),
+        if (!hasDate)
+          _Hint(l10n.remindersNeedDate)
+        else
+          ..._reminderFields(context, d),
+        _Section(l10n.fieldStudy),
+        _Hint(l10n.studyHint),
+        _LinkedStudy(
+          notebookIds: d.notebookIds,
+          deckIds: d.deckIds,
+          onBooks: (ids) => _edit((d) => d.notebookIds = ids),
+          onDecks: (ids) => _edit((d) => d.deckIds = ids),
+        ),
+        _Section(l10n.fieldDetails),
+        _Label(l10n.fieldType, first: true),
         SegmentedButton<TaskKind>(
           showSelectedIcon: false,
           segments: [
@@ -258,154 +292,6 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           selected: {d.priority},
           onSelectionChanged: (s) => _edit((d) => d.priority = s.single),
         ),
-        _Label(l10n.fieldDates),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(l10n.fieldAllDay),
-          value: d.allDay,
-          onChanged: (v) => _edit((d) => d.allDay = v),
-        ),
-        _DateTimeRow(
-          label: l10n.fieldStart,
-          date: d.startDate,
-          time: d.startTime,
-          allDay: d.allDay,
-          onDate: (v) => _edit((d) => d.startDate = v),
-          onTime: (v) => _edit((d) => d.startTime = v),
-        ),
-        _DateTimeRow(
-          label: l10n.fieldDue,
-          date: d.dueDate,
-          time: d.dueTime,
-          allDay: d.allDay,
-          placeholder: d.repeat != Repeat.nenhuma ? l10n.quickDateToday : null,
-          onDate: (v) => _edit((d) => d.dueDate = v),
-          onTime: (v) => _edit((d) => d.dueTime = v),
-        ),
-        _Label(l10n.fieldRepeat),
-        SegmentedButton<Repeat>(
-          showSelectedIcon: false,
-          segments: [
-            ButtonSegment(value: Repeat.nenhuma, label: Text(l10n.repeatNo)),
-            ButtonSegment(value: Repeat.diaria, label: Text(l10n.repeatDaily)),
-            ButtonSegment(
-              value: Repeat.semanal,
-              label: Text(l10n.repeatWeekly),
-            ),
-          ],
-          selected: {d.repeat},
-          onSelectionChanged: (s) => _edit((d) => d.repeat = s.single),
-        ),
-        if (d.repeat != Repeat.nenhuma) ..._repeatFields(context, d),
-        _Label(l10n.fieldReminders),
-        if (!hasDate)
-          Text(
-            l10n.alarmNeedDue,
-            style: context.text.bodySmall!.copyWith(
-              color: context.colors.onSurfaceVariant,
-            ),
-          )
-        else ...[
-          Wrap(
-            spacing: context.space.sm,
-            runSpacing: context.space.xs,
-            children: [
-              for (final minutes in reminderOffsetChoices)
-                FilterChip(
-                  label: Text(reminderOptionLabel(minutes, l10n)),
-                  selected: d.reminderOffsets.contains(minutes),
-                  onSelected: (on) => _edit((d) {
-                    if (on) {
-                      d.reminderOffsets.add(minutes);
-                    } else {
-                      d.reminderOffsets.remove(minutes);
-                    }
-                  }),
-                ),
-            ],
-          ),
-          SizedBox(height: context.space.xs),
-          Text(
-            l10n.remindersHelperMultiple,
-            style: context.text.bodySmall!.copyWith(
-              color: context.colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-        if (hasReminders) ...[
-          if (diagnostics.hasBlockingIssueFor(d.reminderMode)) ...[
-            SizedBox(height: context.space.md),
-            _DiagnosticsWarningBanner(
-              onOpen: () async {
-                await context.push(Routes.alarmDiagnostics);
-                if (mounted) ref.invalidate(alarmDiagnosticsProvider);
-              },
-            ),
-          ],
-          SizedBox(height: context.space.md),
-          SegmentedButton<ReminderMode>(
-            showSelectedIcon: false,
-            segments: [
-              ButtonSegment(
-                value: ReminderMode.notificacao,
-                icon: const Icon(AppIcons.notification),
-                label: Text(ReminderMode.notificacao.labelFor(l10n)),
-              ),
-              ButtonSegment(
-                value: ReminderMode.alarme,
-                icon: const Icon(AppIcons.alarm),
-                label: Text(ReminderMode.alarme.labelFor(l10n)),
-              ),
-            ],
-            selected: {d.reminderMode},
-            onSelectionChanged: (s) {
-              final mode = s.single;
-              _edit((d) => d.reminderMode = mode);
-              if (mode == ReminderMode.alarme) _refreshFullScreenIntent();
-            },
-          ),
-          SizedBox(height: context.space.xs),
-          Text(
-            d.reminderMode == ReminderMode.alarme
-                ? l10n.reminderModeAlarmHint
-                : l10n.reminderModeNotificationHint,
-            style: context.text.bodySmall!.copyWith(
-              color: context.colors.onSurfaceVariant,
-            ),
-          ),
-          if (d.reminderMode == ReminderMode.alarme &&
-              !_canUseFullScreenIntent) ...[
-            SizedBox(height: context.space.sm),
-            _FullScreenPermissionBanner(onAllow: _requestFullScreenIntent),
-          ],
-          _Label(l10n.fieldNagIfOverdue),
-          Wrap(
-            spacing: context.space.sm,
-            runSpacing: context.space.xs,
-            children: [
-              for (final minutes in nagIntervalChoices)
-                ChoiceChip(
-                  label: Text(
-                    minutes == null
-                        ? l10n.nagOff
-                        : l10n.nagEveryMinutes(minutes),
-                  ),
-                  selected: d.nagIntervalMinutes == minutes,
-                  onSelected: (_) =>
-                      _edit((d) => d.nagIntervalMinutes = minutes),
-                ),
-            ],
-          ),
-          if (d.nagIntervalMinutes != null) ...[
-            SizedBox(height: context.space.xs),
-            Text(
-              l10n.nagHint(maxNagRepeats),
-              style: context.text.bodySmall!.copyWith(
-                color: context.colors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ],
         _Label(l10n.fieldEstimatedPomodoros),
         NumberStepper(
           value: d.estimatedPomodoros ?? 0,
@@ -432,24 +318,87 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     );
   }
 
+  /// Repetição primeiro, porque ela muda o sentido das datas: sem repetir há
+  /// início e prazo; repetindo há só "Começa" (a 1ª vez), o horário de cada
+  /// repetição e "Termina".
+  List<Widget> _whenFields(BuildContext context, TaskDraft d) {
+    final l10n = context.l10n;
+    return [
+      _Label(l10n.fieldRepeat, first: true),
+      SegmentedButton<Repeat>(
+        showSelectedIcon: false,
+        segments: [
+          ButtonSegment(value: Repeat.nenhuma, label: Text(l10n.repeatNo)),
+          ButtonSegment(value: Repeat.diaria, label: Text(l10n.repeatDaily)),
+          ButtonSegment(value: Repeat.semanal, label: Text(l10n.repeatWeekly)),
+        ],
+        selected: {d.repeat},
+        onSelectionChanged: (s) => _edit((d) => d.repeat = s.single),
+      ),
+      SizedBox(height: context.space.xs),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(l10n.fieldAllDay),
+        value: d.allDay,
+        onChanged: (v) => _edit((d) => d.setAllDay(v)),
+      ),
+      if (!d.repeats) ...[
+        _DateTimeRow(
+          label: l10n.fieldStart,
+          date: d.startDate,
+          time: d.startTime,
+          allDay: d.allDay,
+          onDate: (v) => _edit((d) => d.startDate = v),
+          onTime: (v) => _edit((d) => d.startTime = v),
+        ),
+        _DateTimeRow(
+          label: l10n.fieldDue,
+          date: d.dueDate,
+          time: d.dueTime,
+          allDay: d.allDay,
+          onDate: (v) => _edit((d) => d.dueDate = v),
+          onTime: (v) => _edit((d) => d.dueTime = v),
+        ),
+        _Hint(l10n.datesHint),
+      ] else ...[
+        _DateTimeRow(
+          label: l10n.repeatStarts,
+          date: d.dueDate,
+          allDay: true,
+          placeholder: l10n.quickDateToday,
+          onDate: (v) => _edit((d) => d.dueDate = v),
+        ),
+        if (!d.allDay)
+          _TimeRangeRow(
+            label: l10n.fieldTimeRange,
+            start: d.startTime,
+            end: d.dueTime,
+            onStart: (v) => _edit((d) => d.startTime = v),
+            onEnd: (v) => _edit((d) => d.dueTime = v),
+          ),
+        ..._repeatFields(context, d),
+      ],
+    ];
+  }
+
   List<Widget> _repeatFields(BuildContext context, TaskDraft d) {
     final l10n = context.l10n;
     final lang = context.lang;
+    final space = context.space;
     final weekdays = weekdaysShortFor(lang);
     final weekly = d.repeat == Repeat.semanal;
     return [
-      const SizedBox(height: 12),
+      SizedBox(height: space.sm),
       Row(
         children: [
-          Text(l10n.repeatEvery),
-          const SizedBox(width: 8),
+          SizedBox(width: _rowLabelWidth, child: Text(l10n.repeatEvery)),
           NumberStepper(
             value: d.interval,
             min: 1,
             onChanged: (v) => _edit((d) => d.interval = v),
             semanticLabel: l10n.repeatIntervalSemantics,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: space.sm),
           Text(
             weekly
                 ? (d.interval == 1 ? l10n.unitWeek : l10n.unitWeeks)
@@ -458,10 +407,10 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         ],
       ),
       if (weekly) ...[
-        const SizedBox(height: 8),
+        SizedBox(height: space.sm),
         Wrap(
-          spacing: 6,
-          runSpacing: 4,
+          spacing: space.xs,
+          runSpacing: space.xs,
           children: [
             for (var day = DateTime.monday; day <= DateTime.sunday; day++)
               FilterChip(
@@ -474,32 +423,499 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           ],
         ),
       ],
+      SizedBox(height: space.sm),
       _DateTimeRow(
-        label: l10n.repeatUntil,
+        label: l10n.repeatEnds,
         date: d.until,
         allDay: true,
-        placeholder: l10n.repeatNoEnd,
+        placeholder: l10n.repeatNever,
         onDate: (v) => _edit((d) => d.until = v),
       ),
+      SizedBox(height: space.xs),
       Text(
         d.recurrence!.describe(lang: lang),
-        style: Theme.of(context).textTheme.bodySmall!
-            .copyWith(color: Theme.of(context).colorScheme.primary),
+        style: context.text.bodySmall!.copyWith(color: context.colors.primary),
       ),
+      _Hint(
+        d.allDay
+            ? l10n.repeatDatesHint
+            : '${l10n.repeatDatesHint} ${l10n.repeatTimeHint}',
+      ),
+    ];
+  }
+
+  List<Widget> _reminderFields(BuildContext context, TaskDraft d) {
+    final l10n = context.l10n;
+    final lang = context.lang;
+    final space = context.space;
+    final hour =
+        ref.watch(allDayReminderHourProvider).value ?? allDayReminderHour;
+    final fields = d.toFields(ref.read(todayProvider));
+    final times = draftReminderTimes(fields, allDayHour: hour);
+    final now = ref.read(clockProvider)();
+    final base = d.allDay
+        ? l10n.remindersBaseAllDay(hour)
+        : fields.startAt != null
+        ? l10n.remindersBaseStart
+        : l10n.remindersBaseDue;
+    final hasReminders = d.reminderOffsets.isNotEmpty;
+    final diagnostics =
+        ref.watch(alarmDiagnosticsProvider).value ?? AlarmDiagnostics.allGood;
+    final preview = times
+        .map((t) => formatRelative(t, now, withTime: true, lang: lang))
+        .join(' · ');
+    return [
+      Wrap(
+        spacing: space.sm,
+        runSpacing: space.xs,
+        children: [
+          for (final minutes in reminderChoicesFor(
+            allDay: d.allDay,
+            selected: d.reminderOffsets,
+          ))
+            FilterChip(
+              label: Text(
+                reminderOffsetLabel(
+                  minutes,
+                  l10n,
+                  allDay: d.allDay,
+                  allDayHour: hour,
+                ),
+              ),
+              selected: d.reminderOffsets.contains(minutes),
+              onSelected: (on) => _edit((d) {
+                if (on) {
+                  d.reminderOffsets.add(minutes);
+                } else {
+                  d.reminderOffsets.remove(minutes);
+                }
+              }),
+            ),
+        ],
+      ),
+      _Hint(d.repeats ? '$base ${l10n.remindersEachRepeat}' : base),
+      if (times.isNotEmpty)
+        _Hint(
+          d.repeats
+              ? l10n.remindersPreviewFirst(preview)
+              : l10n.remindersPreview(preview),
+          highlight: true,
+        ),
+      if (hasReminders) ...[
+        if (diagnostics.hasBlockingIssueFor(d.reminderMode)) ...[
+          SizedBox(height: space.md),
+          _DiagnosticsWarningBanner(
+            onOpen: () async {
+              await context.push(Routes.alarmDiagnostics);
+              if (mounted) ref.invalidate(alarmDiagnosticsProvider);
+            },
+          ),
+        ],
+        SizedBox(height: space.md),
+        SegmentedButton<ReminderMode>(
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(
+              value: ReminderMode.notificacao,
+              icon: const Icon(AppIcons.notification),
+              label: Text(ReminderMode.notificacao.labelFor(l10n)),
+            ),
+            ButtonSegment(
+              value: ReminderMode.alarme,
+              icon: const Icon(AppIcons.alarm),
+              label: Text(ReminderMode.alarme.labelFor(l10n)),
+            ),
+          ],
+          selected: {d.reminderMode},
+          onSelectionChanged: (s) {
+            final mode = s.single;
+            _edit((d) => d.reminderMode = mode);
+            if (mode == ReminderMode.alarme) _refreshFullScreenIntent();
+          },
+        ),
+        _Hint(
+          d.reminderMode == ReminderMode.alarme
+              ? l10n.reminderModeAlarmHint
+              : l10n.reminderModeNotificationHint,
+        ),
+        if (d.reminderMode == ReminderMode.alarme &&
+            !_canUseFullScreenIntent) ...[
+          SizedBox(height: space.sm),
+          _FullScreenPermissionBanner(onAllow: _requestFullScreenIntent),
+        ],
+        _Label(l10n.fieldNagIfOverdue),
+        Wrap(
+          spacing: space.sm,
+          runSpacing: space.xs,
+          children: [
+            for (final minutes in nagIntervalChoices)
+              ChoiceChip(
+                label: Text(
+                  minutes == null ? l10n.nagOff : l10n.nagEveryMinutes(minutes),
+                ),
+                selected: d.nagIntervalMinutes == minutes,
+                onSelected: (_) => _edit((d) => d.nagIntervalMinutes = minutes),
+              ),
+          ],
+        ),
+        if (d.nagIntervalMinutes != null) _Hint(l10n.nagHint(maxNagRepeats)),
+      ],
     ];
   }
 }
 
-class _Label extends StatelessWidget {
-  const _Label(this.text);
+/// Largura do rótulo à esquerda das linhas de data e hora.
+const double _rowLabelWidth = 72;
+
+/// Título de um grupo do formulário (Quando, Lembretes, Estudo, Detalhes).
+class _Section extends StatelessWidget {
+  const _Section(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionHeader(
+      title,
+      padding: EdgeInsets.only(
+        top: context.space.xxl,
+        bottom: context.space.xs,
+      ),
+    );
+  }
+}
+
+/// Texto de apoio abaixo de um campo; [highlight] usa a cor de destaque.
+class _Hint extends StatelessWidget {
+  const _Hint(this.text, {this.highlight = false});
 
   final String text;
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: context.space.xl, bottom: context.space.sm),
+      padding: EdgeInsets.only(top: context.space.xs),
+      child: Text(
+        text,
+        style: context.text.bodySmall!.copyWith(
+          color: highlight
+              ? context.colors.primary
+              : context.colors.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+class _Label extends StatelessWidget {
+  const _Label(this.text, {this.first = false});
+
+  final String text;
+
+  /// Primeiro campo do grupo: menos espaço acima (o título do grupo já separa).
+  final bool first;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: first ? context.space.sm : context.space.lg,
+        bottom: context.space.sm,
+      ),
       child: Text(text, style: context.text.titleSmall),
+    );
+  }
+}
+
+/// Horário de cada repetição: "Horário [início] – [fim]". O início é opcional.
+class _TimeRangeRow extends StatelessWidget {
+  const _TimeRangeRow({
+    required this.label,
+    required this.start,
+    required this.end,
+    required this.onStart,
+    required this.onEnd,
+  });
+
+  final String label;
+  final ClockTime? start;
+  final ClockTime? end;
+  final ValueChanged<ClockTime?> onStart;
+  final ValueChanged<ClockTime?> onEnd;
+
+  Future<void> _pick(
+    BuildContext context,
+    ClockTime? current,
+    ValueChanged<ClockTime?> onPicked,
+  ) async {
+    _dropFocus();
+    final t = current ?? defaultTime;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: t.hour, minute: t.minute),
+    );
+    if (picked != null) onPicked((hour: picked.hour, minute: picked.minute));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final e = end ?? defaultTime;
+    return Row(
+      children: [
+        SizedBox(width: _rowLabelWidth, child: Text(label)),
+        Expanded(
+          child: Wrap(
+            spacing: context.space.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              OutlinedButton.icon(
+                icon: const Icon(AppIcons.time, size: AppIconSize.meta),
+                label: Text(
+                  start == null
+                      ? l10n.timeRangeFrom
+                      : '${two(start!.hour)}:${two(start!.minute)}',
+                ),
+                onPressed: () => _pick(context, start, onStart),
+              ),
+              const Text('–'),
+              Semantics(
+                label: l10n.timeRangeTo,
+                child: OutlinedButton(
+                  onPressed: () => _pick(context, end, onEnd),
+                  child: Text('${two(e.hour)}:${two(e.minute)}'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (start != null)
+          IconButton(
+            tooltip: l10n.fieldClearLabel(l10n.timeRangeFrom),
+            icon: const Icon(AppIcons.close),
+            onPressed: () => onStart(null),
+          ),
+      ],
+    );
+  }
+}
+
+/// Books e decks já existentes ligados à tarefa: chips para desvincular,
+/// "Vincular" abre a lista e "Novo" cria na hora e já vincula.
+class _LinkedStudy extends ConsumerWidget {
+  const _LinkedStudy({
+    required this.notebookIds,
+    required this.deckIds,
+    required this.onBooks,
+    required this.onDecks,
+  });
+
+  final Set<String> notebookIds;
+  final Set<String> deckIds;
+  final ValueChanged<Set<String>> onBooks;
+  final ValueChanged<Set<String>> onDecks;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final books = ref.watch(booksProvider).value ?? const <Notebook>[];
+    final decks = ref.watch(decksProvider).value ?? const <Deck>[];
+
+    Future<void> createBook() async {
+      final title = await showTextInputDialog(
+        context,
+        title: l10n.newBook,
+        label: l10n.fieldTitle,
+      );
+      if (title == null || title.trim().isEmpty) return;
+      final id = await ref
+          .read(booksRepositoryProvider)
+          .createBook(title: title.trim());
+      onBooks({...notebookIds, id});
+    }
+
+    Future<void> createDeck() async {
+      final name = await showTextInputDialog(
+        context,
+        title: l10n.newDeck,
+        label: l10n.reviewNameLabel,
+      );
+      if (name == null || name.trim().isEmpty) return;
+      final id = await ref
+          .read(cardsRepositoryProvider)
+          .createDeck(name: name.trim());
+      onDecks({...deckIds, id});
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Label(l10n.fieldBooks),
+        _LinkChips(
+          items: [for (final b in books) (id: b.id, label: b.title)],
+          selected: notebookIds,
+          icon: AppIcons.book,
+          linkLabel: l10n.linkBook,
+          newLabel: l10n.newBook,
+          pickerTitle: l10n.linkBooksTitle,
+          emptyLabel: l10n.noBooksYet,
+          onChanged: onBooks,
+          onCreate: createBook,
+        ),
+        _Label(l10n.fieldDecks),
+        _LinkChips(
+          items: [for (final d in decks) (id: d.id, label: d.name)],
+          selected: deckIds,
+          icon: AppIcons.deck,
+          linkLabel: l10n.linkDeck,
+          newLabel: l10n.newDeck,
+          pickerTitle: l10n.linkDecksTitle,
+          emptyLabel: l10n.noDecksYet,
+          onChanged: onDecks,
+          onCreate: createDeck,
+        ),
+      ],
+    );
+  }
+}
+
+typedef _LinkItem = ({String id, String label});
+
+class _LinkChips extends StatelessWidget {
+  const _LinkChips({
+    required this.items,
+    required this.selected,
+    required this.icon,
+    required this.linkLabel,
+    required this.newLabel,
+    required this.pickerTitle,
+    required this.emptyLabel,
+    required this.onChanged,
+    required this.onCreate,
+  });
+
+  final List<_LinkItem> items;
+  final Set<String> selected;
+  final IconData icon;
+  final String linkLabel;
+  final String newLabel;
+  final String pickerTitle;
+  final String emptyLabel;
+  final ValueChanged<Set<String>> onChanged;
+  final VoidCallback onCreate;
+
+  Future<void> _pick(BuildContext context) async {
+    _dropFocus();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _PickManySheet(
+        title: pickerTitle,
+        items: items,
+        initial: selected,
+        icon: icon,
+        emptyLabel: emptyLabel,
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final linked = items.where((i) => selected.contains(i.id));
+    return Wrap(
+      spacing: context.space.sm,
+      runSpacing: context.space.xs,
+      children: [
+        for (final item in linked)
+          InputChip(
+            avatar: Icon(icon),
+            label: Text(item.label),
+            deleteIcon: const Icon(AppIcons.close, size: AppIconSize.meta),
+            deleteButtonTooltipMessage: l10n.unlinkItem(item.label),
+            onDeleted: () => onChanged({...selected}..remove(item.id)),
+          ),
+        ActionChip(
+          avatar: const Icon(AppIcons.link),
+          label: Text(linkLabel),
+          onPressed: () => _pick(context),
+        ),
+        ActionChip(
+          avatar: const Icon(AppIcons.add),
+          label: Text(newLabel),
+          onPressed: onCreate,
+        ),
+      ],
+    );
+  }
+}
+
+/// Lista com caixas de seleção; cada toque já aplica (fechar só sai).
+class _PickManySheet extends StatefulWidget {
+  const _PickManySheet({
+    required this.title,
+    required this.items,
+    required this.initial,
+    required this.icon,
+    required this.emptyLabel,
+    required this.onChanged,
+  });
+
+  final String title;
+  final List<_LinkItem> items;
+  final Set<String> initial;
+  final IconData icon;
+  final String emptyLabel;
+  final ValueChanged<Set<String>> onChanged;
+
+  @override
+  State<_PickManySheet> createState() => _PickManySheetState();
+}
+
+class _PickManySheetState extends State<_PickManySheet> {
+  late final Set<String> _selected = {...widget.initial};
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.6,
+      builder: (context, controller) => ListView(
+        controller: controller,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.space.page,
+              0,
+              context.space.page,
+              context.space.sm,
+            ),
+            child: Text(widget.title, style: context.text.titleMedium),
+          ),
+          if (widget.items.isEmpty)
+            ListTile(
+              leading: Icon(widget.icon),
+              title: Text(widget.emptyLabel),
+            ),
+          for (final item in widget.items)
+            CheckboxListTile(
+              value: _selected.contains(item.id),
+              secondary: Icon(widget.icon),
+              title: Text(item.label),
+              onChanged: (on) {
+                setState(
+                  () => on == true
+                      ? _selected.add(item.id)
+                      : _selected.remove(item.id),
+                );
+                widget.onChanged({..._selected});
+              },
+            ),
+        ],
+      ),
     );
   }
 }
@@ -556,7 +972,7 @@ class _DateTimeRow extends StatelessWidget {
     final t = time ?? defaultTime;
     return Row(
       children: [
-        SizedBox(width: 56, child: Text(label)),
+        SizedBox(width: _rowLabelWidth, child: Text(label)),
         Expanded(
           child: Wrap(
             spacing: 8,

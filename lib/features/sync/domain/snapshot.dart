@@ -21,6 +21,8 @@ const syncTables = [
   'notebooks',
   'note_pages',
   'task_page_links',
+  'task_notebook_links',
+  'task_deck_links',
   'app_settings',
 ];
 
@@ -30,6 +32,8 @@ const syncTables = [
 const naturalKeys = <String, List<String>>{
   'task_tags': ['task_id', 'tag_id'],
   'task_page_links': ['task_id', 'page_id'],
+  'task_notebook_links': ['task_id', 'notebook_id'],
+  'task_deck_links': ['task_id', 'deck_id'],
   'app_settings': ['key'],
 };
 

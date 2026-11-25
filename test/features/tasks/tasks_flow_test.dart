@@ -64,6 +64,12 @@ void main() {
     await tester.tap(find.text('Mais opções'));
     await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ler');
+    await tester.dragUntilVisible(
+      find.text('Estudo'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    await settle(tester);
     await tester.tap(find.text('Estudo'));
     await tester.tap(find.text('Salvar'));
     await settle(tester);
@@ -237,6 +243,12 @@ void main() {
     await settle(tester);
 
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Final');
+    await tester.dragUntilVisible(
+      find.text('Alta'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    await settle(tester);
     await tester.tap(find.text('Alta'));
     await tester.tap(find.text('Salvar'));
     await settle(tester);

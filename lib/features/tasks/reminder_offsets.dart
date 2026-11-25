@@ -4,8 +4,23 @@ library;
 
 import '../../data/db/database.dart';
 
-/// Opções de antecedência disponíveis no formulário (minutos antes; 0 = na hora).
-const reminderOffsetChoices = <int>[0, 5, 10, 15, 30, 60, 1440];
+/// Antecedências oferecidas para tarefa com hora (minutos antes do início
+/// ou do prazo; 0 = na hora).
+const timedReminderChoices = <int>[0, 5, 10, 15, 30, 60, 1440];
+
+/// Antecedências oferecidas para tarefa de dia inteiro, que lembra na hora
+/// do ajuste (`tasks.allDayReminderHour`): no dia, 1 e 2 dias antes, 1 semana.
+const allDayReminderChoices = <int>[0, 1440, 2880, 10080];
+
+/// Opções do formulário: as do modo atual mais as que já estão escolhidas
+/// (lembretes antigos fora da lista continuam visíveis para desmarcar).
+List<int> reminderChoicesFor({
+  required bool allDay,
+  Iterable<int> selected = const [],
+}) {
+  final base = allDay ? allDayReminderChoices : timedReminderChoices;
+  return ({...base, ...selected}.toList()..sort());
+}
 
 /// Opções de intervalo para "Insistir se atrasar" (minutos; `null` = desligado).
 const nagIntervalChoices = <int?>[null, 5, 10, 15, 30];

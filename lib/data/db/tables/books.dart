@@ -45,3 +45,16 @@ class TaskPageLinks extends Table with SyncColumns {
     {taskId, pageId},
   ];
 }
+
+/// Book inteiro vinculado a uma tarefa (esquema v6). Diferente do caderno
+/// próprio da tarefa (`Notebooks.taskId`), um book pode ficar ligado a várias
+/// tarefas, e uma tarefa a vários books.
+class TaskNotebookLinks extends Table with SyncColumns {
+  TextColumn get taskId => text().references(Tasks, #id)();
+  TextColumn get notebookId => text().references(Notebooks, #id)();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {taskId, notebookId},
+  ];
+}

@@ -22,7 +22,7 @@ import '../../shared/widgets/tag_chip.dart';
 import 'alarms.dart';
 import 'hub/hub_tools.dart';
 import 'reminder_offsets.dart';
-import 'task_draft.dart';
+import 'task_delete.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
 import 'widgets/task_tile.dart';
@@ -63,9 +63,11 @@ class _TaskHub extends ConsumerWidget {
   final Task task;
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    final plan = await askDeleteExtras(context, ref, task);
+    if (plan == null || !context.mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     Navigator.of(context).pop();
-    await deleteWithUndo(messenger, ref, task);
+    await deleteWithUndo(messenger, ref, task, plan: plan);
   }
 
   Future<void> _pickAppearance(BuildContext context, WidgetRef ref) async {
@@ -116,6 +118,8 @@ class _TaskHub extends ConsumerWidget {
         : formatDate(d, today, lang: lang);
 
     final offsets = effectiveReminderOffsets(task);
+    final allDayHour =
+        ref.watch(allDayReminderHourProvider).value ?? allDayReminderHour;
     final nag = normalizeNagInterval(task.nagIntervalMinutes);
     final canSnooze =
         !done &&
@@ -137,9 +141,12 @@ class _TaskHub extends ConsumerWidget {
         ..showSnackBar(SnackBar(content: Text(l10n.snoozedUntil(label))));
     }
 
-    String formatOffset(int m) => reminderOptions.containsKey(m)
-        ? reminderOptionLabel(m, l10n)
-        : l10n.reminderMinutesBefore(m);
+    String formatOffset(int m) => reminderOffsetLabel(
+      m,
+      l10n,
+      allDay: !task.hasTime,
+      allDayHour: allDayHour,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -357,7 +364,8 @@ class _SnoozeButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final allDayHour = parseAllDayHour(ref.watch(_allDayHourHubProvider).value);
+    final allDayHour =
+        ref.watch(allDayReminderHourProvider).value ?? allDayReminderHour;
     final now = ref.read(clockProvider)();
     final tomorrow = tomorrowMorningAt(now, allDayHour: allDayHour);
     return PopupMenuButton<String>(
@@ -391,11 +399,6 @@ class _SnoozeButton extends ConsumerWidget {
     );
   }
 }
-
-final _allDayHourHubProvider = StreamProvider.autoDispose<String?>(
-  (ref) =>
-      ref.watch(settingsRepositoryProvider).watchString(allDayReminderHourKey),
-);
 
 class _Info extends StatelessWidget {
   const _Info(this.icon, this.label, this.value);

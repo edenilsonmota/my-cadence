@@ -80,7 +80,7 @@ void main() {
     await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ligar');
     // Rola até os chips de lembrete ficarem visíveis na tela.
-    final onTimeChip = find.widgetWithText(FilterChip, 'Na hora');
+    final onTimeChip = find.widgetWithText(FilterChip, 'No dia, às 9h');
     await tester.dragUntilVisible(
       onTimeChip,
       find.byType(ListView).first,

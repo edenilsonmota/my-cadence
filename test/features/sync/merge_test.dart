@@ -316,6 +316,16 @@ void main() {
       expect(r.merged.schemaVersion, currentSchemaVersion);
     });
 
+    test('remoto v5 ganha as tabelas de vínculo de books e decks', () {
+      final remote = snap('B', {
+        'tasks': [task('t', at(20))],
+      }, schemaVersion: 5);
+      final r = merge(snap('A', const {}), remote, now: now);
+      expect(r.merged.rows('task_notebook_links'), isEmpty);
+      expect(r.merged.rows('task_deck_links'), isEmpty);
+      expect(r.merged.schemaVersion, currentSchemaVersion);
+    });
+
     test('remoto v4 recebe reminder_offsets e nag_interval_minutes nulos', () {
       final remote = snap('B', {
         'tasks': [

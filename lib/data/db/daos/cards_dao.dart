@@ -6,7 +6,7 @@ import '../tables/cards.dart';
 
 part 'cards_dao.g.dart';
 
-@DriftAccessor(tables: [Decks, Flashcards, ReviewLogs])
+@DriftAccessor(tables: [Decks, Flashcards, ReviewLogs, TaskDeckLinks])
 class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
   CardsDao(super.attachedDatabase);
 
@@ -37,6 +37,70 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
             ..where((d) => d.deletedAt.isNull())
             ..orderBy([(d) => OrderingTerm.asc(d.name)]))
           .watch();
+
+  // Vínculos deck ↔ tarefa
+
+  /// Deixa a tarefa vinculada exatamente aos decks em [deckIds]: revive os
+  /// vínculos excluídos, cria os novos e exclui os que saíram.
+  Future<void> setTaskDecks(String taskId, Set<String> deckIds) =>
+      transaction(() async {
+        final existing = await (select(
+          taskDeckLinks,
+        )..where((l) => l.taskId.equals(taskId))).get();
+        final byDeck = {for (final l in existing) l.deckId: l};
+        for (final link in existing) {
+          if (link.deletedAt == null && !deckIds.contains(link.deckId)) {
+            await softDeleteSynced(taskDeckLinks, link.id);
+          }
+        }
+        for (final deckId in deckIds) {
+          final link = byDeck[deckId];
+          if (link == null) {
+            await insertSynced(
+              taskDeckLinks,
+              TaskDeckLinksCompanion.insert(taskId: taskId, deckId: deckId),
+            );
+          } else if (link.deletedAt != null) {
+            await updateSynced(
+              taskDeckLinks,
+              link.id,
+              const TaskDeckLinksCompanion(deletedAt: Value(null)),
+            );
+          }
+        }
+      });
+
+  Future<void> unlinkDeck(String taskId, String deckId) =>
+      transaction(() async {
+        final existing =
+            await (select(taskDeckLinks)..where(
+                  (l) =>
+                      l.taskId.equals(taskId) &
+                      l.deckId.equals(deckId) &
+                      l.deletedAt.isNull(),
+                ))
+                .getSingleOrNull();
+        if (existing != null) {
+          await softDeleteSynced(taskDeckLinks, existing.id);
+        }
+      });
+
+  /// Decks vinculados à tarefa (sem os excluídos), por nome.
+  Stream<List<Deck>> watchLinkedDecks(String taskId) {
+    final query =
+        select(decks).join([
+            innerJoin(taskDeckLinks, taskDeckLinks.deckId.equalsExp(decks.id)),
+          ])
+          ..where(
+            taskDeckLinks.taskId.equals(taskId) &
+                taskDeckLinks.deletedAt.isNull() &
+                decks.deletedAt.isNull(),
+          )
+          ..orderBy([OrderingTerm.asc(decks.name)]);
+    return query.watch().map(
+      (rows) => [for (final row in rows) row.readTable(decks)],
+    );
+  }
 
   // Flashcards
 

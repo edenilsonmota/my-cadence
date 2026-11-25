@@ -47,8 +47,12 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   `delete()` direto.
 - **Nunca exclusão física**: sempre `deletedAt`. Cascatas: tarefa → subtarefas, tag → vínculos,
   caderno → páginas, página → subpáginas. Excluir deck desvincula os cards.
+- Tarefa ↔ books/decks (esquema v6): `TaskNotebookLinks` e `TaskDeckLinks` (muitos para muitos, revive pela
+  chave única), gravados pelo formulário com `setTaskNotebooks`/`setTaskDecks`. Excluir a tarefa pergunta
+  (`askDeleteExtras`, `task_delete.dart`) se apaga também books, páginas e decks vinculados; sem vínculos,
+  exclui direto com desfazer (o desfazer só volta a tarefa).
 - Toda leitura filtra `deletedAt.isNull()`.
-- Tabelas de vínculo (`TaskTags`, `TaskPageLinks`) e `AppSettings` têm chave única: re-vincular **revive** a
+- Tabelas de vínculo (`TaskTags`, `TaskPageLinks`, `TaskNotebookLinks`, `TaskDeckLinks`) e `AppSettings` têm chave única: re-vincular **revive** a
   linha excluída em vez de inserir outra.
 - Repositórios criam com parâmetros nomeados (a UI não monta Companions) e `saveX(objeto)` grava só os campos
   editáveis, nunca as colunas de sync.
@@ -107,6 +111,12 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - Lembretes são **derivados das tarefas**: `AlarmSync` (`features/tasks/alarms.dart`) observa todas as
   tarefas e agenda/cancela o que mudou; na abertura reagenda tudo. Não agendar notificação de tarefa
   em outro lugar.
+- Formulário (`task_form_page.dart`) em grupos: Quando, Lembretes, Estudo vinculado, Detalhes. Repetir vem
+  primeiro: sem repetição há Início e Prazo; repetindo há só "Começa" (prazo da 1ª vez), "Horário" (início e
+  fim no mesmo dia; o rascunho grava início = dia do prazo + hora) e "Termina" (UNTIL). Rotina de dia inteiro
+  não tem início. Antecedências por modo (`reminder_offsets.dart`): com hora `timedReminderChoices`
+  (minutos), dia inteiro `allDayReminderChoices` (no dia, 1/2 dias, 1 semana, na hora do ajuste);
+  `TaskDraft.setAllDay` descarta as que não valem no modo novo. Prévia em `draftReminderTimes`.
 - A antecedência do lembrete conta do **início** quando ele tem hora (bloco da agenda avisa ao começar);
   senão, do prazo. Tarefa de dia inteiro lembra na hora do ajuste `tasks.allDayReminderHour`
   (padrão 9h; `AlarmSync.setAllDayHour`; o isolate das ações lê o mesmo ajuste) menos a antecedência.

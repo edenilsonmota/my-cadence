@@ -114,6 +114,26 @@ String priorityLabel(int priority, AppLocalizations l10n) => switch (priority) {
   _ => l10n.priorityNone,
 };
 
+/// Rótulo de uma antecedência de lembrete. Em tarefa de dia inteiro, "na
+/// hora" vira "No dia, às 9h" (a hora do ajuste).
+String reminderOffsetLabel(
+  int minutes,
+  AppLocalizations l10n, {
+  bool allDay = false,
+  int allDayHour = 9,
+}) {
+  if (minutes == 0) {
+    return allDay ? l10n.reminderOnTheDay(allDayHour) : l10n.reminderAtTime;
+  }
+  const day = 1440, week = 7 * day;
+  if (minutes % week == 0) return l10n.reminderWeeksBefore(minutes ~/ week);
+  if (minutes % day == 0) return l10n.reminderDaysBefore(minutes ~/ day);
+  return switch (minutes) {
+    60 => l10n.reminder1Hour,
+    _ => l10n.reminderMinutesBefore(minutes),
+  };
+}
+
 String reminderOptionLabel(int? minutes, AppLocalizations l10n) =>
     switch (minutes) {
       null => l10n.reminderNone,

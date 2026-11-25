@@ -230,4 +230,30 @@ void main() {
       );
     });
   });
+
+  group('decks vinculados a tarefas', () {
+    test('define o conjunto, desfaz, revive e esconde deck excluído', () async {
+      final ingles = await repo.createDeck(name: 'Inglês');
+      final fisica = await repo.createDeck(name: 'Física');
+      final task = await tasks.createTask(title: 'Prova');
+
+      await repo.setTaskDecks(task, {ingles, fisica});
+      expect((await repo.watchLinkedDecks(task).first).map((d) => d.name), [
+        'Física',
+        'Inglês',
+      ]);
+
+      await repo.setTaskDecks(task, {ingles});
+      expect((await repo.watchLinkedDecks(task).first).map((d) => d.id), [
+        ingles,
+      ]);
+
+      await repo.setTaskDecks(task, {ingles, fisica});
+      expect(await db.select(db.taskDeckLinks).get(), hasLength(2));
+
+      await repo.unlinkDeck(task, fisica);
+      await repo.deleteDeck(ingles);
+      expect(await repo.watchLinkedDecks(task).first, isEmpty);
+    });
+  });
 }

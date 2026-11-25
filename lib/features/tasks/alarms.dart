@@ -307,6 +307,14 @@ final alarmDiagnosticsProvider = FutureProvider.autoDispose<AlarmDiagnostics>(
   (ref) => ref.watch(alarmSchedulerProvider).getDiagnostics(),
 );
 
+/// Hora do lembrete de dia inteiro, já interpretada (padrão 9h).
+final allDayReminderHourProvider = StreamProvider.autoDispose<int>(
+  (ref) => ref
+      .watch(settingsRepositoryProvider)
+      .watchString(allDayReminderHourKey)
+      .map(parseAllDayHour),
+);
+
 /// Liga o [AlarmSync] às tarefas do banco. Basta ler uma vez (em `main`).
 final alarmSyncProvider = Provider<AlarmSync>((ref) {
   final sync = AlarmSync(ref.watch(alarmSchedulerProvider));

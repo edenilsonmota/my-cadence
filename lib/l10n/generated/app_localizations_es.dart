@@ -1875,4 +1875,185 @@ class AppLocalizationsEs extends AppLocalizations {
   String timelineFocus(String range) {
     return 'Enfoque $range';
   }
+
+  @override
+  String get fieldWhen => 'Cuándo';
+
+  @override
+  String get fieldDetails => 'Detalles';
+
+  @override
+  String get fieldStudy => 'Estudio vinculado';
+
+  @override
+  String get repeatStarts => 'Empieza';
+
+  @override
+  String get repeatEnds => 'Termina';
+
+  @override
+  String get repeatNever => 'Nunca';
+
+  @override
+  String get fieldTimeRange => 'Horario';
+
+  @override
+  String get timeRangeFrom => 'Inicio';
+
+  @override
+  String get timeRangeTo => 'Fin';
+
+  @override
+  String get repeatDatesHint =>
+      '“Empieza” es la primera vez y “Termina”, la última repetición.';
+
+  @override
+  String get datesHint =>
+      'Inicio es cuando empiezas; plazo es cuando debe estar lista.';
+
+  @override
+  String get remindersNeedDate =>
+      'Define una fecha para recibir recordatorios.';
+
+  @override
+  String reminderOnTheDay(int hour) {
+    return 'El día, a las ${hour}h';
+  }
+
+  @override
+  String reminderDaysBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count días antes',
+      one: '1 día antes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reminderWeeksBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count semanas antes',
+      one: '1 semana antes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remindersBaseStart => 'Contados desde el inicio.';
+
+  @override
+  String get remindersBaseDue => 'Contados desde el plazo.';
+
+  @override
+  String remindersBaseAllDay(int hour) {
+    return 'Todo el día recuerda a las ${hour}h (cámbialo en Ajustes).';
+  }
+
+  @override
+  String get remindersEachRepeat => 'Valen para cada repetición.';
+
+  @override
+  String remindersPreview(String when) {
+    return 'Avisará: $when';
+  }
+
+  @override
+  String remindersPreviewFirst(String when) {
+    return 'Primera vez: $when';
+  }
+
+  @override
+  String get fieldBooks => 'Books';
+
+  @override
+  String get fieldDecks => 'Mazos';
+
+  @override
+  String get studyHint =>
+      'Vincula books y mazos a esta tarea para seguirlos en el hub y las métricas.';
+
+  @override
+  String get linkBook => 'Vincular book';
+
+  @override
+  String get linkDeck => 'Vincular mazo';
+
+  @override
+  String get newBook => 'Nuevo book';
+
+  @override
+  String get newDeck => 'Nuevo mazo';
+
+  @override
+  String get linkBooksTitle => 'Vincular books';
+
+  @override
+  String get linkDecksTitle => 'Vincular mazos';
+
+  @override
+  String get noBooksYet => 'Aún no hay books.';
+
+  @override
+  String get noDecksYet => 'Aún no hay mazos.';
+
+  @override
+  String unlinkItem(String name) {
+    return 'Desvincular $name';
+  }
+
+  @override
+  String get hubLinkedBooks => 'Books vinculados';
+
+  @override
+  String get hubLinkedDecks => 'Mazos vinculados';
+
+  @override
+  String get deleteTaskTitle => '¿Eliminar tarea?';
+
+  @override
+  String get deleteTaskAlsoHint => 'Eliminar también lo vinculado a ella:';
+
+  @override
+  String deleteAlsoBooks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count books (con sus páginas)',
+      one: '1 book (con sus páginas)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteAlsoPages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count páginas vinculadas',
+      one: '1 página vinculada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteAlsoDecks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mazos (las tarjetas quedan sin mazo)',
+      one: '1 mazo (las tarjetas quedan sin mazo)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAlsoNoUndo =>
+      'Lo que marques aquí no vuelve con \"Deshacer\".';
+
+  @override
+  String get repeatTimeHint => 'El horario vale para todas las repeticiones.';
 }

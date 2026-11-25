@@ -136,4 +136,42 @@ void main() {
       expect(await repo.watchLinkedPages(other).first, isEmpty);
     });
   });
+
+  group('books vinculados a tarefas', () {
+    test('define o conjunto, desfaz os que saíram e revive', () async {
+      final fisica = await repo.createBook(title: 'Física');
+      final calculo = await repo.createBook(title: 'Cálculo');
+      final task = await tasks.createTask(title: 'Prova');
+
+      await repo.setTaskNotebooks(task, {fisica, calculo});
+      expect(
+        (await repo.watchLinkedNotebooks(task).first).map((b) => b.title),
+        ['Cálculo', 'Física'],
+      );
+      expect(
+        (await repo.watchTasksLinkedToNotebook(fisica).first).map((t) => t.id),
+        [task],
+      );
+
+      await repo.setTaskNotebooks(task, {fisica});
+      expect((await repo.watchLinkedNotebooks(task).first).map((b) => b.id), [
+        fisica,
+      ]);
+
+      await repo.setTaskNotebooks(task, {fisica, calculo});
+      expect(await db.select(db.taskNotebookLinks).get(), hasLength(2));
+
+      await repo.unlinkNotebook(task, calculo);
+      expect(await repo.watchLinkedNotebooks(task).first, hasLength(1));
+    });
+
+    test('book excluído some dos vínculos', () async {
+      final book = await repo.createBook(title: 'Física');
+      final task = await tasks.createTask(title: 'Prova');
+      await repo.setTaskNotebooks(task, {book});
+
+      await repo.deleteNotebook(book);
+      expect(await repo.watchLinkedNotebooks(task).first, isEmpty);
+    });
+  });
 }

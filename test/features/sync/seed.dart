@@ -80,6 +80,8 @@ Future<void> seedEverything(AppDatabase db) async {
     content: '{"document":{}}',
   );
   await books.linkPage(parent, page);
+  await books.setTaskNotebooks(parent, {book});
+  await cards.setTaskDecks(parent, {deck});
 
   await settings.setString('pomodoro.focus', '30');
   await settings.setString('calendar.mode', 'mes'); // do aparelho
