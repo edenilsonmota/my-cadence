@@ -34,8 +34,9 @@ class MetricCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: space.md, horizontal: space.md),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerLow,
+        gradient: context.glass.card,
         borderRadius: context.radius.lgAll,
+        border: Border.all(color: context.glass.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

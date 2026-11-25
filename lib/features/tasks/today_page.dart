@@ -5,6 +5,7 @@ import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
@@ -88,7 +89,7 @@ class TodayPage extends ConsumerWidget {
     return TabScaffold(
       title: l10n.navToday,
       body: body,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: GradientFab(
         // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
         heroTag: null,
         tooltip: l10n.tasksNew,

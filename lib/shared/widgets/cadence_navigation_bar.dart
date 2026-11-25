@@ -53,6 +53,8 @@ class CadenceNavigationBar extends StatelessWidget {
     return NavigationBarTheme(
       data: base.copyWith(
         labelPadding: EdgeInsets.zero,
+        // Com 6 abas a vaga é mais estreita que a pílula padrão (64 dp).
+        indicatorShape: const CircleBorder(),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
             size: AppIconSize.standard,

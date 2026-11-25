@@ -101,14 +101,14 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        minimum: EdgeInsets.fromLTRB(space.md, 0, space.md, space.sm),
+        minimum: EdgeInsets.fromLTRB(space.sm, 0, space.sm, space.sm),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (activeTab != NavTab.pomodoro)
               const PomodoroMiniPlayer(floating: true),
             GlassSurface(
-              borderRadius: context.radius.pillAll,
+              borderRadius: context.radius.lgAll,
               child: CadenceNavigationBar(
                 floating: true,
                 tabs: tabs,

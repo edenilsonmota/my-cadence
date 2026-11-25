@@ -8,6 +8,7 @@ import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../../shared/widgets/text_input_dialog.dart';
@@ -56,7 +57,7 @@ class ReviewPage extends ConsumerWidget {
           ],
         ),
       ],
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: GradientFab(
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
         tooltip: l10n.reviewNewCard,
         onPressed: () => createCardFlow(context, ref),

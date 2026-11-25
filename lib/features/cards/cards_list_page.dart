@@ -9,6 +9,7 @@ import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/text_input_dialog.dart';
 import '../tasks/task_providers.dart';
@@ -101,7 +102,7 @@ class CardsListPage extends ConsumerWidget {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: GradientFab(
         tooltip: context.l10n.reviewNewCard,
         onPressed: () => createCardFlow(context, ref, deckId: deckId),
         child: const Icon(AppIcons.add),

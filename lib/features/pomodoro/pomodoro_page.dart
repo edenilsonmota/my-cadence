@@ -172,12 +172,28 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
                 fit: StackFit.expand,
                 children: [
                   CircularProgressIndicator(
-                    value: ringValue,
+                    value: 1,
                     strokeWidth: 10,
-                    strokeCap: StrokeCap.round,
-                    color: ringColor,
-                    backgroundColor: ringTrack,
-                    semanticsLabel: l10n.pomodoroCycleProgress,
+                    color: ringTrack,
+                  ),
+                  // Arco com degradê: da cor do ciclo até um tom mais claro.
+                  ShaderMask(
+                    shaderCallback: (rect) => SweepGradient(
+                      startAngle: -1.5708,
+                      endAngle: 4.7124,
+                      colors: [
+                        ringColor,
+                        Color.lerp(ringColor, colors.onSurface, 0.45)!,
+                      ],
+                      transform: const GradientRotation(-1.5708),
+                    ).createShader(rect),
+                    child: CircularProgressIndicator(
+                      value: ringValue,
+                      strokeWidth: 10,
+                      strokeCap: StrokeCap.round,
+                      color: colors.onSurface,
+                      semanticsLabel: l10n.pomodoroCycleProgress,
+                    ),
                   ),
                   Center(
                     child: Column(

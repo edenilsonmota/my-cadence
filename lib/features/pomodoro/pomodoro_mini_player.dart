@@ -24,7 +24,7 @@ class PomodoroMiniPlayer extends ConsumerWidget {
       ? child
       : Padding(
           padding: EdgeInsets.only(bottom: context.space.sm),
-          child: GlassSurface(borderRadius: context.radius.xlAll, child: child),
+          child: GlassSurface(borderRadius: context.radius.lgAll, child: child),
         );
 
   @override
@@ -90,10 +90,15 @@ class PomodoroMiniPlayer extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              LinearProgressIndicator(
-                value: progress(running, now),
-                minHeight: 3,
-                semanticsLabel: l10n.pomodoroCycleProgress,
+              ShaderMask(
+                shaderCallback: context.glass.accent.createShader,
+                child: LinearProgressIndicator(
+                  value: progress(running, now),
+                  minHeight: 3,
+                  color: colors.onSurface,
+                  backgroundColor: colors.onSurface.withValues(alpha: 0.08),
+                  semanticsLabel: l10n.pomodoroCycleProgress,
+                ),
               ),
               ListTile(
                 dense: true,

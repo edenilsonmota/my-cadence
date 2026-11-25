@@ -153,7 +153,18 @@ ThemeData buildTheme(
       const AppMotion(),
       AppPalette.of(brightness, lightsOut: highContrastDark),
       AppTypography(color: scheme.onSurface, muted: scheme.onSurfaceVariant),
-      AppGlass.of(scheme, lightsOut: highContrastDark),
+      AppGlass.of(
+        scheme,
+        lightsOut: highContrastDark,
+        // Fim do degradê: o mesmo destaque com o matiz girado e mais claro.
+        accentEnd: Color(
+          Hct.from(
+            (hct.hue + 28) % 360,
+            math.max(hct.chroma, 48),
+            isDark ? 78 : 52,
+          ).toInt(),
+        ),
+      ),
     ],
   );
   return applyComponentThemes(typed);

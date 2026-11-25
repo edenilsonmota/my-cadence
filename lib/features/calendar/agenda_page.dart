@@ -12,6 +12,7 @@ import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../sync/presentation/account_avatar.dart';
 import '../tasks/task_providers.dart';
@@ -162,7 +163,7 @@ class AgendaPage extends ConsumerWidget {
         ],
       ),
       floatingActionButton: AboveNavBar(
-        child: FloatingActionButton(
+        child: GradientFab(
           heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
           tooltip: l10n.tasksNew,
           onPressed: () => context.push(Routes.newTask(date: day)),

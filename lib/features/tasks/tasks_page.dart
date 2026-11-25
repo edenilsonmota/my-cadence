@@ -7,6 +7,7 @@ import '../../app/theme/app_theme.dart';
 import '../../data/db/enums.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../../shared/widgets/tag_chip.dart';
@@ -111,7 +112,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
       ),
       drawer: isTab ? const AppDrawer() : null,
       floatingActionButton: AboveNavBar(
-        child: FloatingActionButton(
+        child: GradientFab(
           // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
           heroTag: null,
           tooltip: l10n.tasksNew,

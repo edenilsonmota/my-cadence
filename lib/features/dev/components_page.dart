@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_theme.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/glass_surface.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/pressable.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/staggered_entry.dart';
@@ -233,7 +234,7 @@ class _Buttons extends StatelessWidget {
         onPressed: () {},
         icon: const Icon(AppIcons.edit),
       ),
-      FloatingActionButton(
+      GradientFab(
         heroTag: null,
         tooltip: 'Adicionar',
         onPressed: () {},

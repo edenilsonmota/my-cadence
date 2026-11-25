@@ -7,6 +7,7 @@ import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../tasks/task_providers.dart';
 import 'book_actions.dart';
@@ -62,7 +63,7 @@ class BookPage extends ConsumerWidget {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: GradientFab(
         tooltip: context.l10n.pageNew,
         onPressed: () => createPageFlow(context, ref, notebookId: notebookId),
         child: const Icon(AppIcons.add),

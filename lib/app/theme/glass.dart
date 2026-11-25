@@ -11,9 +11,33 @@ class AppGlass extends ThemeExtension<AppGlass> {
     required this.border,
     required this.highlight,
     required this.blur,
+    required this.accent,
+    required this.card,
   });
 
-  factory AppGlass.of(ColorScheme c, {required bool lightsOut}) {
+  factory AppGlass.of(
+    ColorScheme c, {
+    required bool lightsOut,
+    required Color accentEnd,
+  }) {
+    // Degradê do destaque (botões, FAB) e fundo sutil dos cartões.
+    final accent = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [c.primary, accentEnd],
+    );
+    final card = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Color.alphaBlend(
+          c.primary.withValues(alpha: lightsOut ? 0.10 : 0.14),
+          c.surfaceContainerLow,
+        ),
+        c.surfaceContainerLow,
+      ],
+      stops: const [0, 0.7],
+    );
     final dark = c.brightness == Brightness.dark;
     if (lightsOut) {
       return AppGlass(
@@ -21,6 +45,8 @@ class AppGlass extends ThemeExtension<AppGlass> {
         border: c.outlineVariant,
         highlight: c.surfaceContainerLow,
         blur: 0,
+        accent: accent,
+        card: card,
       );
     }
     return AppGlass(
@@ -34,8 +60,16 @@ class AppGlass extends ThemeExtension<AppGlass> {
           ? c.onSurface.withValues(alpha: 0.06)
           : c.surfaceContainerLowest.withValues(alpha: 0.5),
       blur: 22,
+      accent: accent,
+      card: card,
     );
   }
+
+  /// Degradê da cor de destaque (botões principais e FAB).
+  final LinearGradient accent;
+
+  /// Fundo dos cartões de destaque (métricas): reflexo da cor no canto.
+  final LinearGradient card;
 
   /// Cor sobre o conteúdo desfocado.
   final Color tint;
@@ -55,11 +89,15 @@ class AppGlass extends ThemeExtension<AppGlass> {
     Color? border,
     Color? highlight,
     double? blur,
+    LinearGradient? accent,
+    LinearGradient? card,
   }) => AppGlass(
     tint: tint ?? this.tint,
     border: border ?? this.border,
     highlight: highlight ?? this.highlight,
     blur: blur ?? this.blur,
+    accent: accent ?? this.accent,
+    card: card ?? this.card,
   );
 
   @override
@@ -70,6 +108,8 @@ class AppGlass extends ThemeExtension<AppGlass> {
       border: Color.lerp(border, other.border, t)!,
       highlight: Color.lerp(highlight, other.highlight, t)!,
       blur: lerpDouble(blur, other.blur, t)!,
+      accent: LinearGradient.lerp(accent, other.accent, t)!,
+      card: LinearGradient.lerp(card, other.card, t)!,
     );
   }
 }

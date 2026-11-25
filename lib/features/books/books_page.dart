@@ -9,6 +9,7 @@ import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../tasks/task_providers.dart';
@@ -33,7 +34,7 @@ class BooksPage extends ConsumerWidget {
           onPressed: () => importBookFlow(context, ref),
         ),
       ],
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: GradientFab(
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
         tooltip: l10n.booksNew,
         onPressed: () => createBookFlow(context, ref),
