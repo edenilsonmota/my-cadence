@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
@@ -21,35 +22,34 @@ class BooksPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final books = ref.watch(booksProvider);
     return TabScaffold(
-      title: 'Books',
+      title: l10n.navBooks,
       actions: [
         IconButton(
-          tooltip: 'Importar Markdown',
+          tooltip: l10n.booksImportMarkdown,
           icon: const Icon(AppIcons.import),
           onPressed: () => importBookFlow(context, ref),
         ),
       ],
       floatingActionButton: FloatingActionButton(
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
-        tooltip: 'Novo book',
+        tooltip: l10n.booksNew,
         onPressed: () => createBookFlow(context, ref),
         child: const Icon(AppIcons.add),
       ),
       body: books.when(
         loading: () => const SkeletonList(),
-        error: (_, _) => const EmptyState(
-          icon: AppIcons.error,
-          message: 'Não foi possível carregar os books.',
-        ),
+        error: (_, _) =>
+            EmptyState(icon: AppIcons.error, message: l10n.booksLoadError),
         data: (books) => books.isEmpty
             ? EmptyState(
                 icon: AppIcons.book,
-                message: 'Nenhum book criado.\nCrie um no + ou importe arquivos .md.',
+                message: l10n.booksEmpty,
                 action: FilledButton.tonal(
                   onPressed: () => importBookFlow(context, ref),
-                  child: const Text('Importar Markdown'),
+                  child: Text(l10n.booksImportMarkdown),
                 ),
               )
             : ListView(
@@ -68,6 +68,7 @@ class _BookTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = context.lang;
     final pages = ref.watch(pagesOfNotebookProvider(book.id)).value;
     final today = ref.watch(todayProvider);
     // Última edição: a página mais recente, ou o próprio book.
@@ -87,7 +88,10 @@ class _BookTile extends ConsumerWidget {
       title: Text(book.title, style: context.text.titleMedium),
       subtitle: pages == null
           ? null
-          : Text('${pagesLabel(pages.length)} · ${editedLabel(edited, today)}'),
+          : Text(
+              '${pagesLabel(pages.length, lang: lang)} · '
+              '${editedLabel(edited, today, lang: lang)}',
+            ),
       onTap: () => context.push(Routes.book(book.id)),
       trailing: _BookMenu(book: book),
     );
@@ -101,8 +105,9 @@ class _BookMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return PopupMenuButton<String>(
-      tooltip: 'Opções do book',
+      tooltip: l10n.booksOptions,
       onSelected: (v) async {
         switch (v) {
           case 'renomear':
@@ -114,18 +119,18 @@ class _BookMenu extends ConsumerWidget {
           case 'excluir':
             if (await confirmDelete(
               context,
-              title: 'Excluir "${book.title}"?',
-              message: 'Todas as páginas do book serão excluídas.',
+              title: l10n.booksDeleteTitle(book.title),
+              message: l10n.booksDeleteMessage,
             )) {
               await ref.read(booksRepositoryProvider).deleteNotebook(book.id);
             }
         }
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: 'renomear', child: Text('Renomear')),
-        PopupMenuItem(value: 'icone', child: Text('Ícone e cor')),
-        PopupMenuItem(value: 'exportar', child: Text('Exportar (.zip)')),
-        PopupMenuItem(value: 'excluir', child: Text('Excluir')),
+      itemBuilder: (_) => [
+        PopupMenuItem(value: 'renomear', child: Text(l10n.actionRename)),
+        PopupMenuItem(value: 'icone', child: Text(l10n.fieldIconAndColor)),
+        PopupMenuItem(value: 'exportar', child: Text(l10n.booksExportZip)),
+        PopupMenuItem(value: 'excluir', child: Text(l10n.actionDelete)),
       ],
     );
   }

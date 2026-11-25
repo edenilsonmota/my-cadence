@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/shell.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/enums.dart';
@@ -54,6 +55,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final filter = ref.watch(taskFilterProvider);
     final tree = ref.watch(taskTreeProvider);
     final today = ref.watch(todayProvider);
@@ -65,7 +67,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
       appBar: AppBar(
         leading: _searching
             ? IconButton(
-                tooltip: 'Fechar busca',
+                tooltip: l10n.tasksCloseSearch,
                 icon: const Icon(AppIcons.back),
                 onPressed: _closeSearch,
               )
@@ -74,22 +76,22 @@ class _TasksPageState extends ConsumerState<TasksPage> {
             ? TextField(
                 controller: _search,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'Buscar pelo título',
+                decoration: InputDecoration(
+                  hintText: l10n.tasksSearchHint,
                   border: InputBorder.none,
                 ),
                 onChanged: _setQuery,
               )
-            : const Text('Tarefas'),
+            : Text(l10n.navTasks),
         actions: [
           if (!_searching)
             IconButton(
-              tooltip: 'Buscar',
+              tooltip: l10n.actionSearch,
               icon: const Icon(AppIcons.search),
               onPressed: () => setState(() => _searching = true),
             ),
           IconButton(
-            tooltip: 'Filtrar e ordenar',
+            tooltip: l10n.tasksFilterAndSort,
             icon: Badge(
               isLabelVisible: filter.activeCount > 0,
               label: Text('${filter.activeCount}'),
@@ -109,36 +111,34 @@ class _TasksPageState extends ConsumerState<TasksPage> {
       floatingActionButton: FloatingActionButton(
         // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
         heroTag: null,
-        tooltip: 'Nova tarefa',
+        tooltip: l10n.tasksNew,
         onPressed: () => showQuickAdd(context),
         child: const Icon(AppIcons.add),
       ),
       body: tree.when(
         loading: () => const SkeletonList(),
-        error: (_, _) => const EmptyState(
-          icon: AppIcons.error,
-          message: 'Não foi possível carregar as tarefas.',
-        ),
+        error: (_, _) =>
+            EmptyState(icon: AppIcons.error, message: l10n.tasksLoadError),
         data: (nodes) {
           if (nodes.isEmpty) {
             return expandAll
                 ? EmptyState(
                     icon: AppIcons.filterOff,
-                    message: 'Nenhuma tarefa com esses filtros.',
+                    message: l10n.tasksNoMatches,
                     action: TextButton(
                       onPressed: () {
                         _closeSearch();
                         ref.read(taskFilterProvider.notifier).clear();
                       },
-                      child: const Text('Limpar filtros'),
+                      child: Text(l10n.tasksClearFilters),
                     ),
                   )
                 : EmptyState(
                     icon: AppIcons.tasks,
-                    message: 'Nenhuma tarefa criada.',
+                    message: l10n.tasksEmptyCreated,
                     action: FilledButton.tonal(
                       onPressed: () => showQuickAdd(context),
-                      child: const Text('Criar tarefa'),
+                      child: Text(l10n.tasksCreate),
                     ),
                   );
           }
@@ -158,8 +158,8 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                         ? null
                         : IconButton(
                             tooltip: open
-                                ? 'Recolher subtarefas'
-                                : 'Mostrar subtarefas',
+                                ? l10n.tasksCollapseSubtasks
+                                : l10n.tasksExpandSubtasks,
                             icon: Icon(
                               open ? AppIcons.collapse : AppIcons.expand,
                             ),
@@ -192,6 +192,7 @@ class _FilterSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final filter = ref.watch(taskFilterProvider);
     final notifier = ref.read(taskFilterProvider.notifier);
     final tags = ref.watch(tagsProvider).value ?? const [];
@@ -209,23 +210,23 @@ class _FilterSheet extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Filtrar e ordenar',
+                    l10n.tasksFilterAndSort,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 TextButton(
                   onPressed: notifier.clear,
-                  child: const Text('Limpar'),
+                  child: Text(l10n.actionClear),
                 ),
               ],
             ),
             _ChipGroup(
-              title: 'Ordenar por',
+              title: l10n.tasksSortBy,
               children: [
                 for (final sort in TaskSort.values)
                   ChoiceChip(
-                    label: Text(sort.label),
+                    label: Text(sort.labelFor(l10n)),
                     selected: filter.sort == sort,
                     onSelected: (_) =>
                         notifier.update((f) => f.copyWith(sort: sort)),
@@ -233,11 +234,11 @@ class _FilterSheet extends ConsumerWidget {
               ],
             ),
             _ChipGroup(
-              title: 'Status',
+              title: l10n.fieldStatus,
               children: [
                 for (final status in TaskStatus.values)
                   FilterChip(
-                    label: Text(status.label),
+                    label: Text(status.labelFor(l10n)),
                     selected: filter.statuses.contains(status),
                     onSelected: (_) => notifier.update(
                       (f) => f.copyWith(statuses: toggled(f.statuses, status)),
@@ -246,12 +247,12 @@ class _FilterSheet extends ConsumerWidget {
               ],
             ),
             _ChipGroup(
-              title: 'Tipo',
+              title: l10n.fieldType,
               children: [
                 for (final kind in TaskKind.values)
                   FilterChip(
                     avatar: Icon(kind.icon, size: 18),
-                    label: Text(kind.label),
+                    label: Text(kind.labelFor(l10n)),
                     selected: filter.kinds.contains(kind),
                     onSelected: (_) => notifier.update(
                       (f) => f.copyWith(kinds: toggled(f.kinds, kind)),
@@ -260,11 +261,11 @@ class _FilterSheet extends ConsumerWidget {
               ],
             ),
             _ChipGroup(
-              title: 'Prioridade',
+              title: l10n.fieldPriority,
               children: [
                 for (var p = 3; p >= 0; p--)
                   FilterChip(
-                    label: Text(priorityLabels[p]),
+                    label: Text(priorityLabel(p, l10n)),
                     selected: filter.priorities.contains(p),
                     onSelected: (_) => notifier.update(
                       (f) => f.copyWith(priorities: toggled(f.priorities, p)),
@@ -274,7 +275,7 @@ class _FilterSheet extends ConsumerWidget {
             ),
             if (tags.isNotEmpty)
               _ChipGroup(
-                title: 'Tags',
+                title: l10n.fieldTags,
                 children: [
                   for (final tag in tags)
                     TagChip(

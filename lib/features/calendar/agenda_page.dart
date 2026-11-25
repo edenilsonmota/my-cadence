@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/shell.dart';
 import '../../app/theme/app_theme.dart';
@@ -59,11 +60,13 @@ class AgendaPage extends ConsumerWidget {
       }
     }
 
+    final l10n = context.l10n;
+    final lang = context.lang;
     // Ano só quando não é o atual (e aí o mês abreviado, para caber).
     final thisYear = ref.watch(todayProvider).year == day.year;
     final title = thisYear
-        ? monthNames[day.month - 1]
-        : '${monthShort[day.month - 1]} ${day.year}';
+        ? monthNamesFor(lang)[day.month - 1]
+        : '${monthsShortFor(lang)[day.month - 1]} ${day.year}';
     final isTab = AppShell.isTab(context);
     return Scaffold(
       drawer: isTab ? const AppDrawer() : null,
@@ -87,7 +90,7 @@ class AgendaPage extends ConsumerWidget {
               initialDate: day,
               firstDate: DateTime(2000),
               lastDate: DateTime(2100),
-              helpText: 'Ir para a data',
+              helpText: l10n.agendaGoToDate,
             );
             if (picked != null) {
               ref.read(calendarDayProvider.notifier).show(picked);
@@ -96,25 +99,25 @@ class AgendaPage extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            tooltip: 'Buscar',
+            tooltip: l10n.actionSearch,
             icon: const Icon(AppIcons.search),
             onPressed: () async {
               final found = await showSearch<DateTime?>(
                 context: context,
-                delegate: _TaskSearch(),
+                delegate: _TaskSearch(searchFieldLabel: l10n.agendaSearchTask),
               );
               if (found != null) openDay(found);
             },
           ),
           IconButton(
-            tooltip: 'Ir para hoje',
+            tooltip: l10n.agendaGoToday,
             icon: const Icon(AppIcons.goToday),
             onPressed: () => ref
                 .read(calendarDayProvider.notifier)
                 .show(ref.read(todayProvider)),
           ),
           PopupMenuButton<String>(
-            tooltip: 'Visualização',
+            tooltip: l10n.agendaView,
             icon: Icon(switch (mode) {
               CalendarMode.dia => AppIcons.viewDay,
               CalendarMode.semana => AppIcons.viewWeek,
@@ -134,9 +137,12 @@ class AgendaPage extends ConsumerWidget {
             },
             itemBuilder: (_) => [
               for (final (m, label) in [
-                (CalendarMode.dia, 'Dia'),
-                (CalendarMode.semana, wide ? 'Semana' : '3 dias'),
-                (CalendarMode.mes, 'Mês'),
+                (CalendarMode.dia, l10n.agendaDay),
+                (
+                  CalendarMode.semana,
+                  wide ? l10n.agendaWeek : l10n.agenda3Days,
+                ),
+                (CalendarMode.mes, l10n.agendaMonth),
               ])
                 CheckedPopupMenuItem(
                   value: m.name,
@@ -147,7 +153,7 @@ class AgendaPage extends ConsumerWidget {
               CheckedPopupMenuItem(
                 value: 'pomodoros',
                 checked: settings.showPomodoros,
-                child: const Text('Pomodoros realizados'),
+                child: Text(l10n.agendaCompletedPomodoros),
               ),
             ],
           ),
@@ -156,7 +162,7 @@ class AgendaPage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
-        tooltip: 'Nova tarefa',
+        tooltip: l10n.tasksNew,
         onPressed: () => context.push(Routes.newTask(date: day)),
         child: const Icon(AppIcons.add),
       ),
@@ -214,7 +220,9 @@ class _NextTaskSheet extends ConsumerWidget {
                 child: Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: 'Próxima tarefa em $wait\n'),
+                      TextSpan(
+                        text: '${context.l10n.agendaNextTaskIn(wait)}\n',
+                      ),
                       TextSpan(
                         text: '${formatTime(next.start)} · ${next.task.title}',
                         style: Theme.of(context).textTheme.bodySmall!
@@ -236,13 +244,13 @@ class _NextTaskSheet extends ConsumerWidget {
 
 /// Busca tarefas com data; escolher uma abre o dia dela na agenda.
 class _TaskSearch extends SearchDelegate<DateTime?> {
-  _TaskSearch() : super(searchFieldLabel: 'Buscar tarefa');
+  _TaskSearch({required super.searchFieldLabel});
 
   @override
   List<Widget> buildActions(BuildContext context) => [
     if (query.isNotEmpty)
       IconButton(
-        tooltip: 'Limpar',
+        tooltip: context.l10n.actionClear,
         icon: const Icon(AppIcons.close),
         onPressed: () => query = '',
       ),
@@ -250,7 +258,7 @@ class _TaskSearch extends SearchDelegate<DateTime?> {
 
   @override
   Widget buildLeading(BuildContext context) => IconButton(
-    tooltip: 'Voltar',
+    tooltip: context.l10n.actionBack,
     icon: const Icon(AppIcons.back),
     onPressed: () => close(context, null),
   );
@@ -263,6 +271,8 @@ class _TaskSearch extends SearchDelegate<DateTime?> {
 
   Widget _results() => Consumer(
     builder: (context, ref, _) {
+      final l10n = context.l10n;
+      final lang = context.lang;
       final tasks = ref.watch(allTasksProvider).value ?? const <Task>[];
       final now = ref.watch(clockProvider)();
       final q = _fold(query.trim());
@@ -276,7 +286,7 @@ class _TaskSearch extends SearchDelegate<DateTime?> {
             (a, b) => (a.startAt ?? a.dueAt)!.compareTo(b.startAt ?? b.dueAt!),
           );
       if (found.isEmpty) {
-        return const Center(child: Text('Nenhuma tarefa com data encontrada.'));
+        return Center(child: Text(l10n.agendaNoDatedTasks));
       }
       return ListView(
         children: [
@@ -284,7 +294,12 @@ class _TaskSearch extends SearchDelegate<DateTime?> {
             ListTile(
               title: Text(t.title),
               subtitle: Text(
-                formatRelative(t.startAt ?? t.dueAt!, now, withTime: t.hasTime),
+                formatRelative(
+                  t.startAt ?? t.dueAt!,
+                  now,
+                  withTime: t.hasTime,
+                  lang: lang,
+                ),
               ),
               onTap: () => close(context, t.startAt ?? t.dueAt),
             ),

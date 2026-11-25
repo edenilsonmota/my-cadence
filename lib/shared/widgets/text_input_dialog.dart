@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../../app/l10n/l10n.dart';
+
 /// Diálogo com um campo de texto. Devolve o texto (sem espaços nas pontas)
 /// ou `null` se cancelado ou vazio.
 Future<String?> showTextInputDialog(
   BuildContext context, {
   required String title,
   required String label,
-  String confirmLabel = 'Criar',
+  String? confirmLabel,
   String initialValue = '',
 }) {
   // Sem isso, ao fechar o diálogo o foco volta a um campo da tela de trás.
   FocusManager.instance.primaryFocus?.unfocus();
   return showDialog<String>(
     context: context,
-    builder: (_) => _TextInputDialog(
+    builder: (ctx) => _TextInputDialog(
       title: title,
       label: label,
-      confirmLabel: confirmLabel,
+      confirmLabel: confirmLabel ?? ctx.l10n.actionCreate,
       initialValue: initialValue,
     ),
   );
@@ -67,7 +69,7 @@ class _TextInputDialogState extends State<_TextInputDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+          child: Text(context.l10n.actionCancel),
         ),
         FilledButton(onPressed: _submit, child: Text(widget.confirmLabel)),
       ],

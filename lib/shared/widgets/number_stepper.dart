@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 
 /// Número com botões de diminuir e aumentar.
@@ -21,11 +22,12 @@ class NumberStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton.outlined(
-          tooltip: 'Diminuir',
+          tooltip: l10n.actionDecrease,
           icon: const Icon(AppIcons.remove),
           onPressed: value > min ? () => onChanged(value - 1) : null,
         ),
@@ -39,7 +41,7 @@ class NumberStepper extends StatelessWidget {
           ),
         ),
         IconButton.outlined(
-          tooltip: 'Aumentar',
+          tooltip: l10n.actionIncrease,
           icon: const Icon(AppIcons.add),
           onPressed: max == null || value < max!
               ? () => onChanged(value + 1)

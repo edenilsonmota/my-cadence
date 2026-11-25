@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/nav_tabs.dart';
 import '../../app/nav_tabs_providers.dart';
 import '../../app/theme/app_theme.dart';
@@ -55,13 +56,17 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
     final previewSelected = _previewIndex.clamp(0, tabs.length - 1);
     final space = context.space;
     final colors = context.colors;
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Barra de navegação')),
+      appBar: AppBar(title: Text(l10n.settingsNavBar)),
       body: ListView(
         padding: EdgeInsets.only(bottom: space.xxl),
         children: [
-          SectionHeader('Prévia', detail: '${tabs.length} de $maxNavTabs abas'),
+          SectionHeader(
+            l10n.navBarPreview,
+            detail: l10n.navBarPreviewDetail(tabs.length, maxNavTabs),
+          ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: space.page),
             child: Container(
@@ -86,14 +91,13 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
               space.xs,
             ),
             child: Text(
-              'A primeira aba abre com o app. As telas fora da barra '
-              'continuam no menu lateral.',
+              l10n.navBarHelper,
               style: context.text.bodySmall!.copyWith(
                 color: colors.onSurfaceVariant,
               ),
             ),
           ),
-          const SectionHeader('Na barra', detail: 'Arraste para ordenar'),
+          SectionHeader(l10n.navBarInBar, detail: l10n.navBarDragToOrder),
           ReorderableListView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -116,7 +120,9 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
                           child: Icon(
                             AppIcons.dragHandle,
                             color: colors.onSurfaceVariant,
-                            semanticLabel: 'Arrastar ${tab.label}',
+                            semanticLabel: l10n.navBarDragSemantics(
+                              tab.labelFor(l10n),
+                            ),
                           ),
                         ),
                       ),
@@ -124,8 +130,12 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
                       NavTabIcon(tab),
                     ],
                   ),
-                  title: Text(tab.label),
-                  subtitle: _activeSubtitle(index: index, atMin: atMin),
+                  title: Text(tab.labelFor(l10n)),
+                  subtitle: _activeSubtitle(
+                    l10n: l10n,
+                    index: index,
+                    atMin: atMin,
+                  ),
                   trailing: Switch(
                     value: true,
                     onChanged: atMin ? null : (_) => _toggle(tabs, tab),
@@ -133,16 +143,14 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
                 ),
             ],
           ),
-          const SectionHeader('No menu lateral'),
+          SectionHeader(l10n.navBarInDrawer),
           for (final tab in extraTabs)
             ListTile(
               key: ValueKey(tab),
               leading: NavTabIcon(tab),
-              title: Text(tab.label),
+              title: Text(tab.labelFor(l10n)),
               subtitle: Text(
-                atMax
-                    ? 'Máximo de $maxNavTabs abas atingido'
-                    : 'Acessível pelo menu lateral',
+                atMax ? l10n.navBarMaxLimit(maxNavTabs) : l10n.navBarDrawerHint,
               ),
               trailing: Switch(
                 value: false,
@@ -156,7 +164,7 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
               child: TextButton.icon(
                 onPressed: isDefault ? null : () => _save(defaultNavTabs),
                 icon: const Icon(AppIcons.undo),
-                label: const Text('Restaurar padrão'),
+                label: Text(l10n.navBarRestoreDefault),
               ),
             ),
           ),
@@ -165,12 +173,16 @@ class _NavBarSettingsPageState extends ConsumerState<NavBarSettingsPage> {
     );
   }
 
-  Widget? _activeSubtitle({required int index, required bool atMin}) {
+  Widget? _activeSubtitle({
+    required AppLocalizations l10n,
+    required int index,
+    required bool atMin,
+  }) {
     if (index == 0 && atMin) {
-      return const Text('Aba inicial · mínimo de $minNavTabs abas');
+      return Text(l10n.navBarInitialTabMin(minNavTabs));
     }
-    if (index == 0) return const Text('Aba inicial');
-    if (atMin) return const Text('Mínimo de $minNavTabs abas na barra');
+    if (index == 0) return Text(l10n.navBarInitialTab);
+    if (atMin) return Text(l10n.navBarMinLimit(minNavTabs));
     return null;
   }
 }

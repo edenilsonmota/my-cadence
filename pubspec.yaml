@@ -45,6 +45,7 @@ dependencies:
   flutter_timezone: ^5.1.1
   flutter_localizations:
     sdk: flutter
+  intl: ^0.20.3
   drift: ^2.35.4
   drift_flutter: ^0.3.1
   uuid: ^4.6.0
@@ -88,6 +89,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
   assets:
     - assets/branding/logo.png
     - assets/fonts/inter/OFL.txt

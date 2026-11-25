@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/app/app.dart';
 import 'package:my_cadence/app/clock.dart';
+import 'package:my_cadence/app/l10n/locale_providers.dart';
+import 'package:my_cadence/app/l10n/locale_settings.dart';
 import 'package:my_cadence/app/nav_tabs.dart';
 import 'package:my_cadence/app/nav_tabs_providers.dart';
 import 'package:my_cadence/app/notification_navigation.dart';
@@ -46,6 +48,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        initialLocaleProvider.overrideWithValue(AppLocale.pt),
         alarmSchedulerProvider.overrideWithValue(FakeScheduler()),
         todayProvider.overrideWith(() => FixedToday(DateTime(2026, 11, 23))),
         clockProvider.overrideWithValue(() => DateTime(2026, 11, 23, 12)),
@@ -104,6 +107,7 @@ void main() {
         overrides: [
           databaseProvider.overrideWithValue(db),
           initialNavTabsProvider.overrideWithValue(tabs),
+          initialLocaleProvider.overrideWithValue(AppLocale.pt),
           alarmSchedulerProvider.overrideWithValue(FakeScheduler()),
           todayProvider.overrideWith(() => FixedToday(DateTime(2026, 11, 23))),
           clockProvider.overrideWithValue(() => DateTime(2026, 11, 23, 12)),

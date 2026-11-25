@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/nav_tabs.dart';
 import '../../app/nav_tabs_providers.dart';
 import '../../app/router.dart';
@@ -16,6 +17,7 @@ class AppDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final extraTabs = drawerNavTabs(ref.watch(navTabsProvider));
     final routes = <String>[
       for (final tab in extraTabs) tab.overlayRoute,
@@ -47,7 +49,7 @@ class AppDrawer extends ConsumerWidget {
               ),
               SizedBox(width: context.space.md),
               Text(
-                'My Cadence',
+                l10n.appTitle,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ],
@@ -56,17 +58,17 @@ class AppDrawer extends ConsumerWidget {
         for (final tab in extraTabs)
           NavigationDrawerDestination(
             icon: NavTabIcon(tab),
-            label: Text(tab.label),
+            label: Text(tab.labelFor(l10n)),
           ),
         if (extraTabs.isNotEmpty) const Divider(indent: 28, endIndent: 28),
-        const NavigationDrawerDestination(
-          icon: Icon(AppIcons.settings),
-          label: Text('Ajustes'),
+        NavigationDrawerDestination(
+          icon: const Icon(AppIcons.settings),
+          label: Text(l10n.navSettings),
         ),
         if (kDebugMode)
-          const NavigationDrawerDestination(
-            icon: Icon(AppIcons.color),
-            label: Text('Componentes'),
+          NavigationDrawerDestination(
+            icon: const Icon(AppIcons.color),
+            label: Text(l10n.navComponents),
           ),
       ],
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -16,6 +17,7 @@ class TodayPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final today = ref.watch(todayProvider);
     final overdue = ref.watch(overdueTasksProvider);
     final dueToday = ref.watch(todayTasksProvider);
@@ -23,10 +25,7 @@ class TodayPage extends ConsumerWidget {
 
     final Widget body;
     if (overdue.hasError || dueToday.hasError || undated.hasError) {
-      body = const EmptyState(
-        icon: AppIcons.error,
-        message: 'Não foi possível carregar as tarefas.',
-      );
+      body = EmptyState(icon: AppIcons.error, message: l10n.tasksLoadError);
     } else if (!overdue.hasValue || !dueToday.hasValue || !undated.hasValue) {
       body = const SkeletonList();
     } else if (overdue.requireValue.isEmpty &&
@@ -34,10 +33,10 @@ class TodayPage extends ConsumerWidget {
         undated.requireValue.isEmpty) {
       body = EmptyState(
         icon: AppIcons.today,
-        message: 'Nada para hoje ainda.',
+        message: l10n.todayEmpty,
         action: FilledButton.tonal(
           onPressed: () => showQuickAdd(context, dueToday: true),
-          child: const Text('Criar tarefa'),
+          child: Text(l10n.tasksCreate),
         ),
       );
     } else {
@@ -53,14 +52,17 @@ class TodayPage extends ConsumerWidget {
         children: [
           if (overdue.requireValue.isNotEmpty) ...[
             SectionHeader(
-              'Atrasadas',
+              l10n.todayOverdue,
               detail: '${overdue.requireValue.length}',
               color: context.palette.danger.strong,
             ),
             ...tiles(overdue.requireValue),
           ],
           if (dueToday.requireValue.isNotEmpty) ...[
-            SectionHeader('Hoje', detail: '${dueToday.requireValue.length}'),
+            SectionHeader(
+              l10n.navToday,
+              detail: '${dueToday.requireValue.length}',
+            ),
             ...tiles(dueToday.requireValue),
           ],
           if (undated.requireValue.isNotEmpty)
@@ -69,7 +71,7 @@ class TodayPage extends ConsumerWidget {
               shape: const Border(),
               collapsedShape: const Border(),
               title: SectionHeader(
-                'Sem data',
+                l10n.todayUndated,
                 detail: '${undated.requireValue.length}',
                 padding: EdgeInsets.zero,
               ),
@@ -82,12 +84,12 @@ class TodayPage extends ConsumerWidget {
     }
 
     return TabScaffold(
-      title: 'Hoje',
+      title: l10n.navToday,
       body: body,
       floatingActionButton: FloatingActionButton(
         // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
         heroTag: null,
-        tooltip: 'Nova tarefa',
+        tooltip: l10n.tasksNew,
         onPressed: () => showQuickAdd(context, dueToday: true),
         child: const Icon(AppIcons.add),
       ),

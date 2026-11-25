@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/l10n/l10n.dart';
 import '../../../app/theme/app_theme.dart';
 import '../application/account_controller.dart';
 import '../application/sync_service.dart';
@@ -37,14 +38,15 @@ class AccountAvatar extends ConsumerWidget {
       _ => null,
     };
 
+    final l10n = context.l10n;
     return IconButton(
       tooltip: switch (status.phase) {
-        SyncPhase.disconnected => 'Conta e sincronização',
-        SyncPhase.syncing => 'Sincronizando',
-        SyncPhase.offline => 'Sem conexão: sincroniza depois',
-        SyncPhase.pending => 'Alterações a sincronizar',
-        SyncPhase.error => 'Erro na sincronização',
-        SyncPhase.idle => 'Sincronizado',
+        SyncPhase.disconnected => l10n.accountTooltip,
+        SyncPhase.syncing => l10n.accountSyncing,
+        SyncPhase.offline => l10n.accountOffline,
+        SyncPhase.pending => l10n.accountPending,
+        SyncPhase.error => l10n.accountError,
+        SyncPhase.idle => l10n.accountSynced,
       },
       onPressed: () => showAccountSheet(context),
       icon: SizedBox.square(

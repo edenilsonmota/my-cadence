@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/l10n/l10n.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/dates.dart';
@@ -14,7 +15,6 @@ import '../../../data/providers.dart';
 import '../../../shared/widgets/appearance_badge.dart';
 import '../../../shared/widgets/pressable.dart';
 import '../hub/hub_stats.dart' show formatDuration;
-import '../task_labels.dart';
 import '../task_providers.dart';
 
 /// Conclui ou reabre a tarefa. Rotina concluída avança para a próxima
@@ -42,11 +42,14 @@ Future<void> completeAndAnnounce(
   final today = ref.read(todayProvider);
   final updated = await ref.read(tasksRepositoryProvider).completeTask(task.id);
   if (task.recurrenceRule == null || updated == null) return;
+  final l10n = messenger.context.l10n;
+  final lang = messenger.context.lang;
   final next = updated.dueAt;
   final message = updated.status == TaskStatus.feita || next == null
-      ? 'Rotina encerrada: era a última ocorrência.'
-      : 'Rotina concluída. Próxima: '
-            '${formatRelative(next, today, withTime: updated.hasTime)}.';
+      ? l10n.routineEnded
+      : l10n.routineNext(
+          formatRelative(next, today, withTime: updated.hasTime, lang: lang),
+        );
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
@@ -58,6 +61,7 @@ Future<void> deleteWithUndo(
   WidgetRef ref,
   Task task,
 ) async {
+  final l10n = messenger.context.l10n;
   final repo = ref.read(tasksRepositoryProvider);
   final ids = await repo.deleteTask(task.id);
   messenger
@@ -66,11 +70,11 @@ Future<void> deleteWithUndo(
       SnackBar(
         content: Text(
           ids.length > 1
-              ? '"${task.title}" e ${ids.length - 1} subtarefa(s) excluídas'
-              : '"${task.title}" excluída',
+              ? l10n.taskDeletedWithSubtasks(task.title, ids.length - 1)
+              : l10n.taskDeleted(task.title),
         ),
         action: SnackBarAction(
-          label: 'Desfazer',
+          label: l10n.actionUndo,
           onPressed: () => repo.restoreTasks(ids),
         ),
       ),
@@ -138,11 +142,18 @@ class _TaskTileState extends ConsumerState<TaskTile> {
         task.dueAt != null &&
         task.dueAt!.isBefore(widget.today);
 
+    final l10n = context.l10n;
+    final lang = context.lang;
     final meta = <Widget>[
       if (task.dueAt case final due?)
         _Meta(
           icon: task.hasTime ? AppIcons.time : AppIcons.date,
-          text: formatRelative(due, widget.today, withTime: task.hasTime),
+          text: formatRelative(
+            due,
+            widget.today,
+            withTime: task.hasTime,
+            lang: lang,
+          ),
           color: overdue ? palette.danger.strong : null,
         ),
       if (task.recurrenceRule != null) const _Meta(icon: AppIcons.repeat),
@@ -157,7 +168,7 @@ class _TaskTileState extends ConsumerState<TaskTile> {
       if (metrics != null && metrics.focus.inMinutes > 0)
         _Meta(icon: AppIcons.pomodoro, text: formatDuration(metrics.focus)),
       if (task.status == TaskStatus.fazendo)
-        _Meta(icon: AppIcons.play, text: task.status.label),
+        _Meta(icon: AppIcons.play, text: task.status.labelFor(l10n)),
     ];
     final flag = switch (task.priority) {
       3 => palette.danger.strong,
@@ -227,7 +238,7 @@ class _TaskTileState extends ConsumerState<TaskTile> {
                     AppIcons.priority,
                     size: AppIconSize.meta,
                     color: flag,
-                    semanticLabel: 'Prioridade',
+                    semanticLabel: l10n.fieldPriority,
                   ),
                 ),
               ?widget.trailing,
@@ -253,11 +264,12 @@ class _CircleCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final motion = context.motion;
     return Semantics(
       checked: done,
       button: true,
-      label: done ? 'Reabrir' : 'Concluir',
+      label: done ? l10n.actionReopen : l10n.actionComplete,
       child: InkResponse(
         onTap: onTap,
         radius: 22,
@@ -337,6 +349,7 @@ class _SwipeableTaskTileState extends ConsumerState<SwipeableTaskTile> {
   @override
   Widget build(BuildContext context) {
     if (_dismissed) return const SizedBox.shrink();
+    final l10n = context.l10n;
     final task = widget.tile.task;
     final colors = Theme.of(context).colorScheme;
     final done = task.status == TaskStatus.feita;
@@ -346,14 +359,14 @@ class _SwipeableTaskTileState extends ConsumerState<SwipeableTaskTile> {
         color: colors.primaryContainer,
         foreground: colors.onPrimaryContainer,
         icon: done ? AppIcons.undo : AppIcons.check,
-        label: done ? 'Reabrir' : 'Concluir',
+        label: done ? l10n.actionReopen : l10n.actionComplete,
         alignment: AlignmentDirectional.centerStart,
       ),
       secondaryBackground: _SwipeBackground(
         color: colors.errorContainer,
         foreground: colors.onErrorContainer,
         icon: AppIcons.delete,
-        label: 'Excluir',
+        label: l10n.actionDelete,
         alignment: AlignmentDirectional.centerEnd,
       ),
       confirmDismiss: (direction) async {

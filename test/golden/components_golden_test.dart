@@ -2,9 +2,11 @@ import 'package:drift/drift.dart'
     show DatabaseConnection, Value, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/app/clock.dart';
+import 'package:my_cadence/app/l10n/l10n.dart';
 import 'package:my_cadence/app/theme/app_theme.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/providers.dart';
@@ -48,6 +50,16 @@ void main() {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: buildTheme(brightness),
+          locale: const Locale('pt', 'BR'),
+          supportedLocales: const [
+            Locale('pt', 'BR'),
+            Locale('en'),
+            Locale('es'),
+          ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            ...GlobalMaterialLocalizations.delegates,
+          ],
           home: Scaffold(body: child),
         ),
       ),

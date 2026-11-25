@@ -6,6 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'app/l10n/locale_providers.dart';
+import 'app/l10n/locale_settings.dart';
 import 'app/nav_tabs.dart';
 import 'app/nav_tabs_providers.dart';
 import 'app/notification_navigation.dart';
@@ -41,6 +43,10 @@ Future<void> main() async {
     ),
   );
 
+  final initialLocale = parseAppLocale(
+    await settings.getString(appLocaleSettingKey),
+  );
+
   final container = ProviderContainer(
     overrides: [
       databaseProvider.overrideWith((ref) {
@@ -49,6 +55,7 @@ Future<void> main() async {
       }),
       initialNavTabsProvider.overrideWithValue(initialTabs),
       initialThemeSettingsProvider.overrideWithValue(initialTheme),
+      initialLocaleProvider.overrideWithValue(initialLocale),
     ],
   );
   // O payload é o id da tarefa, ou `pomodoro` para o fim de um ciclo.

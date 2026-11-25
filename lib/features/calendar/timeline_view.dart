@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/calendar_layout.dart';
@@ -186,9 +187,7 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Rotina reagendada (todas as ocorrências).'),
-        ),
+        SnackBar(content: Text(context.l10n.agendaRoutineRescheduled)),
       );
   }
 
@@ -576,6 +575,7 @@ class _DaysHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final weekdays = weekdaysShortFor(context.lang);
     return Padding(
       padding: const EdgeInsets.only(top: 4, bottom: 2),
       child: Row(
@@ -591,7 +591,7 @@ class _DaysHeader extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      weekdayShort[day.weekday - 1],
+                      weekdays[day.weekday - 1],
                       style: theme.textTheme.labelSmall!.copyWith(
                         color: isSameDay(day, today)
                             ? scheme.primary
@@ -664,15 +664,15 @@ class _AllDayStrip extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                     iconSize: 20,
                     tooltip: expanded
-                        ? 'Recolher dia inteiro'
-                        : 'Expandir dia inteiro',
+                        ? context.l10n.agendaCollapseAllDay
+                        : context.l10n.agendaExpandAllDay,
                     onPressed: onToggle,
                     icon: Icon(expanded ? AppIcons.collapse : AppIcons.expand),
                   )
                 : Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      'dia\ninteiro',
+                      context.l10n.agendaAllDayShort,
                       textAlign: TextAlign.center,
                       style: context.type.micro,
                     ),

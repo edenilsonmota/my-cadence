@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
@@ -20,10 +21,11 @@ class ReviewPage extends ConsumerWidget {
   const ReviewPage({super.key});
 
   Future<void> _newDeck(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final name = await showTextInputDialog(
       context,
-      title: 'Novo deck',
-      label: 'Nome',
+      title: l10n.reviewNewDeck,
+      label: l10n.reviewNameLabel,
     );
     if (name != null) {
       await ref.read(cardsRepositoryProvider).createDeck(name: name);
@@ -32,48 +34,46 @@ class ReviewPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final cards = ref.watch(allCardsProvider);
     final decks = ref.watch(decksProvider).value ?? const <Deck>[];
     final due = ref.watch(dueCountProvider);
     final now = ref.watch(reviewNowProvider);
 
     return TabScaffold(
-      title: 'Revisar',
+      title: l10n.navReview,
       actions: [
         PopupMenuButton<String>(
-          tooltip: 'Mais opções',
+          tooltip: l10n.actionMoreOptions,
           onSelected: (v) => switch (v) {
             'deck' => _newDeck(context, ref),
             'csv' => importCsvFlow(context, ref),
             _ => null,
           },
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: 'deck', child: Text('Novo deck')),
-            PopupMenuItem(value: 'csv', child: Text('Importar CSV')),
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'deck', child: Text(l10n.reviewNewDeck)),
+            PopupMenuItem(value: 'csv', child: Text(l10n.reviewImportCsv)),
           ],
         ),
       ],
       floatingActionButton: FloatingActionButton(
         heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
-        tooltip: 'Novo card',
+        tooltip: l10n.reviewNewCard,
         onPressed: () => createCardFlow(context, ref),
         child: const Icon(AppIcons.add),
       ),
       body: cards.when(
         loading: () => const SkeletonList(),
-        error: (_, _) => const EmptyState(
-          icon: AppIcons.error,
-          message: 'Não foi possível carregar os cards.',
-        ),
+        error: (_, _) =>
+            EmptyState(icon: AppIcons.error, message: l10n.reviewLoadError),
         data: (all) {
           if (all.isEmpty && decks.isEmpty) {
             return EmptyState(
               icon: AppIcons.flashcard,
-              message:
-                  'Nenhum card ainda.\nCrie um card no + ou importe um CSV.',
+              message: l10n.reviewEmptyAlt,
               action: FilledButton.tonal(
                 onPressed: () => _newDeck(context, ref),
-                child: const Text('Criar deck'),
+                child: Text(l10n.reviewEmptyAction),
               ),
             );
           }
@@ -94,14 +94,14 @@ class ReviewPage extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Decks',
+                        l10n.reviewDecks,
                         style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Novo deck',
+                      tooltip: l10n.reviewNewDeck,
                       icon: const Icon(AppIcons.newDeck),
                       onPressed: () => _newDeck(context, ref),
                     ),
@@ -111,9 +111,9 @@ class ReviewPage extends ConsumerWidget {
               for (final deck in decks) _DeckTile(deck: deck, cards: all),
               ListTile(
                 leading: const Icon(AppIcons.viewList),
-                title: const Text('Todos os cards'),
+                title: Text(l10n.reviewAllCards),
                 subtitle: Text(
-                  '${all.length} ${all.length == 1 ? 'card' : 'cards'}',
+                  '${all.length} ${all.length == 1 ? l10n.unitCard : l10n.unitCards}',
                 ),
                 onTap: () => context.push(Routes.cards()),
               ),
@@ -138,6 +138,7 @@ class _DueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     return Card.filled(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -147,16 +148,16 @@ class _DueCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              due == 0 ? 'Nada para revisar agora' : '$due para revisar agora',
+              due == 0 ? l10n.reviewNothingDue : l10n.reviewDueNow(due),
               style: theme.textTheme.titleLarge,
             ),
             if (soonMinutes case final m?)
-              Text('Próximo card em ${m <= 1 ? '1 min' : '$m min'}.'),
+              Text(l10n.reviewNextIn(m <= 1 ? 1 : m)),
             if (due > 0) ...[
               const SizedBox(height: 12),
               FilledButton.icon(
                 icon: const Icon(AppIcons.play),
-                label: const Text('Revisar tudo'),
+                label: Text(l10n.reviewAll),
                 onPressed: onReview,
               ),
             ],
@@ -175,6 +176,7 @@ class _DeckTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final total = cards.where((c) => c.deckId == deck.id).length;
     final due =
         ref
@@ -186,8 +188,8 @@ class _DeckTile extends ConsumerWidget {
       leading: const Icon(AppIcons.deck),
       title: Text(deck.name),
       subtitle: Text(
-        '$total ${total == 1 ? 'card' : 'cards'}'
-        '${due > 0 ? ' · $due para revisar' : ''}',
+        '$total ${total == 1 ? l10n.unitCard : l10n.unitCards}'
+        '${due > 0 ? ' · ${l10n.reviewDeckDueSuffix(due)}' : ''}',
       ),
       onTap: () => context.push(Routes.cards(deckId: deck.id)),
     );

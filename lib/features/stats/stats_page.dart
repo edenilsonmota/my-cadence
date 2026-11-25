@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../app/nav_tabs.dart';
 import '../../app/nav_tabs_providers.dart';
 import '../../app/theme/app_theme.dart';
@@ -14,7 +15,6 @@ import '../../data/db/enums.dart';
 import '../../shared/widgets/metric_card.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../tasks/hub/hub_stats.dart' show formatDuration;
-import '../tasks/task_labels.dart';
 import '../tasks/task_providers.dart';
 import 'stats_logic.dart';
 import 'stats_providers.dart';
@@ -26,7 +26,7 @@ class StatsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return TabScaffold(
-      title: 'Métricas',
+      title: context.l10n.navStats,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: const [
@@ -287,6 +287,9 @@ class _FocusSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lang = context.lang;
+    final months = monthsShortFor(lang);
     final sessions = ref.watch(statsSessionsProvider).value ?? const [];
     final bucket = ref.watch(statsBucketProvider);
     final today = ref.watch(todayProvider);
@@ -308,7 +311,7 @@ class _FocusSection extends ConsumerWidget {
         focusBetween(sessions, previous, start, now),
       );
       return (
-        text: d.up == null ? 'igual a $vs' : '${d.text} vs $vs',
+        text: d.up == null ? l10n.statsSameAs(vs) : l10n.statsVs(d.text, vs),
         up: d.up,
       );
     }
@@ -316,14 +319,14 @@ class _FocusSection extends ConsumerWidget {
     String label(DateTime start) => switch (bucket) {
       Bucket.dia => '${start.day}',
       Bucket.semana => '${start.day}/${start.month}',
-      Bucket.mes => monthShort[start.month - 1],
+      Bucket.mes => months[start.month - 1],
     };
     String tip(int i) {
       final start = buckets[i];
       final when = switch (bucket) {
-        Bucket.dia => formatDate(start, today),
-        Bucket.semana => 'Semana de ${start.day}/${two(start.month)}',
-        Bucket.mes => '${monthShort[start.month - 1]} ${start.year}',
+        Bucket.dia => formatDate(start, today, lang: lang),
+        Bucket.semana => l10n.statsWeekOf('${start.day}/${two(start.month)}'),
+        Bucket.mes => '${months[start.month - 1]} ${start.year}',
       };
       return '$when\n${formatDuration(totals[i])}';
     }
@@ -331,33 +334,33 @@ class _FocusSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionTitle('Tempo de foco'),
+        _SectionTitle(l10n.statsFocusTime),
         Row(
           children: [
             _Stat(
               value: formatDuration(total(Bucket.dia)),
-              label: 'Hoje',
-              delta: delta(Bucket.dia, 'ontem'),
+              label: l10n.navToday,
+              delta: delta(Bucket.dia, l10n.statsYesterday),
             ),
             _Stat(
               value: formatDuration(total(Bucket.semana)),
-              label: 'Esta semana',
-              delta: delta(Bucket.semana, 'anterior'),
+              label: l10n.statsThisWeek,
+              delta: delta(Bucket.semana, l10n.statsPrevious),
             ),
             _Stat(
               value: formatDuration(total(Bucket.mes)),
-              label: 'Este mês',
-              delta: delta(Bucket.mes, 'anterior'),
+              label: l10n.statsThisMonth,
+              delta: delta(Bucket.mes, l10n.statsPrevious),
             ),
           ],
         ),
         const SizedBox(height: 12),
         SegmentedButton<Bucket>(
           showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(value: Bucket.dia, label: Text('Dias')),
-            ButtonSegment(value: Bucket.semana, label: Text('Semanas')),
-            ButtonSegment(value: Bucket.mes, label: Text('Meses')),
+          segments: [
+            ButtonSegment(value: Bucket.dia, label: Text(l10n.statsDays)),
+            ButtonSegment(value: Bucket.semana, label: Text(l10n.statsWeeks)),
+            ButtonSegment(value: Bucket.mes, label: Text(l10n.statsMonths)),
           ],
           selected: {bucket},
           onSelectionChanged: (s) =>
@@ -365,18 +368,18 @@ class _FocusSection extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Horas de foco por ${switch (bucket) {
-            Bucket.dia => 'dia',
-            Bucket.semana => 'semana',
-            Bucket.mes => 'mês',
-          }}',
+          l10n.statsFocusHoursPer(switch (bucket) {
+            Bucket.dia => l10n.statsUnitDay,
+            Bucket.semana => l10n.statsUnitWeek,
+            Bucket.mes => l10n.statsUnitMonth,
+          }),
           style: Theme.of(context).textTheme.labelLarge,
         ),
         const SizedBox(height: 8),
         if (totals.every((t) => t.inMinutes == 0))
           _Empty(
-            'Nenhum foco registrado nestes períodos.',
-            action: 'Iniciar foco',
+            l10n.statsNoFocusInPeriod,
+            action: l10n.statsStartFocus,
             onAction: () =>
                 openNavTab(context, ref.read(navTabsProvider), NavTab.pomodoro),
           )
@@ -386,7 +389,7 @@ class _FocusSection extends ConsumerWidget {
             labels: [for (final b in buckets) label(b)],
             labelEvery: bucket == Bucket.mes ? 2 : 3,
             tooltip: tip,
-            semanticLabel: 'Gráfico de horas de foco',
+            semanticLabel: l10n.statsFocusChartSemantics,
           ),
       ],
     );
@@ -398,6 +401,7 @@ class _FocusBySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final sessions = ref.watch(statsSessionsProvider).value ?? const [];
     final bucket = ref.watch(statsBucketProvider);
     final group = ref.watch(focusGroupProvider);
@@ -428,15 +432,15 @@ class _FocusBySection extends ConsumerWidget {
     }, now);
 
     String name(String? key) => switch (group) {
-      FocusGroup.tarefa when key == null => 'Sem tarefa',
-      FocusGroup.tarefa => tasks[key]?.title ?? 'Tarefa excluída',
-      FocusGroup.tag when key == null => 'Sem tag',
-      FocusGroup.tag => tags[key]?.name ?? 'Tag excluída',
-      FocusGroup.tipo when key == null => 'Sem tarefa',
+      FocusGroup.tarefa when key == null => l10n.pomodoroNoTask,
+      FocusGroup.tarefa => tasks[key]?.title ?? l10n.statsDeletedTask,
+      FocusGroup.tag when key == null => l10n.statsNoTag,
+      FocusGroup.tag => tags[key]?.name ?? l10n.statsDeletedTag,
+      FocusGroup.tipo when key == null => l10n.pomodoroNoTask,
       FocusGroup.tipo =>
         [
               for (final t in tasks.values)
-                if (t.kind.name == key) t.kind.label,
+                if (t.kind.name == key) t.kind.labelFor(l10n),
             ].firstOrNull ??
             key!,
     };
@@ -458,13 +462,22 @@ class _FocusBySection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionTitle('Foco por'),
+        _SectionTitle(l10n.statsFocusBy),
         SegmentedButton<FocusGroup>(
           showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(value: FocusGroup.tarefa, label: Text('Tarefa')),
-            ButtonSegment(value: FocusGroup.tag, label: Text('Tag')),
-            ButtonSegment(value: FocusGroup.tipo, label: Text('Tipo')),
+          segments: [
+            ButtonSegment(
+              value: FocusGroup.tarefa,
+              label: Text(l10n.statsGroupTask),
+            ),
+            ButtonSegment(
+              value: FocusGroup.tag,
+              label: Text(l10n.statsGroupTag),
+            ),
+            ButtonSegment(
+              value: FocusGroup.tipo,
+              label: Text(l10n.statsGroupType),
+            ),
           ],
           selected: {group},
           onSelectionChanged: (s) =>
@@ -472,7 +485,7 @@ class _FocusBySection extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         if (top.isEmpty)
-          const _Empty('Nenhum foco no período.')
+          _Empty(l10n.statsNoFocusGroup)
         else
           for (final r in top)
             _ShareRow(
@@ -493,20 +506,21 @@ class _EstimateSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final sessions = ref.watch(statsSessionsProvider).value ?? const [];
     final tasks = ref.watch(allTasksProvider).value ?? const <Task>[];
     final rows = estimatedVsDone(tasks, sessions).take(10).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionTitle('Pomodoros: estimado × realizado'),
+        _SectionTitle(l10n.statsEstimatedVsDone),
         if (rows.isEmpty)
-          const _Empty('Nenhuma tarefa com pomodoros estimados.')
+          _Empty(l10n.statsNoEstimated)
         else
           for (final r in rows)
             _ShareRow(
               label: r.task.title,
-              value: '${r.done} de ${r.estimated}',
+              value: l10n.statsOf(r.done, r.estimated),
               fraction: r.done / r.estimated,
             ),
       ],
@@ -521,6 +535,9 @@ class _ReviewSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lang = context.lang;
+    final weekdays = weekdaysShortFor(lang);
     final logs = ref.watch(statsReviewLogsProvider).value ?? const [];
     final cards = ref.watch(statsCardsProvider).value ?? const [];
     final today = ref.watch(todayProvider);
@@ -540,36 +557,39 @@ class _ReviewSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionTitle('Revisões'),
+        _SectionTitle(l10n.statsReviews),
         Row(
           children: [
             _Stat(
               value: '$todayCount',
-              label: 'Hoje',
+              label: l10n.navToday,
               delta: (
                 text: vsYesterday.up == null
-                    ? 'igual a ontem'
-                    : '${vsYesterday.text} vs ontem',
+                    ? l10n.statsSameAs(l10n.statsYesterday)
+                    : l10n.statsVs(vsYesterday.text, l10n.statsYesterday),
                 up: vsYesterday.up,
               ),
             ),
             _Stat(
               value: rate == null ? '–' : '${(rate * 100).round()}%',
-              label: 'Acerto (30 dias)',
+              label: l10n.statsAccuracy30Days,
             ),
             _Stat(
               value: '$streak',
-              label: streak == 1 ? 'Dia seguido' : 'Dias seguidos',
+              label: streak == 1 ? l10n.statsStreakDay : l10n.statsStreakDays,
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Text('Revisões por dia', style: Theme.of(context).textTheme.labelLarge),
+        Text(
+          l10n.statsReviewsPerDay,
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
         const SizedBox(height: 8),
         if (perDay.every((c) => c == 0))
           _Empty(
-            'Nenhuma revisão nos últimos 14 dias.',
-            action: 'Revisar agora',
+            l10n.statsNoReviews14Days,
+            action: l10n.reviewNow,
             onAction: () =>
                 openNavTab(context, ref.read(navTabsProvider), NavTab.review),
           )
@@ -580,30 +600,32 @@ class _ReviewSection extends ConsumerWidget {
             labelEvery: 3,
             integers: true,
             tooltip: (i) =>
-                '${formatDate(days[i], today)}\n${perDay[i]} '
-                '${perDay[i] == 1 ? 'revisão' : 'revisões'}',
-            semanticLabel: 'Gráfico de revisões por dia',
+                '${formatDate(days[i], today, lang: lang)}\n${perDay[i]} '
+                '${perDay[i] == 1 ? l10n.statsUnitReview : l10n.statsUnitReviews}',
+            semanticLabel: l10n.statsReviewsChartSemantics,
           ),
         const SizedBox(height: 16),
         Text(
-          'Cards a vencer nos próximos 7 dias',
+          l10n.statsDueNext7Days,
           style: Theme.of(context).textTheme.labelLarge,
         ),
         const SizedBox(height: 8),
         if (forecast.every((c) => c == 0))
-          const _Empty('Nenhum card a vencer nesta semana.')
+          _Empty(l10n.statsNoDueThisWeek)
         else
           _Bars(
             integers: true,
             values: [for (final c in forecast) c.toDouble()],
             labels: [
               for (var i = 0; i < 7; i++)
-                i == 0 ? 'hoje' : weekdayShort[addDays(today, i).weekday - 1],
+                i == 0
+                    ? l10n.statsTodayLower
+                    : weekdays[addDays(today, i).weekday - 1],
             ],
             tooltip: (i) =>
-                '${i == 0 ? 'Hoje (com atrasados)' : formatDate(addDays(today, i), today)}'
-                '\n${forecast[i]} ${forecast[i] == 1 ? 'card' : 'cards'}',
-            semanticLabel: 'Gráfico de cards a vencer',
+                '${i == 0 ? l10n.statsTodayWithOverdue : formatDate(addDays(today, i), today, lang: lang)}'
+                '\n${forecast[i]} ${forecast[i] == 1 ? l10n.unitCard : l10n.unitCards}',
+            semanticLabel: l10n.statsDueChartSemantics,
           ),
       ],
     );
@@ -617,6 +639,9 @@ class _RoutineSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lang = context.lang;
+    final weekdays = weekdaysShortFor(lang);
     final completions = ref.watch(statsCompletionsProvider).value ?? const [];
     final today = ref.watch(todayProvider);
     final grid = routineHeatmap(completions, today, heatmapWeeks);
@@ -649,10 +674,13 @@ class _RoutineSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionTitle('Rotinas concluídas'),
+        _SectionTitle(l10n.statsRoutinesDone),
         Text(
-          '$total ${total == 1 ? 'conclusão' : 'conclusões'} nas últimas '
-          '$heatmapWeeks semanas',
+          l10n.statsRoutineTotal(
+            total,
+            total == 1 ? l10n.unitCompletion : l10n.unitCompletions,
+            heatmapWeeks,
+          ),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 8),
@@ -668,10 +696,7 @@ class _RoutineSection extends ConsumerWidget {
                     SizedBox(
                       height: 16,
                       width: 28,
-                      child: Text(
-                        d.isEven ? weekdayShort[d] : '',
-                        style: small,
-                      ),
+                      child: Text(d.isEven ? weekdays[d] : '', style: small),
                     ),
                 ],
               ),
@@ -683,7 +708,7 @@ class _RoutineSection extends ConsumerWidget {
                         colorOf(count),
                         tip: count == null
                             ? null
-                            : '${formatDate(addDays(start, 7 * w + d), today)}: '
+                            : '${formatDate(addDays(start, 7 * w + d), today, lang: lang)}: '
                                   '$count',
                       ),
                   ],
@@ -695,9 +720,9 @@ class _RoutineSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text('menos', style: small),
+            Text(l10n.statsLess, style: small),
             for (final c in [0, 1, 2, 3, 4]) cell(colorOf(c)),
-            Text('mais', style: small),
+            Text(l10n.statsMore, style: small),
           ],
         ),
       ],

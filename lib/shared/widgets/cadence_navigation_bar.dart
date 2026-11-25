@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/nav_tabs.dart';
 import '../../app/theme/app_theme.dart';
 import 'nav_tab_icon.dart';
@@ -21,6 +22,7 @@ class CadenceNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final compact = tabs.length > 5;
     final bar = NavigationBar(
       selectedIndex: selectedIndex,
@@ -30,7 +32,7 @@ class CadenceNavigationBar extends StatelessWidget {
           NavigationDestination(
             icon: NavTabIcon(tab),
             selectedIcon: NavTabIcon(tab, active: true),
-            label: tab.label,
+            label: tab.labelFor(l10n),
           ),
       ],
     );

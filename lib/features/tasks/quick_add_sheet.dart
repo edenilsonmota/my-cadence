@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
@@ -109,6 +110,8 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final lang = context.lang;
     final space = context.space;
     final today = ref.watch(todayProvider);
     final tags = ref.watch(tagsProvider).value ?? const <Tag>[];
@@ -137,8 +140,8 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
                   textCapitalization: TextCapitalization.sentences,
                   textInputAction: TextInputAction.done,
                   style: context.text.titleLarge,
-                  decoration: const InputDecoration(
-                    hintText: 'Nova tarefa',
+                  decoration: InputDecoration(
+                    hintText: l10n.tasksNew,
                     filled: false,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -148,7 +151,7 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
                 ),
               ),
               IconButton.filled(
-                tooltip: 'Adicionar tarefa',
+                tooltip: l10n.tasksAdd,
                 onPressed: _title.text.trim().isEmpty ? null : _save,
                 icon: const Icon(AppIcons.send),
               ),
@@ -160,13 +163,15 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
             children: [
               _MenuPill<DateTime?>(
                 icon: AppIcons.date,
-                label: _due == null ? 'Data' : formatRelative(_due!, today),
+                label: _due == null
+                    ? l10n.fieldDate
+                    : formatRelative(_due!, today, lang: lang),
                 active: _due != null,
                 items: [
-                  (today, 'Hoje'),
-                  (addDays(today, 1), 'Amanhã'),
-                  (addDays(today, 7), 'Daqui a uma semana'),
-                  (null, 'Sem data'),
+                  (today, l10n.quickDateToday),
+                  (addDays(today, 1), l10n.quickDateTomorrow),
+                  (addDays(today, 7), l10n.quickDateNextWeek),
+                  (null, l10n.fieldNoDate),
                 ],
                 onSelected: (d) => setState(() => _due = d),
               ),
@@ -174,10 +179,10 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
                 _MenuPill<String>(
                   icon: AppIcons.tag,
                   label: firstTag == null
-                      ? 'Tag'
+                      ? l10n.taskTagSingle
                       : _tagIds.length == 1
                       ? firstTag.name
-                      : '${_tagIds.length} tags',
+                      : l10n.taskTagCount(_tagIds.length),
                   active: _tagIds.isNotEmpty,
                   items: [
                     for (final t in tags)
@@ -192,11 +197,12 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
               _MenuPill<int>(
                 icon: AppIcons.priority,
                 label: _priority == 0
-                    ? 'Prioridade'
-                    : priorityLabels[_priority],
+                    ? l10n.fieldPriority
+                    : priorityLabel(_priority, l10n),
                 active: _priority > 0,
                 items: [
-                  for (final (i, label) in priorityLabels.indexed) (i, label),
+                  for (var i = 0; i < priorityLabels.length; i++)
+                    (i, priorityLabel(i, l10n)),
                 ],
                 onSelected: (p) => setState(() => _priority = p ?? 0),
               ),
@@ -211,13 +217,13 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
                     ),
                     size: 10,
                   ),
-                  label: const Text('Ícone e cor'),
+                  label: Text(l10n.fieldIconAndColor),
                   onPressed: _pickAppearance,
                 ),
               ),
               ActionChip(
                 avatar: const Icon(AppIcons.more),
-                label: const Text('Mais opções'),
+                label: Text(l10n.actionMoreOptions),
                 onPressed: _moreOptions,
               ),
             ],
@@ -225,7 +231,7 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
           if (_lastCreated case final last?) ...[
             SizedBox(height: space.sm),
             Text(
-              'Criada: $last',
+              l10n.tasksCreated(last),
               style: context.text.bodySmall!.copyWith(
                 color: context.colors.onSurfaceVariant,
               ),

@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/app/app.dart';
 import 'package:my_cadence/app/clock.dart';
+import 'package:my_cadence/app/l10n/locale_providers.dart';
+import 'package:my_cadence/app/l10n/locale_settings.dart';
 import 'package:my_cadence/app/nav_tabs.dart';
 import 'package:my_cadence/app/nav_tabs_providers.dart';
 import 'package:my_cadence/app/theme/theme_providers.dart';
@@ -85,6 +87,15 @@ Future<AppDatabase> pumpApp(
     ),
   );
 
+  final rawLocale = await tester.runAsync<String?>(
+    () => SettingsRepository(db.settingsDao).getString(appLocaleSettingKey),
+  );
+  // Nos testes sem idioma configurado, mantém pt-BR determinístico
+  // independente do locale do sistema onde o teste roda.
+  final initialLocale = rawLocale == null
+      ? AppLocale.pt
+      : parseAppLocale(rawLocale);
+
   // Plugin de altura do teclado (usado pela barra do editor) não existe no
   // ambiente de teste.
   tester.binding.defaultBinaryMessenger.setMockStreamHandler(
@@ -102,6 +113,7 @@ Future<AppDatabase> pumpApp(
         databaseProvider.overrideWithValue(db),
         initialNavTabsProvider.overrideWithValue(initialTabs),
         initialThemeSettingsProvider.overrideWithValue(initialTheme),
+        initialLocaleProvider.overrideWithValue(initialLocale),
         // Sem Google nem Drive de verdade nos testes.
         googleAccountApiProvider.overrideWithValue(
           accountApi ?? FakeAccountApi(),

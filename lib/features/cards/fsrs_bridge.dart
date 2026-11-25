@@ -84,8 +84,8 @@ Map<Grade, CardSchedule> previewReview(
   };
 }
 
-/// "1 min", "10 min", "3 h", "4 d", "2 meses", "1,5 anos".
-String formatInterval(Duration d) {
+/// "1 min", "10 min", "3 h", "4 d", "2 meses", "1,5 anos" (ou em `en`/`es`).
+String formatInterval(Duration d, {String lang = 'pt'}) {
   final minutes = d.inMinutes;
   if (minutes < 60) return '${minutes < 1 ? 1 : minutes} min';
   if (d.inHours < 24) return '${d.inHours} h';
@@ -93,9 +93,20 @@ String formatInterval(Duration d) {
   if (days < 30) return '$days d';
   if (days < 365) {
     final months = (days / 30).round();
-    return months == 1 ? '1 mês' : '$months meses';
+    return switch (lang) {
+      'en' => months == 1 ? '1 mo' : '$months mo',
+      'es' => months == 1 ? '1 mes' : '$months meses',
+      _ => months == 1 ? '1 mês' : '$months meses',
+    };
   }
   final years = days / 365;
-  final text = years.toStringAsFixed(1).replaceAll('.', ',');
-  return text == '1,0' ? '1 ano' : '${text.replaceAll(',0', '')} anos';
+  final raw = years.toStringAsFixed(1);
+  if (lang == 'en') {
+    return raw == '1.0' ? '1 yr' : '${raw.replaceAll('.0', '')} yr';
+  }
+  final text = raw.replaceAll('.', ',');
+  return switch (lang) {
+    'es' => text == '1,0' ? '1 año' : '${text.replaceAll(',0', '')} años',
+    _ => text == '1,0' ? '1 ano' : '${text.replaceAll(',0', '')} anos',
+  };
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import 'update_providers.dart';
 
@@ -10,21 +11,22 @@ class UpdateTiles extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final version = ref.watch(appVersionProvider).value;
     final update = ref.watch(updateProvider);
     final release = update.release;
     final status = switch (update.phase) {
-      UpdatePhase.idle => 'Toque para procurar uma versão nova',
-      UpdatePhase.checking => 'Verificando…',
-      UpdatePhase.upToDate => 'Você está na versão mais recente',
-      UpdatePhase.available => 'Versão ${release!.version} disponível',
-      UpdatePhase.error => 'Não foi possível verificar. Tente de novo.',
+      UpdatePhase.idle => l10n.updateIdle,
+      UpdatePhase.checking => l10n.updateChecking,
+      UpdatePhase.upToDate => l10n.updateUpToDate,
+      UpdatePhase.available => l10n.updateAvailable(release!.version),
+      UpdatePhase.error => l10n.updateError,
     };
     return Column(
       children: [
         ListTile(
           leading: const Icon(AppIcons.sync),
-          title: Text('Versão ${version ?? '…'}'),
+          title: Text(l10n.updateVersion(version ?? '…')),
           subtitle: Text(status),
           onTap: update.phase == UpdatePhase.checking
               ? null
@@ -33,7 +35,7 @@ class UpdateTiles extends ConsumerWidget {
               ? null
               : FilledButton.tonal(
                   onPressed: () => openRelease(ref),
-                  child: const Text('Baixar'),
+                  child: Text(l10n.actionDownload),
                 ),
         ),
         if (release?.notes case final notes?)
@@ -93,11 +95,12 @@ class _UpdateWatcherState extends ConsumerState<UpdateWatcher> {
           next.phase != UpdatePhase.available) {
         return;
       }
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Versão ${next.release!.version} disponível'),
+          content: Text(l10n.updateAvailable(next.release!.version)),
           action: SnackBarAction(
-            label: 'Baixar',
+            label: l10n.actionDownload,
             onPressed: () => openRelease(ref),
           ),
         ),

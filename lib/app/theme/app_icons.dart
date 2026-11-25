@@ -27,6 +27,7 @@ abstract final class AppIcons {
   static const statsActive = LucideIcons500.chartColumn;
   static const settings = _I.settings;
   static const navBar = _I.panelBottom;
+  static const language = _I.languages;
   static const chevronRight = _I.chevronRight;
   static const menu = _I.menu;
   static const back = _I.arrowLeft;

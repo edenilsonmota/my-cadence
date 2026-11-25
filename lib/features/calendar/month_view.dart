@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
@@ -31,11 +32,12 @@ class MonthView extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
+    final weekdays = weekdaysShortFor(context.lang);
     return Column(
       children: [
         Row(
           children: [
-            for (final name in weekdayShort)
+            for (final name in weekdays)
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),

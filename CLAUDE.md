@@ -8,7 +8,7 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - **Uma etapa por vez, na ordem do plano.** Ao terminar: `dart run build_runner build` (se mexeu em tabelas
   ou providers gerados; a flag `-d` não existe mais no build_runner 2.17), `flutter analyze` e `flutter test`
   limpos, commit com mensagem descritiva e **parar para revisão**.
-- Os arquivos gerados (`*.g.dart`) são versionados, para o projeto rodar logo após o clone.
+- Os arquivos gerados (`*.g.dart` e `lib/l10n/generated/*.dart`) são versionados, para o projeto rodar logo após o clone.
 - **Cada pacote entra só na etapa que o usa.** Antes de adicionar, conferir no pub.dev a versão estável e a
   compatibilidade com o Flutter instalado. Não inventar APIs: ler a documentação ou o código em `~/.pub-cache`.
 - Declarar a versão mínima esperada de cada pacote (`^x.y.z`) para o resolvedor falhar alto, em vez de cair
@@ -208,7 +208,10 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 
 ## Estilo
 
-- Textos da UI em **português do Brasil**; nenhuma string em inglês.
+- Internacionalização via `flutter gen-l10n` (`l10n.yaml`, `lib/l10n/app_{pt,en,es}.arb` → `lib/l10n/generated/`):
+  suporte a **Português (Brasil)**, **English** e **Español**, com seleção em Ajustes → Aparência → Idioma
+  (`device.locale`, local do aparelho, pré-carregado em `main.dart` e `pumpApp`; padrão `pt_BR` nos testes).
+  Telas usam `context.l10n` e `context.lang` (`lib/app/l10n/l10n.dart`); formatadores puros recebem `lang:`.
 - Sistema de design em `lib/app/theme/` (ver `docs/EVOLUCAO-VISUAL.md`): tokens `context.space`,
   `context.radius`, `context.motion` (já respeita "remover animações"), `context.palette` (12 cores por chave,
   tons `tint`/`strong`/`onTint` gerados em HCT, contraste testado) e `context.type` (seção, leitura, código,

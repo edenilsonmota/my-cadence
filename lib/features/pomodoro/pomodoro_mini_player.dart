@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../app/nav_tabs.dart';
 import '../../app/nav_tabs_providers.dart';
 import '../../app/theme/app_theme.dart';
@@ -23,6 +24,7 @@ class PomodoroMiniPlayer extends ConsumerWidget {
     final finished = state.finished;
     if (running == null && finished == null) return const SizedBox.shrink();
 
+    final l10n = context.l10n;
     final colors = Theme.of(context).colorScheme;
     void open() =>
         openNavTab(context, ref.read(navTabsProvider), NavTab.pomodoro);
@@ -35,12 +37,14 @@ class PomodoroMiniPlayer extends ConsumerWidget {
           leading: const Icon(AppIcons.done),
           title: Text(
             finished!.kind == PomodoroKind.foco
-                ? 'Foco concluído'
-                : '${finished.kind.label} concluída',
+                ? l10n.pomodoroFocusDoneShort
+                : l10n.pomodoroBreakDone(finished.kind.labelFor(l10n)),
           ),
-          subtitle: Text('Próximo: ${state.suggestedNext.label}'),
+          subtitle: Text(
+            l10n.pomodoroNextLabel(state.suggestedNext.labelFor(l10n)),
+          ),
           trailing: IconButton(
-            tooltip: 'Dispensar',
+            tooltip: l10n.actionDismiss,
             icon: const Icon(AppIcons.close),
             onPressed: controller.dismissFinished,
           ),
@@ -70,7 +74,7 @@ class PomodoroMiniPlayer extends ConsumerWidget {
             LinearProgressIndicator(
               value: progress(running, now),
               minHeight: 3,
-              semanticsLabel: 'Progresso do ciclo',
+              semanticsLabel: l10n.pomodoroCycleProgress,
             ),
             ListTile(
               dense: true,
@@ -80,8 +84,8 @@ class PomodoroMiniPlayer extends ConsumerWidget {
                     : AppIcons.breakTime,
               ),
               title: Text(
-                '${running.kind.label} · ${formatClock(remaining(running, now))}'
-                '${state.isPaused ? ' · pausado' : ''}',
+                '${running.kind.labelFor(l10n)} · ${formatClock(remaining(running, now))}'
+                '${state.isPaused ? ' · ${l10n.pomodoroPausedSuffix}' : ''}',
               ),
               subtitle: task == null
                   ? null
@@ -91,7 +95,9 @@ class PomodoroMiniPlayer extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
               trailing: IconButton(
-                tooltip: state.isPaused ? 'Retomar' : 'Pausar',
+                tooltip: state.isPaused
+                    ? l10n.pomodoroResume
+                    : l10n.pomodoroPause,
                 icon: Icon(state.isPaused ? AppIcons.play : AppIcons.pause),
                 onPressed: state.isPaused
                     ? controller.resume

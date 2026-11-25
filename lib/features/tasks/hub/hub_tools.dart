@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/clock.dart';
+import '../../../app/l10n/l10n.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../data/db/database.dart';
@@ -55,10 +56,11 @@ class HubTools extends ConsumerWidget {
   }
 
   Future<void> _addPage(BuildContext context, WidgetRef ref, int order) async {
+    final l10n = context.l10n;
     final title = await showTextInputDialog(
       context,
-      title: 'Nova página',
-      label: 'Título',
+      title: l10n.hubNewPage,
+      label: l10n.fieldTitle,
     );
     if (title == null) return;
     final books = ref.read(booksRepositoryProvider);
@@ -72,6 +74,7 @@ class HubTools extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final now = ref.watch(clockProvider)();
     final cards = ref.watch(taskCardsProvider(task.id)).value ?? const [];
     final sessions = ref.watch(taskSessionsProvider(task.id)).value ?? const [];
@@ -96,19 +99,19 @@ class HubTools extends ConsumerWidget {
       if (!visible.cards)
         ActionChip(
           avatar: const Icon(AppIcons.flashcard),
-          label: const Text('Flashcard'),
+          label: Text(l10n.hubFlashcard),
           onPressed: addCard,
         ),
       if (!visible.pomodoro)
         ActionChip(
           avatar: const Icon(AppIcons.pomodoro),
-          label: const Text('Pomodoro'),
+          label: Text(l10n.navPomodoro),
           onPressed: startFocus,
         ),
       if (!visible.pages)
         ActionChip(
           avatar: const Icon(AppIcons.page),
-          label: const Text('Página'),
+          label: Text(l10n.hubPage),
           onPressed: addPage,
         ),
     ];
@@ -128,7 +131,7 @@ class HubTools extends ConsumerWidget {
                 runSpacing: context.space.xs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text('ADICIONAR', style: context.type.section),
+                  Text(l10n.hubAdd, style: context.type.section),
                   ...shortcuts,
                 ],
               ),
@@ -221,35 +224,36 @@ class _CardsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final total = counts.total;
     return _Section(
-      title: 'Flashcards',
+      title: l10n.settingsFlashcards,
       icon: AppIcons.flashcard,
       children: [
         ListTile(
           title: Text(
             total == 0
-                ? 'Nenhum card ainda'
-                : '$total ${total == 1 ? 'card' : 'cards'}',
+                ? l10n.hubNoCardsYet
+                : '$total ${total == 1 ? l10n.unitCard : l10n.unitCards}',
           ),
           subtitle: total == 0
               ? null
               : Text(
                   counts.due == 0
-                      ? 'Nada para revisar agora'
-                      : '${counts.due} para revisar agora',
+                      ? l10n.reviewNothingDue
+                      : l10n.reviewDueNow(counts.due),
                 ),
         ),
         _Actions([
           if (total > 0)
             FilledButton.tonalIcon(
               icon: const Icon(AppIcons.play),
-              label: const Text('Revisar desta tarefa'),
+              label: Text(l10n.hubReviewTask),
               onPressed: onReview,
             ),
           OutlinedButton.icon(
             icon: const Icon(AppIcons.add),
-            label: const Text('Card'),
+            label: Text(l10n.hubCard),
             onPressed: onAdd,
           ),
         ]),
@@ -271,18 +275,21 @@ class _PomodoroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final sessions = summary.sessions;
     return _Section(
-      title: 'Pomodoro',
+      title: l10n.navPomodoro,
       icon: AppIcons.pomodoro,
       children: [
         ListTile(
-          title: Text('Tempo de foco: ${formatDuration(summary.total)}'),
+          title: Text(l10n.hubFocusTimeValue(formatDuration(summary.total))),
           subtitle: Text(
             sessions == 0
-                ? 'Nenhuma sessão ainda'
-                : '$sessions ${sessions == 1 ? 'sessão' : 'sessões'} de foco '
-                      '(inclui subtarefas)',
+                ? l10n.hubNoSessionsYet
+                : l10n.hubFocusSessions(
+                    sessions,
+                    sessions == 1 ? l10n.unitSession : l10n.unitSessions,
+                  ),
           ),
         ),
         if (estimated case final est?)
@@ -291,11 +298,11 @@ class _PomodoroSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Estimado × realizado: ${summary.completed} de $est'),
+                Text(l10n.hubEstimatedVsDone(summary.completed, est)),
                 const SizedBox(height: 6),
                 LinearProgressIndicator(
                   value: est == 0 ? 0 : (summary.completed / est).clamp(0, 1),
-                  semanticsLabel: 'Pomodoros realizados',
+                  semanticsLabel: l10n.agendaCompletedPomodoros,
                 ),
               ],
             ),
@@ -303,7 +310,7 @@ class _PomodoroSection extends StatelessWidget {
         _Actions([
           FilledButton.tonalIcon(
             icon: const Icon(AppIcons.play),
-            label: const Text('Iniciar foco'),
+            label: Text(l10n.statsStartFocus),
             onPressed: onStart,
           ),
         ]),
@@ -329,6 +336,7 @@ class _PagesSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final books = ref.read(booksRepositoryProvider);
     Widget pageTile(NotePage page, {Widget? trailing}) => ListTile(
       leading: const Icon(AppIcons.page),
@@ -338,17 +346,17 @@ class _PagesSection extends ConsumerWidget {
     );
 
     return _Section(
-      title: 'Páginas',
+      title: l10n.hubPages,
       icon: AppIcons.page,
       children: [
         if (ownPages.isEmpty && linked.isEmpty)
-          const ListTile(title: Text('Nenhuma página ainda')),
+          ListTile(title: Text(l10n.hubNoPagesYet)),
         for (final page in ownPages) pageTile(page),
         for (final page in linked)
           pageTile(
             page,
             trailing: IconButton(
-              tooltip: 'Desvincular',
+              tooltip: l10n.hubUnlink,
               icon: const Icon(AppIcons.unlink),
               onPressed: () => books.unlinkPage(taskId, page.id),
             ),
@@ -356,18 +364,18 @@ class _PagesSection extends ConsumerWidget {
         _Actions([
           OutlinedButton.icon(
             icon: const Icon(AppIcons.add),
-            label: const Text('Página'),
+            label: Text(l10n.hubPage),
             onPressed: onAdd,
           ),
           if (notebookId case final id?)
             OutlinedButton.icon(
               icon: const Icon(AppIcons.book),
-              label: const Text('Abrir caderno'),
+              label: Text(l10n.hubOpenNotebook),
               onPressed: () => context.push(Routes.book(id)),
             ),
           OutlinedButton.icon(
             icon: const Icon(AppIcons.link),
-            label: const Text('Vincular página existente'),
+            label: Text(l10n.hubLinkExistingPage),
             onPressed: () => showModalBottomSheet<void>(
               context: context,
               isScrollControlled: true,
@@ -389,6 +397,7 @@ class _LinkPageSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final pages = ref.watch(bookPagesProvider).value ?? const [];
     final linkedIds = {
       for (final p
@@ -406,15 +415,15 @@ class _LinkPageSheet extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text(
-              'Vincular página',
+              l10n.hubLinkPage,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           if (pages.isEmpty)
-            const ListTile(
-              leading: Icon(AppIcons.book),
-              title: Text('Nenhuma página em books ainda.'),
-              subtitle: Text('Crie páginas na aba Books para vinculá-las.'),
+            ListTile(
+              leading: const Icon(AppIcons.book),
+              title: Text(l10n.hubNoBookPages),
+              subtitle: Text(l10n.hubNoBookPagesHint),
             ),
           for (final (page, book) in pages)
             CheckboxListTile(

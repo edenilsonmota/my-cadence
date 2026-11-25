@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fsrs/fsrs.dart' as fsrs;
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
@@ -139,16 +140,17 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final queue = ref.watch(reviewQueueProvider(_scope));
     final scopeCards = ref.watch(scopeCardsProvider(_scope)).value ?? const [];
     final now = ref.watch(reviewNowProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Revisão'),
+        title: Text(l10n.reviewSessionTitle),
         actions: [
           IconButton(
-            tooltip: 'Desfazer última avaliação',
+            tooltip: l10n.reviewUndoLast,
             icon: const Icon(AppIcons.undo),
             onPressed: _history.isEmpty || _busy ? null : _undo,
           ),
@@ -156,10 +158,8 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
       ),
       body: queue.when(
         loading: () => const SkeletonList(),
-        error: (_, _) => const EmptyState(
-          icon: AppIcons.error,
-          message: 'Não foi possível carregar os cards.',
-        ),
+        error: (_, _) =>
+            EmptyState(icon: AppIcons.error, message: l10n.reviewLoadError),
         data: (queue) {
           // Esquece as cópias velhas assim que o banco devolve a nova.
           _justAnswered.removeWhere(
@@ -234,6 +234,7 @@ class _CardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final space = context.space;
     final revealed = preview != null;
@@ -244,13 +245,14 @@ class _CardView extends StatelessWidget {
         LinearProgressIndicator(
           value: reviewed / (reviewed + remaining),
           minHeight: 3,
-          semanticsLabel: 'Progresso da sessão',
+          semanticsLabel: l10n.reviewProgressSemantics,
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(space.page, space.md, space.page, 0),
           child: Text(
-            '$remaining ${remaining == 1 ? 'card restante' : 'cards restantes'}'
-            '${isNewCard(card) ? ' · novo' : ''}',
+            '$remaining '
+            '${remaining == 1 ? l10n.reviewRemainingSingular : l10n.reviewRemainingPlural}'
+            '${isNewCard(card) ? ' · ${l10n.reviewCardNew}' : ''}',
             style: theme.textTheme.labelLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -317,7 +319,7 @@ class _CardView extends StatelessWidget {
                   )
                 : FilledButton(
                     onPressed: onReveal,
-                    child: const Text('Mostrar resposta'),
+                    child: Text(l10n.reviewShowAnswer),
                   ),
           ),
         ),
@@ -339,6 +341,7 @@ class _GradeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     // As 4 cores semânticas das notas (Errei, Difícil, Bom, Fácil).
     final tones = context.palette.grade(grade.value);
     final (bg, fg) = (tones.tint, tones.onTint);
@@ -355,9 +358,13 @@ class _GradeButton extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(grade.label, maxLines: 1, overflow: TextOverflow.ellipsis),
           Text(
-            formatInterval(interval),
+            grade.labelFor(l10n),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            formatInterval(interval, lang: context.lang),
             style: context.text.labelSmall!.tabular.copyWith(
               color: fg.withValues(alpha: 0.8),
             ),
@@ -382,22 +389,23 @@ class _Done extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final soon = nextSoon;
     if (soon != null) {
       final minutes = (soon.difference(now).inSeconds / 60).ceil();
       return EmptyState(
         icon: AppIcons.breakTime,
-        message:
-            'Próximo card em ${minutes <= 1 ? '1 min' : '$minutes min'}.\n'
-            'Ele aparece aqui sozinho.',
+        message: l10n.reviewNextCardSoon(minutes <= 1 ? 1 : minutes),
       );
     }
     return EmptyState(
       icon: AppIcons.celebrate,
       message: reviewed == 0
-          ? 'Nada para revisar agora.'
-          : 'Tudo revisado por agora! '
-                '$reviewed ${reviewed == 1 ? 'card' : 'cards'} nesta sessão.',
+          ? l10n.reviewNothingDueDot
+          : l10n.reviewAllDone(
+              reviewed,
+              reviewed == 1 ? l10n.unitCard : l10n.unitCards,
+            ),
     );
   }
 }

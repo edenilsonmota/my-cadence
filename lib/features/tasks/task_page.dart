@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
@@ -32,22 +33,20 @@ class TaskPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final task = ref.watch(taskProvider(taskId));
     return task.when(
       loading: () => Scaffold(appBar: AppBar(), body: const SkeletonPage()),
       error: (_, _) => Scaffold(
         appBar: AppBar(),
-        body: const EmptyState(
-          icon: AppIcons.error,
-          message: 'Não foi possível carregar a tarefa.',
-        ),
+        body: EmptyState(icon: AppIcons.error, message: l10n.taskLoadOneError),
       ),
       data: (task) => task == null
           ? Scaffold(
               appBar: AppBar(),
-              body: const EmptyState(
+              body: EmptyState(
                 icon: AppIcons.searchEmpty,
-                message: 'Tarefa não encontrada.',
+                message: l10n.taskNotFound,
               ),
             )
           : _TaskHub(task: task),
@@ -96,6 +95,8 @@ class _TaskHub extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lang = context.lang;
     final theme = Theme.of(context);
     final space = context.space;
     final resolver = ref.watch(appearanceResolverProvider);
@@ -108,20 +109,20 @@ class _TaskHub extends ConsumerWidget {
     final repo = ref.read(tasksRepositoryProvider);
 
     String when(DateTime d) => task.hasTime
-        ? '${formatDate(d, today)}, ${formatTime(d)}'
-        : formatDate(d, today);
+        ? '${formatDate(d, today, lang: lang)}, ${formatTime(d)}'
+        : formatDate(d, today, lang: lang);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(parent == null ? 'Tarefa' : 'Subtarefa'),
+        title: Text(parent == null ? l10n.taskSingular : l10n.subtaskSingular),
         actions: [
           IconButton(
-            tooltip: 'Editar',
+            tooltip: l10n.actionEdit,
             icon: const Icon(AppIcons.edit),
             onPressed: () => context.push(Routes.editTask(task.id)),
           ),
           IconButton(
-            tooltip: 'Excluir',
+            tooltip: l10n.actionDelete,
             icon: const Icon(AppIcons.delete),
             onPressed: () => _delete(context, ref),
           ),
@@ -137,7 +138,7 @@ class _TaskHub extends ConsumerWidget {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   icon: const Icon(AppIcons.subtask),
-                  label: Text('Subtarefa de ${parent.title}'),
+                  label: Text(l10n.subtaskOf(parent.title)),
                   onPressed: () => context.push(Routes.task(parent.id)),
                 ),
               ),
@@ -147,7 +148,7 @@ class _TaskHub extends ConsumerWidget {
             child: Row(
               children: [
                 Tooltip(
-                  message: 'Ícone e cor',
+                  message: l10n.fieldIconAndColor,
                   child: InkWell(
                     borderRadius: context.radius.lgAll,
                     onTap: () => _pickAppearance(context, ref),
@@ -181,10 +182,10 @@ class _TaskHub extends ConsumerWidget {
               children: [
                 Chip(
                   avatar: Icon(task.kind.icon),
-                  label: Text(task.kind.label),
+                  label: Text(task.kind.labelFor(l10n)),
                 ),
                 PopupMenuButton<TaskStatus>(
-                  tooltip: 'Mudar status',
+                  tooltip: l10n.taskChangeStatus,
                   initialValue: task.status,
                   onSelected: (s) => s == TaskStatus.feita
                       ? completeAndAnnounce(
@@ -195,7 +196,7 @@ class _TaskHub extends ConsumerWidget {
                       : repo.setStatus(task.id, s),
                   itemBuilder: (_) => [
                     for (final s in TaskStatus.values)
-                      PopupMenuItem(value: s, child: Text(s.label)),
+                      PopupMenuItem(value: s, child: Text(s.labelFor(l10n))),
                   ],
                   // A setinha fica dentro do rótulo: o `deleteIcon` do Chip
                   // anunciaria "Excluir" para o leitor de tela.
@@ -203,7 +204,7 @@ class _TaskHub extends ConsumerWidget {
                     label: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(task.status.label),
+                        Text(task.status.labelFor(l10n)),
                         const ExcludeSemantics(
                           child: Icon(
                             AppIcons.dropdown,
@@ -224,7 +225,11 @@ class _TaskHub extends ConsumerWidget {
                         _ => null,
                       },
                     ),
-                    label: Text('Prioridade ${priorityLabels[task.priority]}'),
+                    label: Text(
+                      l10n.taskPriorityBadge(
+                        priorityLabel(task.priority, l10n),
+                      ),
+                    ),
                   ),
                 for (final tag in tags)
                   TagChip(name: tag.name, colorKey: tag.colorKey),
@@ -233,23 +238,25 @@ class _TaskHub extends ConsumerWidget {
           ),
           SizedBox(height: space.sm),
           if (task.startAt case final start?)
-            _Info(AppIcons.start, 'Início', when(start)),
+            _Info(AppIcons.start, l10n.fieldStart, when(start)),
           if (task.dueAt case final due?)
-            _Info(AppIcons.date, 'Prazo', when(due)),
+            _Info(AppIcons.date, l10n.fieldDue, when(due)),
           if (task.recurrenceRule case final rule?)
             _Info(
               AppIcons.repeat,
-              'Repetição',
-              RecurrenceRule.parse(rule).describe(),
+              l10n.fieldRecurrence,
+              RecurrenceRule.parse(rule).describe(lang: lang),
             ),
           if (task.reminderMinutesBefore != null)
             _Info(
               task.reminderMode == ReminderMode.alarme
                   ? AppIcons.alarm
                   : AppIcons.notification,
-              task.reminderMode == ReminderMode.alarme ? 'Alarme' : 'Lembrete',
-              '${reminderOptions[task.reminderMinutesBefore] ?? '${task.reminderMinutesBefore} min antes'}'
-              '${task.reminderMode == ReminderMode.alarme ? ' · Alarme' : ''}',
+              task.reminderMode == ReminderMode.alarme
+                  ? l10n.fieldAlarm
+                  : l10n.fieldReminder,
+              '${reminderOptions.containsKey(task.reminderMinutesBefore) ? reminderOptionLabel(task.reminderMinutesBefore, l10n) : l10n.reminderMinutesBefore(task.reminderMinutesBefore!)}'
+              '${task.reminderMode == ReminderMode.alarme ? ' · ${l10n.reminderModeAlarm}' : ''}',
             ),
           if (task.notes case final notes?)
             Padding(
@@ -266,13 +273,13 @@ class _TaskHub extends ConsumerWidget {
             child: done
                 ? OutlinedButton.icon(
                     icon: const Icon(AppIcons.undo),
-                    label: const Text('Reabrir'),
+                    label: Text(l10n.actionReopen),
                     onPressed: () =>
                         toggleDone(ScaffoldMessenger.of(context), ref, task),
                   )
                 : FilledButton.icon(
                     icon: const Icon(AppIcons.check),
-                    label: const Text('Concluir'),
+                    label: Text(l10n.actionComplete),
                     onPressed: () =>
                         toggleDone(ScaffoldMessenger.of(context), ref, task),
                   ),
@@ -368,11 +375,12 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
         .where((t) => t.status == TaskStatus.feita)
         .length;
 
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionHeader(
-          'Subtarefas',
+          l10n.subtasksSection,
           detail: subtasks.isEmpty ? null : '$doneCount/${subtasks.length}',
         ),
         ReorderableListView(
@@ -391,9 +399,9 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
                     index: index,
                     child: Padding(
                       padding: EdgeInsets.all(context.space.sm),
-                      child: const Icon(
+                      child: Icon(
                         AppIcons.dragHandle,
-                        semanticLabel: 'Arrastar',
+                        semanticLabel: l10n.actionDrag,
                       ),
                     ),
                   ),
@@ -414,10 +422,10 @@ class _SubtasksState extends ConsumerState<_Subtasks> {
             textCapitalization: TextCapitalization.sentences,
             textInputAction: TextInputAction.done,
             decoration: InputDecoration(
-              hintText: 'Adicionar subtarefa',
+              hintText: l10n.subtasksAddHint,
               prefixIcon: const Icon(AppIcons.add),
               suffixIcon: IconButton(
-                tooltip: 'Adicionar',
+                tooltip: l10n.actionAdd,
                 icon: const Icon(AppIcons.send),
                 onPressed: _add,
               ),
@@ -446,6 +454,8 @@ class _RoutineHistory extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lang = context.lang;
     final completions =
         ref.watch(completionsProvider(taskId)).value ?? const [];
     final theme = Theme.of(context);
@@ -456,15 +466,21 @@ class _RoutineHistory extends ConsumerWidget {
     );
     final daily = rule.frequency == Frequency.daily && rule.interval == 1;
     final streakText = streak == 0
-        ? 'Nenhuma sequência em andamento'
+        ? l10n.routineNoStreak
         : daily
-        ? '$streak ${streak == 1 ? 'dia seguido' : 'dias seguidos'}'
-        : '$streak ${streak == 1 ? 'vez seguida' : 'vezes seguidas'}';
+        ? l10n.routineStreakDays(
+            streak,
+            streak == 1 ? l10n.routineDaySingular : l10n.routineDayPlural,
+          )
+        : l10n.routineStreakDays(
+            streak,
+            streak == 1 ? l10n.routineTimeSingular : l10n.routineTimePlural,
+          );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionHeader('Histórico'),
+        SectionHeader(l10n.routineHistory),
         ListTile(
           leading: Icon(
             AppIcons.streak,
@@ -473,9 +489,13 @@ class _RoutineHistory extends ConsumerWidget {
           title: Text(streakText),
           subtitle: Text(
             completions.isEmpty
-                ? 'Ainda não concluída'
-                : '${completions.length} '
-                      '${completions.length == 1 ? 'conclusão' : 'conclusões'} no total',
+                ? l10n.routineNotCompletedYet
+                : l10n.routineTotalCompletions(
+                    completions.length,
+                    completions.length == 1
+                        ? l10n.unitCompletion
+                        : l10n.unitCompletions,
+                  ),
           ),
         ),
         if (completions.isNotEmpty)
@@ -488,7 +508,7 @@ class _RoutineHistory extends ConsumerWidget {
                 for (final c in completions.take(_shown))
                   Chip(
                     avatar: const Icon(AppIcons.check, size: 16),
-                    label: Text(formatDate(c.occurrence, today)),
+                    label: Text(formatDate(c.occurrence, today, lang: lang)),
                   ),
               ],
             ),

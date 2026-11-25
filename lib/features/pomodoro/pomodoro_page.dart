@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
+import '../../app/l10n/l10n.dart';
 import '../../app/nav_tabs.dart';
 import '../../app/shell.dart';
 import '../../app/theme/app_theme.dart';
@@ -63,7 +64,7 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
     final picked = await pickTask(
       context,
       current: current,
-      title: 'Tarefa do foco',
+      title: context.l10n.pomodoroPickTask,
     );
     if (picked != null) onPicked(picked.id);
   }
@@ -116,8 +117,9 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
         ? colors.surfaceContainerHighest
         : context.palette.byName(resolver.colorKeyOf(task)).tint;
 
+    final l10n = context.l10n;
     return TabScaffold(
-      title: 'Pomodoro',
+      title: l10n.navPomodoro,
       body: ListView(
         padding: EdgeInsets.fromLTRB(
           space.page,
@@ -144,7 +146,7 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
               showSelectedIcon: false,
               segments: [
                 for (final k in PomodoroKind.values)
-                  ButtonSegment(value: k, label: Text(k.label)),
+                  ButtonSegment(value: k, label: Text(k.labelFor(l10n))),
               ],
               selected: {kind},
               onSelectionChanged: (s) => setState(() => _kind = s.single),
@@ -175,7 +177,7 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
                     strokeCap: StrokeCap.round,
                     color: ringColor,
                     backgroundColor: ringTrack,
-                    semanticsLabel: 'Progresso do ciclo',
+                    semanticsLabel: l10n.pomodoroCycleProgress,
                   ),
                   Center(
                     child: Column(
@@ -185,8 +187,8 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
                         SizedBox(height: space.xs),
                         Text(
                           state.isPaused
-                              ? '${kind.label} · pausado'
-                              : kind.label,
+                              ? '${kind.labelFor(l10n)} · ${l10n.pomodoroPausedSuffix}'
+                              : kind.labelFor(l10n),
                           style: context.text.titleMedium!.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -232,10 +234,11 @@ class _Controls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (!running) {
       return FilledButton.icon(
         icon: const Icon(AppIcons.play),
-        label: const Text('Iniciar'),
+        label: Text(l10n.pomodoroStart),
         onPressed: onStart,
       );
     }
@@ -245,12 +248,12 @@ class _Controls extends StatelessWidget {
           child: paused
               ? FilledButton.icon(
                   icon: const Icon(AppIcons.play),
-                  label: const Text('Retomar'),
+                  label: Text(l10n.pomodoroResume),
                   onPressed: onResume,
                 )
               : FilledButton.tonalIcon(
                   icon: const Icon(AppIcons.pause),
-                  label: const Text('Pausar'),
+                  label: Text(l10n.pomodoroPause),
                   onPressed: onPause,
                 ),
         ),
@@ -258,7 +261,7 @@ class _Controls extends StatelessWidget {
         Expanded(
           child: TextButton.icon(
             icon: const Icon(AppIcons.stop),
-            label: const Text('Parar'),
+            label: Text(l10n.pomodoroStop),
             onPressed: onStop,
           ),
         ),
@@ -276,6 +279,7 @@ class _TaskRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final task = this.task;
     final resolver = ref.watch(appearanceResolverProvider);
     return ListTile(
@@ -290,13 +294,13 @@ class _TaskRow extends ConsumerWidget {
               ),
             ),
       title: Text(
-        task?.title ?? 'Sem tarefa',
+        task?.title ?? l10n.pomodoroNoTask,
         style: context.text.titleMedium,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: const Text('Tarefa vinculada'),
-      trailing: TextButton(onPressed: onChange, child: const Text('Trocar')),
+      subtitle: Text(l10n.pomodoroLinkedTask),
+      trailing: TextButton(onPressed: onChange, child: Text(l10n.actionChange)),
     );
   }
 }
@@ -318,6 +322,7 @@ class _FinishedCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final focus = finished.kind == PomodoroKind.foco;
     final task = finished.taskId == null
         ? null
@@ -325,6 +330,7 @@ class _FinishedCard extends ConsumerWidget {
     final canComplete =
         focus && task != null && task.status != TaskStatus.feita;
     final colors = Theme.of(context).colorScheme;
+    final nextLabel = next.labelFor(l10n);
 
     return Card.filled(
       color: colors.secondaryContainer,
@@ -335,14 +341,16 @@ class _FinishedCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              focus ? 'Foco concluído!' : '${finished.kind.label} concluída',
+              focus
+                  ? l10n.pomodoroFocusDone
+                  : l10n.pomodoroBreakDone(finished.kind.labelFor(l10n)),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             SizedBox(height: context.space.xs),
             Text(
               nextAlreadyRunning
-                  ? '${next.label} em andamento'
-                  : 'Próximo: ${next.label}',
+                  ? l10n.pomodoroNextRunning(nextLabel)
+                  : l10n.pomodoroNextLabel(nextLabel),
             ),
             SizedBox(height: context.space.md),
             Wrap(
@@ -352,7 +360,9 @@ class _FinishedCard extends ConsumerWidget {
                 if (!nextAlreadyRunning)
                   FilledButton(
                     onPressed: onStartNext,
-                    child: Text('Iniciar ${next.label.toLowerCase()}'),
+                    child: Text(
+                      l10n.pomodoroStartNext(nextLabel.toLowerCase()),
+                    ),
                   ),
                 if (canComplete)
                   OutlinedButton(
@@ -361,11 +371,11 @@ class _FinishedCard extends ConsumerWidget {
                           .read(tasksRepositoryProvider)
                           .completeTask(task.id);
                     },
-                    child: Text('Concluir "${task.title}"'),
+                    child: Text(l10n.pomodoroCompleteTask(task.title)),
                   ),
                 TextButton(
                   onPressed: onDismiss,
-                  child: const Text('Dispensar'),
+                  child: Text(l10n.actionDismiss),
                 ),
               ],
             ),

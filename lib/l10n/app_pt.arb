@@ -1,0 +1,605 @@
+{
+  "@@locale": "pt",
+  "appTitle": "My Cadence",
+
+  "navToday": "Hoje",
+  "navTasks": "Tarefas",
+  "navAgenda": "Agenda",
+  "navReview": "Revisar",
+  "navBooks": "Books",
+  "navPomodoro": "Pomodoro",
+  "navStats": "Métricas",
+  "navSettings": "Ajustes",
+  "navComponents": "Componentes",
+
+  "actionSave": "Salvar",
+  "actionCancel": "Cancelar",
+  "actionCreate": "Criar",
+  "actionEdit": "Editar",
+  "actionDelete": "Excluir",
+  "actionUndo": "Desfazer",
+  "actionClose": "Fechar",
+  "actionSearch": "Buscar",
+  "actionComplete": "Concluir",
+  "actionReopen": "Reabrir",
+  "actionDismiss": "Dispensar",
+  "actionChange": "Trocar",
+  "actionDownload": "Baixar",
+  "actionMoreOptions": "Mais opções",
+  "actionDecrease": "Diminuir",
+  "actionIncrease": "Aumentar",
+
+  "settingsAppearance": "Aparência",
+  "settingsTheme": "Tema",
+  "themeAutomatic": "Automático",
+  "themeLight": "Claro",
+  "themeDark": "Escuro",
+  "settingsColor": "Cor",
+  "accentBlue": "Azul",
+  "accentYellow": "Amarelo",
+  "accentPink": "Rosa",
+  "accentViolet": "Violeta",
+  "accentOrange": "Laranja",
+  "accentGreen": "Verde",
+  "settingsLightsOut": "Lights out (alto contraste)",
+  "settingsLightsOutHintDark": "Preto puro (OLED) e texto em alto contraste no modo escuro",
+  "settingsLightsOutHintLight": "Usado no modo escuro ou automático (preto puro e alto contraste)",
+  "settingsLanguage": "Idioma",
+  "languageAutomatic": "Automático (celular)",
+  "settingsNavBar": "Barra de navegação",
+
+  "navBarPreview": "Prévia",
+  "navBarPreviewDetail": "{count} de {max} abas",
+  "@navBarPreviewDetail": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  "navBarHelper": "A primeira aba abre com o app. As telas fora da barra continuam no menu lateral.",
+  "navBarInBar": "Na barra",
+  "navBarDragToOrder": "Arraste para ordenar",
+  "navBarInDrawer": "No menu lateral",
+  "navBarInitialTab": "Aba inicial",
+  "navBarInitialTabMin": "Aba inicial · mínimo de {min} abas",
+  "@navBarInitialTabMin": {
+    "placeholders": {
+      "min": {"type": "int"}
+    }
+  },
+  "navBarMinLimit": "Mínimo de {min} abas na barra",
+  "@navBarMinLimit": {
+    "placeholders": {
+      "min": {"type": "int"}
+    }
+  },
+  "navBarMaxLimit": "Máximo de {max} abas atingido",
+  "@navBarMaxLimit": {
+    "placeholders": {
+      "max": {"type": "int"}
+    }
+  },
+  "navBarDrawerHint": "Acessível pelo menu lateral",
+  "navBarRestoreDefault": "Restaurar padrão",
+  "navBarDragSemantics": "Arrastar {label}",
+  "@navBarDragSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+
+  "settingsFlashcards": "Flashcards",
+  "settingsNewCardsPerDay": "Cards novos por dia",
+  "settingsDesiredRetention": "Retenção desejada",
+  "settingsDesiredRetentionHint": "{percent}%: mais alta = revisões mais frequentes",
+  "@settingsDesiredRetentionHint": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "settingsDesiredRetentionSemantics": "Retenção desejada em porcentagem",
+  "settingsPomodoro": "Pomodoro",
+  "settingsFocusMinutes": "Foco (min)",
+  "settingsShortBreakMinutes": "Pausa curta (min)",
+  "settingsLongBreakMinutes": "Pausa longa (min)",
+  "settingsLongBreakEvery": "Pausa longa a cada",
+  "settingsLongBreakEveryDetail": "{count} focos",
+  "@settingsLongBreakEveryDetail": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "settingsLongBreakEverySemantics": "Focos até a pausa longa",
+  "settingsAutoStartBreaks": "Iniciar pausas sozinho",
+  "settingsAutoStartBreaksHint": "Ao fim do foco, a pausa começa automaticamente",
+  "settingsSoundOnEnd": "Som ao terminar",
+  "settingsVibrateOnEnd": "Vibrar ao terminar",
+  "settingsKeepScreenOn": "Manter a tela ligada",
+  "settingsKeepScreenOnHint": "Enquanto a tela do pomodoro estiver aberta",
+  "settingsTasks": "Tarefas",
+  "settingsAllDayReminder": "Lembrete de dia inteiro",
+  "settingsAllDayReminderHint": "Tarefas sem hora lembram às {hour}h (menos a antecedência escolhida)",
+  "@settingsAllDayReminderHint": {
+    "placeholders": {
+      "hour": {"type": "int"}
+    }
+  },
+  "settingsAllDayReminderSemantics": "Hora do lembrete de dia inteiro",
+  "settingsBackup": "Backup",
+  "settingsExportJson": "Exportar JSON",
+  "settingsExportJsonHint": "Todos os dados num arquivo",
+  "settingsImportJson": "Importar JSON",
+  "settingsImportJsonHint": "Mesclar ou substituir pelos dados de um backup",
+  "settingsUpdates": "Atualizações",
+  "updateVersion": "Versão {version}",
+  "@updateVersion": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "updateIdle": "Toque para procurar uma versão nova",
+  "updateChecking": "Verificando…",
+  "updateUpToDate": "Você está na versão mais recente",
+  "updateAvailable": "Versão {version} disponível",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "updateError": "Não foi possível verificar. Tente de novo.",
+
+  "todayEmpty": "Nada para hoje ainda.",
+  "todayOverdue": "Atrasadas",
+  "todayUndated": "Sem data",
+  "tasksLoadError": "Não foi possível carregar as tarefas.",
+  "tasksNew": "Nova tarefa",
+  "tasksCreate": "Criar tarefa",
+  "tasksNewSubtask": "Nova subtarefa",
+  "tasksEdit": "Editar tarefa",
+  "tasksAdd": "Adicionar tarefa",
+  "tasksSearchHint": "Buscar pelo título",
+  "tasksCloseSearch": "Fechar busca",
+  "tasksFilterAndSort": "Filtrar e ordenar",
+  "tasksEmpty": "Nenhuma tarefa ainda.",
+  "tasksNoMatches": "Nenhuma tarefa com esses filtros.",
+  "tasksClearFilters": "Limpar filtros",
+  "tasksCreated": "Criada: {title}",
+  "@tasksCreated": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+
+  "taskKindSimple": "Simples",
+  "taskKindStudy": "Estudo",
+  "taskKindRoutine": "Rotina",
+  "taskKindEvent": "Evento",
+  "taskStatusTodo": "A fazer",
+  "taskStatusDoing": "Fazendo",
+  "taskStatusDone": "Feita",
+  "priorityNone": "Nenhuma",
+  "priorityLow": "Baixa",
+  "priorityMedium": "Média",
+  "priorityHigh": "Alta",
+  "reminderModeNotification": "Notificação",
+  "reminderModeAlarm": "Alarme",
+  "reminderModeNotificationHint": "Aviso discreto na barra de notificações.",
+  "reminderModeAlarmHint": "Toca como despertador (mesmo no silencioso) até você interagir.",
+  "reminderFullScreenBanner": "Para abrir na tela bloqueada, permita notificações em tela cheia nas configurações do Android.",
+  "reminderAllowFullScreen": "Permitir tela cheia",
+
+  "fieldTitle": "Título",
+  "fieldNotes": "Notas",
+  "fieldType": "Tipo",
+  "fieldPriority": "Prioridade",
+  "fieldDates": "Datas",
+  "fieldAllDay": "Dia inteiro",
+  "fieldStart": "Início",
+  "fieldDue": "Prazo",
+  "fieldNoDate": "Sem data",
+  "fieldDate": "Data",
+  "fieldRepeat": "Repetir",
+  "repeatNo": "Não",
+  "repeatDaily": "Diária",
+  "repeatWeekly": "Semanal",
+  "repeatEvery": "A cada",
+  "repeatUntil": "Até",
+  "repeatNoEnd": "Sem fim",
+  "fieldAlarm": "Alarme",
+  "fieldReminder": "Lembrete",
+  "alarmNeedDue": "Defina um prazo para usar alarme.",
+  "reminderNone": "Nenhum",
+  "reminderAtTime": "Na hora",
+  "reminder5Min": "5 min antes",
+  "reminder10Min": "10 min antes",
+  "reminder15Min": "15 min antes",
+  "reminder30Min": "30 min antes",
+  "reminder1Hour": "1 hora antes",
+  "reminder1Day": "1 dia antes",
+  "fieldEstimatedPomodoros": "Pomodoros estimados",
+  "fieldTags": "Tags",
+  "tagNew": "Nova tag",
+  "fieldIconAndColor": "Ícone e cor",
+  "appearanceCustom": "Personalizado",
+  "appearanceDefault": "Padrão",
+  "appearanceTapToChange": "Toque para trocar",
+  "appearanceInherited": "Herda da tarefa mãe, da tag ou do tipo",
+  "quickDateToday": "Hoje",
+  "quickDateTomorrow": "Amanhã",
+  "quickDateNextWeek": "Daqui a uma semana",
+
+  "pomodoroFocus": "Foco",
+  "pomodoroShortBreak": "Pausa curta",
+  "pomodoroLongBreak": "Pausa longa",
+  "pomodoroStart": "Iniciar",
+  "pomodoroPause": "Pausar",
+  "pomodoroResume": "Retomar",
+  "pomodoroStop": "Parar",
+  "pomodoroNoTask": "Sem tarefa",
+  "pomodoroLinkedTask": "Tarefa vinculada",
+  "pomodoroPickTask": "Tarefa do foco",
+  "pomodoroPausedSuffix": "pausado",
+  "pomodoroFocusDone": "Foco concluído!",
+  "pomodoroFocusDoneShort": "Foco concluído",
+  "pomodoroBreakDone": "{kind} concluída",
+  "@pomodoroBreakDone": {
+    "placeholders": {
+      "kind": {"type": "String"}
+    }
+  },
+  "pomodoroNextRunning": "{kind} em andamento",
+  "@pomodoroNextRunning": {
+    "placeholders": {
+      "kind": {"type": "String"}
+    }
+  },
+  "pomodoroNextLabel": "Próximo: {kind}",
+  "@pomodoroNextLabel": {
+    "placeholders": {
+      "kind": {"type": "String"}
+    }
+  },
+  "pomodoroStartNext": "Iniciar {kind}",
+  "@pomodoroStartNext": {
+    "placeholders": {
+      "kind": {"type": "String"}
+    }
+  },
+  "pomodoroCompleteTask": "Concluir \"{title}\"",
+  "@pomodoroCompleteTask": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "pomodoroCycleProgress": "Progresso do ciclo",
+
+  "agendaGoToday": "Ir para hoje",
+  "agendaGoToDate": "Ir para a data",
+  "agendaView": "Visualização",
+  "agendaDay": "Dia",
+  "agendaWeek": "Semana",
+  "agenda3Days": "3 dias",
+  "agendaMonth": "Mês",
+  "agendaCompletedPomodoros": "Pomodoros realizados",
+
+  "reviewNewDeck": "Novo deck",
+  "reviewImportCsv": "Importar CSV",
+  "reviewNewCard": "Novo card",
+  "reviewLoadError": "Não foi possível carregar os cards.",
+  "reviewEmpty": "Nenhum card criado.\nCrie um no + ou importe um CSV.",
+  "reviewNow": "Revisar agora",
+  "reviewAllCards": "Todos os cards",
+  "reviewDecks": "Decks",
+  "reviewNameLabel": "Nome",
+
+  "booksImportMarkdown": "Importar Markdown",
+  "booksNew": "Novo book",
+  "booksLoadError": "Não foi possível carregar os books.",
+  "booksEmpty": "Nenhum book criado.\nCrie um no + ou importe arquivos .md.",
+
+  "statsFocusTime": "Tempo de foco",
+  "statsThisWeek": "Esta semana",
+  "statsThisMonth": "Este mês",
+  "statsDays": "Dias",
+  "statsWeeks": "Semanas",
+  "statsMonths": "Meses",
+  "statsNoFocusInPeriod": "Nenhum foco registrado nestes períodos.",
+  "statsStartFocus": "Iniciar foco",
+  "statsFocusBy": "Foco por",
+  "statsGroupTask": "Tarefa",
+  "statsGroupTag": "Tag",
+  "statsGroupType": "Tipo",
+  "statsNoFocusGroup": "Nenhum foco no período.",
+  "statsEstimatedVsDone": "Pomodoros: estimado × realizado",
+  "statsNoEstimated": "Nenhuma tarefa com pomodoros estimados.",
+  "statsReviews": "Revisões",
+  "statsAccuracy30Days": "Acerto (30 dias)",
+  "statsStreakDay": "Dia seguido",
+  "statsStreakDays": "Dias seguidos",
+  "statsReviewsPerDay": "Revisões por dia",
+  "statsNoReviews14Days": "Nenhuma revisão nos últimos 14 dias.",
+  "statsDueNext7Days": "Cards a vencer nos próximos 7 dias",
+  "statsNoDueThisWeek": "Nenhum card a vencer nesta semana.",
+  "statsRoutinesDone": "Rotinas concluídas",
+  "statsLess": "menos",
+  "statsMore": "mais",
+
+  "accountTooltip": "Conta e sincronização",
+  "accountSyncing": "Sincronizando",
+  "accountOffline": "Sem conexão: sincroniza depois",
+  "accountPending": "Alterações a sincronizar",
+  "accountError": "Erro na sincronização",
+  "accountSynced": "Sincronizado",
+
+  "actionClear": "Limpar",
+  "actionBack": "Voltar",
+  "actionAdd": "Adicionar",
+  "actionRename": "Renomear",
+  "actionDrag": "Arrastar",
+
+  "tasksEmptyCreated": "Nenhuma tarefa criada.",
+  "tasksExpandSubtasks": "Mostrar subtarefas",
+  "tasksCollapseSubtasks": "Recolher subtarefas",
+  "tasksSortBy": "Ordenar por",
+  "tasksSortManual": "Manual",
+  "tasksSortDue": "Prazo",
+  "tasksSortPriority": "Prioridade",
+  "tasksSortNewest": "Mais recentes",
+  "tasksSortTitle": "Título",
+  "fieldStatus": "Status",
+  "taskTagSingle": "Tag",
+  "taskTagCount": "{count} tags",
+  "@taskTagCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "taskLoadOneError": "Não foi possível carregar a tarefa.",
+  "taskNotFound": "Tarefa não encontrada.",
+  "taskSingular": "Tarefa",
+  "subtaskSingular": "Subtarefa",
+  "subtaskOf": "Subtarefa de {title}",
+  "@subtaskOf": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "taskChangeStatus": "Mudar status",
+  "taskPriorityBadge": "Prioridade {label}",
+  "@taskPriorityBadge": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "fieldRecurrence": "Repetição",
+  "subtasksSection": "Subtarefas",
+  "subtasksAddHint": "Adicionar subtarefa",
+  "routineHistory": "Histórico",
+  "routineNoStreak": "Nenhuma sequência em andamento",
+  "routineNotCompletedYet": "Ainda não concluída",
+  "routineTotalCompletions": "{count} {unit} no total",
+  "@routineTotalCompletions": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "unit": {"type": "String"}
+    }
+  },
+  "routineStreakDays": "{count} {unit}",
+  "@routineStreakDays": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "unit": {"type": "String"}
+    }
+  },
+  "routineDaySingular": "dia seguido",
+  "routineDayPlural": "dias seguidos",
+  "routineTimeSingular": "vez seguida",
+  "routineTimePlural": "vezes seguidas",
+  "routineEnded": "Rotina encerrada: era a última ocorrência.",
+  "routineNext": "Rotina concluída. Próxima: {when}.",
+  "@routineNext": {
+    "placeholders": {
+      "when": {"type": "String"}
+    }
+  },
+  "taskDeleted": "\"{title}\" excluída",
+  "@taskDeleted": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "taskDeletedWithSubtasks": "\"{title}\" e {count} subtarefa(s) excluídas",
+  "@taskDeletedWithSubtasks": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "repeatIntervalSemantics": "Intervalo da repetição",
+  "unitDay": "dia",
+  "unitDays": "dias",
+  "unitWeek": "semana",
+  "unitWeeks": "semanas",
+  "fieldClearLabel": "Limpar {label}",
+  "@fieldClearLabel": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "reminderMinutesBefore": "{minutes} min antes",
+  "@reminderMinutesBefore": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+
+  "hubAdd": "ADICIONAR",
+  "hubFlashcard": "Flashcard",
+  "hubPage": "Página",
+  "hubPages": "Páginas",
+  "hubNewPage": "Nova página",
+  "hubNoCardsYet": "Nenhum card ainda",
+  "hubReviewTask": "Revisar desta tarefa",
+  "hubCard": "Card",
+  "hubFocusTimeValue": "Tempo de foco: {duration}",
+  "@hubFocusTimeValue": {
+    "placeholders": {
+      "duration": {"type": "String"}
+    }
+  },
+  "hubNoSessionsYet": "Nenhuma sessão ainda",
+  "hubFocusSessions": "{count} {unit} de foco (inclui subtarefas)",
+  "@hubFocusSessions": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "unit": {"type": "String"}
+    }
+  },
+  "unitSession": "sessão",
+  "unitSessions": "sessões",
+  "hubNoPagesYet": "Nenhuma página ainda",
+  "hubUnlink": "Desvincular",
+  "hubOpenNotebook": "Abrir caderno",
+  "hubLinkExistingPage": "Vincular página existente",
+  "hubLinkPage": "Vincular página",
+  "hubNoBookPages": "Nenhuma página em books ainda.",
+  "hubNoBookPagesHint": "Crie páginas na aba Books para vinculá-las.",
+  "hubEstimatedVsDone": "Estimado × realizado: {done} de {estimated}",
+  "@hubEstimatedVsDone": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "estimated": {"type": "int"}
+    }
+  },
+
+  "agendaNextTaskIn": "Próxima tarefa em {wait}",
+  "@agendaNextTaskIn": {
+    "placeholders": {
+      "wait": {"type": "String"}
+    }
+  },
+  "agendaSearchTask": "Buscar tarefa",
+  "agendaNoDatedTasks": "Nenhuma tarefa com data encontrada.",
+  "agendaAllDayShort": "dia\ninteiro",
+  "agendaExpandAllDay": "Expandir dia inteiro",
+  "agendaCollapseAllDay": "Recolher dia inteiro",
+  "agendaRoutineRescheduled": "Rotina reagendada (todas as ocorrências).",
+
+  "reviewEmptyAction": "Criar deck",
+  "reviewEmptyAlt": "Nenhum card ainda.\nCrie um card no + ou importe um CSV.",
+  "reviewNothingDue": "Nada para revisar agora",
+  "reviewDueNow": "{count} para revisar agora",
+  "@reviewDueNow": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "reviewNextIn": "Próximo card em {minutes} min.",
+  "@reviewNextIn": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "reviewAll": "Revisar tudo",
+  "reviewDeckDueSuffix": "{count} para revisar",
+  "@reviewDeckDueSuffix": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "reviewSessionTitle": "Revisão",
+  "reviewUndoLast": "Desfazer última avaliação",
+  "reviewProgressSemantics": "Progresso da sessão",
+  "reviewShowAnswer": "Mostrar resposta",
+  "reviewCardNew": "novo",
+  "reviewGradeAgain": "Errei",
+  "reviewGradeHard": "Difícil",
+  "reviewGradeGood": "Bom",
+  "reviewGradeEasy": "Fácil",
+  "reviewNextCardSoon": "Próximo card em {minutes} min.\nEle aparece aqui sozinho.",
+  "@reviewNextCardSoon": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "reviewNothingDueDot": "Nada para revisar agora.",
+  "reviewAllDone": "Tudo revisado por agora! {count} {unit} nesta sessão.",
+  "@reviewAllDone": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "unit": {"type": "String"}
+    }
+  },
+  "unitCard": "card",
+  "unitCards": "cards",
+  "reviewRemainingSingular": "card restante",
+  "reviewRemainingPlural": "cards restantes",
+
+  "booksOptions": "Opções do book",
+  "booksExportZip": "Exportar (.zip)",
+  "booksDeleteTitle": "Excluir \"{title}\"?",
+  "@booksDeleteTitle": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "booksDeleteMessage": "Todas as páginas do book serão excluídas.",
+
+  "statsSameAs": "igual a {period}",
+  "@statsSameAs": {
+    "placeholders": {
+      "period": {"type": "String"}
+    }
+  },
+  "statsVs": "{delta} vs {period}",
+  "@statsVs": {
+    "placeholders": {
+      "delta": {"type": "String"},
+      "period": {"type": "String"}
+    }
+  },
+  "statsYesterday": "ontem",
+  "statsPrevious": "anterior",
+  "statsFocusHoursPer": "Horas de foco por {unit}",
+  "@statsFocusHoursPer": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "statsUnitDay": "dia",
+  "statsUnitWeek": "semana",
+  "statsUnitMonth": "mês",
+  "statsFocusChartSemantics": "Gráfico de horas de foco",
+  "statsDeletedTask": "Tarefa excluída",
+  "statsNoTag": "Sem tag",
+  "statsDeletedTag": "Tag excluída",
+  "statsOf": "{done} de {total}",
+  "@statsOf": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "statsReviewsChartSemantics": "Gráfico de revisões por dia",
+  "statsDueChartSemantics": "Gráfico de cards a vencer",
+  "statsTodayLower": "hoje",
+  "statsTodayWithOverdue": "Hoje (com atrasados)",
+  "statsUnitReview": "revisão",
+  "statsUnitReviews": "revisões",
+  "statsRoutineTotal": "{count} {unit} nas últimas {weeks} semanas",
+  "@statsRoutineTotal": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "unit": {"type": "String"},
+      "weeks": {"type": "int"}
+    }
+  },
+  "unitCompletion": "conclusão",
+  "unitCompletions": "conclusões",
+  "statsWeekOf": "Semana de {date}",
+  "@statsWeekOf": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  }
+}

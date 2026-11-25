@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/providers.dart';
 import '../features/pomodoro/pomodoro_controller.dart';
 import '../features/tasks/alarms.dart';
+import 'l10n/l10n.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_providers.dart';
@@ -46,6 +47,7 @@ class _CadenceAppState extends ConsumerState<CadenceApp> {
   @override
   Widget build(BuildContext context) {
     final themeSettings = ref.watch(themeSettingsProvider);
+    final appLocale = ref.watch(appLocaleProvider);
     return MaterialApp.router(
       title: 'My Cadence',
       debugShowCheckedModeBanner: false,
@@ -56,9 +58,10 @@ class _CadenceAppState extends ConsumerState<CadenceApp> {
         lightsOut: themeSettings.lightsOut,
       ),
       themeMode: themeSettings.mode.material,
-      locale: const Locale('pt', 'BR'),
-      supportedLocales: const [Locale('pt', 'BR')],
+      locale: appLocale.materialLocale,
+      supportedLocales: const [Locale('pt', 'BR'), Locale('en'), Locale('es')],
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         ...GlobalMaterialLocalizations.delegates,
         AppFlowyEditorLocalizations.delegate,
       ],

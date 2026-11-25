@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/l10n/l10n.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
@@ -179,16 +180,17 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final draft = _draft;
     final title = _editing
-        ? 'Editar tarefa'
+        ? l10n.tasksEdit
         : widget.parentId != null
-        ? 'Nova subtarefa'
-        : 'Nova tarefa';
+        ? l10n.tasksNewSubtask
+        : l10n.tasksNew;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Cancelar',
+          tooltip: l10n.actionCancel,
           icon: const Icon(AppIcons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -196,7 +198,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         actions: [
           TextButton(
             onPressed: draft == null || _saving ? null : _save,
-            child: const Text('Salvar'),
+            child: Text(l10n.actionSave),
           ),
         ],
       ),
@@ -205,6 +207,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
   }
 
   Widget _buildForm(BuildContext context, TaskDraft d) {
+    final l10n = context.l10n;
     final hasDate = d.dueDate != null || d.repeat != Repeat.nenhuma;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -213,7 +216,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           controller: _title,
           autofocus: !_editing,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(labelText: 'Título'),
+          decoration: InputDecoration(labelText: l10n.fieldTitle),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -221,37 +224,37 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           minLines: 2,
           maxLines: 6,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(labelText: 'Notas'),
+          decoration: InputDecoration(labelText: l10n.fieldNotes),
         ),
-        const _Label('Tipo'),
+        _Label(l10n.fieldType),
         SegmentedButton<TaskKind>(
           showSelectedIcon: false,
           segments: [
             for (final kind in TaskKind.values)
-              ButtonSegment(value: kind, label: Text(kind.label)),
+              ButtonSegment(value: kind, label: Text(kind.labelFor(l10n))),
           ],
           selected: {d.kind},
           onSelectionChanged: (s) => _edit((d) => d.kind = s.single),
         ),
-        const _Label('Prioridade'),
+        _Label(l10n.fieldPriority),
         SegmentedButton<int>(
           showSelectedIcon: false,
           segments: [
             for (var p = 0; p < priorityLabels.length; p++)
-              ButtonSegment(value: p, label: Text(priorityLabels[p])),
+              ButtonSegment(value: p, label: Text(priorityLabel(p, l10n))),
           ],
           selected: {d.priority},
           onSelectionChanged: (s) => _edit((d) => d.priority = s.single),
         ),
-        const _Label('Datas'),
+        _Label(l10n.fieldDates),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: const Text('Dia inteiro'),
+          title: Text(l10n.fieldAllDay),
           value: d.allDay,
           onChanged: (v) => _edit((d) => d.allDay = v),
         ),
         _DateTimeRow(
-          label: 'Início',
+          label: l10n.fieldStart,
           date: d.startDate,
           time: d.startTime,
           allDay: d.allDay,
@@ -259,35 +262,41 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           onTime: (v) => _edit((d) => d.startTime = v),
         ),
         _DateTimeRow(
-          label: 'Prazo',
+          label: l10n.fieldDue,
           date: d.dueDate,
           time: d.dueTime,
           allDay: d.allDay,
-          placeholder: d.repeat != Repeat.nenhuma ? 'Hoje' : null,
+          placeholder: d.repeat != Repeat.nenhuma ? l10n.quickDateToday : null,
           onDate: (v) => _edit((d) => d.dueDate = v),
           onTime: (v) => _edit((d) => d.dueTime = v),
         ),
-        const _Label('Repetir'),
+        _Label(l10n.fieldRepeat),
         SegmentedButton<Repeat>(
           showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(value: Repeat.nenhuma, label: Text('Não')),
-            ButtonSegment(value: Repeat.diaria, label: Text('Diária')),
-            ButtonSegment(value: Repeat.semanal, label: Text('Semanal')),
+          segments: [
+            ButtonSegment(value: Repeat.nenhuma, label: Text(l10n.repeatNo)),
+            ButtonSegment(value: Repeat.diaria, label: Text(l10n.repeatDaily)),
+            ButtonSegment(
+              value: Repeat.semanal,
+              label: Text(l10n.repeatWeekly),
+            ),
           ],
           selected: {d.repeat},
           onSelectionChanged: (s) => _edit((d) => d.repeat = s.single),
         ),
         if (d.repeat != Repeat.nenhuma) ..._repeatFields(context, d),
-        const _Label('Alarme'),
+        _Label(l10n.fieldAlarm),
         DropdownButtonFormField<int?>(
           initialValue: d.reminderMinutesBefore,
           decoration: InputDecoration(
-            helperText: hasDate ? null : 'Defina um prazo para usar alarme.',
+            helperText: hasDate ? null : l10n.alarmNeedDue,
           ),
           items: [
-            for (final MapEntry(:key, :value) in reminderOptions.entries)
-              DropdownMenuItem(value: key, child: Text(value)),
+            for (final key in reminderOptions.keys)
+              DropdownMenuItem(
+                value: key,
+                child: Text(reminderOptionLabel(key, l10n)),
+              ),
           ],
           onChanged: hasDate
               ? (v) => _edit((d) => d.reminderMinutesBefore = v)
@@ -301,12 +310,12 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
               ButtonSegment(
                 value: ReminderMode.notificacao,
                 icon: const Icon(AppIcons.notification),
-                label: Text(ReminderMode.notificacao.label),
+                label: Text(ReminderMode.notificacao.labelFor(l10n)),
               ),
               ButtonSegment(
                 value: ReminderMode.alarme,
                 icon: const Icon(AppIcons.alarm),
-                label: Text(ReminderMode.alarme.label),
+                label: Text(ReminderMode.alarme.labelFor(l10n)),
               ),
             ],
             selected: {d.reminderMode},
@@ -319,9 +328,8 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           SizedBox(height: context.space.xs),
           Text(
             d.reminderMode == ReminderMode.alarme
-                ? 'Toca como despertador (mesmo no silencioso) até você '
-                      'interagir.'
-                : 'Aviso discreto na barra de notificações.',
+                ? l10n.reminderModeAlarmHint
+                : l10n.reminderModeNotificationHint,
             style: context.text.bodySmall!.copyWith(
               color: context.colors.onSurfaceVariant,
             ),
@@ -332,20 +340,20 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
             _FullScreenPermissionBanner(onAllow: _requestFullScreenIntent),
           ],
         ],
-        const _Label('Pomodoros estimados'),
+        _Label(l10n.fieldEstimatedPomodoros),
         NumberStepper(
           value: d.estimatedPomodoros ?? 0,
           min: 0,
           onChanged: (v) =>
               _edit((d) => d.estimatedPomodoros = v == 0 ? null : v),
-          semanticLabel: 'Pomodoros estimados',
+          semanticLabel: l10n.fieldEstimatedPomodoros,
         ),
-        const _Label('Tags'),
+        _Label(l10n.fieldTags),
         _TagPicker(
           selected: d.tagIds,
           onChanged: (ids) => _edit((d) => d.tagIds = ids),
         ),
-        const _Label('Ícone e cor'),
+        _Label(l10n.fieldIconAndColor),
         _AppearanceField(
           draft: d,
           parentId: _original?.parentId ?? widget.parentId,
@@ -359,24 +367,27 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
   }
 
   List<Widget> _repeatFields(BuildContext context, TaskDraft d) {
+    final l10n = context.l10n;
+    final lang = context.lang;
+    final weekdays = weekdaysShortFor(lang);
     final weekly = d.repeat == Repeat.semanal;
     return [
       const SizedBox(height: 12),
       Row(
         children: [
-          const Text('A cada'),
+          Text(l10n.repeatEvery),
           const SizedBox(width: 8),
           NumberStepper(
             value: d.interval,
             min: 1,
             onChanged: (v) => _edit((d) => d.interval = v),
-            semanticLabel: 'Intervalo da repetição',
+            semanticLabel: l10n.repeatIntervalSemantics,
           ),
           const SizedBox(width: 8),
           Text(
             weekly
-                ? (d.interval == 1 ? 'semana' : 'semanas')
-                : (d.interval == 1 ? 'dia' : 'dias'),
+                ? (d.interval == 1 ? l10n.unitWeek : l10n.unitWeeks)
+                : (d.interval == 1 ? l10n.unitDay : l10n.unitDays),
           ),
         ],
       ),
@@ -388,7 +399,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           children: [
             for (var day = DateTime.monday; day <= DateTime.sunday; day++)
               FilterChip(
-                label: Text(weekdayShort[day - 1]),
+                label: Text(weekdays[day - 1]),
                 selected: d.weekdays.contains(day),
                 onSelected: (on) => _edit(
                   (d) => on ? d.weekdays.add(day) : d.weekdays.remove(day),
@@ -398,14 +409,14 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         ),
       ],
       _DateTimeRow(
-        label: 'Até',
+        label: l10n.repeatUntil,
         date: d.until,
         allDay: true,
-        placeholder: 'Sem fim',
+        placeholder: l10n.repeatNoEnd,
         onDate: (v) => _edit((d) => d.until = v),
       ),
       Text(
-        d.recurrence!.describe(),
+        d.recurrence!.describe(lang: lang),
         style: Theme.of(context).textTheme.bodySmall!
             .copyWith(color: Theme.of(context).colorScheme.primary),
       ),
@@ -473,6 +484,8 @@ class _DateTimeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final lang = context.lang;
     final today = DateTime.now();
     final t = time ?? defaultTime;
     return Row(
@@ -487,8 +500,8 @@ class _DateTimeRow extends StatelessWidget {
                 icon: const Icon(AppIcons.date, size: 18),
                 label: Text(
                   date == null
-                      ? placeholder ?? 'Sem data'
-                      : formatDate(date!, today),
+                      ? placeholder ?? l10n.fieldNoDate
+                      : formatDate(date!, today, lang: lang),
                 ),
                 onPressed: () => _pickDate(context),
               ),
@@ -503,7 +516,7 @@ class _DateTimeRow extends StatelessWidget {
         ),
         if (date != null)
           IconButton(
-            tooltip: 'Limpar $label',
+            tooltip: l10n.fieldClearLabel(label),
             icon: const Icon(AppIcons.close),
             onPressed: () {
               onDate(null);
@@ -552,7 +565,7 @@ class _TagPicker extends ConsumerWidget {
           ),
         ActionChip(
           avatar: const Icon(AppIcons.add),
-          label: const Text('Nova tag'),
+          label: Text(context.l10n.tagNew),
           onPressed: () => _createTag(context, ref),
         ),
       ],
@@ -585,9 +598,10 @@ class _NewTagDialogState extends State<_NewTagDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final palette = context.palette;
     return AlertDialog(
-      title: const Text('Nova tag'),
+      title: Text(l10n.tagNew),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,7 +609,7 @@ class _NewTagDialogState extends State<_NewTagDialog> {
           TextField(
             controller: _name,
             autofocus: true,
-            decoration: const InputDecoration(labelText: 'Nome'),
+            decoration: InputDecoration(labelText: l10n.reviewNameLabel),
             onSubmitted: (_) => _submit(),
           ),
           SizedBox(height: context.space.lg),
@@ -630,9 +644,9 @@ class _NewTagDialogState extends State<_NewTagDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+          child: Text(l10n.actionCancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Criar')),
+        FilledButton(onPressed: _submit, child: Text(l10n.actionCreate)),
       ],
     );
   }
@@ -671,12 +685,13 @@ class _AppearanceField extends ConsumerWidget {
     final icon = IconCatalog.tryIcon(draft.iconKey) ?? inheritedIcon;
     final custom = draft.colorKey != null || draft.iconKey != null;
 
+    final l10n = context.l10n;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: AppearanceBadge(colorKey: color, icon: icon),
-      title: Text(custom ? 'Personalizado' : 'Padrão'),
+      title: Text(custom ? l10n.appearanceCustom : l10n.appearanceDefault),
       subtitle: Text(
-        custom ? 'Toque para trocar' : 'Herda da tarefa mãe, da tag ou do tipo',
+        custom ? l10n.appearanceTapToChange : l10n.appearanceInherited,
       ),
       trailing: const Icon(AppIcons.edit),
       onTap: () async {
@@ -724,8 +739,7 @@ class _FullScreenPermissionBanner extends StatelessWidget {
               SizedBox(width: space.sm),
               Expanded(
                 child: Text(
-                  'Para abrir na tela bloqueada, permita notificações em tela '
-                  'cheia nas configurações do Android.',
+                  context.l10n.reminderFullScreenBanner,
                   style: context.text.bodySmall!.copyWith(color: warn.onTint),
                 ),
               ),
@@ -736,7 +750,7 @@ class _FullScreenPermissionBanner extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: onAllow,
-              child: const Text('Permitir tela cheia'),
+              child: Text(context.l10n.reminderAllowFullScreen),
             ),
           ),
         ],

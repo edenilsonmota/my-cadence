@@ -155,20 +155,39 @@ class RecurrenceRule {
     return current;
   }
 
-  /// Descrição curta em português, ex.: "A cada 2 semanas: seg e qua".
-  String describe() {
+  /// Descrição curta no idioma [lang] (`pt`, `en` ou `es`), ex.:
+  /// "A cada 2 semanas: seg e qua".
+  String describe({String lang = 'pt'}) {
     final buffer = StringBuffer();
     if (frequency == Frequency.daily) {
-      buffer.write(interval == 1 ? 'Todo dia' : 'A cada $interval dias');
+      buffer.write(switch (lang) {
+        'en' => interval == 1 ? 'Every day' : 'Every $interval days',
+        'es' => interval == 1 ? 'Todos los días' : 'Cada $interval días',
+        _ => interval == 1 ? 'Todo dia' : 'A cada $interval dias',
+      });
     } else {
-      buffer.write(interval == 1 ? 'Toda semana' : 'A cada $interval semanas');
+      buffer.write(switch (lang) {
+        'en' => interval == 1 ? 'Every week' : 'Every $interval weeks',
+        'es' => interval == 1 ? 'Cada semana' : 'Cada $interval semanas',
+        _ => interval == 1 ? 'Toda semana' : 'A cada $interval semanas',
+      });
       if (weekdays.isNotEmpty) {
+        final names = weekdaysShortFor(lang);
         buffer.write(': ');
-        buffer.write(_joinPt([for (final d in _sortedDays) _dayNames[d - 1]]));
+        buffer.write(
+          _joinList([for (final d in _sortedDays) names[d - 1]], lang),
+        );
       }
     }
     if (until case final u?) {
-      buffer.write(', até ${_two(u.day)}/${_two(u.month)}/${u.year}');
+      final date = lang == 'en'
+          ? '${u.year}-${_two(u.month)}-${_two(u.day)}'
+          : '${_two(u.day)}/${_two(u.month)}/${u.year}';
+      buffer.write(switch (lang) {
+        'en' => ', until $date',
+        'es' => ', hasta $date',
+        _ => ', até $date',
+      });
     }
     return buffer.toString();
   }
@@ -197,7 +216,6 @@ class RecurrenceRule {
 }
 
 const _dayCodes = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
-const _dayNames = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 
 int _parseDay(String code, String rule) {
   final index = _dayCodes.indexOf(code.trim());
@@ -221,6 +239,12 @@ DateTime _parseUntil(String value, String rule) {
 
 String _two(int n) => n.toString().padLeft(2, '0');
 
-String _joinPt(List<String> items) => items.length <= 1
-    ? items.join()
-    : '${items.sublist(0, items.length - 1).join(', ')} e ${items.last}';
+String _joinList(List<String> items, String lang) {
+  if (items.length <= 1) return items.join();
+  final conj = switch (lang) {
+    'en' => 'and',
+    'es' => 'y',
+    _ => 'e',
+  };
+  return '${items.sublist(0, items.length - 1).join(', ')} $conj ${items.last}';
+}
