@@ -158,4 +158,62 @@ void main() {
       expect(bridge.snapshots.last, contains('"todayTitle":"Hoy"'));
     });
   });
+
+  group('buildWidgetMonth', () {
+    test('grade de 42 dias começando na segunda, com hoje e cores', () {
+      final a = makeTask('a', dueAt: DateTime(2026, 11, 24));
+      final b = makeTask(
+        'b',
+        dueAt: DateTime(2026, 11, 24, 9),
+        hasTime: true,
+      ).copyWith(colorKey: const Value('rosa'));
+      final many = [
+        for (var i = 0; i < 5; i++)
+          makeTask('m$i', dueAt: DateTime(2026, 11, 10)),
+      ];
+      final month = buildWidgetMonth(
+        tasks: [a, b, ...many],
+        today: DateTime(2026, 11, 24, 15),
+        colorKeyOf: (t) => t.colorKey ?? 'azul',
+      );
+      expect(month.title, 'Novembro 2026');
+      expect(month.weekdays, ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']);
+      expect(month.days, hasLength(42));
+      // 1º/11/2026 é domingo: a grade começa na segunda 26/10.
+      expect(month.days.first.iso, '2026-10-26');
+      expect(month.days.first.inMonth, isFalse);
+      final today = month.days.singleWhere((d) => d.today);
+      expect(today.iso, '2026-11-24');
+      expect(today.colors, [
+        argbForWidgetColorKey('azul'),
+        argbForWidgetColorKey('rosa'),
+      ]);
+      final busy = month.days.singleWhere((d) => d.iso == '2026-11-10');
+      expect(busy.colors, hasLength(maxMonthDots));
+      expect(busy.more, 2);
+    });
+
+    test('rotina diária marca os dias seguintes do mês', () {
+      final routine = makeTask(
+        'r',
+        kind: TaskKind.rotina,
+        dueAt: DateTime(2026, 11, 28, 7),
+        hasTime: true,
+        recurrenceRule: 'FREQ=DAILY',
+      );
+      final month = buildWidgetMonth(
+        tasks: [routine],
+        today: DateTime(2026, 11, 24),
+        colorKeyOf: (_) => 'verde',
+        lang: 'en',
+      );
+      expect(month.title, 'November 2026');
+      final marked = [
+        for (final d in month.days)
+          if (d.colors.isNotEmpty) d.iso,
+      ];
+      expect(marked.first, '2026-11-28');
+      expect(marked, contains('2026-12-06'));
+    });
+  });
 }

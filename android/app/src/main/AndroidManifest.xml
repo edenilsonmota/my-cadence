@@ -61,6 +61,28 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_today_info" />
         </receiver>
+        <receiver
+            android:name=".widgets.MonthWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_month_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_month_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.HybridWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_hybrid_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_hybrid_info" />
+        </receiver>
         <service
             android:name=".widgets.TodayWidgetService"
             android:exported="false"

@@ -352,14 +352,16 @@ Três widgets nativos redimensionáveis na tela inicial (sem pacote externo: sna
 `SharedPreferences` via `MethodChannel` + `AppWidgetProvider`/`RemoteViews` em Kotlin), acompanhando o tema
 escolhido (Claro, Escuro neutro, Lights out), a cor de destaque e o idioma (`pt`, `en`, `es`), com atualização
 automática ao mudar tarefas/aparência e na virada da meia-noite. Fazer em fases:
-1. **Base + Widget "Hoje" (`4 × 2`, redimensionável `2 × 2` a `5 × 5`).** Camada pura de snapshot (testada),
+1. **Feito.** **Base + Widget "Hoje" (`4 × 2`, redimensionável `2 × 2` a `5 × 5`).** Camada pura de snapshot (testada),
    ponte Android (`MethodChannel` + `SharedPreferences` + alarme de meia-noite), deep links (`cadence://today`,
    `cadence://task/<id>`, `cadence://new-task`, `cadence://agenda?date=...`) e widget **Hoje** com cabeçalho
    (data + contagem + botão `+`) e lista rolável de tarefas atrasadas e de hoje com barrinha colorida e horário.
 2. **Widget "Semanal" (`4 × 3`, redimensionável `4 × 2` a `5 × 5`).** Grade de 7 dias da semana com o dia atual
    destacado na cor de destaque, tarefas coloridas por dia e toque abrindo o dia na Agenda.
-3. **Widget "Mensal" (`4 × 4`, redimensionável `4 × 3` a `5 × 5`).** Grade mensal 7×6 com navegação de mês
-   (`‹ ›`), dia atual destacado, indicadores/chips coloridos por dia e toque abrindo o dia na Agenda.
+3. **Widget "Mês" (`4 × 4`) — feito.** Grade 6 × 7 começando na segunda, dia atual destacado na cor de
+   destaque, até 3 pontinhos coloridos por dia (tarefas e ocorrências de rotina) e toque abrindo o dia na Agenda.
+   Pendente: navegação de mês (`‹ ›`).
+3b. **Widget "Mês + Hoje" (`4 × 5`) — feito.** A mesma grade em cima e a lista rolável de hoje embaixo.
 4. **Concluir direto pelo widget *(opcional)*.** Ação rápida no widget **Hoje** para marcar tarefa concluída
    em segundo plano sem abrir o app.
 ---

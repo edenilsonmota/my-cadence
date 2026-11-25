@@ -4,4 +4,8 @@
     <string name="widget_today_description">Today\'s and overdue tasks in a scrollable list with quick add.</string>
     <string name="widget_today_empty">Nothing for today yet.</string>
     <string name="widget_add_task">New task</string>
+    <string name="widget_month_label">Cadence · Month</string>
+    <string name="widget_month_description">Monthly calendar with each day\'s tasks.</string>
+    <string name="widget_hybrid_label">Cadence · Month + Today</string>
+    <string name="widget_hybrid_description">Monthly calendar with today\'s tasks below.</string>
 </resources>

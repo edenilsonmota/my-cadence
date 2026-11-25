@@ -42,6 +42,20 @@ data class TodayWidgetData(
     val colors: WidgetColors,
 )
 
+data class WidgetMonthDay(
+    val day: Int,
+    val iso: String,
+    val inMonth: Boolean,
+    val today: Boolean,
+    val colors: List<Int>,
+)
+
+data class MonthWidgetData(
+    val title: String,
+    val weekdays: List<String>,
+    val days: List<WidgetMonthDay>,
+)
+
 object WidgetStore {
     private const val PREFS_NAME = "cadence_home_widgets"
     private const val KEY_SNAPSHOT = "snapshot_json"
@@ -144,6 +158,47 @@ object WidgetStore {
         }
     }
 
+    /** Grade do mês do snapshot (vazia se ainda não houver dados). */
+    fun readMonthData(context: Context): MonthWidgetData {
+        val empty = MonthWidgetData("", emptyList(), emptyList())
+        val raw = readRawSnapshot(context)
+        if (raw.isNullOrBlank()) return empty
+        return try {
+            val month = JSONObject(raw).optJSONObject("month") ?: return empty
+            val weekdays = month.optJSONArray("weekdays")
+            val days = month.optJSONArray("days")
+            MonthWidgetData(
+                title = month.optString("title"),
+                weekdays = if (weekdays == null) {
+                    emptyList()
+                } else {
+                    (0 until weekdays.length()).map { weekdays.optString(it) }
+                },
+                days = if (days == null) {
+                    emptyList()
+                } else {
+                    (0 until days.length()).map { i ->
+                        val o = days.getJSONObject(i)
+                        val colors = o.optJSONArray("colors")
+                        WidgetMonthDay(
+                            day = o.optInt("d"),
+                            iso = o.optString("iso"),
+                            inMonth = o.optBoolean("in", true),
+                            today = o.optBoolean("today", false),
+                            colors = if (colors == null) {
+                                emptyList()
+                            } else {
+                                (0 until colors.length()).map { colors.optLong(it).toInt() }
+                            },
+                        )
+                    }
+                },
+            )
+        } catch (_: Exception) {
+            empty
+        }
+    }
+
     fun resolveColors(
         context: Context,
         themeMode: String,
@@ -203,12 +258,22 @@ object WidgetStore {
 
     fun notifyAllWidgets(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
-        val todayIds = manager.getAppWidgetIds(
-            ComponentName(context, TodayWidgetProvider::class.java),
-        )
+        fun idsOf(cls: Class<*>) = manager.getAppWidgetIds(ComponentName(context, cls))
+        val todayIds = idsOf(TodayWidgetProvider::class.java)
+        val monthIds = idsOf(MonthWidgetProvider::class.java)
+        val hybridIds = idsOf(HybridWidgetProvider::class.java)
         if (todayIds.isNotEmpty()) {
             TodayWidgetProvider.updateWidgets(context, manager, todayIds)
             manager.notifyAppWidgetViewDataChanged(todayIds, R.id.widget_today_list)
+        }
+        if (monthIds.isNotEmpty()) {
+            MonthWidgetProvider.updateWidgets(context, manager, monthIds)
+        }
+        if (hybridIds.isNotEmpty()) {
+            HybridWidgetProvider.updateWidgets(context, manager, hybridIds)
+            manager.notifyAppWidgetViewDataChanged(hybridIds, R.id.widget_hybrid_list)
+        }
+        if (todayIds.isNotEmpty() || monthIds.isNotEmpty() || hybridIds.isNotEmpty()) {
             scheduleMidnightRefresh(context)
         }
     }

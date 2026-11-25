@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="2dp">
+
+    <!-- Fundo arredondado tingido em runtime (Claro / Escuro / Lights out) -->
+    <ImageView
+        android:id="@+id/widget_cal_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_bg" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp">
+
+        <!-- Cabeçalho: mês e botão + -->
+        <LinearLayout
+            android:id="@+id/widget_cal_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/widget_cal_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <FrameLayout
+                android:id="@+id/widget_cal_add_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@string/widget_add_task">
+
+                <ImageView
+                    android:id="@+id/widget_cal_add_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@null"
+                    android:src="@drawable/widget_circle" />
+
+                <ImageView
+                    android:id="@+id/widget_cal_add_icon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_widget_add" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Letras dos dias da semana (preenchidas em runtime) -->
+        <LinearLayout
+            android:id="@+id/widget_cal_weekdays"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+        <!-- 6 semanas (preenchidas em runtime) -->
+        <LinearLayout
+            android:id="@+id/widget_cal_grid"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical" />
+    </LinearLayout>
+</FrameLayout>

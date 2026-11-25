@@ -4,4 +4,8 @@
     <string name="widget_today_description">Tareas de hoy y atrasadas en una lista desplazable con acceso rápido.</string>
     <string name="widget_today_empty">Nada para hoy todavía.</string>
     <string name="widget_add_task">Nueva tarea</string>
+    <string name="widget_month_label">Cadence · Mes</string>
+    <string name="widget_month_description">Calendario del mes con las tareas de cada día.</string>
+    <string name="widget_hybrid_label">Cadence · Mes + Hoy</string>
+    <string name="widget_hybrid_description">Calendario del mes con las tareas de hoy debajo.</string>
 </resources>

@@ -44,6 +44,125 @@ class WidgetTaskItem {
   };
 }
 
+/// Máximo de pontinhos coloridos por dia na grade do mês.
+const maxMonthDots = 3;
+
+/// Um dia da grade mensal (6 semanas × 7 dias, começando na segunda).
+class WidgetMonthDay {
+  const WidgetMonthDay({
+    required this.day,
+    required this.iso,
+    required this.inMonth,
+    required this.today,
+    required this.colors,
+    required this.more,
+  });
+
+  final int day;
+  final String iso;
+  final bool inMonth;
+  final bool today;
+
+  /// Cores (ARGB) das primeiras tarefas do dia, no máximo [maxMonthDots].
+  final List<int> colors;
+
+  /// Quantas tarefas passaram de [maxMonthDots].
+  final int more;
+
+  Map<String, Object?> toJson() => {
+    'd': day,
+    'iso': iso,
+    'in': inMonth,
+    'today': today,
+    'colors': colors,
+    'more': more,
+  };
+}
+
+/// Grade do mês atual para os widgets "Mês" e "Mês + Hoje".
+class WidgetMonth {
+  const WidgetMonth({
+    required this.title,
+    required this.weekdays,
+    required this.days,
+  });
+
+  final String title;
+  final List<String> weekdays;
+  final List<WidgetMonthDay> days;
+
+  Map<String, Object?> toJson() => {
+    'title': title,
+    'weekdays': weekdays,
+    'days': [for (final d in days) d.toJson()],
+  };
+}
+
+String _iso(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${two(d.month)}-${two(d.day)}';
+
+/// Monta a grade do mês de [today]: 42 dias a partir da segunda-feira da
+/// semana do dia 1, com as cores das tarefas (e ocorrências de rotina) de
+/// cada dia.
+WidgetMonth buildWidgetMonth({
+  required List<Task> tasks,
+  required DateTime today,
+  required String Function(Task) colorKeyOf,
+  String lang = 'pt',
+}) {
+  final day0 = startOfDay(today);
+  final first = DateTime(day0.year, day0.month);
+  final gridStart = addDays(first, -(first.weekday - DateTime.monday));
+  final gridEnd = addDays(gridStart, 42);
+
+  final colorsByDay = <String, List<int>>{};
+  final live = [
+    for (final t in tasks)
+      if (t.deletedAt == null) t,
+  ];
+  final entries = expandOccurrences(live, gridStart, gridEnd)
+    ..sort((a, b) => a.start.compareTo(b.start));
+  for (final e in entries) {
+    final color = argbForWidgetColorKey(colorKeyOf(e.task));
+    var d = startOfDay(e.start);
+    final last = e.end.isAfter(e.start)
+        ? startOfDay(e.end.subtract(const Duration(seconds: 1)))
+        : d;
+    while (!d.isAfter(last)) {
+      if (!d.isBefore(gridStart) && d.isBefore(gridEnd)) {
+        colorsByDay.putIfAbsent(_iso(d), () => []).add(color);
+      }
+      d = addDays(d, 1);
+    }
+  }
+
+  final names = monthNamesFor(lang);
+  final rawTitle = '${names[day0.month - 1]} ${day0.year}';
+  return WidgetMonth(
+    title: rawTitle[0].toUpperCase() + rawTitle.substring(1),
+    weekdays: [
+      for (final w in weekdaysShortFor(lang)) w.substring(0, 1).toUpperCase(),
+    ],
+    days: [
+      for (var i = 0; i < 42; i++)
+        () {
+          final d = addDays(gridStart, i);
+          final colors = colorsByDay[_iso(d)] ?? const <int>[];
+          return WidgetMonthDay(
+            day: d.day,
+            iso: _iso(d),
+            inMonth: d.month == day0.month,
+            today: d == day0,
+            colors: colors.take(maxMonthDots).toList(growable: false),
+            more: colors.length > maxMonthDots
+                ? colors.length - maxMonthDots
+                : 0,
+          );
+        }(),
+    ],
+  );
+}
+
 /// Snapshot serializável entregue aos widgets nativos da tela inicial.
 class HomeWidgetSnapshot {
   const HomeWidgetSnapshot({
@@ -59,6 +178,7 @@ class HomeWidgetSnapshot {
     required this.overdueCount,
     required this.todayCount,
     required this.todayItems,
+    required this.month,
   });
 
   final String dateIso;
@@ -73,6 +193,7 @@ class HomeWidgetSnapshot {
   final int overdueCount;
   final int todayCount;
   final List<WidgetTaskItem> todayItems;
+  final WidgetMonth month;
 
   Map<String, Object?> toJson() => {
     'version': 1,
@@ -88,6 +209,7 @@ class HomeWidgetSnapshot {
     'overdueCount': overdueCount,
     'todayCount': todayCount,
     'todayItems': [for (final item in todayItems) item.toJson()],
+    'month': month.toJson(),
   };
 
   String encode() => jsonEncode(toJson());
@@ -211,5 +333,11 @@ HomeWidgetSnapshot buildHomeWidgetSnapshot({
     overdueCount: overdue.length,
     todayCount: sortedToday.length,
     todayItems: items.take(maxTodayWidgetItems).toList(growable: false),
+    month: buildWidgetMonth(
+      tasks: tasks,
+      today: dayStart,
+      colorKeyOf: resolver.colorKeyOf,
+      lang: lang,
+    ),
   );
 }
