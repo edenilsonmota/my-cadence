@@ -27,13 +27,8 @@ void main() {
     await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ler');
     await settle(tester);
-    await tester.dragUntilVisible(
-      find.text('Padrão'),
-      find.byType(ListView).first,
-      const Offset(0, -200),
-    );
-    await settle(tester);
-    await tester.tap(find.text('Padrão'));
+    // O campo de ícone e cor fica no topo do formulário.
+    await tester.tap(find.text('Ícone e cor'));
     await settle(tester);
 
     await tester.tap(find.bySemanticsLabel('Rosa'));
@@ -64,13 +59,8 @@ void main() {
     await settle(tester);
     await tester.tap(find.byTooltip('Editar'));
     await settle(tester);
-    await tester.dragUntilVisible(
-      find.text('Personalizado'),
-      find.byType(ListView).first,
-      const Offset(0, -200),
-    );
-    await settle(tester);
-    await tester.tap(find.text('Personalizado'));
+    // O campo de ícone e cor fica no topo do formulário.
+    await tester.tap(find.text('Ícone e cor'));
     await settle(tester);
     await tester.tap(find.text('Usar padrão'));
     await settle(tester);

@@ -584,5 +584,13 @@
   "deleteAlsoPages": "{count, plural, =1{1 linked page} other{{count} linked pages}}",
   "deleteAlsoDecks": "{count, plural, =1{1 deck (cards stay, without a deck)} other{{count} decks (cards stay, without a deck)}}",
   "deleteAlsoNoUndo": "What you check here is not restored by \"Undo\".",
-  "repeatTimeHint": "The time applies to every repetition."
+  "repeatTimeHint": "The time applies to every repetition.",
+  "formInfoTooltip": "How it works",
+  "formInfoDatesTitle": "Start and due",
+  "formInfoRepeatTitle": "Repetition",
+  "formInfoRemindersTitle": "Reminders",
+  "formInfoReminders": "With a time, they count from the start (or from the due time if there is no start). For all-day tasks, they ring at the hour set in Settings, on the day or days before. In a routine, they apply to every repetition.",
+  "formInfoModesTitle": "Notification or alarm",
+  "formInfoNagTitle": "Nag if overdue",
+  "formInfoStudyTitle": "Linked study"
 }

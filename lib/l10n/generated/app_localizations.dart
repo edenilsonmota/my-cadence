@@ -3609,6 +3609,54 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'O horário vale para todas as repetições.'**
   String get repeatTimeHint;
+
+  /// No description provided for @formInfoTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Como funciona'**
+  String get formInfoTooltip;
+
+  /// No description provided for @formInfoDatesTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Início e prazo'**
+  String get formInfoDatesTitle;
+
+  /// No description provided for @formInfoRepeatTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Repetição'**
+  String get formInfoRepeatTitle;
+
+  /// No description provided for @formInfoRemindersTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembretes'**
+  String get formInfoRemindersTitle;
+
+  /// No description provided for @formInfoReminders.
+  ///
+  /// In pt, this message translates to:
+  /// **'Com hora, contam a partir do início (ou do prazo, se não houver início). Em dia inteiro, tocam na hora definida em Ajustes, no próprio dia ou dias antes. Numa rotina, valem para cada repetição.'**
+  String get formInfoReminders;
+
+  /// No description provided for @formInfoModesTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Notificação ou alarme'**
+  String get formInfoModesTitle;
+
+  /// No description provided for @formInfoNagTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Insistir se atrasar'**
+  String get formInfoNagTitle;
+
+  /// No description provided for @formInfoStudyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estudo vinculado'**
+  String get formInfoStudyTitle;
 }
 
 class _AppLocalizationsDelegate

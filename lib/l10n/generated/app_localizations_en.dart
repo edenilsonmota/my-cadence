@@ -2053,4 +2053,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get repeatTimeHint => 'The time applies to every repetition.';
+
+  @override
+  String get formInfoTooltip => 'How it works';
+
+  @override
+  String get formInfoDatesTitle => 'Start and due';
+
+  @override
+  String get formInfoRepeatTitle => 'Repetition';
+
+  @override
+  String get formInfoRemindersTitle => 'Reminders';
+
+  @override
+  String get formInfoReminders =>
+      'With a time, they count from the start (or from the due time if there is no start). For all-day tasks, they ring at the hour set in Settings, on the day or days before. In a routine, they apply to every repetition.';
+
+  @override
+  String get formInfoModesTitle => 'Notification or alarm';
+
+  @override
+  String get formInfoNagTitle => 'Nag if overdue';
+
+  @override
+  String get formInfoStudyTitle => 'Linked study';
 }

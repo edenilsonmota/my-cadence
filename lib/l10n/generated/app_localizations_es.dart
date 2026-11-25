@@ -2056,4 +2056,29 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get repeatTimeHint => 'El horario vale para todas las repeticiones.';
+
+  @override
+  String get formInfoTooltip => 'Cómo funciona';
+
+  @override
+  String get formInfoDatesTitle => 'Inicio y plazo';
+
+  @override
+  String get formInfoRepeatTitle => 'Repetición';
+
+  @override
+  String get formInfoRemindersTitle => 'Recordatorios';
+
+  @override
+  String get formInfoReminders =>
+      'Con hora, cuentan desde el inicio (o desde el plazo si no hay inicio). En todo el día, suenan a la hora definida en Ajustes, el mismo día o días antes. En una rutina, valen para cada repetición.';
+
+  @override
+  String get formInfoModesTitle => 'Notificación o alarma';
+
+  @override
+  String get formInfoNagTitle => 'Insistir si se atrasa';
+
+  @override
+  String get formInfoStudyTitle => 'Estudio vinculado';
 }

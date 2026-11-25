@@ -224,6 +224,11 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         ),
         title: Text(title),
         actions: [
+          IconButton(
+            tooltip: l10n.formInfoTooltip,
+            icon: const Icon(AppIcons.info),
+            onPressed: () => _showInfo(context),
+          ),
           TextButton(
             onPressed: draft == null || _saving ? null : _save,
             child: Text(l10n.actionSave),
@@ -231,6 +236,53 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         ],
       ),
       body: draft == null ? const SkeletonPage() : _buildForm(context, draft),
+    );
+  }
+
+  /// Um só "i" na barra: explica para que serve cada campo do formulário.
+  void _showInfo(BuildContext context) {
+    _dropFocus();
+    final l10n = context.l10n;
+    final sections = [
+      (l10n.formInfoDatesTitle, l10n.datesHint),
+      (
+        l10n.formInfoRepeatTitle,
+        '${l10n.repeatDatesHint} ${l10n.repeatTimeHint}',
+      ),
+      (l10n.formInfoRemindersTitle, l10n.formInfoReminders),
+      (
+        l10n.formInfoModesTitle,
+        '${l10n.reminderModeNotification}: '
+            '${l10n.reminderModeNotificationHint}\n'
+            '${l10n.reminderModeAlarm}: ${l10n.reminderModeAlarmHint}',
+      ),
+      (l10n.formInfoNagTitle, l10n.nagHint(maxNagRepeats)),
+      (l10n.formInfoStudyTitle, l10n.studyHint),
+    ];
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.7,
+        builder: (context, controller) => ListView(
+          controller: controller,
+          padding: EdgeInsets.fromLTRB(
+            context.space.page,
+            0,
+            context.space.page,
+            context.space.xxl,
+          ),
+          children: [
+            Text(l10n.formInfoTooltip, style: context.text.titleMedium),
+            for (final (title, body) in sections) ...[
+              _Label(title),
+              Text(body, style: context.text.bodyMedium),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -242,6 +294,15 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     return ListView(
       padding: EdgeInsets.fromLTRB(space.page, space.sm, space.page, space.xxl),
       children: [
+        _AppearanceField(
+          draft: d,
+          parentId: _original?.parentId ?? widget.parentId,
+          onChanged: (c) => _edit((d) {
+            d.colorKey = c.colorKey;
+            d.iconKey = c.iconKey;
+          }),
+        ),
+        SizedBox(height: space.sm),
         TextField(
           controller: _title,
           autofocus: !_editing,
@@ -264,7 +325,6 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         else
           ..._reminderFields(context, d),
         _Section(l10n.fieldStudy),
-        _Hint(l10n.studyHint),
         _LinkedStudy(
           notebookIds: d.notebookIds,
           deckIds: d.deckIds,
@@ -304,15 +364,6 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         _TagPicker(
           selected: d.tagIds,
           onChanged: (ids) => _edit((d) => d.tagIds = ids),
-        ),
-        _Label(l10n.fieldIconAndColor),
-        _AppearanceField(
-          draft: d,
-          parentId: _original?.parentId ?? widget.parentId,
-          onChanged: (c) => _edit((d) {
-            d.colorKey = c.colorKey;
-            d.iconKey = c.iconKey;
-          }),
         ),
       ],
     );
@@ -359,7 +410,6 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           onDate: (v) => _edit((d) => d.dueDate = v),
           onTime: (v) => _edit((d) => d.dueTime = v),
         ),
-        _Hint(l10n.datesHint),
       ] else ...[
         _DateTimeRow(
           label: l10n.repeatStarts,
@@ -435,11 +485,6 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
       Text(
         d.recurrence!.describe(lang: lang),
         style: context.text.bodySmall!.copyWith(color: context.colors.primary),
-      ),
-      _Hint(
-        d.allDay
-            ? l10n.repeatDatesHint
-            : '${l10n.repeatDatesHint} ${l10n.repeatTimeHint}',
       ),
     ];
   }
@@ -1171,10 +1216,8 @@ class _AppearanceField extends ConsumerWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: AppearanceBadge(colorKey: color, icon: icon),
-      title: Text(custom ? l10n.appearanceCustom : l10n.appearanceDefault),
-      subtitle: Text(
-        custom ? l10n.appearanceTapToChange : l10n.appearanceInherited,
-      ),
+      title: Text(l10n.fieldIconAndColor),
+      subtitle: Text(custom ? l10n.appearanceCustom : l10n.appearanceInherited),
       trailing: const Icon(AppIcons.edit),
       onTap: () async {
         final choice = await showAppearancePicker(

@@ -584,5 +584,13 @@
   "deleteAlsoPages": "{count, plural, =1{1 página vinculada} other{{count} páginas vinculadas}}",
   "deleteAlsoDecks": "{count, plural, =1{1 mazo (las tarjetas quedan sin mazo)} other{{count} mazos (las tarjetas quedan sin mazo)}}",
   "deleteAlsoNoUndo": "Lo que marques aquí no vuelve con \"Deshacer\".",
-  "repeatTimeHint": "El horario vale para todas las repeticiones."
+  "repeatTimeHint": "El horario vale para todas las repeticiones.",
+  "formInfoTooltip": "Cómo funciona",
+  "formInfoDatesTitle": "Inicio y plazo",
+  "formInfoRepeatTitle": "Repetición",
+  "formInfoRemindersTitle": "Recordatorios",
+  "formInfoReminders": "Con hora, cuentan desde el inicio (o desde el plazo si no hay inicio). En todo el día, suenan a la hora definida en Ajustes, el mismo día o días antes. En una rutina, valen para cada repetición.",
+  "formInfoModesTitle": "Notificación o alarma",
+  "formInfoNagTitle": "Insistir si se atrasa",
+  "formInfoStudyTitle": "Estudio vinculado"
 }

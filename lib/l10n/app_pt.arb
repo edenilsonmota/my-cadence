@@ -1193,5 +1193,13 @@
     }
   },
   "deleteAlsoNoUndo": "O que você marcar aqui não volta com \"Desfazer\".",
-  "repeatTimeHint": "O horário vale para todas as repetições."
+  "repeatTimeHint": "O horário vale para todas as repetições.",
+  "formInfoTooltip": "Como funciona",
+  "formInfoDatesTitle": "Início e prazo",
+  "formInfoRepeatTitle": "Repetição",
+  "formInfoRemindersTitle": "Lembretes",
+  "formInfoReminders": "Com hora, contam a partir do início (ou do prazo, se não houver início). Em dia inteiro, tocam na hora definida em Ajustes, no próprio dia ou dias antes. Numa rotina, valem para cada repetição.",
+  "formInfoModesTitle": "Notificação ou alarme",
+  "formInfoNagTitle": "Insistir se atrasar",
+  "formInfoStudyTitle": "Estudo vinculado"
 }

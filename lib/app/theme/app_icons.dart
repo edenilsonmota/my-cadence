@@ -70,6 +70,7 @@ abstract final class AppIcons {
   static const alarm = _I.alarmClock;
   static const notification = _I.bell;
   static const diagnostics = _I.shieldAlert;
+  static const info = _I.info;
   static const snooze = _I.clockArrowUp;
   static const priority = _I.flag;
   static const tag = _I.tag;
