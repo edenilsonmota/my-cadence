@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons_300.dart';
 import 'package:lucide_icons_flutter/lucide_icons_500.dart';
 
-import '../../data/db/enums.dart';
 import '../../features/tasks/task_appearance.dart';
 import 'icon_catalog.dart';
 
@@ -119,9 +118,10 @@ abstract final class AppIcons {
   static const viewMonth = _I.layoutGrid;
   static const viewList = _I.list;
 
-  /// Ícone padrão de cada tipo de tarefa.
-  static IconData kind(TaskKind kind) =>
-      IconCatalog.tryIcon(kindIconKey(kind))!;
+  /// Ícone padrão de tarefa (sem ícone próprio nem herdado): repetição ou
+  /// tarefa comum.
+  static IconData taskDefault({bool repeats = false}) =>
+      IconCatalog.tryIcon(defaultIconKeyFor(repeats: repeats))!;
 
   /// Ícone de uma chave do catálogo; desconhecida cai em [fallback].
   static IconData of(String? key, {IconData fallback = _I.squareCheck}) =>

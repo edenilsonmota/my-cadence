@@ -3801,6 +3801,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe.'**
   String get statsTagHint;
+
+  /// No description provided for @taskStatusPaused.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pausada'**
+  String get taskStatusPaused;
 }
 
 class _AppLocalizationsDelegate

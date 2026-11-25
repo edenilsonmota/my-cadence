@@ -616,5 +616,6 @@
   "manualTimeSaved": "{duration} registrados.",
   "manualTimeEntries": "Registros manuales",
   "manualTimeDelete": "Eliminar registro",
-  "statsTagHint": "Una tarea con varias etiquetas cuenta su tiempo en cada una; las subtareas heredan las etiquetas de la madre."
+  "statsTagHint": "Una tarea con varias etiquetas cuenta su tiempo en cada una; las subtareas heredan las etiquetas de la madre.",
+  "taskStatusPaused": "Pausada"
 }

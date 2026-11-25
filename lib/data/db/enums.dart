@@ -1,9 +1,21 @@
 // Enums persistidos com `textEnum` (o banco guarda o nome do valor).
 // Renomear um valor exige migração; reordenar ou acrescentar é seguro.
 
+/// Legado (até a v1.3): a interface não usa mais o tipo; tarefas novas ficam
+/// `simples`. A coluna continua para não quebrar dados e sync antigos.
 enum TaskKind { simples, estudo, rotina, evento }
 
-enum TaskStatus { aFazer, fazendo, feita }
+/// [pausada] = em espera: some do Hoje, dos atrasados e dos lembretes até
+/// voltar para "a fazer".
+enum TaskStatus {
+  aFazer,
+  fazendo,
+  feita,
+  pausada;
+
+  /// Conta no Hoje, nos atrasados, nos lembretes e nos widgets.
+  bool get isActive => this == aFazer || this == fazendo;
+}
 
 enum PomodoroKind { foco, pausaCurta, pausaLonga }
 

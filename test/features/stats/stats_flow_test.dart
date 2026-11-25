@@ -23,7 +23,6 @@ void main() {
         final tasks = TasksRepository(db.tasksDao, db.tagsDao);
         final calc = await tasks.createTask(
           title: 'Cálculo',
-          kind: TaskKind.estudo,
           estimatedPomodoros: 4,
         );
         final tag = await tasks.createTag(name: 'Faculdade', colorKey: 'azul');
@@ -87,9 +86,6 @@ void main() {
     await settle(tester);
     expect(find.text('Faculdade'), findsOneWidget);
     expect(find.text('Sem tag'), findsOneWidget);
-    await tester.tap(find.text('Tipo'));
-    await settle(tester);
-    expect(find.text('Estudo'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('2 de 4'), 200, scrollable: list);
     expect(find.text('2 de 4'), findsOneWidget);

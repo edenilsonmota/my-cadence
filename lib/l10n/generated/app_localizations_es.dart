@@ -2160,4 +2160,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get statsTagHint =>
       'Una tarea con varias etiquetas cuenta su tiempo en cada una; las subtareas heredan las etiquetas de la madre.';
+
+  @override
+  String get taskStatusPaused => 'Pausada';
 }

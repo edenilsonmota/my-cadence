@@ -46,21 +46,17 @@ void main() {
       expect(filter.activeCount, 0);
     });
 
-    test('tipo, prioridade e tag combinados', () {
+    test('prioridade e tag combinadas', () {
       const filter = TaskFilter(
-        kinds: {TaskKind.estudo},
         priorities: {2, 3},
         tagIds: {'t1'},
         statuses: {},
       );
-      final task = makeTask('a', kind: TaskKind.estudo, priority: 3);
+      final task = makeTask('a', priority: 3);
       expect(filter.matches(task, {'t1', 't2'}), isTrue);
       expect(filter.matches(task, {'t2'}), isFalse);
-      expect(
-        filter.matches(makeTask('b', kind: TaskKind.rotina), {'t1'}),
-        isFalse,
-      );
-      expect(filter.activeCount, 4);
+      expect(filter.matches(makeTask('b', priority: 1), {'t1'}), isFalse);
+      expect(filter.activeCount, 3);
     });
   });
 

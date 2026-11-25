@@ -11,6 +11,7 @@ typedef SyncRow = Map<String, Object?>;
 /// Tabelas sincronizadas, na ordem em que aparecem no snapshot.
 const syncTables = [
   'tasks',
+  'task_templates',
   'tags',
   'task_tags',
   'task_completions',

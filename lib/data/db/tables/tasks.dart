@@ -42,15 +42,28 @@ class Tasks extends Table with SyncColumns {
 
   /// Intervalo em minutos para insistir se a tarefa atrasar; `null` desliga.
   IntColumn get nagIntervalMinutes => integer().nullable()();
+
+  /// Legado: a estimativa agora é em tempo ([estimatedMinutes]).
   IntColumn get estimatedPomodoros => integer().nullable()();
+
+  /// Tempo estimado em minutos (esquema v8), comparado com o foco feito
+  /// (pomodoros e tempo registrado à mão).
+  IntColumn get estimatedMinutes => integer().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get completedAt => dateTime().nullable()();
 
-  /// Chave da paleta (`PaletteKey.name`); nula = herda (mãe, tag, tipo).
+  /// Chave da paleta (`PaletteKey.name`); nula = herda (mãe, tag, padrão).
   TextColumn get colorKey => text().nullable()();
 
   /// Chave do catálogo de ícones (ex.: `book-open`); nula = herda.
   TextColumn get iconKey => text().nullable()();
+}
+
+/// Modelo de tarefa (esquema v8): nome e um JSON com título, notas, tags,
+/// aparência, estimativa, lembretes, subtarefas e books/decks vinculados.
+class TaskTemplates extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get payload => text()();
 }
 
 /// Histórico de conclusões de rotinas (uma linha por ocorrência concluída).

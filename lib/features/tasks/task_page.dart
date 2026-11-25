@@ -23,7 +23,6 @@ import 'alarms.dart';
 import 'hub/hub_tools.dart';
 import 'reminder_offsets.dart';
 import 'task_delete.dart';
-import 'task_labels.dart';
 import 'task_providers.dart';
 import 'widgets/task_tile.dart';
 
@@ -84,7 +83,7 @@ class _TaskHub extends ConsumerWidget {
       inheritedColor: resolver.colorKeyOf(inherited),
       inheritedIcon: AppIcons.of(
         resolver.iconKeyOf(inherited),
-        fallback: AppIcons.kind(task.kind),
+        fallback: AppIcons.taskDefault(repeats: task.recurrenceRule != null),
       ),
     );
     if (choice == null) return;
@@ -192,7 +191,9 @@ class _TaskHub extends ConsumerWidget {
                       colorKey: resolver.colorKeyOf(task),
                       icon: AppIcons.of(
                         resolver.iconKeyOf(task),
-                        fallback: AppIcons.kind(task.kind),
+                        fallback: AppIcons.taskDefault(
+                          repeats: task.recurrenceRule != null,
+                        ),
                       ),
                       size: AppIconSize.feature,
                     ),
@@ -216,10 +217,6 @@ class _TaskHub extends ConsumerWidget {
               spacing: space.sm,
               runSpacing: space.sm,
               children: [
-                Chip(
-                  avatar: Icon(task.kind.icon),
-                  label: Text(task.kind.labelFor(l10n)),
-                ),
                 PopupMenuButton<TaskStatus>(
                   tooltip: l10n.taskChangeStatus,
                   initialValue: task.status,
@@ -232,7 +229,9 @@ class _TaskHub extends ConsumerWidget {
                       : repo.setStatus(task.id, s),
                   itemBuilder: (_) => [
                     for (final s in TaskStatus.values)
-                      PopupMenuItem(value: s, child: Text(s.labelFor(l10n))),
+                      // "Pausada" entra na fase 16.2 (Pausar e reagendar).
+                      if (s != TaskStatus.pausada)
+                        PopupMenuItem(value: s, child: Text(s.labelFor(l10n))),
                   ],
                   // A setinha fica dentro do rótulo: o `deleteIcon` do Chip
                   // anunciaria "Excluir" para o leitor de tela.

@@ -2157,4 +2157,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get statsTagHint =>
       'A task with several tags counts its time in each; subtasks inherit the parent\'s tags.';
+
+  @override
+  String get taskStatusPaused => 'Paused';
 }

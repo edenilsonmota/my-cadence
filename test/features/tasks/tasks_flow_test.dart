@@ -64,13 +64,6 @@ void main() {
     await tester.tap(find.text('Mais opções'));
     await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ler');
-    await tester.dragUntilVisible(
-      find.text('Estudo'),
-      find.byType(ListView).first,
-      const Offset(0, -200),
-    );
-    await settle(tester);
-    await tester.tap(find.text('Estudo'));
     await tester.tap(find.text('Salvar'));
     await settle(tester);
 
@@ -80,7 +73,6 @@ void main() {
       () => repoOf(db).watchAllTasks().first,
     )).single;
     expect(task.title, 'Ler');
-    expect(task.kind, TaskKind.estudo);
     expect(task.dueAt, DateTime(2026, 11, 23));
 
     await tester.tap(find.bySemanticsLabel('Concluir'));
@@ -158,15 +150,12 @@ void main() {
     );
   });
 
-  testWidgets('busca e filtro por tipo na aba Tarefas', (tester) async {
+  testWidgets('busca e filtro por prioridade na aba Tarefas', (tester) async {
     await pumpApp(
       tester,
       seed: (db) async {
         final repo = repoOf(db);
-        await repo.createTask(
-          title: 'Revisão de cálculo',
-          kind: TaskKind.estudo,
-        );
+        await repo.createTask(title: 'Revisão de cálculo', priority: 3);
         await repo.createTask(title: 'Comprar pão');
         final done = await repo.createTask(title: 'Feita');
         await repo.setStatus(done, TaskStatus.feita);
@@ -187,13 +176,13 @@ void main() {
     await settle(tester);
     await tester.tap(find.byTooltip('Filtrar e ordenar'));
     await settle(tester);
-    await tester.tap(find.widgetWithText(FilterChip, 'Simples'));
+    await tester.tap(find.widgetWithText(FilterChip, 'Alta'));
     await settle(tester);
     await tester.tapAt(const Offset(180, 40)); // fecha o painel
     await settle(tester);
 
-    expect(find.text('Comprar pão'), findsOneWidget);
-    expect(find.text('Revisão de cálculo'), findsNothing);
+    expect(find.text('Revisão de cálculo'), findsOneWidget);
+    expect(find.text('Comprar pão'), findsNothing);
   });
 
   testWidgets('hub: adiciona subtarefas e a árvore mostra os níveis', (

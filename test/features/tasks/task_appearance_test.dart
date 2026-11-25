@@ -1,14 +1,13 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/database.dart';
-import 'package:my_cadence/data/db/enums.dart';
 import 'package:my_cadence/features/tasks/task_appearance.dart';
 
 import 'fixtures.dart';
 
 void main() {
   final colors = {'azul', 'verde', 'rosa', 'violeta', 'laranja'};
-  final icons = {'brain', 'book-open', 'square-check', 'graduation-cap'};
+  final icons = {'brain', 'book-open', 'square-check', 'repeat'};
 
   AppearanceResolver resolver(List<Task> tasks, [Map<String, String>? tags]) =>
       AppearanceResolver(
@@ -18,7 +17,7 @@ void main() {
         validIcons: icons,
       );
 
-  test('cor: própria → mãe → 1ª tag → tipo', () {
+  test('cor: própria → mãe → 1ª tag → padrão (pela repetição)', () {
     final root = makeTask('r').copyWith(colorKey: const Value('rosa'));
     final child = makeTask('c', parentId: 'r');
     final grandchild = makeTask('g', parentId: 'c');
@@ -26,26 +25,28 @@ void main() {
       'o',
       parentId: 'r',
     ).copyWith(colorKey: const Value('verde'));
-    final tagged = makeTask('t', kind: TaskKind.estudo);
-    final plain = makeTask('p', kind: TaskKind.estudo);
+    final tagged = makeTask('t');
+    final plain = makeTask('p');
+    final repeating = makeTask('rr', recurrenceRule: 'FREQ=DAILY');
     final r = resolver(
-      [root, child, grandchild, own, tagged, plain],
+      [root, child, grandchild, own, tagged, plain, repeating],
       {'t': 'azul', 'g': 'azul'},
     );
     expect(r.colorKeyOf(own), 'verde');
     expect(r.colorKeyOf(child), 'rosa');
     expect(r.colorKeyOf(grandchild), 'rosa'); // a mãe vem antes da tag
     expect(r.colorKeyOf(tagged), 'azul');
-    expect(r.colorKeyOf(plain), 'violeta'); // padrão do tipo estudo
+    expect(r.colorKeyOf(plain), 'azul');
+    expect(r.colorKeyOf(repeating), 'verde');
   });
 
-  test('ícone: próprio → mãe → tipo (tag não tem ícone)', () {
+  test('ícone: próprio → mãe → padrão (tag não tem ícone)', () {
     final root = makeTask('r').copyWith(iconKey: const Value('brain'));
     final child = makeTask('c', parentId: 'r');
-    final plain = makeTask('p', kind: TaskKind.estudo);
+    final plain = makeTask('p', recurrenceRule: 'FREQ=DAILY');
     final r = resolver([root, child, plain]);
     expect(r.iconKeyOf(child), 'brain');
-    expect(r.iconKeyOf(plain), 'graduation-cap');
+    expect(r.iconKeyOf(plain), 'repeat');
   });
 
   test('chave desconhecida é ignorada e a herança continua', () {

@@ -1,11 +1,12 @@
 /// Atualiza snapshots de esquemas antigos para o atual. Puro, sem Flutter.
 library;
 
+import '../../../data/db/legacy_kind.dart';
 import 'snapshot.dart';
 
 /// Esquema do banco nesta versão do app (igual a `AppDatabase.schemaVersion`;
 /// um teste garante que andam juntos).
-const currentSchemaVersion = 7;
+const currentSchemaVersion = 8;
 
 typedef SnapshotUpgrader = Map<String, List<SyncRow>> Function(
   Map<String, List<SyncRow>> tables,
@@ -19,7 +20,64 @@ final Map<int, SnapshotUpgrader> upgraders = {
   4: _v4ToV5,
   5: _v5ToV6,
   6: _v6ToV7,
+  7: _v7ToV8,
 };
+
+/// v7 → v8 (mesma regra da migração do banco): `estimated_minutes` a partir
+/// dos pomodoros estimados (× 25); cor/ícone próprios onde a aparência
+/// dependia do tipo (`legacyKindFixes`); tabela `task_templates` vazia.
+Map<String, List<SyncRow>> _v7ToV8(Map<String, List<SyncRow>> tables) {
+  final tasks = tables['tasks'] ?? const <SyncRow>[];
+  final tags = {
+    for (final t in tables['tags'] ?? const <SyncRow>[])
+      if (t['deleted_at'] == null) t['id'] as String: t,
+  };
+  final links =
+      [
+        for (final l in tables['task_tags'] ?? const <SyncRow>[])
+          if (l['deleted_at'] == null && tags.containsKey(l['tag_id'])) l,
+      ]..sort(
+        (a, b) => (tags[a['tag_id']]!['name'] as String? ?? '').compareTo(
+          tags[b['tag_id']]!['name'] as String? ?? '',
+        ),
+      );
+  final firstTagColor = <String, String>{};
+  for (final l in links) {
+    firstTagColor.putIfAbsent(
+      l['task_id']! as String,
+      () => tags[l['tag_id']]!['color_key'] as String? ?? 'azul',
+    );
+  }
+  final fixes = legacyKindFixes([
+    for (final r in tasks)
+      (
+        id: r['id']! as String,
+        parentId: r['parent_id'] as String?,
+        kind: r['kind'] as String? ?? 'simples',
+        colorKey: r['color_key'] as String?,
+        iconKey: r['icon_key'] as String?,
+        repeats: r['recurrence_rule'] != null,
+      ),
+  ], firstTagColor);
+  SyncRow upgrade(SyncRow row) {
+    final fix = fixes[row['id']];
+    final pomodoros = row['estimated_pomodoros'];
+    return {
+      ...row,
+      'estimated_minutes':
+          row['estimated_minutes'] ??
+          (pomodoros is int ? pomodoros * 25 : null),
+      'color_key': ?fix?.colorKey,
+      'icon_key': ?fix?.iconKey,
+    };
+  }
+
+  return {
+    ...tables,
+    'tasks': [for (final r in tasks) upgrade(r)],
+    'task_templates': tables['task_templates'] ?? const [],
+  };
+}
 
 /// v6 → v7: sessões de pomodoro ganham `manual` (falso).
 Map<String, List<SyncRow>> _v6ToV7(Map<String, List<SyncRow>> tables) => {

@@ -36,7 +36,6 @@ enum TaskSort {
 class TaskFilter {
   const TaskFilter({
     this.query = '',
-    this.kinds = const {},
     this.statuses = defaultStatuses,
     this.priorities = const {},
     this.tagIds = const {},
@@ -49,7 +48,6 @@ class TaskFilter {
   final String query;
 
   // Conjunto vazio = sem filtro naquele critério.
-  final Set<TaskKind> kinds;
   final Set<TaskStatus> statuses;
   final Set<int> priorities;
 
@@ -59,13 +57,11 @@ class TaskFilter {
 
   /// Quantos critérios (além da busca e da ordenação) diferem do padrão.
   int get activeCount =>
-      (kinds.isNotEmpty ? 1 : 0) +
       (_sameSet(statuses, defaultStatuses) ? 0 : 1) +
       (priorities.isNotEmpty ? 1 : 0) +
       (tagIds.isNotEmpty ? 1 : 0);
 
   bool matches(Task task, Set<String> taskTagIds) {
-    if (kinds.isNotEmpty && !kinds.contains(task.kind)) return false;
     if (statuses.isNotEmpty && !statuses.contains(task.status)) return false;
     if (priorities.isNotEmpty && !priorities.contains(task.priority)) {
       return false;
@@ -77,14 +73,12 @@ class TaskFilter {
 
   TaskFilter copyWith({
     String? query,
-    Set<TaskKind>? kinds,
     Set<TaskStatus>? statuses,
     Set<int>? priorities,
     Set<String>? tagIds,
     TaskSort? sort,
   }) => TaskFilter(
     query: query ?? this.query,
-    kinds: kinds ?? this.kinds,
     statuses: statuses ?? this.statuses,
     priorities: priorities ?? this.priorities,
     tagIds: tagIds ?? this.tagIds,

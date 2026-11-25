@@ -12,6 +12,7 @@ import 'daos/tags_dao.dart';
 import 'daos/tasks_dao.dart';
 import 'database.steps.dart';
 import 'enums.dart';
+import 'legacy_kind.dart';
 import 'tables/books.dart';
 import 'tables/cards.dart';
 import 'tables/pomodoro.dart';
@@ -23,6 +24,7 @@ part 'database.g.dart';
 @DriftDatabase(
   tables: [
     Tasks,
+    TaskTemplates,
     TaskCompletions,
     Tags,
     TaskTags,
@@ -57,7 +59,7 @@ class AppDatabase extends _$AppDatabase {
   // Ao mudar o esquema: incrementar a versão, rodar
   // `dart run drift_dev make-migrations` e escrever o passo em `onUpgrade`.
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -125,6 +127,18 @@ class AppDatabase extends _$AppDatabase {
           schema.pomodoroSessions.manual,
         );
       },
+      // v8: sem tipo de tarefa na interface (cor e ícone próprios gravados só
+      // onde a aparência mudaria; ver `legacyKindFixes`), tempo estimado e
+      // modelos.
+      from7To8: (m, schema) async {
+        await m.addColumn(schema.tasks, schema.tasks.estimatedMinutes);
+        await m.createTable(schema.taskTemplates);
+        await customStatement(
+          'UPDATE tasks SET estimated_minutes = estimated_pomodoros * 25 '
+          'WHERE estimated_pomodoros IS NOT NULL',
+        );
+        await _applyLegacyKindFixes();
+      },
     ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -134,4 +148,50 @@ class AppDatabase extends _$AppDatabase {
       await customStatement('PRAGMA busy_timeout = 5000');
     },
   );
+
+  /// Passo de dados da v8: grava cor/ícone para quem dependia do tipo.
+  Future<void> _applyLegacyKindFixes() async {
+    final rows = await customSelect(
+      'SELECT id, parent_id, kind, color_key, icon_key, recurrence_rule '
+      'FROM tasks',
+    ).get();
+    final tagRows = await customSelect(
+      'SELECT tt.task_id AS task_id, g.color_key AS color_key FROM task_tags tt '
+      'JOIN tags g ON g.id = tt.tag_id '
+      'WHERE tt.deleted_at IS NULL AND g.deleted_at IS NULL '
+      'ORDER BY g.name',
+    ).get();
+    final firstTagColor = <String, String>{};
+    for (final r in tagRows) {
+      firstTagColor.putIfAbsent(
+        r.read<String>('task_id'),
+        () => r.read<String>('color_key'),
+      );
+    }
+    final fixes = legacyKindFixes([
+      for (final r in rows)
+        (
+          id: r.read<String>('id'),
+          parentId: r.readNullable<String>('parent_id'),
+          kind: r.read<String>('kind'),
+          colorKey: r.readNullable<String>('color_key'),
+          iconKey: r.readNullable<String>('icon_key'),
+          repeats: r.readNullable<String>('recurrence_rule') != null,
+        ),
+    ], firstTagColor);
+    for (final MapEntry(key: id, value: fix) in fixes.entries) {
+      if (fix.colorKey case final c?) {
+        await customStatement('UPDATE tasks SET color_key = ? WHERE id = ?', [
+          c,
+          id,
+        ]);
+      }
+      if (fix.iconKey case final i?) {
+        await customStatement('UPDATE tasks SET icon_key = ? WHERE id = ?', [
+          i,
+          id,
+        ]);
+      }
+    }
+  }
 }

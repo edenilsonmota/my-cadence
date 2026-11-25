@@ -83,6 +83,11 @@ Future<void> seedEverything(AppDatabase db) async {
   await books.setTaskNotebooks(parent, {book});
   await cards.setTaskDecks(parent, {deck});
 
+  // Modelos ganham repositório na fase 16.8; aqui basta uma linha.
+  await db
+      .into(db.taskTemplates)
+      .insert(TaskTemplatesCompanion.insert(name: 'Prova', payload: '{}'));
+
   await settings.setString('pomodoro.focus', '30');
   await settings.setString('calendar.mode', 'mes'); // do aparelho
 }

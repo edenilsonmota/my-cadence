@@ -7,7 +7,6 @@ import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
-import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/appearance_picker.dart';
@@ -104,8 +103,8 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
       context,
       colorKey: _colorKey,
       iconKey: _iconKey,
-      inheritedColor: firstTag?.colorKey ?? kindColorKey(TaskKind.simples),
-      inheritedIcon: AppIcons.kind(TaskKind.simples),
+      inheritedColor: firstTag?.colorKey ?? defaultColorKeyFor(repeats: false),
+      inheritedIcon: AppIcons.taskDefault(),
     );
     if (choice != null) {
       setState(() {
@@ -125,7 +124,7 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
     final tags = ref.watch(tagsProvider).value ?? const <Tag>[];
     final firstTag = tags.where((t) => _tagIds.contains(t.id)).firstOrNull;
     final color =
-        _colorKey ?? firstTag?.colorKey ?? kindColorKey(TaskKind.simples);
+        _colorKey ?? firstTag?.colorKey ?? defaultColorKeyFor(repeats: false);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -221,7 +220,7 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
                     colorKey: color,
                     icon: AppIcons.of(
                       _iconKey,
-                      fallback: AppIcons.kind(TaskKind.simples),
+                      fallback: AppIcons.taskDefault(),
                     ),
                     size: 10,
                   ),

@@ -39,7 +39,10 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
             ..where(
               (t) =>
                   t.dueAt.isSmallerThanValue(before) &
-                  t.status.equalsValue(TaskStatus.feita).not(),
+                  t.status.isIn([
+                    TaskStatus.aFazer.name,
+                    TaskStatus.fazendo.name,
+                  ]),
             )
             ..orderBy([(t) => OrderingTerm.asc(t.dueAt)]))
           .watch();
@@ -51,7 +54,10 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
               (t) =>
                   t.dueAt.isNull() &
                   t.parentId.isNull() &
-                  t.status.equalsValue(TaskStatus.feita).not(),
+                  t.status.isIn([
+                    TaskStatus.aFazer.name,
+                    TaskStatus.fazendo.name,
+                  ]),
             )
             ..orderBy([
               (t) => OrderingTerm.asc(t.sortOrder),

@@ -616,5 +616,6 @@
   "manualTimeSaved": "{duration} logged.",
   "manualTimeEntries": "Manual entries",
   "manualTimeDelete": "Delete entry",
-  "statsTagHint": "A task with several tags counts its time in each; subtasks inherit the parent's tags."
+  "statsTagHint": "A task with several tags counts its time in each; subtasks inherit the parent's tags.",
+  "taskStatusPaused": "Paused"
 }

@@ -64,7 +64,7 @@ DateTime? reminderTime(Task task, {int allDayHour = allDayReminderHour}) {
 /// A tarefa precisa de lembrete (mesmo que o horário já tenha passado)?
 bool wantsAlarm(Task task) =>
     task.deletedAt == null &&
-    task.status != TaskStatus.feita &&
+    task.status.isActive &&
     effectiveReminderOffsets(task).isNotEmpty &&
     reminderBaseTime(task) != null;
 

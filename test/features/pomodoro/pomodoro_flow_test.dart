@@ -22,13 +22,8 @@ Future<void> openHubAndStartFocus(WidgetTester tester, String title) async {
   await settle(tester);
   await tester.tap(find.text(title));
   await settle(tester);
-  final start = find.text('Iniciar foco');
-  await tester.dragUntilVisible(
-    start,
-    find.byType(ListView).first,
-    const Offset(0, -200),
-  );
-  await tester.tap(start);
+  // Sem sessões, o pomodoro é um atalho no topo do hub.
+  await tester.tap(find.widgetWithText(ActionChip, 'Pomodoro'));
   await settle(tester);
 }
 
@@ -43,7 +38,7 @@ void main() {
       clock: () => now,
       screenAwake: awake,
       seed: (db) async {
-        await tasksOf(db).createTask(title: 'Estudar', kind: TaskKind.estudo);
+        await tasksOf(db).createTask(title: 'Estudar');
         await SettingsRepository(db.settingsDao)
             .setString(PomodoroSettings.keyScreenOn, 'true');
       },
@@ -93,8 +88,7 @@ void main() {
       final db = await pumpApp(
         tester,
         clock: () => now,
-        seed: (db) =>
-            tasksOf(db).createTask(title: 'Ler', kind: TaskKind.estudo),
+        seed: (db) => tasksOf(db).createTask(title: 'Ler'),
       );
       await openHubAndStartFocus(tester, 'Ler');
       await tester.tap(find.text('Iniciar'));
@@ -184,7 +178,7 @@ void main() {
       tester,
       clock: () => now,
       seed: (db) async {
-        await tasksOf(db).createTask(title: 'Ler', kind: TaskKind.estudo);
+        await tasksOf(db).createTask(title: 'Ler');
         await SettingsRepository(db.settingsDao)
             .setString(PomodoroSettings.keyAutoBreaks, 'true');
       },

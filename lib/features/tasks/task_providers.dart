@@ -6,6 +6,7 @@ import '../../app/clock.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
+import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import 'task_appearance.dart';
 import 'task_lists.dart';
@@ -48,7 +49,8 @@ final todayTasksProvider = StreamProvider.autoDispose<List<Task>>((ref) {
   return ref
       .watch(tasksRepositoryProvider)
       .watchTasksDueBetween(today, addDays(today, 1))
-      .map(sortToday);
+      // Pausada sai do Hoje (volta quando for retomada).
+      .map((ts) => sortToday(ts.where((t) => t.status != TaskStatus.pausada)));
 });
 
 final undatedTasksProvider = StreamProvider.autoDispose<List<Task>>(

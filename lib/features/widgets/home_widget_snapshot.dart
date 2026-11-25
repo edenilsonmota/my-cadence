@@ -256,7 +256,7 @@ HomeWidgetSnapshot buildHomeWidgetSnapshot({
   final seenIds = <String>{};
 
   for (final task in tasks) {
-    if (task.deletedAt != null || task.status == TaskStatus.feita) continue;
+    if (task.deletedAt != null || !task.status.isActive) continue;
     final due = task.dueAt;
     if (due == null) continue;
     if (due.isBefore(dayStart)) {

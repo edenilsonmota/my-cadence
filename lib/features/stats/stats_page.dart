@@ -11,7 +11,6 @@ import '../../app/nav_tabs_providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
-import '../../data/db/enums.dart';
 import '../../shared/widgets/metric_card.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../tasks/hub/hub_stats.dart' show formatDuration;
@@ -441,7 +440,6 @@ class _FocusBySection extends ConsumerWidget {
       return switch (group) {
         FocusGroup.tarefa => [id],
         FocusGroup.tag => tagsWithAncestors(id, parentOf, links),
-        FocusGroup.tipo => [if (tasks[id] case final t?) t.kind.name],
       };
     }, now);
 
@@ -450,13 +448,6 @@ class _FocusBySection extends ConsumerWidget {
       FocusGroup.tarefa => tasks[key]?.title ?? l10n.statsDeletedTask,
       FocusGroup.tag when key == null => l10n.statsNoTag,
       FocusGroup.tag => tags[key]?.name ?? l10n.statsDeletedTag,
-      FocusGroup.tipo when key == null => l10n.pomodoroNoTask,
-      FocusGroup.tipo =>
-        [
-              for (final t in tasks.values)
-                if (t.kind.name == key) t.kind.labelFor(l10n),
-            ].firstOrNull ??
-            key!,
     };
 
     final top = rows.take(8).toList();
@@ -469,8 +460,6 @@ class _FocusBySection extends ConsumerWidget {
         palette.byName(resolver.colorKeyOf(tasks[key]!)).strong,
       FocusGroup.tag when tags[key] != null =>
         palette.byName(tags[key]!.colorKey).strong,
-      FocusGroup.tipo =>
-        palette.of(AppPalette.kindKey(TaskKind.values.byName(key))).strong,
       _ => null,
     };
     return Column(
@@ -487,10 +476,6 @@ class _FocusBySection extends ConsumerWidget {
             ButtonSegment(
               value: FocusGroup.tag,
               label: Text(l10n.statsGroupTag),
-            ),
-            ButtonSegment(
-              value: FocusGroup.tipo,
-              label: Text(l10n.statsGroupType),
             ),
           ],
           selected: {group},

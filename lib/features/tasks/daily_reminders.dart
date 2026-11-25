@@ -6,7 +6,6 @@ import '../../core/dates.dart';
 import '../../core/notification_id.dart';
 import '../../core/notifications.dart';
 import '../../data/db/database.dart';
-import '../../data/db/enums.dart';
 import '../cards/review_queue.dart';
 
 /// Preferências dos avisos diários (prefixo `reminders.` → sincroniza entre
@@ -123,7 +122,7 @@ AlarmSpec? dailySummaryAlarm({
   var overdue = 0;
   var todayCount = 0;
   for (final task in tasks) {
-    if (task.deletedAt != null || task.status == TaskStatus.feita) continue;
+    if (task.deletedAt != null || !task.status.isActive) continue;
     final due = task.dueAt;
     if (due == null) continue;
     if (due.isBefore(targetDay)) {

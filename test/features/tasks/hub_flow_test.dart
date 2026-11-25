@@ -33,23 +33,6 @@ Future<void> scrollTo(WidgetTester tester, Finder finder) =>
     );
 
 void main() {
-  testWidgets('estudo mostra as três seções mesmo vazias', (tester) async {
-    await pumpApp(
-      tester,
-      seed: (db) =>
-          tasksOf(db).createTask(title: 'Prova', kind: TaskKind.estudo),
-    );
-    await openHub(tester, 'Prova');
-
-    expect(find.text('ADICIONAR'), findsNothing);
-    await scrollTo(tester, find.text('Vincular página existente'));
-    expect(find.text('FLASHCARDS'), findsOneWidget);
-    expect(find.text('Nenhum card ainda'), findsOneWidget);
-    expect(find.text('POMODORO'), findsOneWidget);
-    expect(find.text('Tempo de foco: 0 min'), findsOneWidget);
-    expect(find.text('PÁGINAS'), findsOneWidget);
-  });
-
   testWidgets('tarefa simples mostra atalhos; criar card faz a seção surgir', (
     tester,
   ) async {
@@ -125,7 +108,7 @@ void main() {
     final db = await pumpApp(
       tester,
       seed: (db) async {
-        await tasksOf(db).createTask(title: 'Prova', kind: TaskKind.estudo);
+        await tasksOf(db).createTask(title: 'Prova');
         final books = BooksRepository(db.booksDao);
         final book = await books.createBook(title: 'Cálculo');
         await books.createPage(notebookId: book, title: 'Derivadas');
@@ -133,11 +116,12 @@ void main() {
     );
     await openHub(tester, 'Prova');
 
-    await scrollTo(tester, find.text('Vincular página existente'));
-    final addPage = find.text('Página');
-    await tester.ensureVisible(addPage);
-    await settle(tester);
-    await tester.tap(addPage);
+    // Sem páginas, os dois atalhos ficam no topo.
+    expect(
+      find.widgetWithText(ActionChip, 'Vincular página existente'),
+      findsOneWidget,
+    );
+    await tester.tap(find.widgetWithText(ActionChip, 'Página'));
     await settle(tester);
     await tester.enterText(find.byType(TextField).last, 'Resumo');
     await settle(tester);
@@ -145,6 +129,8 @@ void main() {
     await settle(tester);
     expect(find.text('Resumo'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Vincular página existente'));
+    await settle(tester);
     await tester.tap(find.text('Vincular página existente'));
     await settle(tester);
     expect(find.text('Derivadas'), findsOneWidget);

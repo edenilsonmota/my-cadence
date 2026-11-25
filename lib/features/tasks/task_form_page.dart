@@ -339,17 +339,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           onDecks: (ids) => _edit((d) => d.deckIds = ids),
         ),
         _Section(l10n.fieldDetails),
-        _Label(l10n.fieldType, first: true),
-        SegmentedButton<TaskKind>(
-          showSelectedIcon: false,
-          segments: [
-            for (final kind in TaskKind.values)
-              ButtonSegment(value: kind, label: Text(kind.labelFor(l10n))),
-          ],
-          selected: {d.kind},
-          onSelectionChanged: (s) => _edit((d) => d.kind = s.single),
-        ),
-        _Label(l10n.fieldPriority),
+        _Label(l10n.fieldPriority, first: true),
         SegmentedButton<int>(
           showSelectedIcon: false,
           segments: [
@@ -1202,7 +1192,7 @@ class _AppearanceField extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final resolver = ref.watch(appearanceResolverProvider);
     final tags = ref.watch(tagsProvider).value ?? const <Tag>[];
-    // O que valeria sem escolha própria: mãe, 1ª tag escolhida, tipo.
+    // O que valeria sem escolha própria: mãe, 1ª tag escolhida, padrão.
     final parent = parentId == null
         ? null
         : (ref.watch(allTasksProvider).value ?? const <Task>[])
@@ -1211,9 +1201,9 @@ class _AppearanceField extends ConsumerWidget {
     final firstTag = tags.where((t) => draft.tagIds.contains(t.id)).firstOrNull;
     final inheritedColor = parent != null && parent.colorKey != null
         ? resolver.colorKeyOf(parent)
-        : firstTag?.colorKey ?? kindColorKey(draft.kind);
+        : firstTag?.colorKey ?? defaultColorKeyFor(repeats: draft.repeats);
     final inheritedIcon = parent == null
-        ? AppIcons.kind(draft.kind)
+        ? AppIcons.taskDefault(repeats: draft.repeats)
         : AppIcons.of(resolver.iconKeyOf(parent));
     final color = draft.colorKey ?? inheritedColor;
     final icon = IconCatalog.tryIcon(draft.iconKey) ?? inheritedIcon;

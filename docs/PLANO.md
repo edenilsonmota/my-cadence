@@ -367,6 +367,29 @@ automática ao mudar tarefas/aparência e na virada da meia-noite. Fazer em fase
 3b. **Widget "Mês + Hoje" (`4 × 5`) — feito.** A mesma grade (com pontinhos, por ser menor) e a lista de hoje embaixo.
 4. **Concluir direto pelo widget *(opcional)*.** Ação rápida no widget **Hoje** para marcar tarefa concluída
    em segundo plano sem abrir o app.
+
+### Etapa 16: Simplificar e completar o dia a dia
+Uma fase por vez; ao fim de cada uma, versão publicada e parada para revisão.
+1. **Unificar os tipos de tarefa — feito (1.4.0).** Os tipos (simples, estudo, rotina, evento) só mudavam cor/ícone padrão, um
+   filtro, um agrupamento das métricas e as ferramentas sempre visíveis no hub do estudo; uma "rotina" podia não
+   repetir. Sai o tipo da interface (a coluna fica, sem uso): a repetição define o visual padrão (verde e ícone de
+   repetição) e as tags fazem a separação. Migração v8 grava cor/ícone próprios só onde a aparência mudaria
+   (`legacyKindFixes`). O esquema v8 já traz as colunas das fases seguintes (tempo estimado, modelos, pausada).
+2. **Pausar e reagendar.** Status "Pausada" (some do Hoje, dos atrasados, dos lembretes e dos widgets até ser
+   retomada; aparece em Tarefas com selo). No hub, "Reagendar": hoje, amanhã, próxima semana ou escolher data,
+   mantendo a hora e a distância do início.
+3. **Tempo estimado.** Estimativa em horas/minutos no lugar dos pomodoros estimados (convertidos × 25 min),
+   comparada com o foco feito (pomodoros + tempo manual) no hub e nas métricas.
+4. **Tags na adição rápida.** `#tag` no texto vincula a tag (cria se não existir), sem diferenciar acentos e
+   maiúsculas.
+5. **Busca geral.** Tarefas (título e notas), páginas dos books (título e texto) e cards (frente e verso).
+6. **Revisão da semana.** Concluídas, tempo por tag, rotinas cumpridas e o que ficou atrasado, com reagendar
+   em um toque.
+7. **Pendências.** Navegação de mês (`‹ ›`) no widget "Mês"; concluir pelo widget "Hoje"; "Registrar tempo"
+   também na tela do Pomodoro.
+8. **Modelos de tarefa.** Salvar uma tarefa como modelo (título, notas, tags, aparência, estimativa, lembretes,
+   subtarefas, books e decks) e criar a partir dele.
+
 ---
 
 ## 5. Definição de pronto (vale para todas as etapas)

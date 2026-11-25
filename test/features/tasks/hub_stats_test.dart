@@ -118,24 +118,16 @@ void main() {
     expect(counts.due, 2);
   });
 
-  test(
-    'estudo mostra sempre as três ferramentas; os outros só com conteúdo',
-    () {
-      final study = visibleTools(
-        kind: TaskKind.estudo,
-        hasCards: false,
-        hasPomodoro: false,
-        hasPages: false,
-      );
-      expect(study, (cards: true, pomodoro: true, pages: true));
-
-      final simple = visibleTools(
-        kind: TaskKind.simples,
-        hasCards: true,
-        hasPomodoro: false,
-        hasPages: false,
-      );
-      expect(simple, (cards: true, pomodoro: false, pages: false));
-    },
-  );
+  test('ferramentas aparecem só com conteúdo (sem tipo de tarefa)', () {
+    expect(visibleTools(hasCards: true, hasPomodoro: false, hasPages: false), (
+      cards: true,
+      pomodoro: false,
+      pages: false,
+    ));
+    expect(visibleTools(hasCards: false, hasPomodoro: false, hasPages: false), (
+      cards: false,
+      pomodoro: false,
+      pages: false,
+    ));
+  });
 }

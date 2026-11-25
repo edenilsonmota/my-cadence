@@ -8,7 +8,6 @@ import '../../../app/router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/dates.dart';
 import '../../../data/db/database.dart';
-import '../../../data/db/enums.dart';
 import '../../../data/providers.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/text_input_dialog.dart';
@@ -17,21 +16,13 @@ import '../../pomodoro/manual_time_sheet.dart';
 import 'hub_providers.dart';
 import 'hub_stats.dart';
 
-/// Quais ferramentas aparecem como seção. Tarefa de estudo mostra sempre as
-/// três; nos outros tipos, só as que já têm conteúdo (as demais viram atalho).
+/// Quais ferramentas aparecem como seção: só as que já têm conteúdo; as
+/// demais viram atalho no topo.
 ({bool cards, bool pomodoro, bool pages}) visibleTools({
-  required TaskKind kind,
   required bool hasCards,
   required bool hasPomodoro,
   required bool hasPages,
-}) {
-  final always = kind == TaskKind.estudo;
-  return (
-    cards: always || hasCards,
-    pomodoro: always || hasPomodoro,
-    pages: always || hasPages,
-  );
-}
+}) => (cards: hasCards, pomodoro: hasPomodoro, pages: hasPages);
 
 enum HubToolsPart { shortcuts, sections }
 
@@ -91,7 +82,6 @@ class HubTools extends ConsumerWidget {
         ref.watch(linkedDecksProvider(task.id)).value ?? const [];
 
     final visible = visibleTools(
-      kind: task.kind,
       hasCards: cards.isNotEmpty || linkedDecks.isNotEmpty,
       hasPomodoro: sessions.isNotEmpty || task.estimatedPomodoros != null,
       hasPages:
@@ -102,6 +92,7 @@ class HubTools extends ConsumerWidget {
     void startFocus() => context.push(Routes.pomodoro(taskId: task.id));
     void addPage() => _addPage(context, ref, ownPages.length);
     void logTime() => showManualTimeSheet(context, taskId: task.id);
+    void linkPage() => showLinkPageSheet(context, task.id);
 
     final shortcuts = [
       if (!visible.cards)
@@ -122,12 +113,18 @@ class HubTools extends ConsumerWidget {
           onPressed: logTime,
         ),
       ],
-      if (!visible.pages)
+      if (!visible.pages) ...[
         ActionChip(
           avatar: const Icon(AppIcons.page),
           label: Text(l10n.hubPage),
           onPressed: addPage,
         ),
+        ActionChip(
+          avatar: const Icon(AppIcons.link),
+          label: Text(l10n.hubLinkExistingPage),
+          onPressed: linkPage,
+        ),
+      ],
     ];
 
     if (part == HubToolsPart.shortcuts) {
@@ -468,19 +465,23 @@ class _PagesSection extends ConsumerWidget {
           OutlinedButton.icon(
             icon: const Icon(AppIcons.link),
             label: Text(l10n.hubLinkExistingPage),
-            onPressed: () => showModalBottomSheet<void>(
-              useRootNavigator: true,
-              context: context,
-              isScrollControlled: true,
-              showDragHandle: true,
-              builder: (_) => _LinkPageSheet(taskId: taskId),
-            ),
+            onPressed: () => showLinkPageSheet(context, taskId),
           ),
         ]),
       ],
     );
   }
 }
+
+/// Abre a lista de páginas dos books para vincular à tarefa.
+Future<void> showLinkPageSheet(BuildContext context, String taskId) =>
+    showModalBottomSheet<void>(
+      useRootNavigator: true,
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _LinkPageSheet(taskId: taskId),
+    );
 
 /// Lista as páginas dos books para vincular ou desvincular da tarefa.
 class _LinkPageSheet extends ConsumerWidget {

@@ -149,7 +149,7 @@ class _TaskTileState extends ConsumerState<TaskTile> {
     final tones = palette.byName(resolver.colorKeyOf(task));
     final icon = AppIcons.of(
       resolver.iconKeyOf(task),
-      fallback: AppIcons.kind(task.kind),
+      fallback: AppIcons.taskDefault(repeats: task.recurrenceRule != null),
     );
     final overdue =
         widget.showOverdue &&

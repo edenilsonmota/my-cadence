@@ -24,7 +24,7 @@ class StatsBucketNotifier extends Notifier<Bucket> {
   void set(Bucket b) => state = b;
 }
 
-enum FocusGroup { tarefa, tag, tipo }
+enum FocusGroup { tarefa, tag }
 
 final focusGroupProvider = NotifierProvider<FocusGroupNotifier, FocusGroup>(
   FocusGroupNotifier.new,

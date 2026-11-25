@@ -1232,5 +1232,6 @@
   },
   "manualTimeEntries": "Registros manuais",
   "manualTimeDelete": "Excluir registro",
-  "statsTagHint": "Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe."
+  "statsTagHint": "Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe.",
+  "taskStatusPaused": "Pausada"
 }

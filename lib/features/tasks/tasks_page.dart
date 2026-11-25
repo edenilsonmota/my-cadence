@@ -13,7 +13,6 @@ import '../../shared/widgets/tab_scaffold.dart';
 import '../../shared/widgets/tag_chip.dart';
 import '../sync/presentation/account_avatar.dart';
 import 'quick_add_sheet.dart';
-import 'task_labels.dart';
 import 'task_lists.dart';
 import 'task_providers.dart';
 import 'widgets/task_tile.dart';
@@ -244,27 +243,15 @@ class _FilterSheet extends ConsumerWidget {
               title: l10n.fieldStatus,
               children: [
                 for (final status in TaskStatus.values)
-                  FilterChip(
-                    label: Text(status.labelFor(l10n)),
-                    selected: filter.statuses.contains(status),
-                    onSelected: (_) => notifier.update(
-                      (f) => f.copyWith(statuses: toggled(f.statuses, status)),
+                  if (status != TaskStatus.pausada)
+                    FilterChip(
+                      label: Text(status.labelFor(l10n)),
+                      selected: filter.statuses.contains(status),
+                      onSelected: (_) => notifier.update(
+                        (f) =>
+                            f.copyWith(statuses: toggled(f.statuses, status)),
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            _ChipGroup(
-              title: l10n.fieldType,
-              children: [
-                for (final kind in TaskKind.values)
-                  FilterChip(
-                    avatar: Icon(kind.icon, size: 18),
-                    label: Text(kind.labelFor(l10n)),
-                    selected: filter.kinds.contains(kind),
-                    onSelected: (_) => notifier.update(
-                      (f) => f.copyWith(kinds: toggled(f.kinds, kind)),
-                    ),
-                  ),
               ],
             ),
             _ChipGroup(

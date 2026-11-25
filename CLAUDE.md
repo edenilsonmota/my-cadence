@@ -41,6 +41,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 
 ## Banco e sync
 
+- Status `pausada` (v8) existe no enum e `TaskStatus.isActive` já o exclui de Hoje, atrasados, lembretes e
+  widgets; a interface para pausar entra na fase 16.2 (por ora o menu de status não o oferece).
 - Toda tabela usa o mixin `SyncColumns` (id UUID v7, `createdAt`, `updatedAt`, `deletedAt`, `dirty`, `serverVersion`).
 - Toda escrita nos DAOs passa por `SyncWrites` (`lib/data/db/sync_writes.dart`: `insertSynced`, `updateSynced`,
   `softDeleteSynced`), que aplica `updatedAt = now` e `dirty = true`. Nunca usar `into().insert`, `update()` ou
@@ -90,7 +92,13 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - `Tags.colorKey`, `Tasks.colorKey`/`iconKey`, `Notebooks.colorKey`/`iconKey`: **chaves** (paleta `PaletteKey`,
   catálogo `IconCatalog`), nunca ARGB nem codePoint. Chave desconhecida cai na herança.
 - Herança em `features/tasks/task_appearance.dart` (puro, testado): cor da tarefa → mãe → 1ª tag (alfabética)
-  → tipo; ícone da tarefa → mãe → tipo. Na UI, `appearanceResolverProvider`.
+  → padrão; ícone da tarefa → mãe → padrão. O padrão vem da repetição (`defaultColorKeyFor`/`defaultIconKeyFor`
+  em `data/db/legacy_kind.dart`: repete = verde/`repeat`, senão azul/`square-check`). Na UI,
+  `appearanceResolverProvider`; ícone padrão `AppIcons.taskDefault(repeats:)`.
+- **Sem tipo de tarefa desde o esquema v8**: a coluna `kind` fica (legado, tarefas novas `simples`), mas nada na
+  interface lê o tipo; a separação é por tags. A migração grava cor/ícone onde a aparência mudaria
+  (`legacyKindFixes`, também no upgrader do snapshot). O hub mostra cada ferramenta só com conteúdo (as outras
+  viram atalhos, inclusive "Vincular página existente").
 - Seletor único `showAppearancePicker` (`shared/widgets/appearance_picker.dart`); `AppearanceBadge` e `TagChip`.
 
 ## Regras de domínio que não podem escorregar

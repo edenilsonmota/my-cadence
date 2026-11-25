@@ -70,6 +70,7 @@ extension TaskStatusL10n on TaskStatus {
     TaskStatus.aFazer => l10n.taskStatusTodo,
     TaskStatus.fazendo => l10n.taskStatusDoing,
     TaskStatus.feita => l10n.taskStatusDone,
+    TaskStatus.pausada => l10n.taskStatusPaused,
   };
 }
 

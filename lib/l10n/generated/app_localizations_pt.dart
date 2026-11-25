@@ -2158,4 +2158,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get statsTagHint =>
       'Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe.';
+
+  @override
+  String get taskStatusPaused => 'Pausada';
 }

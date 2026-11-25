@@ -306,7 +306,9 @@ class _TaskRow extends ConsumerWidget {
               colorKey: resolver.colorKeyOf(task),
               icon: AppIcons.of(
                 resolver.iconKeyOf(task),
-                fallback: AppIcons.kind(task.kind),
+                fallback: AppIcons.taskDefault(
+                  repeats: task.recurrenceRule != null,
+                ),
               ),
             ),
       title: Text(

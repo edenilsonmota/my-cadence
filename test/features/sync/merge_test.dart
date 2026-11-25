@@ -316,6 +316,27 @@ void main() {
       expect(r.merged.schemaVersion, currentSchemaVersion);
     });
 
+    test('remoto v7: tipo vira cor/ícone e estimativa vira tempo', () {
+      final remote = snap('B', {
+        'tasks': [
+          {
+            ...task('t', at(20)),
+            'kind': 'estudo',
+            'color_key': null,
+            'icon_key': null,
+            'estimated_pomodoros': 2,
+          },
+        ],
+      }, schemaVersion: 7);
+      final r = merge(snap('A', const {}), remote, now: now);
+      final row = r.merged.rows('tasks').single;
+      expect(
+        (row['color_key'], row['icon_key'], row['estimated_minutes']),
+        ('violeta', 'graduation-cap', 50),
+      );
+      expect(r.merged.rows('task_templates'), isEmpty);
+    });
+
     test('remoto v6: sessões ganham manual falso', () {
       final remote = snap('B', {
         'pomodoro_sessions': [

@@ -104,5 +104,7 @@ Tones entryTones(BuildContext context, Task task, AppearanceResolver r) =>
     context.palette.byName(r.colorKeyOf(task));
 
 /// Ícone resolvido da tarefa.
-IconData entryIcon(Task task, AppearanceResolver r) =>
-    AppIcons.of(r.iconKeyOf(task), fallback: AppIcons.kind(task.kind));
+IconData entryIcon(Task task, AppearanceResolver r) => AppIcons.of(
+  r.iconKeyOf(task),
+  fallback: AppIcons.taskDefault(repeats: task.recurrenceRule != null),
+);

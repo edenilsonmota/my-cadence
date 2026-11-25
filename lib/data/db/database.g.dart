@@ -239,6 +239,17 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _estimatedMinutesMeta = const VerificationMeta(
+    'estimatedMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> estimatedMinutes = GeneratedColumn<int>(
+    'estimated_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _sortOrderMeta = const VerificationMeta(
     'sortOrder',
   );
@@ -307,6 +318,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     reminderMode,
     nagIntervalMinutes,
     estimatedPomodoros,
+    estimatedMinutes,
     sortOrder,
     completedAt,
     colorKey,
@@ -449,6 +461,15 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         ),
       );
     }
+    if (data.containsKey('estimated_minutes')) {
+      context.handle(
+        _estimatedMinutesMeta,
+        estimatedMinutes.isAcceptableOrUnknown(
+          data['estimated_minutes']!,
+          _estimatedMinutesMeta,
+        ),
+      );
+    }
     if (data.containsKey('sort_order')) {
       context.handle(
         _sortOrderMeta,
@@ -575,6 +596,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         DriftSqlType.int,
         data['${effectivePrefix}estimated_pomodoros'],
       ),
+      estimatedMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}estimated_minutes'],
+      ),
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
@@ -646,11 +671,17 @@ class Task extends DataClass implements Insertable<Task> {
 
   /// Intervalo em minutos para insistir se a tarefa atrasar; `null` desliga.
   final int? nagIntervalMinutes;
+
+  /// Legado: a estimativa agora é em tempo ([estimatedMinutes]).
   final int? estimatedPomodoros;
+
+  /// Tempo estimado em minutos (esquema v8), comparado com o foco feito
+  /// (pomodoros e tempo registrado à mão).
+  final int? estimatedMinutes;
   final int sortOrder;
   final DateTime? completedAt;
 
-  /// Chave da paleta (`PaletteKey.name`); nula = herda (mãe, tag, tipo).
+  /// Chave da paleta (`PaletteKey.name`); nula = herda (mãe, tag, padrão).
   final String? colorKey;
 
   /// Chave do catálogo de ícones (ex.: `book-open`); nula = herda.
@@ -677,6 +708,7 @@ class Task extends DataClass implements Insertable<Task> {
     required this.reminderMode,
     this.nagIntervalMinutes,
     this.estimatedPomodoros,
+    this.estimatedMinutes,
     required this.sortOrder,
     this.completedAt,
     this.colorKey,
@@ -738,6 +770,9 @@ class Task extends DataClass implements Insertable<Task> {
     if (!nullToAbsent || estimatedPomodoros != null) {
       map['estimated_pomodoros'] = Variable<int>(estimatedPomodoros);
     }
+    if (!nullToAbsent || estimatedMinutes != null) {
+      map['estimated_minutes'] = Variable<int>(estimatedMinutes);
+    }
     map['sort_order'] = Variable<int>(sortOrder);
     if (!nullToAbsent || completedAt != null) {
       map['completed_at'] = Variable<DateTime>(completedAt);
@@ -796,6 +831,9 @@ class Task extends DataClass implements Insertable<Task> {
       estimatedPomodoros: estimatedPomodoros == null && nullToAbsent
           ? const Value.absent()
           : Value(estimatedPomodoros),
+      estimatedMinutes: estimatedMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(estimatedMinutes),
       sortOrder: Value(sortOrder),
       completedAt: completedAt == null && nullToAbsent
           ? const Value.absent()
@@ -844,6 +882,7 @@ class Task extends DataClass implements Insertable<Task> {
       ),
       nagIntervalMinutes: serializer.fromJson<int?>(json['nagIntervalMinutes']),
       estimatedPomodoros: serializer.fromJson<int?>(json['estimatedPomodoros']),
+      estimatedMinutes: serializer.fromJson<int?>(json['estimatedMinutes']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
       colorKey: serializer.fromJson<String?>(json['colorKey']),
@@ -881,6 +920,7 @@ class Task extends DataClass implements Insertable<Task> {
       ),
       'nagIntervalMinutes': serializer.toJson<int?>(nagIntervalMinutes),
       'estimatedPomodoros': serializer.toJson<int?>(estimatedPomodoros),
+      'estimatedMinutes': serializer.toJson<int?>(estimatedMinutes),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
       'colorKey': serializer.toJson<String?>(colorKey),
@@ -910,6 +950,7 @@ class Task extends DataClass implements Insertable<Task> {
     ReminderMode? reminderMode,
     Value<int?> nagIntervalMinutes = const Value.absent(),
     Value<int?> estimatedPomodoros = const Value.absent(),
+    Value<int?> estimatedMinutes = const Value.absent(),
     int? sortOrder,
     Value<DateTime?> completedAt = const Value.absent(),
     Value<String?> colorKey = const Value.absent(),
@@ -948,6 +989,9 @@ class Task extends DataClass implements Insertable<Task> {
     estimatedPomodoros: estimatedPomodoros.present
         ? estimatedPomodoros.value
         : this.estimatedPomodoros,
+    estimatedMinutes: estimatedMinutes.present
+        ? estimatedMinutes.value
+        : this.estimatedMinutes,
     sortOrder: sortOrder ?? this.sortOrder,
     completedAt: completedAt.present ? completedAt.value : this.completedAt,
     colorKey: colorKey.present ? colorKey.value : this.colorKey,
@@ -990,6 +1034,9 @@ class Task extends DataClass implements Insertable<Task> {
       estimatedPomodoros: data.estimatedPomodoros.present
           ? data.estimatedPomodoros.value
           : this.estimatedPomodoros,
+      estimatedMinutes: data.estimatedMinutes.present
+          ? data.estimatedMinutes.value
+          : this.estimatedMinutes,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       completedAt: data.completedAt.present
           ? data.completedAt.value
@@ -1023,6 +1070,7 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('reminderMode: $reminderMode, ')
           ..write('nagIntervalMinutes: $nagIntervalMinutes, ')
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
+          ..write('estimatedMinutes: $estimatedMinutes, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
           ..write('colorKey: $colorKey, ')
@@ -1054,6 +1102,7 @@ class Task extends DataClass implements Insertable<Task> {
     reminderMode,
     nagIntervalMinutes,
     estimatedPomodoros,
+    estimatedMinutes,
     sortOrder,
     completedAt,
     colorKey,
@@ -1084,6 +1133,7 @@ class Task extends DataClass implements Insertable<Task> {
           other.reminderMode == this.reminderMode &&
           other.nagIntervalMinutes == this.nagIntervalMinutes &&
           other.estimatedPomodoros == this.estimatedPomodoros &&
+          other.estimatedMinutes == this.estimatedMinutes &&
           other.sortOrder == this.sortOrder &&
           other.completedAt == this.completedAt &&
           other.colorKey == this.colorKey &&
@@ -1112,6 +1162,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<ReminderMode> reminderMode;
   final Value<int?> nagIntervalMinutes;
   final Value<int?> estimatedPomodoros;
+  final Value<int?> estimatedMinutes;
   final Value<int> sortOrder;
   final Value<DateTime?> completedAt;
   final Value<String?> colorKey;
@@ -1139,6 +1190,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.reminderMode = const Value.absent(),
     this.nagIntervalMinutes = const Value.absent(),
     this.estimatedPomodoros = const Value.absent(),
+    this.estimatedMinutes = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.colorKey = const Value.absent(),
@@ -1167,6 +1219,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.reminderMode = const Value.absent(),
     this.nagIntervalMinutes = const Value.absent(),
     this.estimatedPomodoros = const Value.absent(),
+    this.estimatedMinutes = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.colorKey = const Value.absent(),
@@ -1195,6 +1248,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<String>? reminderMode,
     Expression<int>? nagIntervalMinutes,
     Expression<int>? estimatedPomodoros,
+    Expression<int>? estimatedMinutes,
     Expression<int>? sortOrder,
     Expression<DateTime>? completedAt,
     Expression<String>? colorKey,
@@ -1225,6 +1279,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (nagIntervalMinutes != null)
         'nag_interval_minutes': nagIntervalMinutes,
       if (estimatedPomodoros != null) 'estimated_pomodoros': estimatedPomodoros,
+      if (estimatedMinutes != null) 'estimated_minutes': estimatedMinutes,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (completedAt != null) 'completed_at': completedAt,
       if (colorKey != null) 'color_key': colorKey,
@@ -1255,6 +1310,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<ReminderMode>? reminderMode,
     Value<int?>? nagIntervalMinutes,
     Value<int?>? estimatedPomodoros,
+    Value<int?>? estimatedMinutes,
     Value<int>? sortOrder,
     Value<DateTime?>? completedAt,
     Value<String?>? colorKey,
@@ -1284,6 +1340,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       reminderMode: reminderMode ?? this.reminderMode,
       nagIntervalMinutes: nagIntervalMinutes ?? this.nagIntervalMinutes,
       estimatedPomodoros: estimatedPomodoros ?? this.estimatedPomodoros,
+      estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
       sortOrder: sortOrder ?? this.sortOrder,
       completedAt: completedAt ?? this.completedAt,
       colorKey: colorKey ?? this.colorKey,
@@ -1366,6 +1423,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (estimatedPomodoros.present) {
       map['estimated_pomodoros'] = Variable<int>(estimatedPomodoros.value);
     }
+    if (estimatedMinutes.present) {
+      map['estimated_minutes'] = Variable<int>(estimatedMinutes.value);
+    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -1408,10 +1468,523 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('reminderMode: $reminderMode, ')
           ..write('nagIntervalMinutes: $nagIntervalMinutes, ')
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
+          ..write('estimatedMinutes: $estimatedMinutes, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
           ..write('colorKey: $colorKey, ')
           ..write('iconKey: $iconKey, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TaskTemplatesTable extends TaskTemplates
+    with TableInfo<$TaskTemplatesTable, TaskTemplate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskTemplatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: newId,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
+  @override
+  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
+    'dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _serverVersionMeta = const VerificationMeta(
+    'serverVersion',
+  );
+  @override
+  late final GeneratedColumn<int> serverVersion = GeneratedColumn<int>(
+    'server_version',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    serverVersion,
+    name,
+    payload,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_templates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskTemplate> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('dirty')) {
+      context.handle(
+        _dirtyMeta,
+        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
+      );
+    }
+    if (data.containsKey('server_version')) {
+      context.handle(
+        _serverVersionMeta,
+        serverVersion.isAcceptableOrUnknown(
+          data['server_version']!,
+          _serverVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TaskTemplate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskTemplate(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      dirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dirty'],
+      )!,
+      serverVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}server_version'],
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+    );
+  }
+
+  @override
+  $TaskTemplatesTable createAlias(String alias) {
+    return $TaskTemplatesTable(attachedDatabase, alias);
+  }
+}
+
+class TaskTemplate extends DataClass implements Insertable<TaskTemplate> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final bool dirty;
+  final int? serverVersion;
+  final String name;
+  final String payload;
+  const TaskTemplate({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.dirty,
+    this.serverVersion,
+    required this.name,
+    required this.payload,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['dirty'] = Variable<bool>(dirty);
+    if (!nullToAbsent || serverVersion != null) {
+      map['server_version'] = Variable<int>(serverVersion);
+    }
+    map['name'] = Variable<String>(name);
+    map['payload'] = Variable<String>(payload);
+    return map;
+  }
+
+  TaskTemplatesCompanion toCompanion(bool nullToAbsent) {
+    return TaskTemplatesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      dirty: Value(dirty),
+      serverVersion: serverVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverVersion),
+      name: Value(name),
+      payload: Value(payload),
+    );
+  }
+
+  factory TaskTemplate.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskTemplate(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      dirty: serializer.fromJson<bool>(json['dirty']),
+      serverVersion: serializer.fromJson<int?>(json['serverVersion']),
+      name: serializer.fromJson<String>(json['name']),
+      payload: serializer.fromJson<String>(json['payload']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'dirty': serializer.toJson<bool>(dirty),
+      'serverVersion': serializer.toJson<int?>(serverVersion),
+      'name': serializer.toJson<String>(name),
+      'payload': serializer.toJson<String>(payload),
+    };
+  }
+
+  TaskTemplate copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    bool? dirty,
+    Value<int?> serverVersion = const Value.absent(),
+    String? name,
+    String? payload,
+  }) => TaskTemplate(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    dirty: dirty ?? this.dirty,
+    serverVersion: serverVersion.present
+        ? serverVersion.value
+        : this.serverVersion,
+    name: name ?? this.name,
+    payload: payload ?? this.payload,
+  );
+  TaskTemplate copyWithCompanion(TaskTemplatesCompanion data) {
+    return TaskTemplate(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      dirty: data.dirty.present ? data.dirty.value : this.dirty,
+      serverVersion: data.serverVersion.present
+          ? data.serverVersion.value
+          : this.serverVersion,
+      name: data.name.present ? data.name.value : this.name,
+      payload: data.payload.present ? data.payload.value : this.payload,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskTemplate(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('serverVersion: $serverVersion, ')
+          ..write('name: $name, ')
+          ..write('payload: $payload')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    serverVersion,
+    name,
+    payload,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskTemplate &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.dirty == this.dirty &&
+          other.serverVersion == this.serverVersion &&
+          other.name == this.name &&
+          other.payload == this.payload);
+}
+
+class TaskTemplatesCompanion extends UpdateCompanion<TaskTemplate> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<bool> dirty;
+  final Value<int?> serverVersion;
+  final Value<String> name;
+  final Value<String> payload;
+  final Value<int> rowid;
+  const TaskTemplatesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.serverVersion = const Value.absent(),
+    this.name = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskTemplatesCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.serverVersion = const Value.absent(),
+    required String name,
+    required String payload,
+    this.rowid = const Value.absent(),
+  }) : name = Value(name),
+       payload = Value(payload);
+  static Insertable<TaskTemplate> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<bool>? dirty,
+    Expression<int>? serverVersion,
+    Expression<String>? name,
+    Expression<String>? payload,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (dirty != null) 'dirty': dirty,
+      if (serverVersion != null) 'server_version': serverVersion,
+      if (name != null) 'name': name,
+      if (payload != null) 'payload': payload,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskTemplatesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<bool>? dirty,
+    Value<int?>? serverVersion,
+    Value<String>? name,
+    Value<String>? payload,
+    Value<int>? rowid,
+  }) {
+    return TaskTemplatesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      dirty: dirty ?? this.dirty,
+      serverVersion: serverVersion ?? this.serverVersion,
+      name: name ?? this.name,
+      payload: payload ?? this.payload,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (dirty.present) {
+      map['dirty'] = Variable<bool>(dirty.value);
+    }
+    if (serverVersion.present) {
+      map['server_version'] = Variable<int>(serverVersion.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskTemplatesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('serverVersion: $serverVersion, ')
+          ..write('name: $name, ')
+          ..write('payload: $payload, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9409,6 +9982,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $TasksTable tasks = $TasksTable(this);
+  late final $TaskTemplatesTable taskTemplates = $TaskTemplatesTable(this);
   late final $TaskCompletionsTable taskCompletions = $TaskCompletionsTable(
     this,
   );
@@ -9463,6 +10037,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     tasks,
+    taskTemplates,
     taskCompletions,
     tags,
     taskTags,
@@ -9507,6 +10082,7 @@ typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
   Value<ReminderMode> reminderMode,
   Value<int?> nagIntervalMinutes,
   Value<int?> estimatedPomodoros,
+  Value<int?> estimatedMinutes,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
   Value<String?> colorKey,
@@ -9535,6 +10111,7 @@ typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
   Value<ReminderMode> reminderMode,
   Value<int?> nagIntervalMinutes,
   Value<int?> estimatedPomodoros,
+  Value<int?> estimatedMinutes,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
   Value<String?> colorKey,
@@ -9824,6 +10401,11 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
 
   ColumnFilters<int> get estimatedPomodoros => $composableBuilder(
     column: $table.estimatedPomodoros,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get estimatedMinutes => $composableBuilder(
+    column: $table.estimatedMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10180,6 +10762,11 @@ class $$TasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get estimatedMinutes => $composableBuilder(
+    column: $table.estimatedMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
@@ -10305,6 +10892,11 @@ class $$TasksTableAnnotationComposer
 
   GeneratedColumn<int> get estimatedPomodoros => $composableBuilder(
     column: $table.estimatedPomodoros,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get estimatedMinutes => $composableBuilder(
+    column: $table.estimatedMinutes,
     builder: (column) => column,
   );
 
@@ -10606,6 +11198,7 @@ class $$TasksTableTableManager
                 Value<ReminderMode> reminderMode = const Value.absent(),
                 Value<int?> nagIntervalMinutes = const Value.absent(),
                 Value<int?> estimatedPomodoros = const Value.absent(),
+                Value<int?> estimatedMinutes = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<String?> colorKey = const Value.absent(),
@@ -10633,6 +11226,7 @@ class $$TasksTableTableManager
                 reminderMode: reminderMode,
                 nagIntervalMinutes: nagIntervalMinutes,
                 estimatedPomodoros: estimatedPomodoros,
+                estimatedMinutes: estimatedMinutes,
                 sortOrder: sortOrder,
                 completedAt: completedAt,
                 colorKey: colorKey,
@@ -10662,6 +11256,7 @@ class $$TasksTableTableManager
                 Value<ReminderMode> reminderMode = const Value.absent(),
                 Value<int?> nagIntervalMinutes = const Value.absent(),
                 Value<int?> estimatedPomodoros = const Value.absent(),
+                Value<int?> estimatedMinutes = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<String?> colorKey = const Value.absent(),
@@ -10689,6 +11284,7 @@ class $$TasksTableTableManager
                 reminderMode: reminderMode,
                 nagIntervalMinutes: nagIntervalMinutes,
                 estimatedPomodoros: estimatedPomodoros,
+                estimatedMinutes: estimatedMinutes,
                 sortOrder: sortOrder,
                 completedAt: completedAt,
                 colorKey: colorKey,
@@ -10950,6 +11546,274 @@ typedef $$TasksTableProcessedTableManager =
         bool taskNotebookLinksRefs,
         bool taskDeckLinksRefs,
       })
+    >;
+typedef $$TaskTemplatesTableCreateCompanionBuilder =
+    TaskTemplatesCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<int?> serverVersion,
+      required String name,
+      required String payload,
+      Value<int> rowid,
+    });
+typedef $$TaskTemplatesTableUpdateCompanionBuilder =
+    TaskTemplatesCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<int?> serverVersion,
+      Value<String> name,
+      Value<String> payload,
+      Value<int> rowid,
+    });
+
+class $$TaskTemplatesTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskTemplatesTable> {
+  $$TaskTemplatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TaskTemplatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskTemplatesTable> {
+  $$TaskTemplatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TaskTemplatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskTemplatesTable> {
+  $$TaskTemplatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get dirty =>
+      $composableBuilder(column: $table.dirty, builder: (column) => column);
+
+  GeneratedColumn<int> get serverVersion => $composableBuilder(
+    column: $table.serverVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+}
+
+class $$TaskTemplatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskTemplatesTable,
+          TaskTemplate,
+          $$TaskTemplatesTableFilterComposer,
+          $$TaskTemplatesTableOrderingComposer,
+          $$TaskTemplatesTableAnnotationComposer,
+          $$TaskTemplatesTableCreateCompanionBuilder,
+          $$TaskTemplatesTableUpdateCompanionBuilder,
+          (
+            TaskTemplate,
+            BaseReferences<_$AppDatabase, $TaskTemplatesTable, TaskTemplate>,
+          ),
+          TaskTemplate,
+          PrefetchHooks Function()
+        > {
+  $$TaskTemplatesTableTableManager(_$AppDatabase db, $TaskTemplatesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TaskTemplatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TaskTemplatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TaskTemplatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<int?> serverVersion = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskTemplatesCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                serverVersion: serverVersion,
+                name: name,
+                payload: payload,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<int?> serverVersion = const Value.absent(),
+                required String name,
+                required String payload,
+                Value<int> rowid = const Value.absent(),
+              }) => TaskTemplatesCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                serverVersion: serverVersion,
+                name: name,
+                payload: payload,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TaskTemplatesTable, TaskTemplate>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $TaskTemplatesTable,
+                    TaskTemplate
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TaskTemplatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskTemplatesTable,
+      TaskTemplate,
+      $$TaskTemplatesTableFilterComposer,
+      $$TaskTemplatesTableOrderingComposer,
+      $$TaskTemplatesTableAnnotationComposer,
+      $$TaskTemplatesTableCreateCompanionBuilder,
+      $$TaskTemplatesTableUpdateCompanionBuilder,
+      (
+        TaskTemplate,
+        BaseReferences<_$AppDatabase, $TaskTemplatesTable, TaskTemplate>,
+      ),
+      TaskTemplate,
+      PrefetchHooks Function()
     >;
 typedef $$TaskCompletionsTableCreateCompanionBuilder =
     TaskCompletionsCompanion Function({
@@ -17377,6 +18241,8 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$TasksTableTableManager get tasks =>
       $$TasksTableTableManager(_db, _db.tasks);
+  $$TaskTemplatesTableTableManager get taskTemplates =>
+      $$TaskTemplatesTableTableManager(_db, _db.taskTemplates);
   $$TaskCompletionsTableTableManager get taskCompletions =>
       $$TaskCompletionsTableTableManager(_db, _db.taskCompletions);
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
