@@ -221,9 +221,11 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   Catálogo em `/dev/componentes` (só debug, pelo menu). Componente que se repete vai para o catálogo.
 - Nada de `Colors.*`, `Color(0x..)`, `Icons.*`, `fontSize:` ou duração literal fora do tema:
   `test/app/theme/visual_debt_test.dart` é uma catraca por arquivo (só pode baixar; arquivo novo começa em 0).
-- Tema claro, escuro e escuro "Lights out" (preto puro `#000000` e alto contraste em `lib/app/theme/app_theme.dart`
-  e `palette.dart`); escolha em Ajustes → Aparência (`device.themeMode`: `system`/`light`/`dark`, e
-  `device.lightsOut`, locais do aparelho, pré-carregados em `main.dart` e `pumpApp`). Testar em 360 dp de largura.
+- Tema claro, escuro neutro (`#121214`) e escuro "Lights out" (`#000000` e alto contraste) com cor de destaque
+  escolhida pelo usuário (`AppAccentColor`: Azul, Amarelo, Rosa, Violeta, Laranja, Verde) em
+  `lib/app/theme/app_theme.dart` e `palette.dart`; escolha em Ajustes → Aparência (`device.themeMode`,
+  `device.accentColor`, `device.lightsOut`, locais do aparelho, pré-carregados em `main.dart` e `pumpApp`).
+  Testar em 360 dp de largura.
 - Lints estritos em `analysis_options.yaml` (inclui `prefer_const_constructors`, `always_declare_return_types`,
   `avoid_dynamic_calls`, `require_trailing_commas`). Rodar `dart format` antes do commit.
 

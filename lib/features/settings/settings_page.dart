@@ -76,6 +76,21 @@ class SettingsPage extends ConsumerWidget {
                   onSelectionChanged: (s) =>
                       repo.setString(themeModeSettingKey, s.single.name),
                 ),
+                SizedBox(height: context.space.lg),
+                Text('Cor', style: context.text.bodyLarge),
+                SizedBox(height: context.space.md),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    for (final accent in AppAccentColor.values)
+                      _AccentDot(
+                        accent: accent,
+                        selected: accent == themeSettings.accent,
+                        onTap: () =>
+                            repo.setString(accentColorSettingKey, accent.name),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -213,5 +228,52 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SectionHeader(text);
+  }
+}
+
+/// Bolinha selecionável da cor de destaque em Ajustes → Aparência.
+class _AccentDot extends StatelessWidget {
+  const _AccentDot({
+    required this.accent,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final AppAccentColor accent;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: accent.label,
+      child: Tooltip(
+        message: accent.label,
+        child: InkResponse(
+          onTap: onTap,
+          radius: 24,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: accent.swatch,
+              shape: BoxShape.circle,
+              border: selected
+                  ? Border.all(color: context.colors.onSurface, width: 2)
+                  : null,
+            ),
+            child: selected
+                ? Icon(
+                    AppIcons.check,
+                    color: accent.onSwatch,
+                    size: AppIconSize.standard,
+                  )
+                : null,
+          ),
+        ),
+      ),
+    );
   }
 }

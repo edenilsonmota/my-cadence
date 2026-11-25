@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/database.dart';
 import 'package:my_cadence/data/repositories/tasks_repository.dart';
@@ -155,13 +156,26 @@ void main() {
     await tester.tap(find.text('Ajustes'));
     await settle(tester);
 
-    await tester.scrollUntilVisible(find.text('Exportar JSON'), 200);
+    await tester.dragUntilVisible(
+      find.text('Exportar JSON'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    await tester.ensureVisible(find.text('Exportar JSON'));
+    await settle(tester);
     await tester.tap(find.text('Exportar JSON'));
     await settle(tester);
     expect(savedName, startsWith('my-cadence-backup-'));
     expect(BackupFile.decode(saved!).rows('tasks'), isEmpty);
     expect(find.text('Backup exportado.'), findsOneWidget);
 
+    await tester.dragUntilVisible(
+      find.text('Importar JSON'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    await tester.ensureVisible(find.text('Importar JSON'));
+    await settle(tester);
     await tester.tap(find.text('Importar JSON'));
     await settle(tester);
     expect(find.text('1 tarefa'), findsOneWidget);

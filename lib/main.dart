@@ -33,6 +33,9 @@ Future<void> main() async {
     mode: ThemeSettings.parseThemeMode(
       await settings.getString(themeModeSettingKey),
     ),
+    accent: ThemeSettings.parseAccentColor(
+      await settings.getString(accentColorSettingKey),
+    ),
     lightsOut: ThemeSettings.parseLightsOut(
       await settings.getString(lightsOutSettingKey),
     ),

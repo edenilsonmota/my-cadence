@@ -72,6 +72,12 @@ Future<AppDatabase> pumpApp(
         () => SettingsRepository(db.settingsDao).getString(themeModeSettingKey),
       ),
     ),
+    accent: ThemeSettings.parseAccentColor(
+      await tester.runAsync<String?>(
+        () =>
+            SettingsRepository(db.settingsDao).getString(accentColorSettingKey),
+      ),
+    ),
     lightsOut: ThemeSettings.parseLightsOut(
       await tester.runAsync<String?>(
         () => SettingsRepository(db.settingsDao).getString(lightsOutSettingKey),

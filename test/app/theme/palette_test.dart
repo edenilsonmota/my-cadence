@@ -77,6 +77,39 @@ void main() {
     }
   });
 
+  group('cores de destaque mantêm contraste em claro, escuro e Lights out', () {
+    for (final accent in AppAccentColor.values) {
+      test(accent.name, () {
+        for (final (brightness, lightsOut) in const [
+          (Brightness.light, false),
+          (Brightness.dark, false),
+          (Brightness.dark, true),
+        ]) {
+          final c = buildTheme(
+            brightness,
+            accent: accent,
+            lightsOut: lightsOut,
+          ).colorScheme;
+          expect(
+            contrast(c.onPrimary, c.primary),
+            greaterThanOrEqualTo(4.5),
+            reason: 'onPrimary/primary em ${accent.name} $brightness',
+          );
+          expect(
+            contrast(c.primary, c.surface),
+            greaterThanOrEqualTo(4.5),
+            reason: 'primary/surface em ${accent.name} $brightness',
+          );
+          expect(
+            contrast(c.onSecondaryContainer, c.secondaryContainer),
+            greaterThanOrEqualTo(4.5),
+            reason: 'onSecondaryContainer em ${accent.name} $brightness',
+          );
+        }
+      });
+    }
+  });
+
   test('chave desconhecida cai no padrão', () {
     final palette = AppPalette.of(Brightness.light);
     expect(PaletteKey.tryParse('verde'), PaletteKey.verde);

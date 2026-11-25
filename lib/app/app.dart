@@ -49,9 +49,10 @@ class _CadenceAppState extends ConsumerState<CadenceApp> {
     return MaterialApp.router(
       title: 'My Cadence',
       debugShowCheckedModeBanner: false,
-      theme: buildTheme(Brightness.light),
+      theme: buildTheme(Brightness.light, accent: themeSettings.accent),
       darkTheme: buildTheme(
         Brightness.dark,
+        accent: themeSettings.accent,
         lightsOut: themeSettings.lightsOut,
       ),
       themeMode: themeSettings.mode.material,
