@@ -360,10 +360,10 @@ automática ao mudar tarefas/aparência e na virada da meia-noite. Fazer em fase
    (data + contagem + botão `+`) e lista rolável de tarefas atrasadas e de hoje com barrinha colorida e horário.
 2. **Widget "Semanal" (`4 × 3`, redimensionável `4 × 2` a `5 × 5`).** Grade de 7 dias da semana com o dia atual
    destacado na cor de destaque, tarefas coloridas por dia e toque abrindo o dia na Agenda.
-3. **Widget "Mês" (`4 × 4`) — feito.** Grade 6 × 7 começando na segunda, dia atual destacado na cor de
-   destaque, até 3 pontinhos coloridos por dia (tarefas e ocorrências de rotina) e toque abrindo o dia na Agenda.
+3. **Widget "Mês" (`4 × 4`) — feito.** Grade 6 × 7 começando na segunda, com linhas, dia atual destacado na cor de
+   destaque, até 3 chips por dia com o título da tarefa (cor da tarefa) e "+N", estilo agenda; toque abre o dia.
    Pendente: navegação de mês (`‹ ›`).
-3b. **Widget "Mês + Hoje" (`4 × 5`) — feito.** A mesma grade em cima e a lista rolável de hoje embaixo.
+3b. **Widget "Mês + Hoje" (`4 × 5`) — feito.** A mesma grade (com pontinhos, por ser menor) e a lista de hoje embaixo.
 4. **Concluir direto pelo widget *(opcional)*.** Ação rápida no widget **Hoje** para marcar tarefa concluída
    em segundo plano sem abrir o app.
 ---

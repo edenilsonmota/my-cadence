@@ -12,6 +12,7 @@ import '../../data/providers.dart';
 import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/appearance_picker.dart';
 import 'task_appearance.dart';
+import 'task_draft.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
 
@@ -78,14 +79,20 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
     _focus.requestFocus();
   }
 
+  /// Abre o formulário completo levando tudo o que já foi escolhido aqui
+  /// (título, data, tags, prioridade, ícone e cor).
   void _moreOptions() {
-    final title = _title.text.trim();
     final router = GoRouter.of(context);
     Navigator.of(context).pop();
     router.push(
-      Routes.newTask(
-        dueToday: widget.dueToday,
-        title: title.isEmpty ? null : title,
+      Routes.newTask(),
+      extra: TaskDraft(
+        title: _title.text.trim(),
+        dueDate: _due == null ? null : startOfDay(_due!),
+        priority: _priority,
+        colorKey: _colorKey,
+        iconKey: _iconKey,
+        tagIds: {..._tagIds},
       ),
     );
   }

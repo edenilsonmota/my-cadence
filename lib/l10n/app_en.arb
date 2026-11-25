@@ -592,5 +592,14 @@
   "formInfoReminders": "With a time, they count from the start (or from the due time if there is no start). For all-day tasks, they ring at the hour set in Settings, on the day or days before. In a routine, they apply to every repetition.",
   "formInfoModesTitle": "Notification or alarm",
   "formInfoNagTitle": "Nag if overdue",
-  "formInfoStudyTitle": "Linked study"
+  "formInfoStudyTitle": "Linked study",
+  "deckSpeech": "Read aloud",
+  "deckSpeechHint": "Uses the phone's own voice (text-to-speech). Pick the language for each side of the card.",
+  "deckSpeechFront": "Front",
+  "deckSpeechBack": "Back",
+  "deckSpeechOff": "Don't read",
+  "deckSpeechAuto": "Read automatically while reviewing",
+  "deckSpeechNoVoices": "No voices found. Install voices in Android Settings → Text-to-speech.",
+  "speakFront": "Listen to front",
+  "speakBack": "Listen to back"
 }

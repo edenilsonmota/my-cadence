@@ -1,65 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Um dia da grade mensal: número (com círculo quando é hoje) e até 3 pontinhos. -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Um dia da grade mensal: linha da grade em cima, número (com círculo quando
+     é hoje) e, conforme o widget, chips com os títulos ou até 3 pontinhos. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/month_cell_root"
     android:layout_width="0dp"
     android:layout_height="match_parent"
-    android:layout_weight="1">
+    android:layout_weight="1"
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/month_cell_today"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:layout_gravity="center_horizontal|top"
-        android:contentDescription="@null"
-        android:src="@drawable/widget_circle"
+    <View
+        android:id="@+id/month_cell_line"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
         android:visibility="gone" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/month_cell_today"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="1dp"
+            android:contentDescription="@null"
+            android:src="@drawable/widget_circle"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/month_cell_day"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
             android:gravity="center"
             android:maxLines="1"
             android:textSize="11sp" />
+    </FrameLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="5dp"
-            android:layout_marginTop="1dp"
-            android:orientation="horizontal">
+    <!-- Chips (widget "Mês"); preenchidos em runtime -->
+    <LinearLayout
+        android:id="@+id/month_cell_chips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone" />
 
-            <ImageView
-                android:id="@+id/month_cell_dot1"
-                android:layout_width="4dp"
-                android:layout_height="4dp"
-                android:layout_marginEnd="2dp"
-                android:contentDescription="@null"
-                android:src="@drawable/widget_circle"
-                android:visibility="gone" />
+    <TextView
+        android:id="@+id/month_cell_more"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:paddingStart="2dp"
+        android:textSize="8sp"
+        android:visibility="gone" />
 
-            <ImageView
-                android:id="@+id/month_cell_dot2"
-                android:layout_width="4dp"
-                android:layout_height="4dp"
-                android:layout_marginEnd="2dp"
-                android:contentDescription="@null"
-                android:src="@drawable/widget_circle"
-                android:visibility="gone" />
+    <!-- Pontinhos (widget "Mês + Hoje", grade menor) -->
+    <LinearLayout
+        android:id="@+id/month_cell_dots"
+        android:layout_width="wrap_content"
+        android:layout_height="5dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="1dp"
+        android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/month_cell_dot3"
-                android:layout_width="4dp"
-                android:layout_height="4dp"
-                android:contentDescription="@null"
-                android:src="@drawable/widget_circle"
-                android:visibility="gone" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/month_cell_dot1"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:layout_marginEnd="2dp"
+            android:contentDescription="@null"
+            android:src="@drawable/widget_circle"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/month_cell_dot2"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:layout_marginEnd="2dp"
+            android:contentDescription="@null"
+            android:src="@drawable/widget_circle"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/month_cell_dot3"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:contentDescription="@null"
+            android:src="@drawable/widget_circle"
+            android:visibility="gone" />
     </LinearLayout>
-</FrameLayout>
+</LinearLayout>

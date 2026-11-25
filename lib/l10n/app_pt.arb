@@ -1201,5 +1201,14 @@
   "formInfoReminders": "Com hora, contam a partir do início (ou do prazo, se não houver início). Em dia inteiro, tocam na hora definida em Ajustes, no próprio dia ou dias antes. Numa rotina, valem para cada repetição.",
   "formInfoModesTitle": "Notificação ou alarme",
   "formInfoNagTitle": "Insistir se atrasar",
-  "formInfoStudyTitle": "Estudo vinculado"
+  "formInfoStudyTitle": "Estudo vinculado",
+  "deckSpeech": "Leitura em voz alta",
+  "deckSpeechHint": "Usa a voz do próprio celular (texto para fala). Escolha o idioma de cada lado do card.",
+  "deckSpeechFront": "Frente",
+  "deckSpeechBack": "Verso",
+  "deckSpeechOff": "Não ler",
+  "deckSpeechAuto": "Ler automaticamente na revisão",
+  "deckSpeechNoVoices": "Nenhuma voz encontrada. Instale vozes em Ajustes do Android → Texto para fala.",
+  "speakFront": "Ouvir frente",
+  "speakBack": "Ouvir verso"
 }

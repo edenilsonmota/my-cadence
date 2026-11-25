@@ -37,6 +37,7 @@ class TaskFormPage extends ConsumerStatefulWidget {
     this.date,
     this.startAt,
     this.initialTitle,
+    this.initialDraft,
     super.key,
   });
 
@@ -53,8 +54,11 @@ class TaskFormPage extends ConsumerStatefulWidget {
   /// agenda).
   final DateTime? startAt;
 
-  /// Título já digitado na adição rápida ("Mais opções").
+  /// Título já digitado (link com `titulo`).
   final String? initialTitle;
+
+  /// O que já foi escolhido na adição rápida ("Mais opções").
+  final TaskDraft? initialDraft;
 
   @override
   ConsumerState<TaskFormPage> createState() => _TaskFormPageState();
@@ -75,6 +79,9 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     super.initState();
     if (_editing) {
       _load();
+    } else if (widget.initialDraft case final draft?) {
+      _draft = draft;
+      _title.text = draft.title;
     } else {
       _title.text = widget.initialTitle ?? '';
       final start = widget.startAt;

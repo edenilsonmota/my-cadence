@@ -22,6 +22,7 @@ object MonthRenderer {
         requestBase: Int,
         month: MonthWidgetData,
         colors: WidgetColors,
+        chips: Boolean = false,
     ) {
         val pkg = context.packageName
         views.setInt(R.id.widget_cal_bg, "setColorFilter", colors.surface)
@@ -68,7 +69,29 @@ object MonthRenderer {
                     cell.setViewVisibility(R.id.month_cell_today, View.VISIBLE)
                     cell.setInt(R.id.month_cell_today, "setColorFilter", colors.accent)
                 }
-                dotIds.forEachIndexed { i, id ->
+                if (chips) {
+                    // Grade com linhas e chips com o título (estilo agenda).
+                    cell.setViewVisibility(R.id.month_cell_line, View.VISIBLE)
+                    cell.setInt(R.id.month_cell_line, "setBackgroundColor", withAlpha(colors.muted, 0.25f))
+                    cell.setViewVisibility(R.id.month_cell_dots, View.GONE)
+                    cell.setViewVisibility(R.id.month_cell_chips, View.VISIBLE)
+                    cell.removeAllViews(R.id.month_cell_chips)
+                    day.colors.forEachIndexed { i, color ->
+                        val chip = RemoteViews(pkg, R.layout.widget_month_chip)
+                        chip.setInt(
+                            R.id.month_chip_bg,
+                            "setColorFilter",
+                            if (day.inMonth) color else withAlpha(color, 0.45f),
+                        )
+                        chip.setTextViewText(R.id.month_chip_text, day.titles.getOrNull(i) ?: "")
+                        cell.addView(R.id.month_cell_chips, chip)
+                    }
+                    if (day.more > 0) {
+                        cell.setViewVisibility(R.id.month_cell_more, View.VISIBLE)
+                        cell.setTextViewText(R.id.month_cell_more, "+${day.more}")
+                        cell.setTextColor(R.id.month_cell_more, colors.muted)
+                    }
+                } else dotIds.forEachIndexed { i, id ->
                     val color = day.colors.getOrNull(i)
                     if (color != null) {
                         cell.setViewVisibility(id, View.VISIBLE)

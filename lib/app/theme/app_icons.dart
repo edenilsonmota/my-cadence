@@ -98,6 +98,7 @@ abstract final class AppIcons {
 
   // ─── Books ──────────────────────────────────────────────────────────────
   static const book = _I.bookOpen;
+  static const speak = _I.volume2;
   static const page = _I.fileText;
   static const newPage = _I.filePlus;
 

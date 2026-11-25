@@ -10,6 +10,8 @@ import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/simple_markdown.dart';
 import '../../shared/widgets/skeleton.dart';
+import 'card_speaker.dart';
+import 'card_speech.dart';
 import 'cards_providers.dart';
 import 'fsrs_bridge.dart';
 import 'review_queue.dart';
@@ -54,6 +56,22 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
   String? _undoneId;
   bool _busy = false;
 
+  /// Card cuja frente já foi lida automaticamente.
+  String? _autoSpokenId;
+  late final CardSpeaker _speaker;
+
+  @override
+  void initState() {
+    super.initState();
+    _speaker = ref.read(cardSpeakerProvider);
+  }
+
+  @override
+  void dispose() {
+    _speaker.stop();
+    super.dispose();
+  }
+
   fsrs.Scheduler? _scheduler;
   double? _schedulerRetention;
 
@@ -68,6 +86,10 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
   DateTime _now() => ref.read(clockProvider)();
 
   void _reveal(Flashcard card) {
+    final speech = ref.read(deckSpeechProvider(card.deckId)).value;
+    if (speech != null && speech.auto && speech.back != null) {
+      _speaker.speak(card.back, speech.back!);
+    }
     final settings =
         ref.read(cardSettingsProvider).value ?? const CardSettings();
     final at = _now();
@@ -186,6 +208,18 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
             _shownAt = _now();
             _preview = null;
           }
+          final speech =
+              ref.watch(deckSpeechProvider(card.deckId)).value ??
+              DeckSpeech.off;
+          if (speech.auto &&
+              speech.front != null &&
+              _autoSpokenId != card.id &&
+              _preview == null) {
+            _autoSpokenId = card.id;
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _speaker.speak(card.front, speech.front!),
+            );
+          }
           final remaining =
               queue
                   .where(
@@ -195,6 +229,7 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
               1;
           return _CardView(
             card: card,
+            speech: speech,
             reviewed: _history.length,
             remaining: remaining,
             preview: _preview,
@@ -212,6 +247,7 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
 class _CardView extends StatelessWidget {
   const _CardView({
     required this.card,
+    required this.speech,
     required this.reviewed,
     required this.remaining,
     required this.preview,
@@ -222,6 +258,7 @@ class _CardView extends StatelessWidget {
   });
 
   final Flashcard card;
+  final DeckSpeech speech;
 
   /// Avaliados nesta sessão (para a barra de progresso).
   final int reviewed;
@@ -279,6 +316,14 @@ class _CardView extends StatelessWidget {
                       style: theme.textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
+                    if (speech.front case final lang?)
+                      Center(
+                        child: SpeakButton(
+                          text: card.front,
+                          lang: lang,
+                          tooltip: l10n.speakFront,
+                        ),
+                      ),
                     if (revealed) ...[
                       Divider(height: space.xxxl),
                       SimpleMarkdown(
@@ -286,6 +331,14 @@ class _CardView extends StatelessWidget {
                         style: context.type.reading,
                         textAlign: TextAlign.center,
                       ),
+                      if (speech.back case final lang?)
+                        Center(
+                          child: SpeakButton(
+                            text: card.back,
+                            lang: lang,
+                            tooltip: l10n.speakBack,
+                          ),
+                        ),
                     ],
                   ],
                 ),

@@ -2078,4 +2078,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get formInfoStudyTitle => 'Linked study';
+
+  @override
+  String get deckSpeech => 'Read aloud';
+
+  @override
+  String get deckSpeechHint =>
+      'Uses the phone\'s own voice (text-to-speech). Pick the language for each side of the card.';
+
+  @override
+  String get deckSpeechFront => 'Front';
+
+  @override
+  String get deckSpeechBack => 'Back';
+
+  @override
+  String get deckSpeechOff => 'Don\'t read';
+
+  @override
+  String get deckSpeechAuto => 'Read automatically while reviewing';
+
+  @override
+  String get deckSpeechNoVoices =>
+      'No voices found. Install voices in Android Settings → Text-to-speech.';
+
+  @override
+  String get speakFront => 'Listen to front';
+
+  @override
+  String get speakBack => 'Listen to back';
 }

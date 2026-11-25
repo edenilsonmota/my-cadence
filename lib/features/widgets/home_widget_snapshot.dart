@@ -56,6 +56,7 @@ class WidgetMonthDay {
     required this.today,
     required this.colors,
     required this.more,
+    this.titles = const [],
   });
 
   final int day;
@@ -69,12 +70,16 @@ class WidgetMonthDay {
   /// Quantas tarefas passaram de [maxMonthDots].
   final int more;
 
+  /// Títulos das mesmas tarefas de [colors] (chips do widget "Mês").
+  final List<String> titles;
+
   Map<String, Object?> toJson() => {
     'd': day,
     'iso': iso,
     'in': inMonth,
     'today': today,
     'colors': colors,
+    'titles': titles,
     'more': more,
   };
 }
@@ -116,6 +121,7 @@ WidgetMonth buildWidgetMonth({
   final gridEnd = addDays(gridStart, 42);
 
   final colorsByDay = <String, List<int>>{};
+  final titlesByDay = <String, List<String>>{};
   final live = [
     for (final t in tasks)
       if (t.deletedAt == null) t,
@@ -131,6 +137,7 @@ WidgetMonth buildWidgetMonth({
     while (!d.isAfter(last)) {
       if (!d.isBefore(gridStart) && d.isBefore(gridEnd)) {
         colorsByDay.putIfAbsent(_iso(d), () => []).add(color);
+        titlesByDay.putIfAbsent(_iso(d), () => []).add(e.task.title);
       }
       d = addDays(d, 1);
     }
@@ -148,12 +155,14 @@ WidgetMonth buildWidgetMonth({
         () {
           final d = addDays(gridStart, i);
           final colors = colorsByDay[_iso(d)] ?? const <int>[];
+          final titles = titlesByDay[_iso(d)] ?? const <String>[];
           return WidgetMonthDay(
             day: d.day,
             iso: _iso(d),
             inMonth: d.month == day0.month,
             today: d == day0,
             colors: colors.take(maxMonthDots).toList(growable: false),
+            titles: titles.take(maxMonthDots).toList(growable: false),
             more: colors.length > maxMonthDots
                 ? colors.length - maxMonthDots
                 : 0,

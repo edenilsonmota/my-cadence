@@ -34,6 +34,7 @@ class MonthWidgetProvider : AppWidgetProvider() {
                     MonthRenderer.requestBase(2, appWidgetId),
                     month,
                     colors,
+                    chips = true,
                 )
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }

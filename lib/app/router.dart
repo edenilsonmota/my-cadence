@@ -17,6 +17,7 @@ import '../features/settings/alarm_diagnostics_page.dart';
 import '../features/settings/nav_bar_settings_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/stats/stats_page.dart';
+import '../features/tasks/task_draft.dart';
 import '../features/tasks/task_form_page.dart';
 import '../features/tasks/task_page.dart';
 import '../features/tasks/tasks_page.dart';
@@ -189,6 +190,10 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
           dueToday: state.uri.queryParameters['prazo'] == 'hoje',
           date: DateTime.tryParse(state.uri.queryParameters['data'] ?? ''),
           startAt: DateTime.tryParse(state.uri.queryParameters['inicio'] ?? ''),
+          initialTitle: state.uri.queryParameters['titulo'],
+          initialDraft: state.extra is TaskDraft
+              ? state.extra! as TaskDraft
+              : null,
         ),
       ),
       GoRoute(

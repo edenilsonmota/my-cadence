@@ -15,6 +15,7 @@ import '../../shared/widgets/text_input_dialog.dart';
 import '../tasks/task_providers.dart';
 import 'card_actions.dart';
 import 'card_form_sheet.dart';
+import 'card_speaker.dart';
 import 'cards_providers.dart';
 import 'review_queue.dart';
 
@@ -83,13 +84,16 @@ class CardsListPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(deck?.name ?? context.l10n.reviewAllCards),
         actions: [
-          if (deck != null)
-            PopupMenuButton<String>(
-              tooltip: context.l10n.deckOptions,
-              onSelected: (v) => v == 'renomear'
-                  ? _renameDeck(context, ref, deck)
-                  : _deleteDeck(context, ref, deck),
-              itemBuilder: (_) => [
+          PopupMenuButton<String>(
+            tooltip: context.l10n.deckOptions,
+            onSelected: (v) => switch (v) {
+              'voz' => showDeckSpeechSheet(context, deckId),
+              'renomear' => _renameDeck(context, ref, deck!),
+              _ => _deleteDeck(context, ref, deck!),
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'voz', child: Text(context.l10n.deckSpeech)),
+              if (deck != null) ...[
                 PopupMenuItem(
                   value: 'renomear',
                   child: Text(context.l10n.actionRename),
@@ -99,7 +103,8 @@ class CardsListPage extends ConsumerWidget {
                   child: Text(context.l10n.deckDelete),
                 ),
               ],
-            ),
+            ],
+          ),
         ],
       ),
       floatingActionButton: GradientFab(

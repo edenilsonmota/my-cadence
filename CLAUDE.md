@@ -161,6 +161,10 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   o resultado do botão escolhido (o "fuzz" faz duas chamadas darem intervalos diferentes).
 - Gravar revisão sempre por `CardsRepository.applyReview` (agendamento + log na mesma transação);
   desfazer por `undoReview`.
+- Leitura em voz alta (TTS do aparelho, `flutter_tts`): ajuste por deck em `AppSettings`
+  (`DeckSpeech`, chave `cards.tts.<deckId|semDeck>`, formato `frente|verso|auto`, puro em `card_speech.dart`);
+  `CardSpeaker`/`cardSpeakerProvider` em `card_speaker.dart` (engole erros do motor; nos testes, falso via
+  `overrides:`). Menu do deck → "Leitura em voz alta"; na revisão, botão por lado e leitura automática.
 - Fila: `buildQueue` (estudados por vencimento, depois novos até o limite do dia, contado pela
   primeira revisão de cada card hoje). Ajustes com prefixo `cards.` (`CardSettings`).
 - `clockProvider`/`tickerProvider` ficam em `lib/app/clock.dart`.
@@ -211,6 +215,8 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   `ref.read(xRepositoryProvider)`. O "hoje" vem de `todayProvider` (vira sozinho à meia-noite), nunca
   de `DateTime.now()` espalhado.
 - Lógica de tela que dá para testar sem Flutter fica em arquivo puro (ex.: `task_lists.dart`, `task_draft.dart`).
+- "Mais opções" da adição rápida abre o formulário com um `TaskDraft` no `extra` da rota (título, data,
+  tags, prioridade, ícone e cor), para não perder o que já foi escolhido.
 - Rotas de tarefa: `Routes.task(id)` (hub, alvo dos deep links), `Routes.editTask(id)`, `Routes.newTask(...)`.
   Abrem no navegador raiz, por cima das abas.
 - Antes de abrir seletor de data/hora ou diálogo a partir de um formulário, tirar o foco do campo de

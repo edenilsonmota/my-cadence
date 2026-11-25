@@ -3657,6 +3657,60 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Estudo vinculado'**
   String get formInfoStudyTitle;
+
+  /// No description provided for @deckSpeech.
+  ///
+  /// In pt, this message translates to:
+  /// **'Leitura em voz alta'**
+  String get deckSpeech;
+
+  /// No description provided for @deckSpeechHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Usa a voz do próprio celular (texto para fala). Escolha o idioma de cada lado do card.'**
+  String get deckSpeechHint;
+
+  /// No description provided for @deckSpeechFront.
+  ///
+  /// In pt, this message translates to:
+  /// **'Frente'**
+  String get deckSpeechFront;
+
+  /// No description provided for @deckSpeechBack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verso'**
+  String get deckSpeechBack;
+
+  /// No description provided for @deckSpeechOff.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não ler'**
+  String get deckSpeechOff;
+
+  /// No description provided for @deckSpeechAuto.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ler automaticamente na revisão'**
+  String get deckSpeechAuto;
+
+  /// No description provided for @deckSpeechNoVoices.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma voz encontrada. Instale vozes em Ajustes do Android → Texto para fala.'**
+  String get deckSpeechNoVoices;
+
+  /// No description provided for @speakFront.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ouvir frente'**
+  String get speakFront;
+
+  /// No description provided for @speakBack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ouvir verso'**
+  String get speakBack;
 }
 
 class _AppLocalizationsDelegate

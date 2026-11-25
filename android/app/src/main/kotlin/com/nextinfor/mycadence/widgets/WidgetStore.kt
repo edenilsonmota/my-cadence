@@ -48,6 +48,8 @@ data class WidgetMonthDay(
     val inMonth: Boolean,
     val today: Boolean,
     val colors: List<Int>,
+    val titles: List<String> = emptyList(),
+    val more: Int = 0,
 )
 
 data class MonthWidgetData(
@@ -180,6 +182,7 @@ object WidgetStore {
                     (0 until days.length()).map { i ->
                         val o = days.getJSONObject(i)
                         val colors = o.optJSONArray("colors")
+                        val titles = o.optJSONArray("titles")
                         WidgetMonthDay(
                             day = o.optInt("d"),
                             iso = o.optString("iso"),
@@ -190,6 +193,12 @@ object WidgetStore {
                             } else {
                                 (0 until colors.length()).map { colors.optLong(it).toInt() }
                             },
+                            titles = if (titles == null) {
+                                emptyList()
+                            } else {
+                                (0 until titles.length()).map { titles.optString(it) }
+                            },
+                            more = o.optInt("more", 0),
                         )
                     }
                 },

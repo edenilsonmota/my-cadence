@@ -188,6 +188,7 @@ void main() {
         argbForWidgetColorKey('azul'),
         argbForWidgetColorKey('rosa'),
       ]);
+      expect(today.titles, hasLength(2));
       final busy = month.days.singleWhere((d) => d.iso == '2026-11-10');
       expect(busy.colors, hasLength(maxMonthDots));
       expect(busy.more, 2);
