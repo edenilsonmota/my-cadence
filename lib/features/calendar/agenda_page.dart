@@ -12,6 +12,7 @@ import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../../shared/widgets/tab_scaffold.dart';
 import '../sync/presentation/account_avatar.dart';
 import '../tasks/task_providers.dart';
 import 'calendar_entries.dart';
@@ -160,11 +161,13 @@ class AgendaPage extends ConsumerWidget {
           if (isTab) const AccountAvatar(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
-        tooltip: l10n.tasksNew,
-        onPressed: () => context.push(Routes.newTask(date: day)),
-        child: const Icon(AppIcons.add),
+      floatingActionButton: AboveNavBar(
+        child: FloatingActionButton(
+          heroTag: null, // abas vivas no IndexedStack; ver CLAUDE.md
+          tooltip: l10n.tasksNew,
+          onPressed: () => context.push(Routes.newTask(date: day)),
+          child: const Icon(AppIcons.add),
+        ),
       ),
       bottomSheet: mode == CalendarMode.mes ? null : const _NextTaskSheet(),
       body: GestureDetector(
@@ -174,7 +177,13 @@ class AgendaPage extends ConsumerWidget {
           if (v.abs() > 300) step(v < 0 ? 1 : -1);
         },
         child: mode == CalendarMode.mes
-            ? MonthView(month: day, onOpenDay: openDay)
+            ? Padding(
+                // A grade do mês não rola: fica acima da barra flutuante.
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.paddingOf(context).bottom,
+                ),
+                child: MonthView(month: day, onOpenDay: openDay),
+              )
             : TimelineView(days: days, onOpenDay: openDay),
       ),
     );

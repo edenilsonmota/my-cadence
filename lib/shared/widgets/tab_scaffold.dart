@@ -31,7 +31,27 @@ class TabScaffold extends StatelessWidget {
       ),
       drawer: isTab ? const AppDrawer() : null,
       body: body,
-      floatingActionButton: floatingActionButton,
+      floatingActionButton: floatingActionButton == null
+          ? null
+          : AboveNavBar(child: floatingActionButton!),
+    );
+  }
+}
+
+/// Sobe o FAB acima da barra flutuante do shell (o Scaffold só considera a
+/// área do sistema, não a barra que o conteúdo passa por baixo).
+class AboveNavBar extends StatelessWidget {
+  const AboveNavBar({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final lift = AppShell.barInsetOf(context);
+    if (lift == 0) return child;
+    return Padding(
+      padding: EdgeInsets.only(bottom: lift),
+      child: child,
     );
   }
 }

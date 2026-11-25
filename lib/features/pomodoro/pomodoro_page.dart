@@ -125,7 +125,7 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
           space.page,
           space.sm,
           space.page,
-          space.xxl,
+          space.xxl + MediaQuery.paddingOf(context).bottom,
         ),
         children: [
           if (state.finished case final finished?)

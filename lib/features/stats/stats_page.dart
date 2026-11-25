@@ -28,7 +28,12 @@ class StatsPage extends ConsumerWidget {
     return TabScaffold(
       title: context.l10n.navStats,
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          32 + MediaQuery.paddingOf(context).bottom,
+        ),
         children: const [
           _FocusSection(),
           _FocusBySection(),
@@ -208,10 +213,18 @@ class _Bars extends StatelessWidget {
                   barRods: [
                     BarChartRodData(
                       toY: v,
-                      color: scheme.primary,
+                      // Degradê da cor de destaque, como luz no vidro.
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          scheme.primary,
+                          scheme.primary.withValues(alpha: 0.25),
+                        ],
+                      ),
                       width: math.max(4, math.min(18, 220 / values.length)),
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(3),
+                        top: Radius.circular(6),
                       ),
                     ),
                   ],

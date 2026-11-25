@@ -18,6 +18,7 @@ import 'backup_actions.dart';
 /// Folha "Conta e sincronização" (toque no avatar).
 Future<void> showAccountSheet(BuildContext context) =>
     showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       builder: (_) => const _AccountSheet(),

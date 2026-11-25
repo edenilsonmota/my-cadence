@@ -36,6 +36,7 @@ class SettingsPage extends ConsumerWidget {
   ) async {
     final l10n = context.l10n;
     final picked = await showModalBottomSheet<AppLocale>(
+      useRootNavigator: true,
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

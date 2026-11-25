@@ -377,6 +377,7 @@ class _PagesSection extends ConsumerWidget {
             icon: const Icon(AppIcons.link),
             label: Text(l10n.hubLinkExistingPage),
             onPressed: () => showModalBottomSheet<void>(
+              useRootNavigator: true,
               context: context,
               isScrollControlled: true,
               showDragHandle: true,

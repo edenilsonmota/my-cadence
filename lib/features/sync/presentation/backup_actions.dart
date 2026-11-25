@@ -80,6 +80,7 @@ Future<void> importBytesFlow(
     return;
   }
   final choice = await showModalBottomSheet<_ImportChoice>(
+    useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     builder: (_) => _ImportPreviewSheet(preview: preview),

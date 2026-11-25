@@ -53,7 +53,11 @@ class BooksPage extends ConsumerWidget {
                 ),
               )
             : ListView(
-                padding: EdgeInsets.only(bottom: context.space.xxxl * 2),
+                padding: EdgeInsets.only(
+                  bottom:
+                      context.space.xxxl * 2 +
+                      MediaQuery.paddingOf(context).bottom,
+                ),
                 children: [for (final book in books) _BookTile(book: book)],
               ),
       ),

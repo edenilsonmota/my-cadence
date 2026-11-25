@@ -157,6 +157,7 @@ class _PageEditorPageState extends ConsumerState<PageEditorPage> {
       return;
     }
     final side = await showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(

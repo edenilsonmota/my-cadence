@@ -79,7 +79,9 @@ class ReviewPage extends ConsumerWidget {
           }
           final soon = due == 0 ? nextDueSoon(all, now) : null;
           return ListView(
-            padding: const EdgeInsets.only(bottom: 88),
+            padding: EdgeInsets.only(
+              bottom: 88 + MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               _DueCard(
                 due: due,

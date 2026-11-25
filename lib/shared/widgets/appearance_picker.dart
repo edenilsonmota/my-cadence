@@ -23,6 +23,7 @@ Future<AppearanceChoice?> showAppearancePicker(
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<AppearanceChoice>(
+    useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     builder: (_) => _AppearancePicker(

@@ -20,12 +20,14 @@ enum AppThemeMode {
 
 /// Cores de destaque disponíveis para botões, abas ativas e interruptores.
 enum AppAccentColor {
-  azul('Azul', 0xFF1D9BF0),
-  amarelo('Amarelo', 0xFFEAB308),
-  rosa('Rosa', 0xFFF91880),
-  violeta('Violeta', 0xFF7856FF),
-  laranja('Laranja', 0xFFFF7A00),
-  verde('Verde', 0xFF00BA7C);
+  // Tons pensados para o vidro sobre fundo escuro (os nomes dos valores são
+  // o que fica salvo: não renomear).
+  azul('Azul gelo', 0xFF5B9DFF),
+  amarelo('Dourado', 0xFFD9A441),
+  rosa('Rosa', 0xFFF472B6),
+  violeta('Lavanda', 0xFF9D8CFF),
+  laranja('Coral', 0xFFFF7E67),
+  verde('Menta', 0xFF34D3A0);
 
   const AppAccentColor(this.label, this.argb);
 

@@ -16,6 +16,7 @@ Future<({String? id})?> pickTask(
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<({String? id})>(
+    useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

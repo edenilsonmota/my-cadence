@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
 
 import 'components.dart';
+import 'glass.dart';
 import 'palette.dart';
 import 'theme_settings.dart';
 import 'tokens.dart';
 import 'typography.dart';
 
 export 'app_icons.dart';
+export 'glass.dart';
 export 'icon_catalog.dart';
 export 'palette.dart';
 export 'theme_settings.dart';
@@ -17,13 +19,13 @@ export 'tokens.dart';
 export 'typography.dart';
 
 /// Cor de marca (usada como padrão de referência).
-const brandSeed = Color(0xFF1D9BF0);
+const brandSeed = Color(0xFF5B9DFF);
 
 /// Cor visual da bolinha no seletor de cor de destaque e do check sobre ela.
 extension AppAccentSwatch on AppAccentColor {
   Color get swatch => Color(argb);
 
-  Color get onSwatch => this == AppAccentColor.amarelo
+  Color get onSwatch => swatch.computeLuminance() > 0.4
       ? const Color(0xFF141418)
       : const Color(0xFFFFFFFF);
 }
@@ -151,6 +153,7 @@ ThemeData buildTheme(
       const AppMotion(),
       AppPalette.of(brightness, lightsOut: highContrastDark),
       AppTypography(color: scheme.onSurface, muted: scheme.onSurfaceVariant),
+      AppGlass.of(scheme, lightsOut: highContrastDark),
     ],
   );
   return applyComponentThemes(typed);
@@ -162,6 +165,7 @@ extension ThemeTokens on BuildContext {
   AppRadius get radius => Theme.of(this).extension<AppRadius>()!;
   AppPalette get palette => Theme.of(this).extension<AppPalette>()!;
   AppTypography get type => Theme.of(this).extension<AppTypography>()!;
+  AppGlass get glass => Theme.of(this).extension<AppGlass>()!;
 
   /// Durações já respeitando "remover animações" do sistema.
   AppMotion get motion =>

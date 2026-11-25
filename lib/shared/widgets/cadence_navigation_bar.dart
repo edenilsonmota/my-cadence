@@ -13,8 +13,12 @@ class CadenceNavigationBar extends StatelessWidget {
     required this.tabs,
     required this.selectedIndex,
     required this.onDestinationSelected,
+    this.floating = false,
     super.key,
   });
+
+  /// Dentro da pílula de vidro do shell: sem fundo próprio e mais baixa.
+  final bool floating;
 
   final List<NavTab> tabs;
   final int selectedIndex;
@@ -25,6 +29,11 @@ class CadenceNavigationBar extends StatelessWidget {
     final l10n = context.l10n;
     final compact = tabs.length > 5;
     final bar = NavigationBar(
+      height: floating ? 64 : null,
+      backgroundColor: floating
+          ? context.colors.surface.withValues(alpha: 0)
+          : null,
+      elevation: floating ? 0 : null,
       selectedIndex: selectedIndex,
       onDestinationSelected: onDestinationSelected,
       destinations: [

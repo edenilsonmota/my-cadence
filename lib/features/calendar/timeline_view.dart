@@ -233,7 +233,9 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
                   ? const NeverScrollableScrollPhysics()
                   : null,
               // Folga no fim para o aviso de próxima tarefa e o botão +.
-              padding: const EdgeInsets.only(bottom: 80),
+              padding: EdgeInsets.only(
+                bottom: 80 + MediaQuery.paddingOf(context).bottom,
+              ),
               child: SizedBox(
                 width: double.infinity,
                 height: 24 * hourHeight,

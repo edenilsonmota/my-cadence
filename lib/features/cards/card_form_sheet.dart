@@ -31,6 +31,7 @@ Future<CardFormResult?> showCardForm(
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<CardFormResult>(
+    useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

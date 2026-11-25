@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/glass_surface.dart';
 import '../../shared/widgets/pressable.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/staggered_entry.dart';
@@ -57,6 +58,7 @@ class _ComponentsPageState extends State<ComponentsPage> {
               _Section('Carregando', child: _Skeletons()),
               _Section('Vazio', child: _EmptyDemo()),
               _Section('Avisos', child: _Overlays()),
+              _Section('Vidro', child: _GlassDemo()),
             ],
           ),
         ),
@@ -365,6 +367,7 @@ class _Overlays extends StatelessWidget {
       ),
       OutlinedButton(
         onPressed: () => showModalBottomSheet<void>(
+          useRootNavigator: true,
           context: context,
           builder: (context) => Padding(
             padding: EdgeInsets.all(context.space.xl),
@@ -375,4 +378,37 @@ class _Overlays extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// Superfície de vidro sobre conteúdo colorido (como a barra do shell).
+class _GlassDemo extends StatelessWidget {
+  const _GlassDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return SizedBox(
+      height: 120,
+      child: Stack(
+        children: [
+          Row(
+            children: [
+              for (final key in PaletteKey.values.take(4))
+                Expanded(child: ColoredBox(color: palette.of(key).strong)),
+            ],
+          ),
+          Center(
+            child: GlassSurface(
+              borderRadius: context.radius.pillAll,
+              padding: EdgeInsets.symmetric(
+                horizontal: context.space.xl,
+                vertical: context.space.md,
+              ),
+              child: Text('GlassSurface', style: context.text.titleMedium),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

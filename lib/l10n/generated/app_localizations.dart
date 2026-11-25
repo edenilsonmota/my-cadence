@@ -295,13 +295,13 @@ abstract class AppLocalizations {
   /// No description provided for @accentBlue.
   ///
   /// In pt, this message translates to:
-  /// **'Azul'**
+  /// **'Azul gelo'**
   String get accentBlue;
 
   /// No description provided for @accentYellow.
   ///
   /// In pt, this message translates to:
-  /// **'Amarelo'**
+  /// **'Dourado'**
   String get accentYellow;
 
   /// No description provided for @accentPink.
@@ -313,19 +313,19 @@ abstract class AppLocalizations {
   /// No description provided for @accentViolet.
   ///
   /// In pt, this message translates to:
-  /// **'Violeta'**
+  /// **'Lavanda'**
   String get accentViolet;
 
   /// No description provided for @accentOrange.
   ///
   /// In pt, this message translates to:
-  /// **'Laranja'**
+  /// **'Coral'**
   String get accentOrange;
 
   /// No description provided for @accentGreen.
   ///
   /// In pt, this message translates to:
-  /// **'Verde'**
+  /// **'Menta'**
   String get accentGreen;
 
   /// No description provided for @settingsLightsOut.

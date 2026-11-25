@@ -106,22 +106,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsColor => 'Cor';
 
   @override
-  String get accentBlue => 'Azul';
+  String get accentBlue => 'Azul gelo';
 
   @override
-  String get accentYellow => 'Amarelo';
+  String get accentYellow => 'Dourado';
 
   @override
   String get accentPink => 'Rosa';
 
   @override
-  String get accentViolet => 'Violeta';
+  String get accentViolet => 'Lavanda';
 
   @override
-  String get accentOrange => 'Laranja';
+  String get accentOrange => 'Coral';
 
   @override
-  String get accentGreen => 'Verde';
+  String get accentGreen => 'Menta';
 
   @override
   String get settingsLightsOut => 'Lights out (alto contraste)';

@@ -48,7 +48,9 @@ class TodayPage extends ConsumerWidget {
           ),
       ];
       body = ListView(
-        padding: EdgeInsets.only(bottom: context.space.xxxl * 2),
+        padding: EdgeInsets.only(
+          bottom: context.space.xxxl * 2 + MediaQuery.paddingOf(context).bottom,
+        ),
         children: [
           if (overdue.requireValue.isNotEmpty) ...[
             SectionHeader(

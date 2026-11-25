@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'glass.dart';
 import 'tokens.dart';
 
 /// Temas dos componentes: plano, com cantos e espaços dos tokens, sem o
@@ -10,6 +11,8 @@ ThemeData applyComponentThemes(ThemeData base) {
   const r = AppRadius();
   const s = AppSpacing();
   final md = RoundedRectangleBorder(borderRadius: r.mdAll);
+  // Aresta de vidro das superfícies que flutuam (folhas, diálogos, menus).
+  final edge = BorderSide(color: base.extension<AppGlass>()!.border);
   const buttonPadding = EdgeInsets.symmetric(horizontal: 20, vertical: 12);
   const buttonSize = Size(64, 44);
 
@@ -151,7 +154,7 @@ ThemeData applyComponentThemes(ThemeData base) {
     cardTheme: CardThemeData(
       elevation: 0,
       color: c.surfaceContainerLow,
-      shape: RoundedRectangleBorder(borderRadius: r.lgAll),
+      shape: RoundedRectangleBorder(borderRadius: r.xlAll, side: edge),
       clipBehavior: Clip.antiAlias,
     ),
     listTileTheme: ListTileThemeData(
@@ -173,13 +176,13 @@ ThemeData applyComponentThemes(ThemeData base) {
       backgroundColor: c.inverseSurface,
       contentTextStyle: t.bodyMedium!.copyWith(color: c.onInverseSurface),
       actionTextColor: c.inversePrimary,
-      shape: RoundedRectangleBorder(borderRadius: r.mdAll),
+      shape: RoundedRectangleBorder(borderRadius: r.lgAll),
       insetPadding: EdgeInsets.fromLTRB(s.lg, 0, s.lg, s.md),
     ),
     dialogTheme: DialogThemeData(
       elevation: 0,
       backgroundColor: c.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: r.xlAll),
+      shape: RoundedRectangleBorder(borderRadius: r.xlAll, side: edge),
       titleTextStyle: t.titleLarge!.copyWith(color: c.onSurface),
       contentTextStyle: t.bodyMedium!.copyWith(color: c.onSurfaceVariant),
     ),
@@ -192,12 +195,13 @@ ThemeData applyComponentThemes(ThemeData base) {
       dragHandleColor: c.outlineVariant,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(r.xl)),
+        side: edge,
       ),
     ),
     popupMenuTheme: PopupMenuThemeData(
       elevation: 2,
       color: c.surfaceContainer,
-      shape: RoundedRectangleBorder(borderRadius: r.mdAll),
+      shape: RoundedRectangleBorder(borderRadius: r.lgAll, side: edge),
       textStyle: t.bodyMedium!.copyWith(color: c.onSurface),
       labelTextStyle: WidgetStatePropertyAll(
         t.bodyMedium!.copyWith(color: c.onSurface),
@@ -224,12 +228,12 @@ ThemeData applyComponentThemes(ThemeData base) {
     datePickerTheme: DatePickerThemeData(
       elevation: 0,
       backgroundColor: c.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: r.xlAll),
+      shape: RoundedRectangleBorder(borderRadius: r.xlAll, side: edge),
     ),
     timePickerTheme: TimePickerThemeData(
       elevation: 0,
       backgroundColor: c.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: r.xlAll),
+      shape: RoundedRectangleBorder(borderRadius: r.xlAll, side: edge),
     ),
   );
 }

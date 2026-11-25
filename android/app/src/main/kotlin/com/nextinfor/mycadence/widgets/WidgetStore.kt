@@ -83,7 +83,7 @@ object WidgetStore {
                 context = context,
                 themeMode = "system",
                 lightsOut = false,
-                accentArgb = 0xFF1D9BF0.toInt(),
+                accentArgb = 0xFF5B9DFF.toInt(),
             )
             return TodayWidgetData(
                 title = context.getString(R.string.widget_today_label),
@@ -102,7 +102,7 @@ object WidgetStore {
                 context = context,
                 themeMode = root.optString("themeMode", "system"),
                 lightsOut = root.optBoolean("lightsOut", false),
-                accentArgb = root.optLong("accentArgb", 0xFF1D9BF0L).toInt(),
+                accentArgb = root.optLong("accentArgb", 0xFF5B9DFFL).toInt(),
             )
             val arr = root.optJSONArray("todayItems")
             val items = mutableListOf<WidgetTaskItem>()
@@ -143,7 +143,7 @@ object WidgetStore {
                 context = context,
                 themeMode = "system",
                 lightsOut = false,
-                accentArgb = 0xFF1D9BF0.toInt(),
+                accentArgb = 0xFF5B9DFF.toInt(),
             )
             TodayWidgetData(
                 title = context.getString(R.string.widget_today_label),

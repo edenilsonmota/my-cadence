@@ -8,6 +8,7 @@ import '../../data/db/enums.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/skeleton.dart';
+import '../../shared/widgets/tab_scaffold.dart';
 import '../../shared/widgets/tag_chip.dart';
 import '../sync/presentation/account_avatar.dart';
 import 'quick_add_sheet.dart';
@@ -98,6 +99,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
               child: const Icon(AppIcons.filter),
             ),
             onPressed: () => showModalBottomSheet<void>(
+              useRootNavigator: true,
               context: context,
               isScrollControlled: true,
               showDragHandle: true,
@@ -108,12 +110,14 @@ class _TasksPageState extends ConsumerState<TasksPage> {
         ],
       ),
       drawer: isTab ? const AppDrawer() : null,
-      floatingActionButton: FloatingActionButton(
-        // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
-        heroTag: null,
-        tooltip: l10n.tasksNew,
-        onPressed: () => showQuickAdd(context),
-        child: const Icon(AppIcons.add),
+      floatingActionButton: AboveNavBar(
+        child: FloatingActionButton(
+          // Cada aba tem seu FAB vivo no IndexedStack: sem Hero, para não colidir.
+          heroTag: null,
+          tooltip: l10n.tasksNew,
+          onPressed: () => showQuickAdd(context),
+          child: const Icon(AppIcons.add),
+        ),
       ),
       body: tree.when(
         loading: () => const SkeletonList(),
@@ -178,7 +182,9 @@ class _TasksPageState extends ConsumerState<TasksPage> {
 
           addRows(nodes, 0);
           return ListView(
-            padding: const EdgeInsets.only(bottom: 88),
+            padding: EdgeInsets.only(
+              bottom: 88 + MediaQuery.paddingOf(context).bottom,
+            ),
             children: rows,
           );
         },

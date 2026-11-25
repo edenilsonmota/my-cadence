@@ -106,22 +106,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsColor => 'Color';
 
   @override
-  String get accentBlue => 'Azul';
+  String get accentBlue => 'Azul hielo';
 
   @override
-  String get accentYellow => 'Amarillo';
+  String get accentYellow => 'Dorado';
 
   @override
   String get accentPink => 'Rosa';
 
   @override
-  String get accentViolet => 'Violeta';
+  String get accentViolet => 'Lavanda';
 
   @override
-  String get accentOrange => 'Naranja';
+  String get accentOrange => 'Coral';
 
   @override
-  String get accentGreen => 'Verde';
+  String get accentGreen => 'Menta';
 
   @override
   String get settingsLightsOut => 'Lights out (alto contraste)';

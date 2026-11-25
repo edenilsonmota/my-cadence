@@ -19,6 +19,7 @@ import 'task_providers.dart';
 /// Enter salva e deixa pronto para a próxima.
 Future<void> showQuickAdd(BuildContext context, {bool dueToday = false}) =>
     showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       builder: (_) => _QuickAdd(dueToday: dueToday),
