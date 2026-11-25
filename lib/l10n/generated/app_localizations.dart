@@ -2259,6 +2259,312 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Semana de {date}'**
   String statsWeekOf(String date);
+
+  /// No description provided for @settingsAlarmDiagnostics.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diagnóstico de alarmes'**
+  String get settingsAlarmDiagnostics;
+
+  /// No description provided for @settingsAlarmDiagnosticsOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tudo certo para tocar'**
+  String get settingsAlarmDiagnosticsOk;
+
+  /// No description provided for @settingsAlarmDiagnosticsIssues.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 ajuste recomendado} other{{count} ajustes recomendados}}'**
+  String settingsAlarmDiagnosticsIssues(int count);
+
+  /// No description provided for @diagnosticsRefresh.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verificar novamente'**
+  String get diagnosticsRefresh;
+
+  /// No description provided for @diagnosticsOpenSettings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Abrir ajustes'**
+  String get diagnosticsOpenSettings;
+
+  /// No description provided for @diagnosticsStatusOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ativo'**
+  String get diagnosticsStatusOk;
+
+  /// No description provided for @diagnosticsStatusIssue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atenção'**
+  String get diagnosticsStatusIssue;
+
+  /// No description provided for @diagnosticsSummaryOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'O aparelho está configurado para entregar seus lembretes e alarmes no horário.'**
+  String get diagnosticsSummaryOk;
+
+  /// No description provided for @diagnosticsSummaryIssues.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alguns ajustes do Android podem impedir ou atrasar seus lembretes.'**
+  String get diagnosticsSummaryIssues;
+
+  /// No description provided for @diagNotificationsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Notificações do app'**
+  String get diagNotificationsTitle;
+
+  /// No description provided for @diagNotificationsOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'Permitidas pelo Android.'**
+  String get diagNotificationsOk;
+
+  /// No description provided for @diagNotificationsOff.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estão desligadas — nenhum lembrete ou alarme vai aparecer.'**
+  String get diagNotificationsOff;
+
+  /// No description provided for @diagRemindersChannelTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Canal de lembretes'**
+  String get diagRemindersChannelTitle;
+
+  /// No description provided for @diagRemindersChannelOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'Som e avisos habilitados.'**
+  String get diagRemindersChannelOk;
+
+  /// No description provided for @diagRemindersChannelMuted.
+  ///
+  /// In pt, this message translates to:
+  /// **'O canal está silenciado — notificações comuns não vão tocar.'**
+  String get diagRemindersChannelMuted;
+
+  /// No description provided for @diagAlarmsChannelTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Canal de alarmes'**
+  String get diagAlarmsChannelTitle;
+
+  /// No description provided for @diagAlarmsChannelOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'Canal de despertador habilitado.'**
+  String get diagAlarmsChannelOk;
+
+  /// No description provided for @diagAlarmsChannelMuted.
+  ///
+  /// In pt, this message translates to:
+  /// **'O canal está silenciado — tarefas em modo Alarme não vão tocar.'**
+  String get diagAlarmsChannelMuted;
+
+  /// No description provided for @diagExactAlarmsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alarmes exatos'**
+  String get diagExactAlarmsTitle;
+
+  /// No description provided for @diagExactAlarmsOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'O app pode agendar no minuto exato.'**
+  String get diagExactAlarmsOk;
+
+  /// No description provided for @diagExactAlarmsDenied.
+  ///
+  /// In pt, this message translates to:
+  /// **'Negado — lembretes podem atrasar ou falhar.'**
+  String get diagExactAlarmsDenied;
+
+  /// No description provided for @diagFullScreenTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alarmes em tela cheia'**
+  String get diagFullScreenTitle;
+
+  /// No description provided for @diagFullScreenOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pode abrir sobre a tela bloqueada.'**
+  String get diagFullScreenOk;
+
+  /// No description provided for @diagFullScreenDenied.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem permissão — o alarme pode não aparecer na tela bloqueada.'**
+  String get diagFullScreenDenied;
+
+  /// No description provided for @diagBatteryTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Otimização de bateria'**
+  String get diagBatteryTitle;
+
+  /// No description provided for @diagBatteryOk.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem restrições em segundo plano.'**
+  String get diagBatteryOk;
+
+  /// No description provided for @diagBatteryRestricted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Com restrição — aparelhos (ex.: \"apps em suspensão\" da Samsung) podem atrasar alarmes.'**
+  String get diagBatteryRestricted;
+
+  /// No description provided for @formDiagnosticsWarning.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este lembrete pode não tocar: confira as permissões de notificação e alarme.'**
+  String get formDiagnosticsWarning;
+
+  /// No description provided for @formDiagnosticsAction.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver diagnóstico'**
+  String get formDiagnosticsAction;
+
+  /// No description provided for @actionSnooze.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adiar'**
+  String get actionSnooze;
+
+  /// No description provided for @snooze10Min.
+  ///
+  /// In pt, this message translates to:
+  /// **'10 min'**
+  String get snooze10Min;
+
+  /// No description provided for @snooze1Hour.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 h'**
+  String get snooze1Hour;
+
+  /// No description provided for @snoozeTomorrowMorning.
+  ///
+  /// In pt, this message translates to:
+  /// **'Amanhã cedo ({time})'**
+  String snoozeTomorrowMorning(String time);
+
+  /// No description provided for @snoozedUntil.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembrete adiado para {when}.'**
+  String snoozedUntil(String when);
+
+  /// No description provided for @settingsDailyReminders.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avisos diários'**
+  String get settingsDailyReminders;
+
+  /// No description provided for @settingsDailySummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'Resumo diário de tarefas'**
+  String get settingsDailySummary;
+
+  /// No description provided for @settingsDailySummaryHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avisa sobre tarefas de hoje e atrasadas às {hour}h'**
+  String settingsDailySummaryHint(int hour);
+
+  /// No description provided for @settingsDailySummaryOffHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receba um resumo diário de tarefas pendentes'**
+  String get settingsDailySummaryOffHint;
+
+  /// No description provided for @settingsDailySummaryHourSemantics.
+  ///
+  /// In pt, this message translates to:
+  /// **'Hora do resumo diário de tarefas'**
+  String get settingsDailySummaryHourSemantics;
+
+  /// No description provided for @settingsDailyReview.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso diário de flashcards'**
+  String get settingsDailyReview;
+
+  /// No description provided for @settingsDailyReviewHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembra às {hour}h quando houver cards para revisar'**
+  String settingsDailyReviewHint(int hour);
+
+  /// No description provided for @settingsDailyReviewOffHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avisa quando houver cards vencidos (não avisa com zero)'**
+  String get settingsDailyReviewOffHint;
+
+  /// No description provided for @settingsDailyReviewHourSemantics.
+  ///
+  /// In pt, this message translates to:
+  /// **'Hora do aviso diário de flashcards'**
+  String get settingsDailyReviewHourSemantics;
+
+  /// No description provided for @settingsHourLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horário (h)'**
+  String get settingsHourLabel;
+
+  /// No description provided for @fieldReminders.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembretes'**
+  String get fieldReminders;
+
+  /// No description provided for @remindersHelperMultiple.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolha um ou mais horários para lembrar.'**
+  String get remindersHelperMultiple;
+
+  /// No description provided for @fieldNagIfOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Insistir se atrasar'**
+  String get fieldNagIfOverdue;
+
+  /// No description provided for @nagOff.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não'**
+  String get nagOff;
+
+  /// No description provided for @nagEveryMinutes.
+  ///
+  /// In pt, this message translates to:
+  /// **'A cada {minutes} min'**
+  String nagEveryMinutes(int minutes);
+
+  /// No description provided for @nagHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Repete até {max}× após o horário enquanto a tarefa não for concluída.'**
+  String nagHint(int max);
+
+  /// No description provided for @nagHubDetail.
+  ///
+  /// In pt, this message translates to:
+  /// **'A cada {minutes} min (até {max}×)'**
+  String nagHubDetail(int minutes, int max);
 }
 
 class _AppLocalizationsDelegate

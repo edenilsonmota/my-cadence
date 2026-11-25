@@ -8,6 +8,7 @@ import '../../core/dates.dart';
 import '../../core/recurrence.dart';
 import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
+import 'reminder_offsets.dart';
 
 typedef ClockTime = ({int hour, int minute});
 
@@ -43,13 +44,18 @@ class TaskDraft {
     this.interval = 1,
     Set<int>? weekdays,
     this.until,
-    this.reminderMinutesBefore,
+    int? reminderMinutesBefore,
+    Set<int>? reminderOffsets,
     this.reminderMode = ReminderMode.notificacao,
+    this.nagIntervalMinutes,
     this.estimatedPomodoros,
     this.colorKey,
     this.iconKey,
     Set<String>? tagIds,
   }) : weekdays = weekdays ?? {},
+       reminderOffsets =
+           reminderOffsets ??
+           (reminderMinutesBefore == null ? {} : {reminderMinutesBefore}),
        tagIds = tagIds ?? {};
 
   /// Preenche o formulário a partir de uma tarefa existente.
@@ -77,8 +83,9 @@ class TaskDraft {
       interval: rule?.interval ?? 1,
       weekdays: {...?rule?.weekdays},
       until: rule?.until,
-      reminderMinutesBefore: task.reminderMinutesBefore,
+      reminderOffsets: {...effectiveReminderOffsets(task)},
       reminderMode: task.reminderMode,
+      nagIntervalMinutes: normalizeNagInterval(task.nagIntervalMinutes),
       estimatedPomodoros: task.estimatedPomodoros,
       colorKey: task.colorKey,
       iconKey: task.iconKey,
@@ -103,8 +110,24 @@ class TaskDraft {
   Set<int> weekdays;
   DateTime? until;
 
-  int? reminderMinutesBefore;
+  /// Antecedências selecionadas em minutos (vazio = sem lembrete).
+  Set<int> reminderOffsets;
+
+  /// Atalho de compatibilidade para a menor antecedência selecionada.
+  int? get reminderMinutesBefore {
+    if (reminderOffsets.isEmpty) return null;
+    final sorted = reminderOffsets.toList()..sort();
+    return sorted.first;
+  }
+
+  set reminderMinutesBefore(int? value) {
+    reminderOffsets = value == null ? {} : {value};
+  }
+
   ReminderMode reminderMode;
+
+  /// Intervalo em minutos para insistir se atrasar; `null` desliga.
+  int? nagIntervalMinutes;
   int? estimatedPomodoros;
 
   /// Chaves de cor e ícone; nulas = herdar (mãe, tag, tipo).
@@ -142,8 +165,8 @@ class TaskDraft {
     return null;
   }
 
-  /// Colunas da tarefa. Recorrência sem prazo usa hoje como prazo; alarme
-  /// sem prazo nem início com hora é descartado.
+  /// Colunas da tarefa. Recorrência sem prazo usa hoje como prazo; lembretes
+  /// sem prazo nem início com hora são descartados.
   TaskFields toFields(DateTime now) {
     DateTime? combine(DateTime? date, ClockTime? time) {
       if (date == null) return null;
@@ -157,9 +180,15 @@ class TaskDraft {
     final dueAt = combine(dueDay, dueTime);
     final startAt = combine(startDate, startTime);
     final trimmedNotes = notes.trim();
-    final effectiveReminder = dueAt == null && (allDay || startAt == null)
+    final canRemind = dueAt != null || (!allDay && startAt != null);
+    final encodedOffsets = canRemind
+        ? encodeReminderOffsets(reminderOffsets)
+        : null;
+    final parsedOffsets = parseReminderOffsets(encodedOffsets);
+    final primaryOffset = parsedOffsets.isEmpty ? null : parsedOffsets.first;
+    final effectiveNag = primaryOffset == null
         ? null
-        : reminderMinutesBefore;
+        : normalizeNagInterval(nagIntervalMinutes);
     return TaskFields(
       title: title.trim(),
       notes: trimmedNotes.isEmpty ? null : trimmedNotes,
@@ -169,10 +198,12 @@ class TaskDraft {
       startAt: startAt,
       dueAt: dueAt,
       recurrenceRule: rule?.toRule(),
-      reminderMinutesBefore: effectiveReminder,
-      reminderMode: effectiveReminder == null
+      reminderMinutesBefore: primaryOffset,
+      reminderOffsets: encodedOffsets,
+      reminderMode: primaryOffset == null
           ? ReminderMode.notificacao
           : reminderMode,
+      nagIntervalMinutes: effectiveNag,
       estimatedPomodoros: estimatedPomodoros,
       colorKey: colorKey,
       iconKey: iconKey,
@@ -192,7 +223,9 @@ class TaskFields {
     required this.dueAt,
     required this.recurrenceRule,
     required this.reminderMinutesBefore,
+    this.reminderOffsets,
     this.reminderMode = ReminderMode.notificacao,
+    this.nagIntervalMinutes,
     required this.estimatedPomodoros,
     this.colorKey,
     this.iconKey,
@@ -207,7 +240,9 @@ class TaskFields {
   final DateTime? dueAt;
   final String? recurrenceRule;
   final int? reminderMinutesBefore;
+  final String? reminderOffsets;
   final ReminderMode reminderMode;
+  final int? nagIntervalMinutes;
   final int? estimatedPomodoros;
   final String? colorKey;
   final String? iconKey;
@@ -223,7 +258,9 @@ class TaskFields {
     dueAt: Value(dueAt),
     recurrenceRule: Value(recurrenceRule),
     reminderMinutesBefore: Value(reminderMinutesBefore),
+    reminderOffsets: Value(reminderOffsets),
     reminderMode: reminderMode,
+    nagIntervalMinutes: Value(nagIntervalMinutes),
     estimatedPomodoros: Value(estimatedPomodoros),
     colorKey: Value(colorKey),
     iconKey: Value(iconKey),

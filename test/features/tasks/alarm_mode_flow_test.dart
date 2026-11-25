@@ -37,16 +37,14 @@ void main() {
       await settle(tester);
 
       // Escolhe lembrete "Na hora".
-      final dropdown = find.byType(DropdownButtonFormField<int?>);
+      final onTimeChip = find.widgetWithText(FilterChip, 'Na hora');
       await tester.dragUntilVisible(
-        dropdown,
+        onTimeChip,
         find.byType(ListView).first,
         const Offset(0, -200),
       );
       await settle(tester);
-      await tester.tap(dropdown);
-      await settle(tester);
-      await tester.tap(find.text('Na hora').last);
+      await tester.tap(onTimeChip);
       await settle(tester);
 
       // Seletor Notificação / Alarme aparece; padrão é Notificação.

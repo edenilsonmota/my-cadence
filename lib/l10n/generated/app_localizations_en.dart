@@ -1187,4 +1187,192 @@ class AppLocalizationsEn extends AppLocalizations {
   String statsWeekOf(String date) {
     return 'Week of $date';
   }
+
+  @override
+  String get settingsAlarmDiagnostics => 'Alarm diagnostics';
+
+  @override
+  String get settingsAlarmDiagnosticsOk => 'All set to ring';
+
+  @override
+  String settingsAlarmDiagnosticsIssues(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count settings need attention',
+      one: '1 setting needs attention',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get diagnosticsRefresh => 'Check again';
+
+  @override
+  String get diagnosticsOpenSettings => 'Open settings';
+
+  @override
+  String get diagnosticsStatusOk => 'OK';
+
+  @override
+  String get diagnosticsStatusIssue => 'Attention';
+
+  @override
+  String get diagnosticsSummaryOk =>
+      'Your device is ready to deliver reminders and alarms on time.';
+
+  @override
+  String get diagnosticsSummaryIssues =>
+      'Some Android settings may block or delay your reminders.';
+
+  @override
+  String get diagNotificationsTitle => 'App notifications';
+
+  @override
+  String get diagNotificationsOk => 'Allowed by Android.';
+
+  @override
+  String get diagNotificationsOff =>
+      'Turned off — no reminders or alarms will show up.';
+
+  @override
+  String get diagRemindersChannelTitle => 'Reminders channel';
+
+  @override
+  String get diagRemindersChannelOk => 'Sound and alerts enabled.';
+
+  @override
+  String get diagRemindersChannelMuted =>
+      'This channel is muted — standard reminders will not alert.';
+
+  @override
+  String get diagAlarmsChannelTitle => 'Alarms channel';
+
+  @override
+  String get diagAlarmsChannelOk => 'Alarm channel enabled.';
+
+  @override
+  String get diagAlarmsChannelMuted =>
+      'This channel is muted — tasks in Alarm mode will not ring.';
+
+  @override
+  String get diagExactAlarmsTitle => 'Exact alarms';
+
+  @override
+  String get diagExactAlarmsOk => 'The app can schedule to the exact minute.';
+
+  @override
+  String get diagExactAlarmsDenied =>
+      'Denied — reminders may be delayed or missed.';
+
+  @override
+  String get diagFullScreenTitle => 'Full-screen alarms';
+
+  @override
+  String get diagFullScreenOk => 'Can appear over the lock screen.';
+
+  @override
+  String get diagFullScreenDenied =>
+      'Not allowed — alarms may not show over the lock screen.';
+
+  @override
+  String get diagBatteryTitle => 'Battery optimization';
+
+  @override
+  String get diagBatteryOk => 'Unrestricted in the background.';
+
+  @override
+  String get diagBatteryRestricted =>
+      'Restricted — devices (e.g., Samsung sleeping apps) may delay alarms.';
+
+  @override
+  String get formDiagnosticsWarning =>
+      'This reminder may not ring: check notification and alarm permissions.';
+
+  @override
+  String get formDiagnosticsAction => 'View diagnostics';
+
+  @override
+  String get actionSnooze => 'Snooze';
+
+  @override
+  String get snooze10Min => '10 min';
+
+  @override
+  String get snooze1Hour => '1 h';
+
+  @override
+  String snoozeTomorrowMorning(String time) {
+    return 'Tomorrow morning ($time)';
+  }
+
+  @override
+  String snoozedUntil(String when) {
+    return 'Reminder snoozed until $when.';
+  }
+
+  @override
+  String get settingsDailyReminders => 'Daily reminders';
+
+  @override
+  String get settingsDailySummary => 'Daily task summary';
+
+  @override
+  String settingsDailySummaryHint(int hour) {
+    return 'Notifies about today\'s and overdue tasks at $hour:00';
+  }
+
+  @override
+  String get settingsDailySummaryOffHint =>
+      'Get a daily summary of pending tasks';
+
+  @override
+  String get settingsDailySummaryHourSemantics => 'Daily task summary hour';
+
+  @override
+  String get settingsDailyReview => 'Daily flashcards reminder';
+
+  @override
+  String settingsDailyReviewHint(int hour) {
+    return 'Reminds at $hour:00 when cards are due';
+  }
+
+  @override
+  String get settingsDailyReviewOffHint =>
+      'Notifies when cards are due (silent if none)';
+
+  @override
+  String get settingsDailyReviewHourSemantics =>
+      'Daily flashcards reminder hour';
+
+  @override
+  String get settingsHourLabel => 'Hour (h)';
+
+  @override
+  String get fieldReminders => 'Reminders';
+
+  @override
+  String get remindersHelperMultiple =>
+      'Pick one or more times to be reminded.';
+
+  @override
+  String get fieldNagIfOverdue => 'Keep reminding if overdue';
+
+  @override
+  String get nagOff => 'Off';
+
+  @override
+  String nagEveryMinutes(int minutes) {
+    return 'Every $minutes min';
+  }
+
+  @override
+  String nagHint(int max) {
+    return 'Repeats up to $max× after the scheduled time until completed.';
+  }
+
+  @override
+  String nagHubDetail(int minutes, int max) {
+    return 'Every $minutes min (up to $max×)';
+  }
 }

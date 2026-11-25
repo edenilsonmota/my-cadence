@@ -15,6 +15,7 @@ import '../../../data/providers.dart';
 import '../../../shared/widgets/appearance_badge.dart';
 import '../../../shared/widgets/pressable.dart';
 import '../hub/hub_stats.dart' show formatDuration;
+import '../reminder_offsets.dart';
 import '../task_providers.dart';
 
 /// Conclui ou reabre a tarefa. Rotina concluída avança para a próxima
@@ -157,7 +158,8 @@ class _TaskTileState extends ConsumerState<TaskTile> {
           color: overdue ? palette.danger.strong : null,
         ),
       if (task.recurrenceRule != null) const _Meta(icon: AppIcons.repeat),
-      if (task.reminderMinutesBefore != null) const _Meta(icon: AppIcons.alarm),
+      if (effectiveReminderOffsets(task).isNotEmpty)
+        const _Meta(icon: AppIcons.alarm),
       if (metrics != null && metrics.subtasks > 0)
         _Meta(
           icon: AppIcons.subtask,

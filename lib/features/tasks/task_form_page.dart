@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/l10n/l10n.dart';
+import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
@@ -12,7 +14,9 @@ import '../../shared/widgets/appearance_picker.dart';
 import '../../shared/widgets/number_stepper.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tag_chip.dart';
+import 'alarm_diagnostics.dart';
 import 'alarms.dart';
+import 'reminder_offsets.dart';
 import 'task_appearance.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
@@ -163,14 +167,16 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         hasTime: f.hasTime,
         recurrenceRule: f.recurrenceRule,
         reminderMinutesBefore: f.reminderMinutesBefore,
+        reminderOffsets: f.reminderOffsets,
         reminderMode: f.reminderMode,
+        nagIntervalMinutes: f.nagIntervalMinutes,
         estimatedPomodoros: f.estimatedPomodoros,
         colorKey: f.colorKey,
         iconKey: f.iconKey,
       );
     }
     await repo.setTaskTags(id, draft.tagIds);
-    if (f.reminderMinutesBefore != null) {
+    if (f.reminderMinutesBefore != null || f.reminderOffsets != null) {
       // Android 13+ e iOS pedem permissão para notificar; pergunta na hora em
       // que o primeiro lembrete é criado.
       await ref.read(alarmSchedulerProvider).requestPermission();
@@ -208,7 +214,13 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
 
   Widget _buildForm(BuildContext context, TaskDraft d) {
     final l10n = context.l10n;
-    final hasDate = d.dueDate != null || d.repeat != Repeat.nenhuma;
+    final hasDate =
+        d.dueDate != null ||
+        (!d.allDay && d.startDate != null) ||
+        d.repeat != Repeat.nenhuma;
+    final hasReminders = hasDate && d.reminderOffsets.isNotEmpty;
+    final diagnostics =
+        ref.watch(alarmDiagnosticsProvider).value ?? AlarmDiagnostics.allGood;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
@@ -285,24 +297,51 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           onSelectionChanged: (s) => _edit((d) => d.repeat = s.single),
         ),
         if (d.repeat != Repeat.nenhuma) ..._repeatFields(context, d),
-        _Label(l10n.fieldAlarm),
-        DropdownButtonFormField<int?>(
-          initialValue: d.reminderMinutesBefore,
-          decoration: InputDecoration(
-            helperText: hasDate ? null : l10n.alarmNeedDue,
+        _Label(l10n.fieldReminders),
+        if (!hasDate)
+          Text(
+            l10n.alarmNeedDue,
+            style: context.text.bodySmall!.copyWith(
+              color: context.colors.onSurfaceVariant,
+            ),
+          )
+        else ...[
+          Wrap(
+            spacing: context.space.sm,
+            runSpacing: context.space.xs,
+            children: [
+              for (final minutes in reminderOffsetChoices)
+                FilterChip(
+                  label: Text(reminderOptionLabel(minutes, l10n)),
+                  selected: d.reminderOffsets.contains(minutes),
+                  onSelected: (on) => _edit((d) {
+                    if (on) {
+                      d.reminderOffsets.add(minutes);
+                    } else {
+                      d.reminderOffsets.remove(minutes);
+                    }
+                  }),
+                ),
+            ],
           ),
-          items: [
-            for (final key in reminderOptions.keys)
-              DropdownMenuItem(
-                value: key,
-                child: Text(reminderOptionLabel(key, l10n)),
-              ),
+          SizedBox(height: context.space.xs),
+          Text(
+            l10n.remindersHelperMultiple,
+            style: context.text.bodySmall!.copyWith(
+              color: context.colors.onSurfaceVariant,
+            ),
+          ),
+        ],
+        if (hasReminders) ...[
+          if (diagnostics.hasBlockingIssueFor(d.reminderMode)) ...[
+            SizedBox(height: context.space.md),
+            _DiagnosticsWarningBanner(
+              onOpen: () async {
+                await context.push(Routes.alarmDiagnostics);
+                if (mounted) ref.invalidate(alarmDiagnosticsProvider);
+              },
+            ),
           ],
-          onChanged: hasDate
-              ? (v) => _edit((d) => d.reminderMinutesBefore = v)
-              : null,
-        ),
-        if (hasDate && d.reminderMinutesBefore != null) ...[
           SizedBox(height: context.space.md),
           SegmentedButton<ReminderMode>(
             showSelectedIcon: false,
@@ -338,6 +377,33 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
               !_canUseFullScreenIntent) ...[
             SizedBox(height: context.space.sm),
             _FullScreenPermissionBanner(onAllow: _requestFullScreenIntent),
+          ],
+          _Label(l10n.fieldNagIfOverdue),
+          Wrap(
+            spacing: context.space.sm,
+            runSpacing: context.space.xs,
+            children: [
+              for (final minutes in nagIntervalChoices)
+                ChoiceChip(
+                  label: Text(
+                    minutes == null
+                        ? l10n.nagOff
+                        : l10n.nagEveryMinutes(minutes),
+                  ),
+                  selected: d.nagIntervalMinutes == minutes,
+                  onSelected: (_) =>
+                      _edit((d) => d.nagIntervalMinutes = minutes),
+                ),
+            ],
+          ),
+          if (d.nagIntervalMinutes != null) ...[
+            SizedBox(height: context.space.xs),
+            Text(
+              l10n.nagHint(maxNagRepeats),
+              style: context.text.bodySmall!.copyWith(
+                color: context.colors.onSurfaceVariant,
+              ),
+            ),
           ],
         ],
         _Label(l10n.fieldEstimatedPomodoros),
@@ -704,6 +770,59 @@ class _AppearanceField extends ConsumerWidget {
         );
         if (choice != null) onChanged(choice);
       },
+    );
+  }
+}
+
+/// Aviso contextual no formulário quando o diagnóstico indica que o lembrete
+/// provavelmente não vai tocar (notificações desligadas, canal silenciado ou
+/// alarme exato negado).
+class _DiagnosticsWarningBanner extends StatelessWidget {
+  const _DiagnosticsWarningBanner({required this.onOpen});
+
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final danger = context.palette.danger;
+    final space = context.space;
+    return Container(
+      padding: EdgeInsets.all(space.md),
+      decoration: BoxDecoration(
+        color: danger.tint,
+        borderRadius: context.radius.mdAll,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                AppIcons.diagnostics,
+                size: AppIconSize.standard,
+                color: danger.onTint,
+              ),
+              SizedBox(width: space.sm),
+              Expanded(
+                child: Text(
+                  l10n.formDiagnosticsWarning,
+                  style: context.text.bodySmall!.copyWith(color: danger.onTint),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: space.xs),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: onOpen,
+              child: Text(l10n.formDiagnosticsAction),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

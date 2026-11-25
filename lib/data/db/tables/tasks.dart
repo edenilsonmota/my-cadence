@@ -30,10 +30,18 @@ class Tasks extends Table with SyncColumns {
   TextColumn get recurrenceRule => text().nullable()();
   IntColumn get reminderMinutesBefore => integer().nullable()();
 
+  /// Lista ordenada de antecedências em minutos separadas por vírgula
+  /// (ex.: `'0,15,1440'`). Quando preenchida, prevalece sobre
+  /// [reminderMinutesBefore] (que guarda a menor antecedência por compatibilidade).
+  TextColumn get reminderOffsets => text().nullable()();
+
   /// Como o lembrete avisa (`notificacao` comum ou `alarme` insistente).
   TextColumn get reminderMode => textEnum<ReminderMode>().withDefault(
     Constant(ReminderMode.notificacao.name),
   )();
+
+  /// Intervalo em minutos para insistir se a tarefa atrasar; `null` desliga.
+  IntColumn get nagIntervalMinutes => integer().nullable()();
   IntColumn get estimatedPomodoros => integer().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get completedAt => dateTime().nullable()();

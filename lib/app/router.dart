@@ -13,6 +13,7 @@ import '../features/cards/review_page.dart';
 import '../features/cards/review_session_page.dart';
 import '../features/dev/components_page.dart';
 import '../features/pomodoro/pomodoro_page.dart';
+import '../features/settings/alarm_diagnostics_page.dart';
 import '../features/settings/nav_bar_settings_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/stats/stats_page.dart';
@@ -34,6 +35,7 @@ abstract final class Routes {
   static const stats = '/metricas';
   static const settings = '/ajustes';
   static const navBarSettings = '/ajustes/barra';
+  static const alarmDiagnostics = '/ajustes/alarmes';
 
   /// Catálogo de componentes (só em debug).
   static const devComponents = '/dev/componentes';
@@ -131,6 +133,11 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         path: Routes.navBarSettings,
         parentNavigatorKey: rootKey,
         builder: (_, _) => const NavBarSettingsPage(),
+      ),
+      GoRoute(
+        path: Routes.alarmDiagnostics,
+        parentNavigatorKey: rootKey,
+        builder: (_, _) => const AlarmDiagnosticsPage(),
       ),
       if (kDebugMode)
         GoRoute(

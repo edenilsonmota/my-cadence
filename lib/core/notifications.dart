@@ -7,17 +7,22 @@ import 'package:flutter/services.dart'
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-/// Ações dos lembretes de tarefa.
+import '../features/tasks/alarm_diagnostics.dart';
+
+/// Ações dos lembretes de tarefa (Android aceita até 3).
 abstract final class AlarmActions {
   static const complete = 'concluir';
   static const snooze = 'adiar';
+  static const snooze1h = 'adiar_1h';
 }
 
-/// Payload da notificação de fim do pomodoro (abre a tela do pomodoro).
+/// Payloads reservados para deep links de notificações do sistema.
 const pomodoroPayload = 'pomodoro';
+const dailyReviewPayload = 'daily:review';
+const dailySummaryPayload = 'daily:summary';
 
 enum AlarmKind {
-  /// Lembrete de tarefa como notificação comum, com "Concluir" e "Adiar".
+  /// Lembrete de tarefa como notificação comum, com "Concluir", "10 min" e "1 h".
   task,
 
   /// Lembrete de tarefa em modo alarme: som de alarme insistente (toca no
@@ -26,6 +31,9 @@ enum AlarmKind {
 
   /// Fim de um ciclo do pomodoro, sem ações.
   pomodoro,
+
+  /// Aviso diário opcional (cards para revisar ou resumo do dia).
+  dailyDigest,
 }
 
 /// Uma notificação a agendar. Em lembrete de tarefa, [payload] é o id da
@@ -101,6 +109,12 @@ abstract interface class AlarmScheduler {
   /// Abre a tela do Android 14+ para conceder `USE_FULL_SCREEN_INTENT` (se
   /// ainda não foi dada) e devolve o estado ao voltar.
   Future<bool> requestFullScreenIntentPermission();
+
+  /// Diagnóstico de notificações, canais, alarmes exatos e bateria no aparelho.
+  Future<AlarmDiagnostics> getDiagnostics();
+
+  /// Abre a tela do sistema correspondente ao item [action] do diagnóstico.
+  Future<void> openDiagnosticSettings(AlarmDiagnosticAction action);
 }
 
 typedef NotificationTapCallback = void Function(String payload);
@@ -123,6 +137,7 @@ class NotificationService implements AlarmScheduler {
 
   static const _channelId = 'lembretes';
   static const _alarmChannelId = 'alarmes_tarefas';
+  static const _dailyChannelId = 'resumos_diarios';
   static const _iosCategory = 'lembrete_tarefa';
 
   /// `Notification.FLAG_INSISTENT` do Android: repete o toque até a pessoa
@@ -158,6 +173,10 @@ class NotificationService implements AlarmScheduler {
                 AlarmActions.snooze,
                 'Adiar 10 min',
               ),
+              DarwinNotificationAction.plain(
+                AlarmActions.snooze1h,
+                'Adiar 1 h',
+              ),
             ],
           ),
         ],
@@ -192,6 +211,11 @@ class NotificationService implements AlarmScheduler {
     AndroidNotificationAction(
       AlarmActions.snooze,
       'Adiar 10 min',
+      cancelNotification: true,
+    ),
+    AndroidNotificationAction(
+      AlarmActions.snooze1h,
+      'Adiar 1 h',
       cancelNotification: true,
     ),
   ];
@@ -258,6 +282,20 @@ class NotificationService implements AlarmScheduler {
     );
   }
 
+  static const _dailyDigestDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _dailyChannelId,
+      'Avisos diários',
+      channelDescription: 'Resumo diário de tarefas e lembrete de flashcards',
+      importance: Importance.high,
+      priority: Priority.defaultPriority,
+      category: AndroidNotificationCategory.reminder,
+      icon: '@drawable/ic_notification',
+      color: brandColor,
+    ),
+    iOS: DarwinNotificationDetails(),
+  );
+
   @override
   Future<void> schedule(AlarmSpec alarm) => plugin.zonedSchedule(
     id: alarm.id,
@@ -266,6 +304,7 @@ class NotificationService implements AlarmScheduler {
       AlarmKind.task => _details,
       AlarmKind.taskAlarm => _alarmDetails(),
       AlarmKind.pomodoro => _pomodoroDetails(alarm),
+      AlarmKind.dailyDigest => _dailyDigestDetails,
     },
     androidScheduleMode: alarm.kind == AlarmKind.taskAlarm
         ? AndroidScheduleMode.alarmClock
@@ -329,5 +368,57 @@ class NotificationService implements AlarmScheduler {
           AndroidFlutterLocalNotificationsPlugin
         >();
     return await android?.requestFullScreenIntentPermission() ?? true;
+  }
+
+  @override
+  Future<AlarmDiagnostics> getDiagnostics() async {
+    if (!Platform.isAndroid) return AlarmDiagnostics.allGood;
+    try {
+      final map = await _permissionsChannel.invokeMapMethod<Object?, Object?>(
+        'getAlarmDiagnostics',
+      );
+      return map == null
+          ? AlarmDiagnostics.allGood
+          : AlarmDiagnostics.fromMap(map);
+    } on MissingPluginException {
+      return AlarmDiagnostics.allGood;
+    }
+  }
+
+  @override
+  Future<void> openDiagnosticSettings(AlarmDiagnosticAction action) async {
+    if (!Platform.isAndroid) return;
+    if (action == AlarmDiagnosticAction.fullScreenIntent) {
+      await requestFullScreenIntentPermission();
+      return;
+    }
+    try {
+      switch (action) {
+        case AlarmDiagnosticAction.notifications:
+          await _permissionsChannel.invokeMethod<void>(
+            'openNotificationSettings',
+          );
+        case AlarmDiagnosticAction.remindersChannel:
+          await _permissionsChannel.invokeMethod<void>('openChannelSettings', {
+            'channelId': _channelId,
+          });
+        case AlarmDiagnosticAction.alarmsChannel:
+          await _permissionsChannel.invokeMethod<void>('openChannelSettings', {
+            'channelId': _alarmChannelId,
+          });
+        case AlarmDiagnosticAction.exactAlarms:
+          await _permissionsChannel.invokeMethod<void>(
+            'openExactAlarmSettings',
+          );
+        case AlarmDiagnosticAction.batteryOptimization:
+          await _permissionsChannel.invokeMethod<void>(
+            'openBatteryOptimizationSettings',
+          );
+        case AlarmDiagnosticAction.fullScreenIntent:
+          break;
+      }
+    } on MissingPluginException {
+      // Ambiente sem plugin nativo (ex.: teste).
+    }
   }
 }

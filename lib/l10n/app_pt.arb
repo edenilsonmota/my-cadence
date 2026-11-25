@@ -601,5 +601,101 @@
     "placeholders": {
       "date": {"type": "String"}
     }
+  },
+
+  "settingsAlarmDiagnostics": "Diagnóstico de alarmes",
+  "settingsAlarmDiagnosticsOk": "Tudo certo para tocar",
+  "settingsAlarmDiagnosticsIssues": "{count, plural, =1{1 ajuste recomendado} other{{count} ajustes recomendados}}",
+  "@settingsAlarmDiagnosticsIssues": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "diagnosticsRefresh": "Verificar novamente",
+  "diagnosticsOpenSettings": "Abrir ajustes",
+  "diagnosticsStatusOk": "Ativo",
+  "diagnosticsStatusIssue": "Atenção",
+  "diagnosticsSummaryOk": "O aparelho está configurado para entregar seus lembretes e alarmes no horário.",
+  "diagnosticsSummaryIssues": "Alguns ajustes do Android podem impedir ou atrasar seus lembretes.",
+  "diagNotificationsTitle": "Notificações do app",
+  "diagNotificationsOk": "Permitidas pelo Android.",
+  "diagNotificationsOff": "Estão desligadas — nenhum lembrete ou alarme vai aparecer.",
+  "diagRemindersChannelTitle": "Canal de lembretes",
+  "diagRemindersChannelOk": "Som e avisos habilitados.",
+  "diagRemindersChannelMuted": "O canal está silenciado — notificações comuns não vão tocar.",
+  "diagAlarmsChannelTitle": "Canal de alarmes",
+  "diagAlarmsChannelOk": "Canal de despertador habilitado.",
+  "diagAlarmsChannelMuted": "O canal está silenciado — tarefas em modo Alarme não vão tocar.",
+  "diagExactAlarmsTitle": "Alarmes exatos",
+  "diagExactAlarmsOk": "O app pode agendar no minuto exato.",
+  "diagExactAlarmsDenied": "Negado — lembretes podem atrasar ou falhar.",
+  "diagFullScreenTitle": "Alarmes em tela cheia",
+  "diagFullScreenOk": "Pode abrir sobre a tela bloqueada.",
+  "diagFullScreenDenied": "Sem permissão — o alarme pode não aparecer na tela bloqueada.",
+  "diagBatteryTitle": "Otimização de bateria",
+  "diagBatteryOk": "Sem restrições em segundo plano.",
+  "diagBatteryRestricted": "Com restrição — aparelhos (ex.: \"apps em suspensão\" da Samsung) podem atrasar alarmes.",
+  "formDiagnosticsWarning": "Este lembrete pode não tocar: confira as permissões de notificação e alarme.",
+  "formDiagnosticsAction": "Ver diagnóstico",
+
+  "actionSnooze": "Adiar",
+  "snooze10Min": "10 min",
+  "snooze1Hour": "1 h",
+  "snoozeTomorrowMorning": "Amanhã cedo ({time})",
+  "@snoozeTomorrowMorning": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "snoozedUntil": "Lembrete adiado para {when}.",
+  "@snoozedUntil": {
+    "placeholders": {
+      "when": {"type": "String"}
+    }
+  },
+
+  "settingsDailyReminders": "Avisos diários",
+  "settingsDailySummary": "Resumo diário de tarefas",
+  "settingsDailySummaryHint": "Avisa sobre tarefas de hoje e atrasadas às {hour}h",
+  "@settingsDailySummaryHint": {
+    "placeholders": {
+      "hour": {"type": "int"}
+    }
+  },
+  "settingsDailySummaryOffHint": "Receba um resumo diário de tarefas pendentes",
+  "settingsDailySummaryHourSemantics": "Hora do resumo diário de tarefas",
+  "settingsDailyReview": "Aviso diário de flashcards",
+  "settingsDailyReviewHint": "Lembra às {hour}h quando houver cards para revisar",
+  "@settingsDailyReviewHint": {
+    "placeholders": {
+      "hour": {"type": "int"}
+    }
+  },
+  "settingsDailyReviewOffHint": "Avisa quando houver cards vencidos (não avisa com zero)",
+  "settingsDailyReviewHourSemantics": "Hora do aviso diário de flashcards",
+  "settingsHourLabel": "Horário (h)",
+
+  "fieldReminders": "Lembretes",
+  "remindersHelperMultiple": "Escolha um ou mais horários para lembrar.",
+  "fieldNagIfOverdue": "Insistir se atrasar",
+  "nagOff": "Não",
+  "nagEveryMinutes": "A cada {minutes} min",
+  "@nagEveryMinutes": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "nagHint": "Repete até {max}× após o horário enquanto a tarefa não for concluída.",
+  "@nagHint": {
+    "placeholders": {
+      "max": {"type": "int"}
+    }
+  },
+  "nagHubDetail": "A cada {minutes} min (até {max}×)",
+  "@nagHubDetail": {
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "max": {"type": "int"}
+    }
   }
 }

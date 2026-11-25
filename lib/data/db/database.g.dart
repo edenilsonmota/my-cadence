@@ -198,6 +198,17 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _reminderOffsetsMeta = const VerificationMeta(
+    'reminderOffsets',
+  );
+  @override
+  late final GeneratedColumn<String> reminderOffsets = GeneratedColumn<String>(
+    'reminder_offsets',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<ReminderMode, String>
   reminderMode = GeneratedColumn<String>(
@@ -208,6 +219,16 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     requiredDuringInsert: false,
     defaultValue: Constant(ReminderMode.notificacao.name),
   ).withConverter<ReminderMode>($TasksTable.$converterreminderMode);
+  static const VerificationMeta _nagIntervalMinutesMeta =
+      const VerificationMeta('nagIntervalMinutes');
+  @override
+  late final GeneratedColumn<int> nagIntervalMinutes = GeneratedColumn<int>(
+    'nag_interval_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _estimatedPomodorosMeta =
       const VerificationMeta('estimatedPomodoros');
   @override
@@ -282,7 +303,9 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     hasTime,
     recurrenceRule,
     reminderMinutesBefore,
+    reminderOffsets,
     reminderMode,
+    nagIntervalMinutes,
     estimatedPomodoros,
     sortOrder,
     completedAt,
@@ -396,6 +419,24 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         reminderMinutesBefore.isAcceptableOrUnknown(
           data['reminder_minutes_before']!,
           _reminderMinutesBeforeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_offsets')) {
+      context.handle(
+        _reminderOffsetsMeta,
+        reminderOffsets.isAcceptableOrUnknown(
+          data['reminder_offsets']!,
+          _reminderOffsetsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('nag_interval_minutes')) {
+      context.handle(
+        _nagIntervalMinutesMeta,
+        nagIntervalMinutes.isAcceptableOrUnknown(
+          data['nag_interval_minutes']!,
+          _nagIntervalMinutesMeta,
         ),
       );
     }
@@ -516,11 +557,19 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         DriftSqlType.int,
         data['${effectivePrefix}reminder_minutes_before'],
       ),
+      reminderOffsets: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_offsets'],
+      ),
       reminderMode: $TasksTable.$converterreminderMode.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}reminder_mode'],
         )!,
+      ),
+      nagIntervalMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}nag_interval_minutes'],
       ),
       estimatedPomodoros: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -587,8 +636,16 @@ class Task extends DataClass implements Insertable<Task> {
   final String? recurrenceRule;
   final int? reminderMinutesBefore;
 
+  /// Lista ordenada de antecedências em minutos separadas por vírgula
+  /// (ex.: `'0,15,1440'`). Quando preenchida, prevalece sobre
+  /// [reminderMinutesBefore] (que guarda a menor antecedência por compatibilidade).
+  final String? reminderOffsets;
+
   /// Como o lembrete avisa (`notificacao` comum ou `alarme` insistente).
   final ReminderMode reminderMode;
+
+  /// Intervalo em minutos para insistir se a tarefa atrasar; `null` desliga.
+  final int? nagIntervalMinutes;
   final int? estimatedPomodoros;
   final int sortOrder;
   final DateTime? completedAt;
@@ -616,7 +673,9 @@ class Task extends DataClass implements Insertable<Task> {
     required this.hasTime,
     this.recurrenceRule,
     this.reminderMinutesBefore,
+    this.reminderOffsets,
     required this.reminderMode,
+    this.nagIntervalMinutes,
     this.estimatedPomodoros,
     required this.sortOrder,
     this.completedAt,
@@ -665,10 +724,16 @@ class Task extends DataClass implements Insertable<Task> {
     if (!nullToAbsent || reminderMinutesBefore != null) {
       map['reminder_minutes_before'] = Variable<int>(reminderMinutesBefore);
     }
+    if (!nullToAbsent || reminderOffsets != null) {
+      map['reminder_offsets'] = Variable<String>(reminderOffsets);
+    }
     {
       map['reminder_mode'] = Variable<String>(
         $TasksTable.$converterreminderMode.toSql(reminderMode),
       );
+    }
+    if (!nullToAbsent || nagIntervalMinutes != null) {
+      map['nag_interval_minutes'] = Variable<int>(nagIntervalMinutes);
     }
     if (!nullToAbsent || estimatedPomodoros != null) {
       map['estimated_pomodoros'] = Variable<int>(estimatedPomodoros);
@@ -721,7 +786,13 @@ class Task extends DataClass implements Insertable<Task> {
       reminderMinutesBefore: reminderMinutesBefore == null && nullToAbsent
           ? const Value.absent()
           : Value(reminderMinutesBefore),
+      reminderOffsets: reminderOffsets == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderOffsets),
       reminderMode: Value(reminderMode),
+      nagIntervalMinutes: nagIntervalMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nagIntervalMinutes),
       estimatedPomodoros: estimatedPomodoros == null && nullToAbsent
           ? const Value.absent()
           : Value(estimatedPomodoros),
@@ -767,9 +838,11 @@ class Task extends DataClass implements Insertable<Task> {
       reminderMinutesBefore: serializer.fromJson<int?>(
         json['reminderMinutesBefore'],
       ),
+      reminderOffsets: serializer.fromJson<String?>(json['reminderOffsets']),
       reminderMode: $TasksTable.$converterreminderMode.fromJson(
         serializer.fromJson<String>(json['reminderMode']),
       ),
+      nagIntervalMinutes: serializer.fromJson<int?>(json['nagIntervalMinutes']),
       estimatedPomodoros: serializer.fromJson<int?>(json['estimatedPomodoros']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
@@ -802,9 +875,11 @@ class Task extends DataClass implements Insertable<Task> {
       'hasTime': serializer.toJson<bool>(hasTime),
       'recurrenceRule': serializer.toJson<String?>(recurrenceRule),
       'reminderMinutesBefore': serializer.toJson<int?>(reminderMinutesBefore),
+      'reminderOffsets': serializer.toJson<String?>(reminderOffsets),
       'reminderMode': serializer.toJson<String>(
         $TasksTable.$converterreminderMode.toJson(reminderMode),
       ),
+      'nagIntervalMinutes': serializer.toJson<int?>(nagIntervalMinutes),
       'estimatedPomodoros': serializer.toJson<int?>(estimatedPomodoros),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
@@ -831,7 +906,9 @@ class Task extends DataClass implements Insertable<Task> {
     bool? hasTime,
     Value<String?> recurrenceRule = const Value.absent(),
     Value<int?> reminderMinutesBefore = const Value.absent(),
+    Value<String?> reminderOffsets = const Value.absent(),
     ReminderMode? reminderMode,
+    Value<int?> nagIntervalMinutes = const Value.absent(),
     Value<int?> estimatedPomodoros = const Value.absent(),
     int? sortOrder,
     Value<DateTime?> completedAt = const Value.absent(),
@@ -861,7 +938,13 @@ class Task extends DataClass implements Insertable<Task> {
     reminderMinutesBefore: reminderMinutesBefore.present
         ? reminderMinutesBefore.value
         : this.reminderMinutesBefore,
+    reminderOffsets: reminderOffsets.present
+        ? reminderOffsets.value
+        : this.reminderOffsets,
     reminderMode: reminderMode ?? this.reminderMode,
+    nagIntervalMinutes: nagIntervalMinutes.present
+        ? nagIntervalMinutes.value
+        : this.nagIntervalMinutes,
     estimatedPomodoros: estimatedPomodoros.present
         ? estimatedPomodoros.value
         : this.estimatedPomodoros,
@@ -895,9 +978,15 @@ class Task extends DataClass implements Insertable<Task> {
       reminderMinutesBefore: data.reminderMinutesBefore.present
           ? data.reminderMinutesBefore.value
           : this.reminderMinutesBefore,
+      reminderOffsets: data.reminderOffsets.present
+          ? data.reminderOffsets.value
+          : this.reminderOffsets,
       reminderMode: data.reminderMode.present
           ? data.reminderMode.value
           : this.reminderMode,
+      nagIntervalMinutes: data.nagIntervalMinutes.present
+          ? data.nagIntervalMinutes.value
+          : this.nagIntervalMinutes,
       estimatedPomodoros: data.estimatedPomodoros.present
           ? data.estimatedPomodoros.value
           : this.estimatedPomodoros,
@@ -930,7 +1019,9 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('hasTime: $hasTime, ')
           ..write('recurrenceRule: $recurrenceRule, ')
           ..write('reminderMinutesBefore: $reminderMinutesBefore, ')
+          ..write('reminderOffsets: $reminderOffsets, ')
           ..write('reminderMode: $reminderMode, ')
+          ..write('nagIntervalMinutes: $nagIntervalMinutes, ')
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
@@ -959,7 +1050,9 @@ class Task extends DataClass implements Insertable<Task> {
     hasTime,
     recurrenceRule,
     reminderMinutesBefore,
+    reminderOffsets,
     reminderMode,
+    nagIntervalMinutes,
     estimatedPomodoros,
     sortOrder,
     completedAt,
@@ -987,7 +1080,9 @@ class Task extends DataClass implements Insertable<Task> {
           other.hasTime == this.hasTime &&
           other.recurrenceRule == this.recurrenceRule &&
           other.reminderMinutesBefore == this.reminderMinutesBefore &&
+          other.reminderOffsets == this.reminderOffsets &&
           other.reminderMode == this.reminderMode &&
+          other.nagIntervalMinutes == this.nagIntervalMinutes &&
           other.estimatedPomodoros == this.estimatedPomodoros &&
           other.sortOrder == this.sortOrder &&
           other.completedAt == this.completedAt &&
@@ -1013,7 +1108,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<bool> hasTime;
   final Value<String?> recurrenceRule;
   final Value<int?> reminderMinutesBefore;
+  final Value<String?> reminderOffsets;
   final Value<ReminderMode> reminderMode;
+  final Value<int?> nagIntervalMinutes;
   final Value<int?> estimatedPomodoros;
   final Value<int> sortOrder;
   final Value<DateTime?> completedAt;
@@ -1038,7 +1135,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.hasTime = const Value.absent(),
     this.recurrenceRule = const Value.absent(),
     this.reminderMinutesBefore = const Value.absent(),
+    this.reminderOffsets = const Value.absent(),
     this.reminderMode = const Value.absent(),
+    this.nagIntervalMinutes = const Value.absent(),
     this.estimatedPomodoros = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
@@ -1064,7 +1163,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.hasTime = const Value.absent(),
     this.recurrenceRule = const Value.absent(),
     this.reminderMinutesBefore = const Value.absent(),
+    this.reminderOffsets = const Value.absent(),
     this.reminderMode = const Value.absent(),
+    this.nagIntervalMinutes = const Value.absent(),
     this.estimatedPomodoros = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.completedAt = const Value.absent(),
@@ -1090,7 +1191,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<bool>? hasTime,
     Expression<String>? recurrenceRule,
     Expression<int>? reminderMinutesBefore,
+    Expression<String>? reminderOffsets,
     Expression<String>? reminderMode,
+    Expression<int>? nagIntervalMinutes,
     Expression<int>? estimatedPomodoros,
     Expression<int>? sortOrder,
     Expression<DateTime>? completedAt,
@@ -1117,7 +1220,10 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (recurrenceRule != null) 'recurrence_rule': recurrenceRule,
       if (reminderMinutesBefore != null)
         'reminder_minutes_before': reminderMinutesBefore,
+      if (reminderOffsets != null) 'reminder_offsets': reminderOffsets,
       if (reminderMode != null) 'reminder_mode': reminderMode,
+      if (nagIntervalMinutes != null)
+        'nag_interval_minutes': nagIntervalMinutes,
       if (estimatedPomodoros != null) 'estimated_pomodoros': estimatedPomodoros,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (completedAt != null) 'completed_at': completedAt,
@@ -1145,7 +1251,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<bool>? hasTime,
     Value<String?>? recurrenceRule,
     Value<int?>? reminderMinutesBefore,
+    Value<String?>? reminderOffsets,
     Value<ReminderMode>? reminderMode,
+    Value<int?>? nagIntervalMinutes,
     Value<int?>? estimatedPomodoros,
     Value<int>? sortOrder,
     Value<DateTime?>? completedAt,
@@ -1172,7 +1280,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
       recurrenceRule: recurrenceRule ?? this.recurrenceRule,
       reminderMinutesBefore:
           reminderMinutesBefore ?? this.reminderMinutesBefore,
+      reminderOffsets: reminderOffsets ?? this.reminderOffsets,
       reminderMode: reminderMode ?? this.reminderMode,
+      nagIntervalMinutes: nagIntervalMinutes ?? this.nagIntervalMinutes,
       estimatedPomodoros: estimatedPomodoros ?? this.estimatedPomodoros,
       sortOrder: sortOrder ?? this.sortOrder,
       completedAt: completedAt ?? this.completedAt,
@@ -1242,10 +1352,16 @@ class TasksCompanion extends UpdateCompanion<Task> {
         reminderMinutesBefore.value,
       );
     }
+    if (reminderOffsets.present) {
+      map['reminder_offsets'] = Variable<String>(reminderOffsets.value);
+    }
     if (reminderMode.present) {
       map['reminder_mode'] = Variable<String>(
         $TasksTable.$converterreminderMode.toSql(reminderMode.value),
       );
+    }
+    if (nagIntervalMinutes.present) {
+      map['nag_interval_minutes'] = Variable<int>(nagIntervalMinutes.value);
     }
     if (estimatedPomodoros.present) {
       map['estimated_pomodoros'] = Variable<int>(estimatedPomodoros.value);
@@ -1288,7 +1404,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('hasTime: $hasTime, ')
           ..write('recurrenceRule: $recurrenceRule, ')
           ..write('reminderMinutesBefore: $reminderMinutesBefore, ')
+          ..write('reminderOffsets: $reminderOffsets, ')
           ..write('reminderMode: $reminderMode, ')
+          ..write('nagIntervalMinutes: $nagIntervalMinutes, ')
           ..write('estimatedPomodoros: $estimatedPomodoros, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('completedAt: $completedAt, ')
@@ -8285,7 +8403,9 @@ typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
   Value<bool> hasTime,
   Value<String?> recurrenceRule,
   Value<int?> reminderMinutesBefore,
+  Value<String?> reminderOffsets,
   Value<ReminderMode> reminderMode,
+  Value<int?> nagIntervalMinutes,
   Value<int?> estimatedPomodoros,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
@@ -8311,7 +8431,9 @@ typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
   Value<bool> hasTime,
   Value<String?> recurrenceRule,
   Value<int?> reminderMinutesBefore,
+  Value<String?> reminderOffsets,
   Value<ReminderMode> reminderMode,
+  Value<int?> nagIntervalMinutes,
   Value<int?> estimatedPomodoros,
   Value<int> sortOrder,
   Value<DateTime?> completedAt,
@@ -8545,10 +8667,20 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get reminderOffsets => $composableBuilder(
+    column: $table.reminderOffsets,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnWithTypeConverterFilters<ReminderMode, ReminderMode, String>
   get reminderMode => $composableBuilder(
     column: $table.reminderMode,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get nagIntervalMinutes => $composableBuilder(
+    column: $table.nagIntervalMinutes,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<int> get estimatedPomodoros => $composableBuilder(
@@ -8839,8 +8971,18 @@ class $$TasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get reminderOffsets => $composableBuilder(
+    column: $table.reminderOffsets,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get reminderMode => $composableBuilder(
     column: $table.reminderMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get nagIntervalMinutes => $composableBuilder(
+    column: $table.nagIntervalMinutes,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -8956,11 +9098,21 @@ class $$TasksTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get reminderOffsets => $composableBuilder(
+    column: $table.reminderOffsets,
+    builder: (column) => column,
+  );
+
   GeneratedColumnWithTypeConverter<ReminderMode, String> get reminderMode =>
       $composableBuilder(
         column: $table.reminderMode,
         builder: (column) => column,
       );
+
+  GeneratedColumn<int> get nagIntervalMinutes => $composableBuilder(
+    column: $table.nagIntervalMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get estimatedPomodoros => $composableBuilder(
     column: $table.estimatedPomodoros,
@@ -9208,7 +9360,9 @@ class $$TasksTableTableManager
                 Value<bool> hasTime = const Value.absent(),
                 Value<String?> recurrenceRule = const Value.absent(),
                 Value<int?> reminderMinutesBefore = const Value.absent(),
+                Value<String?> reminderOffsets = const Value.absent(),
                 Value<ReminderMode> reminderMode = const Value.absent(),
+                Value<int?> nagIntervalMinutes = const Value.absent(),
                 Value<int?> estimatedPomodoros = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
@@ -9233,7 +9387,9 @@ class $$TasksTableTableManager
                 hasTime: hasTime,
                 recurrenceRule: recurrenceRule,
                 reminderMinutesBefore: reminderMinutesBefore,
+                reminderOffsets: reminderOffsets,
                 reminderMode: reminderMode,
+                nagIntervalMinutes: nagIntervalMinutes,
                 estimatedPomodoros: estimatedPomodoros,
                 sortOrder: sortOrder,
                 completedAt: completedAt,
@@ -9260,7 +9416,9 @@ class $$TasksTableTableManager
                 Value<bool> hasTime = const Value.absent(),
                 Value<String?> recurrenceRule = const Value.absent(),
                 Value<int?> reminderMinutesBefore = const Value.absent(),
+                Value<String?> reminderOffsets = const Value.absent(),
                 Value<ReminderMode> reminderMode = const Value.absent(),
+                Value<int?> nagIntervalMinutes = const Value.absent(),
                 Value<int?> estimatedPomodoros = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
@@ -9285,7 +9443,9 @@ class $$TasksTableTableManager
                 hasTime: hasTime,
                 recurrenceRule: recurrenceRule,
                 reminderMinutesBefore: reminderMinutesBefore,
+                reminderOffsets: reminderOffsets,
                 reminderMode: reminderMode,
+                nagIntervalMinutes: nagIntervalMinutes,
                 estimatedPomodoros: estimatedPomodoros,
                 sortOrder: sortOrder,
                 completedAt: completedAt,

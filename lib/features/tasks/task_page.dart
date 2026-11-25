@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/clock.dart';
 import '../../app/l10n/l10n.dart';
 import '../../app/router.dart';
 import '../../app/theme/app_theme.dart';
@@ -18,7 +19,9 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/tag_chip.dart';
+import 'alarms.dart';
 import 'hub/hub_tools.dart';
+import 'reminder_offsets.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
@@ -111,6 +114,32 @@ class _TaskHub extends ConsumerWidget {
     String when(DateTime d) => task.hasTime
         ? '${formatDate(d, today, lang: lang)}, ${formatTime(d)}'
         : formatDate(d, today, lang: lang);
+
+    final offsets = effectiveReminderOffsets(task);
+    final nag = normalizeNagInterval(task.nagIntervalMinutes);
+    final canSnooze =
+        !done &&
+        (offsets.isNotEmpty || task.dueAt != null || task.startAt != null);
+
+    Future<void> snoozeTo(DateTime target) async {
+      final now = ref.read(clockProvider)();
+      await snoozeTaskAlarm(
+        task: task,
+        targetTime: target,
+        now: now,
+        scheduler: ref.read(alarmSchedulerProvider),
+        lang: lang,
+      );
+      if (!context.mounted) return;
+      final label = formatRelative(target, now, withTime: true, lang: lang);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.snoozedUntil(label))));
+    }
+
+    String formatOffset(int m) => reminderOptions.containsKey(m)
+        ? reminderOptionLabel(m, l10n)
+        : l10n.reminderMinutesBefore(m);
 
     return Scaffold(
       appBar: AppBar(
@@ -247,16 +276,24 @@ class _TaskHub extends ConsumerWidget {
               l10n.fieldRecurrence,
               RecurrenceRule.parse(rule).describe(lang: lang),
             ),
-          if (task.reminderMinutesBefore != null)
+          if (offsets.isNotEmpty)
             _Info(
               task.reminderMode == ReminderMode.alarme
                   ? AppIcons.alarm
                   : AppIcons.notification,
               task.reminderMode == ReminderMode.alarme
                   ? l10n.fieldAlarm
+                  : offsets.length > 1
+                  ? l10n.fieldReminders
                   : l10n.fieldReminder,
-              '${reminderOptions.containsKey(task.reminderMinutesBefore) ? reminderOptionLabel(task.reminderMinutesBefore, l10n) : l10n.reminderMinutesBefore(task.reminderMinutesBefore!)}'
+              '${offsets.map(formatOffset).join(', ')}'
               '${task.reminderMode == ReminderMode.alarme ? ' · ${l10n.reminderModeAlarm}' : ''}',
+            ),
+          if (offsets.isNotEmpty && nag != null)
+            _Info(
+              AppIcons.repeat,
+              l10n.fieldNagIfOverdue,
+              l10n.nagHubDetail(nag, maxNagRepeats),
             ),
           if (task.notes case final notes?)
             Padding(
@@ -277,11 +314,24 @@ class _TaskHub extends ConsumerWidget {
                     onPressed: () =>
                         toggleDone(ScaffoldMessenger.of(context), ref, task),
                   )
-                : FilledButton.icon(
-                    icon: const Icon(AppIcons.check),
-                    label: Text(l10n.actionComplete),
-                    onPressed: () =>
-                        toggleDone(ScaffoldMessenger.of(context), ref, task),
+                : Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          icon: const Icon(AppIcons.check),
+                          label: Text(l10n.actionComplete),
+                          onPressed: () => toggleDone(
+                            ScaffoldMessenger.of(context),
+                            ref,
+                            task,
+                          ),
+                        ),
+                      ),
+                      if (canSnooze) ...[
+                        SizedBox(width: space.sm),
+                        _SnoozeButton(onSelect: snoozeTo),
+                      ],
+                    ],
                   ),
           ),
           HubTools(task: task, part: HubToolsPart.shortcuts),
@@ -298,6 +348,54 @@ class _TaskHub extends ConsumerWidget {
     );
   }
 }
+
+class _SnoozeButton extends ConsumerWidget {
+  const _SnoozeButton({required this.onSelect});
+
+  final Future<void> Function(DateTime target) onSelect;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final allDayHour = parseAllDayHour(ref.watch(_allDayHourHubProvider).value);
+    final now = ref.read(clockProvider)();
+    final tomorrow = tomorrowMorningAt(now, allDayHour: allDayHour);
+    return PopupMenuButton<String>(
+      tooltip: l10n.actionSnooze,
+      onSelected: (choice) {
+        final current = ref.read(clockProvider)();
+        switch (choice) {
+          case '10m':
+            onSelect(current.add(snoozeDuration));
+          case '1h':
+            onSelect(current.add(snoozeLongDuration));
+          case 'tomorrow':
+            onSelect(tomorrowMorningAt(current, allDayHour: allDayHour));
+        }
+      },
+      itemBuilder: (_) => [
+        PopupMenuItem(value: '10m', child: Text(l10n.snooze10Min)),
+        PopupMenuItem(value: '1h', child: Text(l10n.snooze1Hour)),
+        PopupMenuItem(
+          value: 'tomorrow',
+          child: Text(l10n.snoozeTomorrowMorning(formatTime(tomorrow))),
+        ),
+      ],
+      child: IgnorePointer(
+        child: OutlinedButton.icon(
+          icon: const Icon(AppIcons.snooze),
+          label: Text(l10n.actionSnooze),
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+final _allDayHourHubProvider = StreamProvider.autoDispose<String?>(
+  (ref) =>
+      ref.watch(settingsRepositoryProvider).watchString(allDayReminderHourKey),
+);
 
 class _Info extends StatelessWidget {
   const _Info(this.icon, this.label, this.value);

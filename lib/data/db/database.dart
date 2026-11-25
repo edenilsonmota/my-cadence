@@ -55,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   // Ao mudar o esquema: incrementar a versão, rodar
   // `dart run drift_dev make-migrations` e escrever o passo em `onUpgrade`.
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -105,6 +105,11 @@ class AppDatabase extends _$AppDatabase {
       // v4: modo do lembrete nas tarefas (notificação ou alarme).
       from3To4: (m, schema) async {
         await m.addColumn(schema.tasks, schema.tasks.reminderMode);
+      },
+      // v5: múltiplos lembretes por tarefa e insistência se atrasar.
+      from4To5: (m, schema) async {
+        await m.addColumn(schema.tasks, schema.tasks.reminderOffsets);
+        await m.addColumn(schema.tasks, schema.tasks.nagIntervalMinutes);
       },
     ),
     beforeOpen: (details) async {

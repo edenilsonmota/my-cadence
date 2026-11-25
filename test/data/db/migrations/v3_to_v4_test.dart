@@ -2,10 +2,10 @@ import 'package:drift/drift.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/database.dart';
-import 'package:my_cadence/data/db/enums.dart';
 
 import 'app/generated/schema.dart';
 import 'app/generated/schema_v3.dart' as v3;
+import 'app/generated/schema_v4.dart' as v4;
 
 /// v3 → v4: tarefas ganham `reminderMode` com padrão `notificacao`, sem perder
 /// nada.
@@ -41,12 +41,15 @@ void main() {
       await old.close();
 
       final db = AppDatabase(schema.newConnection());
-      addTearDown(db.close);
       await verifier.migrateAndValidate(db, 4);
-      final task = await db.select(db.tasks).getSingle();
+      await db.close();
+
+      final db4 = v4.DatabaseAtV4(schema.newConnection());
+      addTearDown(db4.close);
+      final task = await db4.select(db4.tasks).getSingle();
       expect(
         (task.title, task.reminderMinutesBefore, task.reminderMode),
-        ('Remédio', 15, ReminderMode.notificacao),
+        ('Remédio', 15, 'notificacao'),
       );
     },
   );

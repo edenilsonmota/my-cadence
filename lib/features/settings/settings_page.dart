@@ -15,7 +15,10 @@ import '../cards/review_queue.dart';
 import '../pomodoro/pomodoro_controller.dart';
 import '../pomodoro/pomodoro_logic.dart';
 import '../sync/presentation/backup_actions.dart';
+import '../tasks/alarm_diagnostics.dart';
 import '../tasks/alarms.dart';
+import '../tasks/daily_reminders.dart';
+import '../tasks/daily_reminders_providers.dart';
 import '../update/update_widgets.dart';
 
 final _allDayHourProvider = StreamProvider.autoDispose<String?>(
@@ -78,9 +81,18 @@ class SettingsPage extends ConsumerWidget {
     final themeSettings = ref.watch(themeSettingsProvider);
     final locale = ref.watch(appLocaleProvider);
     final allDayHour = parseAllDayHour(ref.watch(_allDayHourProvider).value);
+    final daily =
+        ref.watch(dailyReminderSettingsProvider).value ??
+        const DailyReminderSettings();
+    final diagnostics =
+        ref.watch(alarmDiagnosticsProvider).value ?? AlarmDiagnostics.allGood;
     final repo = ref.read(settingsRepositoryProvider);
     void setInt(String key, int v) => repo.setString(key, '$v');
     void setBool(String key, bool v) => repo.setString(key, '$v');
+    Future<void> setDailyToggle(String key, bool v) async {
+      await repo.setString(key, '$v');
+      if (v) await ref.read(alarmSchedulerProvider).requestPermission();
+    }
 
     Widget minutes(String label, String key, int value) => ListTile(
       title: Text(label),
@@ -251,6 +263,69 @@ class SettingsPage extends ConsumerWidget {
               onChanged: (v) => setInt(allDayReminderHourKey, v),
             ),
           ),
+          ListTile(
+            leading: Icon(
+              AppIcons.diagnostics,
+              color: diagnostics.hasAnyIssue
+                  ? context.palette.warning.strong
+                  : null,
+            ),
+            title: Text(l10n.settingsAlarmDiagnostics),
+            subtitle: Text(
+              diagnostics.hasAnyIssue
+                  ? l10n.settingsAlarmDiagnosticsIssues(diagnostics.issueCount)
+                  : l10n.settingsAlarmDiagnosticsOk,
+            ),
+            trailing: const Icon(AppIcons.chevronRight),
+            onTap: () => context.push(Routes.alarmDiagnostics),
+          ),
+          _Header(l10n.settingsDailyReminders),
+          SwitchListTile(
+            title: Text(l10n.settingsDailySummary),
+            subtitle: Text(
+              daily.summaryEnabled
+                  ? l10n.settingsDailySummaryHint(daily.summaryHour)
+                  : l10n.settingsDailySummaryOffHint,
+            ),
+            value: daily.summaryEnabled,
+            onChanged: (v) =>
+                setDailyToggle(DailyReminderSettings.keySummaryEnabled, v),
+          ),
+          if (daily.summaryEnabled)
+            ListTile(
+              title: Text(l10n.settingsHourLabel),
+              trailing: NumberStepper(
+                value: daily.summaryHour,
+                min: 0,
+                max: 23,
+                semanticLabel: l10n.settingsDailySummaryHourSemantics,
+                onChanged: (v) =>
+                    setInt(DailyReminderSettings.keySummaryHour, v),
+              ),
+            ),
+          SwitchListTile(
+            title: Text(l10n.settingsDailyReview),
+            subtitle: Text(
+              daily.reviewEnabled
+                  ? l10n.settingsDailyReviewHint(daily.reviewHour)
+                  : l10n.settingsDailyReviewOffHint,
+            ),
+            value: daily.reviewEnabled,
+            onChanged: (v) =>
+                setDailyToggle(DailyReminderSettings.keyReviewEnabled, v),
+          ),
+          if (daily.reviewEnabled)
+            ListTile(
+              title: Text(l10n.settingsHourLabel),
+              trailing: NumberStepper(
+                value: daily.reviewHour,
+                min: 0,
+                max: 23,
+                semanticLabel: l10n.settingsDailyReviewHourSemantics,
+                onChanged: (v) =>
+                    setInt(DailyReminderSettings.keyReviewHour, v),
+              ),
+            ),
           _Header(l10n.settingsBackup),
           ListTile(
             leading: const Icon(AppIcons.export),

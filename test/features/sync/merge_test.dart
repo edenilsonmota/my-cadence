@@ -316,6 +316,22 @@ void main() {
       expect(r.merged.schemaVersion, currentSchemaVersion);
     });
 
+    test('remoto v4 recebe reminder_offsets e nag_interval_minutes nulos', () {
+      final remote = snap('B', {
+        'tasks': [
+          {...task('t', at(20)), 'reminder_mode': 'alarme'},
+        ],
+      }, schemaVersion: 4);
+      final r = merge(snap('A', const {}), remote, now: now);
+      final row = r.merged.rows('tasks').single;
+      expect(row['reminder_mode'], 'alarme');
+      expect(row.containsKey('reminder_offsets'), isTrue);
+      expect(row['reminder_offsets'], isNull);
+      expect(row.containsKey('nag_interval_minutes'), isTrue);
+      expect(row['nag_interval_minutes'], isNull);
+      expect(r.merged.schemaVersion, currentSchemaVersion);
+    });
+
     test('formato desconhecido é recusado com mensagem clara', () {
       expect(
         () => Snapshot.decode('{"format": "outro"}'),

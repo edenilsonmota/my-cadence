@@ -1189,4 +1189,193 @@ class AppLocalizationsEs extends AppLocalizations {
   String statsWeekOf(String date) {
     return 'Semana del $date';
   }
+
+  @override
+  String get settingsAlarmDiagnostics => 'Diagnóstico de alarmas';
+
+  @override
+  String get settingsAlarmDiagnosticsOk => 'Todo listo para sonar';
+
+  @override
+  String settingsAlarmDiagnosticsIssues(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ajustes recomendados',
+      one: '1 ajuste recomendado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get diagnosticsRefresh => 'Verificar de nuevo';
+
+  @override
+  String get diagnosticsOpenSettings => 'Abrir ajustes';
+
+  @override
+  String get diagnosticsStatusOk => 'Activo';
+
+  @override
+  String get diagnosticsStatusIssue => 'Atención';
+
+  @override
+  String get diagnosticsSummaryOk =>
+      'Tu dispositivo está listo para entregar tus recordatorios y alarmas a tiempo.';
+
+  @override
+  String get diagnosticsSummaryIssues =>
+      'Algunos ajustes de Android pueden bloquear o retrasar tus recordatorios.';
+
+  @override
+  String get diagNotificationsTitle => 'Notificaciones de la app';
+
+  @override
+  String get diagNotificationsOk => 'Permitidas por Android.';
+
+  @override
+  String get diagNotificationsOff =>
+      'Desactivadas: no aparecerá ningún recordatorio ni alarma.';
+
+  @override
+  String get diagRemindersChannelTitle => 'Canal de recordatorios';
+
+  @override
+  String get diagRemindersChannelOk => 'Sonido y avisos habilitados.';
+
+  @override
+  String get diagRemindersChannelMuted =>
+      'El canal está silenciado: las notificaciones normales no sonarán.';
+
+  @override
+  String get diagAlarmsChannelTitle => 'Canal de alarmas';
+
+  @override
+  String get diagAlarmsChannelOk => 'Canal de alarma habilitado.';
+
+  @override
+  String get diagAlarmsChannelMuted =>
+      'El canal está silenciado: las tareas en modo Alarma no sonarán.';
+
+  @override
+  String get diagExactAlarmsTitle => 'Alarmas exactas';
+
+  @override
+  String get diagExactAlarmsOk => 'La app puede programar al minuto exacto.';
+
+  @override
+  String get diagExactAlarmsDenied =>
+      'Denegado: los recordatorios pueden retrasarse o fallar.';
+
+  @override
+  String get diagFullScreenTitle => 'Alarmas en pantalla completa';
+
+  @override
+  String get diagFullScreenOk => 'Puede mostrarse sobre la pantalla bloqueada.';
+
+  @override
+  String get diagFullScreenDenied =>
+      'Sin permiso: la alarma puede no abrirse en la pantalla bloqueada.';
+
+  @override
+  String get diagBatteryTitle => 'Optimización de batería';
+
+  @override
+  String get diagBatteryOk => 'Sin restricciones en segundo plano.';
+
+  @override
+  String get diagBatteryRestricted =>
+      'Con restricción: dispositivos (ej. apps en suspensión de Samsung) pueden retrasar alarmas.';
+
+  @override
+  String get formDiagnosticsWarning =>
+      'Este recordatorio podría no sonar: revisa los permisos de notificación y alarma.';
+
+  @override
+  String get formDiagnosticsAction => 'Ver diagnóstico';
+
+  @override
+  String get actionSnooze => 'Posponer';
+
+  @override
+  String get snooze10Min => '10 min';
+
+  @override
+  String get snooze1Hour => '1 h';
+
+  @override
+  String snoozeTomorrowMorning(String time) {
+    return 'Mañana temprano ($time)';
+  }
+
+  @override
+  String snoozedUntil(String when) {
+    return 'Recordatorio pospuesto para $when.';
+  }
+
+  @override
+  String get settingsDailyReminders => 'Avisos diarios';
+
+  @override
+  String get settingsDailySummary => 'Resumen diario de tareas';
+
+  @override
+  String settingsDailySummaryHint(int hour) {
+    return 'Avisa sobre tareas de hoy y atrasadas a las $hour:00';
+  }
+
+  @override
+  String get settingsDailySummaryOffHint =>
+      'Recibe un resumen diario de tareas pendientes';
+
+  @override
+  String get settingsDailySummaryHourSemantics =>
+      'Hora del resumen diario de tareas';
+
+  @override
+  String get settingsDailyReview => 'Aviso diario de tarjetas';
+
+  @override
+  String settingsDailyReviewHint(int hour) {
+    return 'Recuerda a las $hour:00 cuando haya tarjetas por repasar';
+  }
+
+  @override
+  String get settingsDailyReviewOffHint =>
+      'Avisa cuando haya tarjetas vencidas (no avisa si hay cero)';
+
+  @override
+  String get settingsDailyReviewHourSemantics =>
+      'Hora del aviso diario de tarjetas';
+
+  @override
+  String get settingsHourLabel => 'Hora (h)';
+
+  @override
+  String get fieldReminders => 'Recordatorios';
+
+  @override
+  String get remindersHelperMultiple =>
+      'Elige uno o más horarios para recordar.';
+
+  @override
+  String get fieldNagIfOverdue => 'Insistir si se atrasa';
+
+  @override
+  String get nagOff => 'No';
+
+  @override
+  String nagEveryMinutes(int minutes) {
+    return 'Cada $minutes min';
+  }
+
+  @override
+  String nagHint(int max) {
+    return 'Se repite hasta $max× tras la hora hasta completarla.';
+  }
+
+  @override
+  String nagHubDetail(int minutes, int max) {
+    return 'Cada $minutes min (hasta $max×)';
+  }
 }

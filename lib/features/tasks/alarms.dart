@@ -9,6 +9,8 @@ import '../../data/db/database.dart';
 import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/tasks_repository.dart';
+import 'alarm_diagnostics.dart';
+import 'reminder_offsets.dart';
 
 /// Hora padrão do lembrete de tarefas de dia inteiro (sem hora própria).
 /// A pessoa muda em Ajustes ([allDayReminderHourKey]).
@@ -23,67 +25,182 @@ int parseAllDayHour(String? value) {
   return h == null || h < 0 || h > 23 ? allDayReminderHour : h;
 }
 
-/// Quanto o "Adiar" empurra o lembrete.
+/// Quanto o "Adiar 10 min" e o "Adiar 1 h" empurram o lembrete.
 const snoozeDuration = Duration(minutes: 10);
+const snoozeLongDuration = Duration(hours: 1);
 
-/// Momento do lembrete da tarefa, ou `null` se ela não tem lembrete.
+/// Amanhã cedo: amanhã na hora configurada para lembretes de dia inteiro.
+DateTime tomorrowMorningAt(
+  DateTime now, {
+  int allDayHour = allDayReminderHour,
+}) => DateTime(now.year, now.month, now.day + 1, allDayHour);
+
+/// Horário base de referência dos lembretes da tarefa, ou `null` se sem data.
 ///
-/// Com início com hora, a antecedência conta a partir do início (um bloco da
-/// agenda avisa quando começa, não quando termina). Senão, a partir do prazo;
-/// tarefa de dia inteiro usa [allDayHour] no dia do prazo.
-DateTime? reminderTime(Task task, {int allDayHour = allDayReminderHour}) {
-  final minutes = task.reminderMinutesBefore;
-  if (minutes == null) return null;
+/// Com início com hora, conta a partir do início (bloco da agenda avisa ao
+/// começar). Senão, a partir do prazo; dia inteiro usa [allDayHour].
+DateTime? reminderBaseTime(Task task, {int allDayHour = allDayReminderHour}) {
   final start = task.hasTime ? task.startAt : null;
   final due = task.dueAt;
-  final DateTime base;
-  if (start != null) {
-    base = start;
-  } else if (due == null) {
-    return null;
-  } else {
-    base = task.hasTime
-        ? due
-        : DateTime(due.year, due.month, due.day, allDayHour);
-  }
-  return base.subtract(Duration(minutes: minutes));
+  if (start != null) return start;
+  if (due == null) return null;
+  return task.hasTime
+      ? due
+      : DateTime(due.year, due.month, due.day, allDayHour);
+}
+
+/// Momento do primeiro lembrete da tarefa, ou `null` se ela não tem lembrete.
+DateTime? reminderTime(Task task, {int allDayHour = allDayReminderHour}) {
+  final offsets = effectiveReminderOffsets(task);
+  if (offsets.isEmpty) return null;
+  final base = reminderBaseTime(task, allDayHour: allDayHour);
+  if (base == null) return null;
+  return base.subtract(Duration(minutes: offsets.first));
 }
 
 /// A tarefa precisa de lembrete (mesmo que o horário já tenha passado)?
 bool wantsAlarm(Task task) =>
     task.deletedAt == null &&
     task.status != TaskStatus.feita &&
-    reminderTime(task) != null;
+    effectiveReminderOffsets(task).isNotEmpty &&
+    reminderBaseTime(task) != null;
 
-/// Lembrete a agendar para a tarefa, ou `null` se não há ou já passou.
+/// Todos os IDs de notificação que podem pertencer a [task] (lembrete principal,
+/// extras e repetições de insistência).
+Set<int> allNotificationIdsForTask(Task task) {
+  final offsets = effectiveReminderOffsets(task);
+  return {
+    notificationIdFor(task.id),
+    for (final (i, minutes) in offsets.indexed)
+      taskReminderNotificationId(task.id, minutes, primary: i == 0),
+    for (var step = 1; step <= maxNagRepeats; step++)
+      taskNagNotificationId(task.id, step),
+  };
+}
+
+/// Todos os lembretes futuros a agendar para [task]: todas as antecedências
+/// configuradas + até [maxNagRepeats] repetições de insistência se ativado.
+List<AlarmSpec> alarmsForTask(
+  Task task,
+  DateTime now, {
+  int allDayHour = allDayReminderHour,
+  String lang = 'pt',
+}) {
+  if (!wantsAlarm(task)) return const [];
+  final base = reminderBaseTime(task, allDayHour: allDayHour);
+  if (base == null) return const [];
+  final offsets = effectiveReminderOffsets(task);
+  final specs = <AlarmSpec>[];
+
+  for (final (index, minutes) in offsets.indexed) {
+    final time = base.subtract(Duration(minutes: minutes));
+    if (!time.isAfter(now)) continue;
+    specs.add(
+      _spec(
+        task,
+        time,
+        now,
+        id: taskReminderNotificationId(task.id, minutes, primary: index == 0),
+        lang: lang,
+      ),
+    );
+  }
+
+  final nagMinutes = normalizeNagInterval(task.nagIntervalMinutes);
+  if (nagMinutes != null) {
+    for (var step = 1; step <= maxNagRepeats; step++) {
+      final nagTime = base.add(Duration(minutes: nagMinutes * step));
+      if (!nagTime.isAfter(now)) continue;
+      specs.add(
+        _spec(
+          task,
+          nagTime,
+          now,
+          id: taskNagNotificationId(task.id, step),
+          isNag: true,
+          lang: lang,
+        ),
+      );
+    }
+  }
+  return specs;
+}
+
+/// Primeiro lembrete futuro a agendar para a tarefa, ou `null` se não há.
 AlarmSpec? alarmFor(
   Task task,
   DateTime now, {
   int allDayHour = allDayReminderHour,
+  String lang = 'pt',
 }) {
-  if (!wantsAlarm(task)) return null;
-  final time = reminderTime(task, allDayHour: allDayHour)!;
-  return time.isAfter(now) ? _spec(task, time, now) : null;
+  final list = alarmsForTask(task, now, allDayHour: allDayHour, lang: lang);
+  return list.isEmpty ? null : list.first;
 }
 
-AlarmSpec _spec(Task task, DateTime time, DateTime now) {
+AlarmSpec _spec(
+  Task task,
+  DateTime time,
+  DateTime now, {
+  int? id,
+  bool isNag = false,
+  String lang = 'pt',
+}) {
   final start = task.hasTime ? task.startAt : null;
   final due = task.dueAt;
+  final body = isNag
+      ? switch (lang) {
+          'en' => 'Overdue · tap to complete or snooze',
+          'es' => 'Atrasada · toca para completar o posponer',
+          _ => 'Atrasada · toque para concluir ou adiar',
+        }
+      : start != null
+      ? '${switch (lang) {
+              'en' => 'Starts',
+              'es' => 'Empieza',
+              _ => 'Começa',
+            }}: ${formatRelative(start, now, withTime: true, lang: lang)}'
+            '${due != null && due.isAfter(start) ? ' ${switch (lang) {
+                    'en' => 'to',
+                    'es' => 'a',
+                    _ => 'até',
+                  }} ${formatTime(due)}' : ''}'
+      : due == null
+      ? switch (lang) {
+          'en' => 'Reminder',
+          'es' => 'Recordatorio',
+          _ => 'Lembrete',
+        }
+      : '${switch (lang) {
+          'en' => 'Due',
+          'es' => 'Plazo',
+          _ => 'Prazo',
+        }}: ${formatRelative(due, now, withTime: task.hasTime, lang: lang)}';
+
   return AlarmSpec(
-    id: notificationIdFor(task.id),
+    id: id ?? notificationIdFor(task.id),
     time: time,
     title: task.title,
-    body: start != null
-        ? 'Começa: ${formatRelative(start, now, withTime: true)}'
-              '${due != null && due.isAfter(start) ? ' até ${formatTime(due)}' : ''}'
-        : due == null
-        ? 'Lembrete'
-        : 'Prazo: ${formatRelative(due, now, withTime: task.hasTime)}',
+    body: body,
     payload: task.id,
     kind: task.reminderMode == ReminderMode.alarme
         ? AlarmKind.taskAlarm
         : AlarmKind.task,
   );
+}
+
+/// Reagenda o lembrete da tarefa para [targetTime] e cancela repetições de
+/// insistência pendentes desta ocorrência.
+Future<void> snoozeTaskAlarm({
+  required Task task,
+  required DateTime targetTime,
+  required DateTime now,
+  required AlarmScheduler scheduler,
+  String lang = 'pt',
+}) async {
+  for (var step = 1; step <= maxNagRepeats; step++) {
+    await scheduler.cancel(taskNagNotificationId(task.id, step));
+  }
+  await scheduler.schedule(_spec(task, targetTime, now, lang: lang));
 }
 
 /// Mantém os lembretes agendados iguais ao que as tarefas pedem.
@@ -99,7 +216,7 @@ class AlarmSync {
   final AlarmScheduler _scheduler;
   final DateTime Function() _clock;
 
-  Map<String, AlarmSpec> _scheduled = {};
+  Map<int, AlarmSpec> _scheduled = {};
   bool _initialized = false;
   Future<void> _queue = Future.value();
   List<Task>? _last;
@@ -126,18 +243,22 @@ class AlarmSync {
 
   Future<void> _apply(List<Task> tasks) async {
     final now = _clock();
-    final desired = <String, AlarmSpec>{
-      for (final task in tasks)
-        task.id: ?alarmFor(task, now, allDayHour: _allDayHour),
-    };
+    final desired = <int, AlarmSpec>{};
+    for (final task in tasks) {
+      for (final alarm in alarmsForTask(task, now, allDayHour: _allDayHour)) {
+        desired[alarm.id] = alarm;
+      }
+    }
 
     if (!_initialized) {
       // Cancela o que sobrou de tarefas que não querem mais lembrete. Os de
       // tarefas que ainda querem, com horário passado, ficam (ex.: um "Adiar").
       final keep = {
         pomodoroNotificationId, // cuidado pelo controlador do pomodoro
+        dailyReviewNotificationId, // cuidado pelo DailyReminderSync
+        dailySummaryNotificationId, // cuidado pelo DailyReminderSync
         for (final task in tasks)
-          if (wantsAlarm(task)) notificationIdFor(task.id),
+          if (wantsAlarm(task)) ...allNotificationIdsForTask(task),
       };
       for (final id in await _scheduler.pendingIds()) {
         if (!keep.contains(id)) await _scheduler.cancel(id);
@@ -147,11 +268,11 @@ class AlarmSync {
       }
       _initialized = true;
     } else {
-      for (final MapEntry(key: taskId, value: alarm) in desired.entries) {
-        if (_scheduled[taskId] != alarm) await _scheduler.schedule(alarm);
+      for (final MapEntry(key: id, value: alarm) in desired.entries) {
+        if (_scheduled[id] != alarm) await _scheduler.schedule(alarm);
       }
-      for (final MapEntry(key: taskId, value: alarm) in _scheduled.entries) {
-        if (!desired.containsKey(taskId)) await _scheduler.cancel(alarm.id);
+      for (final id in _scheduled.keys) {
+        if (!desired.containsKey(id)) await _scheduler.cancel(id);
       }
     }
     _scheduled = desired;
@@ -160,6 +281,11 @@ class AlarmSync {
 
 final alarmSchedulerProvider = Provider<AlarmScheduler>(
   (ref) => NotificationService.instance,
+);
+
+/// Diagnóstico atual de permissões e canais de alarme do aparelho.
+final alarmDiagnosticsProvider = FutureProvider.autoDispose<AlarmDiagnostics>(
+  (ref) => ref.watch(alarmSchedulerProvider).getDiagnostics(),
 );
 
 /// Liga o [AlarmSync] às tarefas do banco. Basta ler uma vez (em `main`).
@@ -178,9 +304,9 @@ final alarmSyncProvider = Provider<AlarmSync>((ref) {
   return sync;
 });
 
-/// Executa uma ação de notificação ("Concluir" ou "Adiar"). Usado pelo
-/// isolate de segundo plano, que não tem o [AlarmSync] rodando, então
-/// reagenda o lembrete da tarefa aqui mesmo.
+/// Executa uma ação de notificação ("Concluir", "Adiar 10 min" ou "Adiar 1 h").
+/// Usado pelo isolate de segundo plano, que não tem o [AlarmSync] rodando,
+/// então reagenda ou cancela os lembretes da tarefa aqui mesmo.
 Future<void> handleAlarmAction({
   required String? actionId,
   required String? taskId,
@@ -192,20 +318,34 @@ Future<void> handleAlarmAction({
   if (taskId == null) return;
   final task = await repo.getTask(taskId);
   if (task == null) return;
-  final id = notificationIdFor(task.id);
 
   switch (actionId) {
     case AlarmActions.complete:
+      final oldIds = allNotificationIdsForTask(task);
       final updated = await repo.completeTask(task.id, now: now);
-      final next = updated == null
-          ? null
-          : alarmFor(updated, now, allDayHour: allDayHour);
-      if (next != null) {
-        await scheduler.schedule(next);
-      } else {
-        await scheduler.cancel(id);
+      final nextAlarms = updated == null
+          ? const <AlarmSpec>[]
+          : alarmsForTask(updated, now, allDayHour: allDayHour);
+      final nextIds = {for (final a in nextAlarms) a.id};
+      for (final id in oldIds) {
+        if (!nextIds.contains(id)) await scheduler.cancel(id);
+      }
+      for (final alarm in nextAlarms) {
+        await scheduler.schedule(alarm);
       }
     case AlarmActions.snooze:
-      await scheduler.schedule(_spec(task, now.add(snoozeDuration), now));
+      await snoozeTaskAlarm(
+        task: task,
+        targetTime: now.add(snoozeDuration),
+        now: now,
+        scheduler: scheduler,
+      );
+    case AlarmActions.snooze1h:
+      await snoozeTaskAlarm(
+        task: task,
+        targetTime: now.add(snoozeLongDuration),
+        now: now,
+        scheduler: scheduler,
+      );
   }
 }

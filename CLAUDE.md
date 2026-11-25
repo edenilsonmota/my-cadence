@@ -110,14 +110,22 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 - A antecedência do lembrete conta do **início** quando ele tem hora (bloco da agenda avisa ao começar);
   senão, do prazo. Tarefa de dia inteiro lembra na hora do ajuste `tasks.allDayReminderHour`
   (padrão 9h; `AlarmSync.setAllDayHour`; o isolate das ações lê o mesmo ajuste) menos a antecedência.
-- Cada tarefa tem `reminderMode` (`notificacao` ou `alarme`, esquema v4): no modo `alarme` (`AlarmKind.taskAlarm`),
-  usa o canal `alarmes_tarefas` (`AudioAttributesUsage.alarm`, som de alarme do sistema, `FLAG_INSISTENT`,
-  `fullScreenIntent`, `AndroidScheduleMode.alarmClock`); no Android 14+, `MainActivity` expõe
-  `canUseFullScreenIntent` pelo canal `com.nextinfor.mycadence/alarm_permissions` e o formulário guia até a tela
-  do sistema se faltar permissão.
-- Ações "Concluir"/"Adiar" rodam em isolate de segundo plano (`notification_actions.dart`, top-level com
-  `@pragma('vm:entry-point')`), abrem o próprio banco e reagendam ali mesmo. O banco usa
+- Cada tarefa tem `reminderMode` (`notificacao` ou `alarme`, esquema v4), múltiplos lembretes (`reminderOffsets`,
+  ex.: `'0,15,1440'`, esquema v5; `reminderMinutesBefore` guarda a menor antecedência por compatibilidade) e
+  opcionalmente "Insistir se atrasar" (`nagIntervalMinutes`, até `maxNagRepeats = 5` repetições após o horário).
+  IDs estáveis via FNV-1a (`core/notification_id.dart`: `taskReminderNotificationId`, `taskNagNotificationId`).
+- No modo `alarme` (`AlarmKind.taskAlarm`), usa o canal `alarmes_tarefas` (`AudioAttributesUsage.alarm`, som de
+  alarme do sistema, `FLAG_INSISTENT`, `fullScreenIntent`, `AndroidScheduleMode.alarmClock`).
+- Diagnóstico em Ajustes → Diagnóstico de alarmes (`Routes.alarmDiagnostics`, `alarm_diagnostics.dart`): consulta
+  via `MainActivity` (`com.nextinfor.mycadence/alarm_permissions`) notificações, canais, alarmes exatos, tela cheia
+  (Android 14+) e otimização de bateria, abrindo cada tela do sistema; o formulário avisa quando há bloqueio.
+- Ações da notificação (3 no Android): "Concluir", "Adiar 10 min" (`AlarmActions.snooze`) e "Adiar 1 h"
+  (`AlarmActions.snooze1h`), rodando em isolate de segundo plano (`notification_actions.dart`, `@pragma('vm:entry-point')`).
+  No hub da tarefa, botão "Adiar" oferece 10 min, 1 h e "Amanhã cedo" (na hora de dia inteiro). O banco usa
   `shareAcrossIsolates`, WAL e `busy_timeout`; ao voltar ao app, as consultas são forçadas a reler.
+- Avisos diários opcionais (`daily_reminders.dart` + `dailyReminderSyncProvider`, prefixo `reminders.`): resumo
+  diário de tarefas (abre Hoje) e aviso diário de flashcards (não avisa com zero; abre Revisar), canal
+  `resumos_diarios`, reagendados ao mudar os dados.
 - Nos testes, `alarmSchedulerProvider` é trocado por `FakeScheduler` (`test/helpers/fake_scheduler.dart`).
 - Testar alarme no aparelho: fechar com `adb shell am kill` (o `force-stop` apaga os alarmes do app).
 

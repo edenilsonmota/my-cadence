@@ -5,7 +5,7 @@ import 'snapshot.dart';
 
 /// Esquema do banco nesta versão do app (igual a `AppDatabase.schemaVersion`;
 /// um teste garante que andam juntos).
-const currentSchemaVersion = 4;
+const currentSchemaVersion = 5;
 
 typedef SnapshotUpgrader = Map<String, List<SyncRow>> Function(
   Map<String, List<SyncRow>> tables,
@@ -16,6 +16,20 @@ final Map<int, SnapshotUpgrader> upgraders = {
   1: _v1ToV2,
   2: _v2ToV3,
   3: _v3ToV4,
+  4: _v4ToV5,
+};
+
+/// v4 → v5: tarefas ganham `reminder_offsets` e `nag_interval_minutes` (nulos).
+Map<String, List<SyncRow>> _v4ToV5(Map<String, List<SyncRow>> tables) => {
+  ...tables,
+  'tasks': [
+    for (final row in tables['tasks'] ?? const <SyncRow>[])
+      {
+        ...row,
+        'reminder_offsets': row['reminder_offsets'],
+        'nag_interval_minutes': row['nag_interval_minutes'],
+      },
+  ],
 };
 
 /// v3 → v4: tarefas ganham `reminder_mode` (padrão `notificacao`).

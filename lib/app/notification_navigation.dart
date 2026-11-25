@@ -4,7 +4,8 @@ import '../core/notifications.dart';
 import 'nav_tabs.dart';
 import 'router.dart';
 
-/// Abre a tela de uma notificação tocada (hub da tarefa ou pomodoro).
+/// Abre a tela de uma notificação tocada (hub da tarefa, pomodoro ou avisos
+/// diários).
 ///
 /// Dois cuidados, achados no aparelho:
 /// - Com o app aberto pela notificação, o toque chega antes de o roteador
@@ -31,9 +32,25 @@ class NotificationNavigator {
 
   static List<NavTab> _defaultTabs() => defaultNavTabs;
 
-  static String routeFor(String payload, {bool pomodoroAsTab = false}) {
-    if (payload == pomodoroPayload) {
-      return pomodoroAsTab ? NavTab.pomodoro.tabRoute : Routes.pomodoro();
+  static NavTab? _tabForPayload(String payload) => switch (payload) {
+    pomodoroPayload => NavTab.pomodoro,
+    dailyReviewPayload => NavTab.review,
+    dailySummaryPayload => NavTab.today,
+    _ => null,
+  };
+
+  static String routeFor(
+    String payload, {
+    bool pomodoroAsTab = false,
+    List<NavTab>? navTabs,
+  }) {
+    final tab = _tabForPayload(payload);
+    if (tab != null) {
+      final inBar = navTabs != null
+          ? navTabs.contains(tab)
+          : (tab == NavTab.pomodoro ? pomodoroAsTab : true);
+      if (tab == NavTab.pomodoro && !inBar) return Routes.pomodoro();
+      return inBar ? tab.tabRoute : tab.overlayRoute;
     }
     return Routes.task(payload);
   }
@@ -49,11 +66,10 @@ class NotificationNavigator {
     _lastAt = now;
 
     void navigate() {
-      final pomodoroAsTab =
-          payload == pomodoroPayload &&
-          _readNavTabs().contains(NavTab.pomodoro);
-      final target = routeFor(payload, pomodoroAsTab: pomodoroAsTab);
-      if (pomodoroAsTab) {
+      final tabs = _readNavTabs();
+      final tab = _tabForPayload(payload);
+      final target = routeFor(payload, navTabs: tabs);
+      if (tab != null && tabs.contains(tab)) {
         _router.go(target);
       } else {
         _router.push(target);

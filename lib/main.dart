@@ -21,6 +21,7 @@ import 'data/providers.dart';
 import 'data/repositories/settings_repository.dart';
 import 'features/sync/sync_providers.dart';
 import 'features/tasks/alarms.dart';
+import 'features/tasks/daily_reminders_providers.dart';
 import 'features/tasks/notification_actions.dart';
 
 Future<void> main() async {
@@ -69,8 +70,10 @@ Future<void> main() async {
     onTap: navigator.open,
     onBackgroundAction: onNotificationActionInBackground,
   );
-  // Reagenda todos os lembretes e passa a acompanhar as mudanças nas tarefas.
+  // Reagenda todos os lembretes e passa a acompanhar as mudanças nas tarefas
+  // e nos avisos diários opcionais.
   container.read(alarmSyncProvider);
+  container.read(dailyReminderSyncProvider);
 
   runApp(
     UncontrolledProviderScope(container: container, child: const CadenceApp()),

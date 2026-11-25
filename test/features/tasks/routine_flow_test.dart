@@ -79,16 +79,15 @@ void main() {
     await tester.tap(find.text('Mais opções'));
     await settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Ligar');
-    // Rola até o campo seguinte, para o alarme ficar inteiro na tela.
+    // Rola até os chips de lembrete ficarem visíveis na tela.
+    final onTimeChip = find.widgetWithText(FilterChip, 'Na hora');
     await tester.dragUntilVisible(
-      find.text('Pomodoros estimados'),
+      onTimeChip,
       find.byType(ListView).first,
       const Offset(0, -200),
     );
     await settle(tester);
-    await tester.tap(find.text('Nenhum'));
-    await settle(tester);
-    await tester.tap(find.text('Na hora').last);
+    await tester.tap(onTimeChip);
     await settle(tester);
     await tester.tap(find.text('Salvar'));
     await settle(tester);
