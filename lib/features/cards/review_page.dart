@@ -14,6 +14,7 @@ import '../../shared/widgets/tab_scaffold.dart';
 import '../../shared/widgets/text_input_dialog.dart';
 import 'card_actions.dart';
 import 'card_form_sheet.dart';
+import 'card_speaker.dart';
 import 'cards_providers.dart';
 import 'review_queue.dart';
 
@@ -102,6 +103,11 @@ class ReviewPage extends ConsumerWidget {
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
+                    ),
+                    IconButton(
+                      tooltip: l10n.speechDefault,
+                      icon: const Icon(AppIcons.speak),
+                      onPressed: () => showDefaultSpeechSheet(context),
                     ),
                     IconButton(
                       tooltip: l10n.reviewNewDeck,
@@ -193,6 +199,11 @@ class _DeckTile extends ConsumerWidget {
       subtitle: Text(
         '$total ${total == 1 ? l10n.unitCard : l10n.unitCards}'
         '${due > 0 ? ' · ${l10n.reviewDeckDueSuffix(due)}' : ''}',
+      ),
+      trailing: IconButton(
+        tooltip: l10n.speechDeckTooltip,
+        icon: const Icon(AppIcons.speak),
+        onPressed: () => showDeckSpeechSheet(context, deck.id),
       ),
       onTap: () => context.push(Routes.cards(deckId: deck.id)),
     );

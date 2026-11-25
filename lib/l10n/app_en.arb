@@ -601,5 +601,9 @@
   "deckSpeechAuto": "Read automatically while reviewing",
   "deckSpeechNoVoices": "No voices found. Install voices in Android Settings → Text-to-speech.",
   "speakFront": "Listen to front",
-  "speakBack": "Listen to back"
+  "speakBack": "Listen to back",
+  "speechDefault": "Default voice",
+  "speechDefaultHint": "Applies to every deck without its own setting.",
+  "speechUseDefault": "Use the default voice",
+  "speechDeckTooltip": "Deck voice"
 }

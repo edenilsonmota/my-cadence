@@ -86,7 +86,14 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
   DateTime _now() => ref.read(clockProvider)();
 
   void _reveal(Flashcard card) {
-    final speech = ref.read(deckSpeechProvider(card.deckId)).value;
+    final raw = ref.read(deckSpeechProvider(card.deckId));
+    final speech = raw == null
+        ? null
+        : DeckSpeech.resolve(
+            deckRaw: raw.deck,
+            defaultRaw: raw.fallback,
+            appLang: context.lang,
+          );
     if (speech != null && speech.auto && speech.back != null) {
       _speaker.speak(card.back, speech.back!);
     }
@@ -209,8 +216,7 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
             _preview = null;
           }
           final speech =
-              ref.watch(deckSpeechProvider(card.deckId)).value ??
-              DeckSpeech.off;
+              effectiveSpeech(ref, card.deckId, context.lang) ?? DeckSpeech.off;
           if (speech.auto &&
               speech.front != null &&
               _autoSpokenId != card.id &&

@@ -601,5 +601,9 @@
   "deckSpeechAuto": "Leer automáticamente al repasar",
   "deckSpeechNoVoices": "No se encontraron voces. Instálalas en Ajustes de Android → Texto a voz.",
   "speakFront": "Escuchar frente",
-  "speakBack": "Escuchar reverso"
+  "speakBack": "Escuchar reverso",
+  "speechDefault": "Voz predeterminada",
+  "speechDefaultHint": "Vale para todos los mazos sin ajuste propio.",
+  "speechUseDefault": "Usar la voz predeterminada",
+  "speechDeckTooltip": "Voz del mazo"
 }

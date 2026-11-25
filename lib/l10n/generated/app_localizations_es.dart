@@ -2110,4 +2110,17 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get speakBack => 'Escuchar reverso';
+
+  @override
+  String get speechDefault => 'Voz predeterminada';
+
+  @override
+  String get speechDefaultHint =>
+      'Vale para todos los mazos sin ajuste propio.';
+
+  @override
+  String get speechUseDefault => 'Usar la voz predeterminada';
+
+  @override
+  String get speechDeckTooltip => 'Voz del mazo';
 }

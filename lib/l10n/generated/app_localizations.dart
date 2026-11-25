@@ -3711,6 +3711,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ouvir verso'**
   String get speakBack;
+
+  /// No description provided for @speechDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voz padrão'**
+  String get speechDefault;
+
+  /// No description provided for @speechDefaultHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vale para todos os decks que não têm ajuste próprio.'**
+  String get speechDefaultHint;
+
+  /// No description provided for @speechUseDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Usar a voz padrão'**
+  String get speechUseDefault;
+
+  /// No description provided for @speechDeckTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voz do deck'**
+  String get speechDeckTooltip;
 }
 
 class _AppLocalizationsDelegate

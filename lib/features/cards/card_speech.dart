@@ -22,6 +22,31 @@ class DeckSpeech {
   /// usam uma chave própria.
   static String keyFor(String? deckId) => 'cards.tts.${deckId ?? 'semDeck'}';
 
+  /// Voz padrão, usada pelos decks sem ajuste próprio.
+  static const defaultKey = 'cards.tts.padrao';
+
+  /// Sem nada configurado: lê os dois lados no idioma do app, só pelo botão.
+  static DeckSpeech fallback(String appLang) {
+    final voice = switch (appLang) {
+      'en' => 'en-US',
+      'es' => 'es-ES',
+      _ => 'pt-BR',
+    };
+    return DeckSpeech(front: voice, back: voice);
+  }
+
+  /// O que vale para um deck: o ajuste dele, senão a voz padrão, senão
+  /// [fallback]. Valor vazio ou ausente = "não definido" (usa o seguinte).
+  static DeckSpeech resolve({
+    required String? deckRaw,
+    required String? defaultRaw,
+    required String appLang,
+  }) {
+    if (deckRaw != null && deckRaw.isNotEmpty) return parse(deckRaw);
+    if (defaultRaw != null && defaultRaw.isNotEmpty) return parse(defaultRaw);
+    return fallback(appLang);
+  }
+
   /// Formato guardado: `frente|verso|auto` (`-` = lado desligado).
   String encode() => '${front ?? '-'}|${back ?? '-'}|${auto ? 1 : 0}';
 

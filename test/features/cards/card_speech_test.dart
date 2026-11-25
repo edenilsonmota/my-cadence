@@ -15,6 +15,29 @@ void main() {
       expect(DeckSpeech.off.enabled, isFalse);
     });
 
+    test('deck usa o próprio, senão o padrão, senão o idioma do app', () {
+      expect(
+        DeckSpeech.resolve(
+          deckRaw: 'en-US|-|1',
+          defaultRaw: 'es-ES|es-ES|0',
+          appLang: 'pt',
+        ),
+        const DeckSpeech(front: 'en-US', auto: true),
+      );
+      expect(
+        DeckSpeech.resolve(
+          deckRaw: '',
+          defaultRaw: 'es-ES|es-ES|0',
+          appLang: 'pt',
+        ),
+        const DeckSpeech(front: 'es-ES', back: 'es-ES'),
+      );
+      expect(
+        DeckSpeech.resolve(deckRaw: null, defaultRaw: null, appLang: 'pt'),
+        const DeckSpeech(front: 'pt-BR', back: 'pt-BR'),
+      );
+    });
+
     test('chave por deck e para cards sem deck', () {
       expect(DeckSpeech.keyFor('d1'), 'cards.tts.d1');
       expect(DeckSpeech.keyFor(null), 'cards.tts.semDeck');

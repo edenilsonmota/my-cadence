@@ -1210,5 +1210,9 @@
   "deckSpeechAuto": "Ler automaticamente na revisão",
   "deckSpeechNoVoices": "Nenhuma voz encontrada. Instale vozes em Ajustes do Android → Texto para fala.",
   "speakFront": "Ouvir frente",
-  "speakBack": "Ouvir verso"
+  "speakBack": "Ouvir verso",
+  "speechDefault": "Voz padrão",
+  "speechDefaultHint": "Vale para todos os decks que não têm ajuste próprio.",
+  "speechUseDefault": "Usar a voz padrão",
+  "speechDeckTooltip": "Voz do deck"
 }

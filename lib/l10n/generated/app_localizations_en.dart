@@ -2107,4 +2107,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get speakBack => 'Listen to back';
+
+  @override
+  String get speechDefault => 'Default voice';
+
+  @override
+  String get speechDefaultHint =>
+      'Applies to every deck without its own setting.';
+
+  @override
+  String get speechUseDefault => 'Use the default voice';
+
+  @override
+  String get speechDeckTooltip => 'Deck voice';
 }

@@ -23,6 +23,16 @@ class FakeSpeaker implements CardSpeaker {
   Future<List<String>> languages() async => ['en-US', 'pt-BR'];
 }
 
+Future<void> goToReview(WidgetTester tester) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text('Revisar'),
+    ),
+  );
+  await settle(tester);
+}
+
 void main() {
   testWidgets('lê a frente sozinho, o verso ao revelar e pelo botão', (
     tester,
@@ -66,28 +76,43 @@ void main() {
     expect(speaker.spoken.last, ('**house**', 'en-US'));
   });
 
-  testWidgets('ajuste do deck grava idiomas pelo menu', (tester) async {
+  testWidgets('sem configurar nada, o botão lê no idioma do app', (
+    tester,
+  ) async {
+    final speaker = FakeSpeaker();
+    await pumpApp(
+      tester,
+      overrides: [cardSpeakerProvider.overrideWithValue(speaker)],
+      seed: (db) =>
+          CardsRepository(db.cardsDao)
+              .createCard(front: 'mesa', back: 'table', now: now),
+    );
+    await goToReview(tester);
+    await tester.tap(find.text('Revisar tudo'));
+    await settle(tester);
+
+    expect(speaker.spoken, isEmpty); // sem leitura automática
+    await tester.tap(find.byTooltip('Ouvir frente'));
+    await settle(tester);
+    expect(speaker.spoken, [('mesa', 'pt-BR')]);
+  });
+
+  testWidgets('deck sai da voz padrão e escolhe o idioma pela aba Revisar', (
+    tester,
+  ) async {
     final speaker = FakeSpeaker();
     final db = await pumpApp(
       tester,
       overrides: [cardSpeakerProvider.overrideWithValue(speaker)],
       seed: (db) => CardsRepository(db.cardsDao).createDeck(name: 'Inglês'),
     );
-    await tester.tap(
-      find.descendant(
-        of: find.byType(NavigationBar),
-        matching: find.text('Revisar'),
-      ),
-    );
-    await settle(tester);
-    await tester.tap(find.text('Inglês'));
-    await settle(tester);
-    await tester.tap(find.byTooltip('Opções do deck'));
-    await settle(tester);
-    await tester.tap(find.text('Leitura em voz alta'));
+    await goToReview(tester);
+    await tester.tap(find.byTooltip('Voz do deck'));
     await settle(tester);
 
-    await tester.tap(find.text('Não ler').first);
+    await tester.tap(find.text('Usar a voz padrão'));
+    await settle(tester);
+    await tester.tap(find.text('pt-BR').first);
     await settle(tester);
     await tester.tap(find.text('en-US').last);
     await settle(tester);
@@ -100,6 +125,9 @@ void main() {
           SettingsRepository(db.settingsDao)
               .getString(DeckSpeech.keyFor(deck.id)),
     );
-    expect(DeckSpeech.parse(raw).front, 'en-US');
+    expect(
+      DeckSpeech.parse(raw),
+      const DeckSpeech(front: 'en-US', back: 'pt-BR'),
+    );
   });
 }

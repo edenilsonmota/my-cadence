@@ -161,10 +161,12 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
   o resultado do botão escolhido (o "fuzz" faz duas chamadas darem intervalos diferentes).
 - Gravar revisão sempre por `CardsRepository.applyReview` (agendamento + log na mesma transação);
   desfazer por `undoReview`.
-- Leitura em voz alta (TTS do aparelho, `flutter_tts`): ajuste por deck em `AppSettings`
-  (`DeckSpeech`, chave `cards.tts.<deckId|semDeck>`, formato `frente|verso|auto`, puro em `card_speech.dart`);
+- Leitura em voz alta (TTS do aparelho, `flutter_tts`): `DeckSpeech` (puro, `card_speech.dart`; formato
+  `frente|verso|auto`). Vale o ajuste do deck (`cards.tts.<deckId|semDeck>`; vazio = usa o padrão), senão a voz
+  padrão (`cards.tts.padrao`), senão o idioma do app nos dois lados (`DeckSpeech.resolve`); o botão de ouvir
+  aparece sem configurar nada. Na aba Revisar: alto-falante no cabeçalho (voz padrão) e em cada deck.
   `CardSpeaker`/`cardSpeakerProvider` em `card_speaker.dart` (engole erros do motor; nos testes, falso via
-  `overrides:`). Menu do deck → "Leitura em voz alta"; na revisão, botão por lado e leitura automática.
+  `overrides:`).
 - Fila: `buildQueue` (estudados por vencimento, depois novos até o limite do dia, contado pela
   primeira revisão de cada card hoje). Ajustes com prefixo `cards.` (`CardSettings`).
 - `clockProvider`/`tickerProvider` ficam em `lib/app/clock.dart`.

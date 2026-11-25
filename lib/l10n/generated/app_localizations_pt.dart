@@ -2108,4 +2108,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get speakBack => 'Ouvir verso';
+
+  @override
+  String get speechDefault => 'Voz padrão';
+
+  @override
+  String get speechDefaultHint =>
+      'Vale para todos os decks que não têm ajuste próprio.';
+
+  @override
+  String get speechUseDefault => 'Usar a voz padrão';
+
+  @override
+  String get speechDeckTooltip => 'Voz do deck';
 }
