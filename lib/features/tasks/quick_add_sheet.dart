@@ -10,10 +10,12 @@ import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/appearance_picker.dart';
+import 'quick_tags.dart';
 import 'task_appearance.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
+import 'templates.dart';
 
 /// Adição rápida: título e pílulas (data, tag, prioridade, ícone/cor, mais).
 /// Enter salva e deixa pronto para a próxima.
@@ -58,8 +60,26 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
     super.dispose();
   }
 
+  /// Ids das `#tags` digitadas (cria as que não existem) somados às
+  /// escolhidas na pílula; devolve também o título sem as tags.
+  Future<({String title, Set<String> tagIds})> _resolveText() async {
+    final parsed = parseQuickTags(_title.text);
+    final repo = ref.read(tasksRepositoryProvider);
+    final existing = await repo.watchTags().first;
+    final matched = matchQuickTags(parsed.tags, {
+      for (final t in existing) t.name: t.id,
+    });
+    final ids = {..._tagIds};
+    for (final MapEntry(key: name, value: id) in matched.entries) {
+      ids.add(id ?? await repo.createTag(name: name, colorKey: 'azul'));
+    }
+    return (title: parsed.title, tagIds: ids);
+  }
+
   Future<void> _save() async {
-    final title = _title.text.trim();
+    if (_title.text.trim().isEmpty) return;
+    final text = await _resolveText();
+    final title = text.title;
     if (title.isEmpty) return;
     final repo = ref.read(tasksRepositoryProvider);
     final id = await repo.createTask(
@@ -69,7 +89,7 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
       colorKey: _colorKey,
       iconKey: _iconKey,
     );
-    if (_tagIds.isNotEmpty) await repo.setTaskTags(id, _tagIds);
+    if (text.tagIds.isNotEmpty) await repo.setTaskTags(id, text.tagIds);
     if (!mounted) return;
     setState(() {
       _lastCreated = title;
@@ -80,20 +100,28 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
 
   /// Abre o formulário completo levando tudo o que já foi escolhido aqui
   /// (título, data, tags, prioridade, ícone e cor).
-  void _moreOptions() {
+  Future<void> _moreOptions() async {
     final router = GoRouter.of(context);
-    Navigator.of(context).pop();
-    router.push(
+    final navigator = Navigator.of(context);
+    final text = await _resolveText();
+    navigator.pop();
+    await router.push(
       Routes.newTask(),
       extra: TaskDraft(
-        title: _title.text.trim(),
+        title: text.title,
         dueDate: _due == null ? null : startOfDay(_due!),
         priority: _priority,
         colorKey: _colorKey,
         iconKey: _iconKey,
-        tagIds: {..._tagIds},
+        tagIds: text.tagIds,
       ),
     );
+  }
+
+  /// Abre a lista de modelos por cima; ao escolher, fecha a adição rápida.
+  Future<void> _useTemplate() async {
+    final navigator = Navigator.of(context);
+    await showTemplatePicker(context, beforeCreate: navigator.pop);
   }
 
   Future<void> _pickAppearance() async {
@@ -122,6 +150,8 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
     final space = context.space;
     final today = ref.watch(todayProvider);
     final tags = ref.watch(tagsProvider).value ?? const <Tag>[];
+    final hasTemplates =
+        ref.watch(templatesProvider).value?.isNotEmpty ?? false;
     final firstTag = tags.where((t) => _tagIds.contains(t.id)).firstOrNull;
     final color =
         _colorKey ?? firstTag?.colorKey ?? defaultColorKeyFor(repeats: false);
@@ -148,7 +178,7 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
                   textInputAction: TextInputAction.done,
                   style: context.text.titleLarge,
                   decoration: InputDecoration(
-                    hintText: l10n.tasksNew,
+                    hintText: l10n.quickAddHint,
                     filled: false,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -228,6 +258,15 @@ class _QuickAddState extends ConsumerState<_QuickAdd> {
                   onPressed: _pickAppearance,
                 ),
               ),
+              if (hasTemplates)
+                Padding(
+                  padding: EdgeInsets.only(right: space.sm),
+                  child: ActionChip(
+                    avatar: const Icon(AppIcons.template),
+                    label: Text(l10n.templateUse),
+                    onPressed: _useTemplate,
+                  ),
+                ),
               ActionChip(
                 avatar: const Icon(AppIcons.more),
                 label: Text(l10n.actionMoreOptions),

@@ -41,8 +41,14 @@ A especificação completa e as etapas estão em [docs/PLANO.md](docs/PLANO.md).
 
 ## Banco e sync
 
-- Status `pausada` (v8) existe no enum e `TaskStatus.isActive` já o exclui de Hoje, atrasados, lembretes e
-  widgets; a interface para pausar entra na fase 16.2 (por ora o menu de status não o oferece).
+- Status `pausada` (v8): `TaskStatus.isActive` o exclui de Hoje, atrasados, lembretes e widgets; aparece em
+  Tarefas com selo. Reagendar: `rescheduleToDay` (puro, `reschedule.dart`) + `showRescheduleSheet` (retoma a
+  pausada). Tempo estimado em `estimatedMinutes` (o `estimatedPomodoros` é legado).
+- Busca geral (`features/search/`, `searchAll` puro; botão em todo `TabScaffold` de aba), revisão da semana
+  (`features/week/`, `buildWeekReview` puro; menu lateral), `#tag` na adição rápida (`quick_tags.dart`) e
+  modelos (`TaskTemplates`, `task_template.dart` puro, `templates.dart`; criar usa `ProviderScope.containerOf`).
+- Widget "Mês": o snapshot leva `months` (−2..+3) e o deslocamento fica por widget em `SharedPreferences`.
+  O ✓ do widget "Hoje" abre `cadence://complete/<id>`.
 - Toda tabela usa o mixin `SyncColumns` (id UUID v7, `createdAt`, `updatedAt`, `deletedAt`, `dirty`, `serverVersion`).
 - Toda escrita nos DAOs passa por `SyncWrites` (`lib/data/db/sync_writes.dart`: `insertSynced`, `updateSynced`,
   `softDeleteSynced`), que aplica `updatedAt = now` e `dirty = true`. Nunca usar `into().insert`, `update()` ou

@@ -70,6 +70,9 @@ class BooksRepository {
   /// Páginas de todos os books, com o book de cada uma.
   Stream<List<(NotePage, Notebook)>> watchBookPages() => _dao.watchBookPages();
 
+  /// Todas as páginas (books e cadernos de tarefa), para a busca geral.
+  Stream<List<(NotePage, Notebook)>> watchAllPages() => _dao.watchAllPages();
+
   // Páginas
 
   Future<NotePage?> getPage(String id) => _dao.getPage(id);

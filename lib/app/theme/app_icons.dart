@@ -28,6 +28,9 @@ abstract final class AppIcons {
   static const navBar = _I.panelBottom;
   static const language = _I.languages;
   static const chevronRight = _I.chevronRight;
+  static const chevronLeft = _I.chevronLeft;
+  static const weekReview = _I.calendarCheck;
+  static const template = _I.layoutTemplate;
   static const menu = _I.menu;
   static const back = _I.arrowLeft;
   static const close = _I.x;

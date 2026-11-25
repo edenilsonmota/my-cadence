@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../app/l10n/l10n.dart';
+import '../../app/router.dart';
 import '../../app/shell.dart';
+import '../../app/theme/app_theme.dart';
 import '../../features/sync/presentation/account_avatar.dart';
 import 'app_drawer.dart';
 
@@ -27,7 +32,16 @@ class TabScaffold extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        actions: [...?actions, if (isTab) const AccountAvatar()],
+        actions: [
+          ...?actions,
+          if (isTab)
+            IconButton(
+              tooltip: context.l10n.searchAllTooltip,
+              icon: const Icon(AppIcons.search),
+              onPressed: () => context.push(Routes.search),
+            ),
+          if (isTab) const AccountAvatar(),
+        ],
       ),
       drawer: isTab ? const AppDrawer() : null,
       body: body,

@@ -5,6 +5,7 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/glass_surface.dart';
 import '../../shared/widgets/gradient_fab.dart';
 import '../../shared/widgets/pressable.dart';
+import '../../shared/widgets/share_row.dart';
 import '../../shared/widgets/skeleton.dart';
 import '../../shared/widgets/staggered_entry.dart';
 
@@ -56,6 +57,19 @@ class _ComponentsPageState extends State<ComponentsPage> {
               _Section('Botões', child: _Buttons()),
               _Section('Campos e chips', child: _Fields()),
               _Section('Lista', child: _ListDemo()),
+              _Section(
+                'Proporção',
+                child: Column(
+                  children: [
+                    ShareRow(label: 'Estudos', value: '3 h', fraction: 1),
+                    ShareRow(
+                      label: 'Inglês',
+                      value: '1 h 30 min',
+                      fraction: 0.5,
+                    ),
+                  ],
+                ),
+              ),
               _Section('Carregando', child: _Skeletons()),
               _Section('Vazio', child: _EmptyDemo()),
               _Section('Avisos', child: _Overlays()),

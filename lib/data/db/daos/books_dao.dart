@@ -95,6 +95,20 @@ class BooksDao extends DatabaseAccessor<AppDatabase> with _$BooksDaoMixin {
     );
   }
 
+  /// Todas as páginas vivas, de books e de cadernos de tarefa, com o
+  /// caderno (para a busca geral).
+  Stream<List<(NotePage, Notebook)>> watchAllPages() {
+    final query = select(notePages).join([
+      innerJoin(notebooks, notebooks.id.equalsExp(notePages.notebookId)),
+    ])..where(notebooks.deletedAt.isNull() & notePages.deletedAt.isNull());
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          (row.readTable(notePages), row.readTable(notebooks)),
+      ],
+    );
+  }
+
   // Páginas
 
   Future<void> insertPage(NotePagesCompanion row) =>

@@ -185,6 +185,8 @@ class _TaskTileState extends ConsumerState<TaskTile> {
         _Meta(icon: AppIcons.pomodoro, text: formatDuration(metrics.focus)),
       if (task.status == TaskStatus.fazendo)
         _Meta(icon: AppIcons.play, text: task.status.labelFor(l10n)),
+      if (task.status == TaskStatus.pausada)
+        _Meta(icon: AppIcons.pause, text: task.status.labelFor(l10n)),
     ];
     final flag = switch (task.priority) {
       3 => palette.danger.strong,

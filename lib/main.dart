@@ -84,6 +84,8 @@ Future<void> main() async {
     readNavTabs: () => container.read(navTabsProvider),
     onSelectAgendaDay: (day) =>
         container.read(calendarDayProvider.notifier).show(day),
+    onCompleteTask: (id) =>
+        container.read(tasksRepositoryProvider).completeTask(id),
   );
   final widgetBridge = container.read(homeWidgetBridgeProvider);
   widgetBridge.setUriListener(widgetNavigator.open);

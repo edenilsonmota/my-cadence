@@ -106,16 +106,21 @@ class WidgetMonth {
 String _iso(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${two(d.month)}-${two(d.day)}';
 
-/// Monta a grade do mês de [today]: 42 dias a partir da segunda-feira da
-/// semana do dia 1, com as cores das tarefas (e ocorrências de rotina) de
-/// cada dia.
+/// Meses que o widget "Mês" consegue mostrar com ‹ › (relativos ao atual).
+const widgetMonthOffsets = [-2, -1, 0, 1, 2, 3];
+
+/// Monta a grade do mês de [today] (mais [monthOffset] meses): 42 dias a
+/// partir da segunda-feira da semana do dia 1, com as cores das tarefas (e
+/// ocorrências de rotina) de cada dia. "Hoje" continua marcado só no dia real.
 WidgetMonth buildWidgetMonth({
   required List<Task> tasks,
   required DateTime today,
   required String Function(Task) colorKeyOf,
   String lang = 'pt',
+  int monthOffset = 0,
 }) {
-  final day0 = startOfDay(today);
+  final realToday = startOfDay(today);
+  final day0 = DateTime(realToday.year, realToday.month + monthOffset);
   final first = DateTime(day0.year, day0.month);
   final gridStart = addDays(first, -(first.weekday - DateTime.monday));
   final gridEnd = addDays(gridStart, 42);
@@ -160,7 +165,7 @@ WidgetMonth buildWidgetMonth({
             day: d.day,
             iso: _iso(d),
             inMonth: d.month == day0.month,
-            today: d == day0,
+            today: d == realToday,
             colors: colors.take(maxMonthDots).toList(growable: false),
             titles: titles.take(maxMonthDots).toList(growable: false),
             more: colors.length > maxMonthDots
@@ -188,6 +193,7 @@ class HomeWidgetSnapshot {
     required this.todayCount,
     required this.todayItems,
     required this.month,
+    this.months = const {},
   });
 
   final String dateIso;
@@ -204,6 +210,9 @@ class HomeWidgetSnapshot {
   final List<WidgetTaskItem> todayItems;
   final WidgetMonth month;
 
+  /// Grades dos meses vizinhos para a navegação ‹ › (chave = deslocamento).
+  final Map<int, WidgetMonth> months;
+
   Map<String, Object?> toJson() => {
     'version': 1,
     'dateIso': dateIso,
@@ -219,6 +228,10 @@ class HomeWidgetSnapshot {
     'todayCount': todayCount,
     'todayItems': [for (final item in todayItems) item.toJson()],
     'month': month.toJson(),
+    'months': {
+      for (final MapEntry(:key, :value) in months.entries)
+        '$key': value.toJson(),
+    },
   };
 
   String encode() => jsonEncode(toJson());
@@ -348,5 +361,16 @@ HomeWidgetSnapshot buildHomeWidgetSnapshot({
       colorKeyOf: resolver.colorKeyOf,
       lang: lang,
     ),
+    months: {
+      for (final offset in widgetMonthOffsets)
+        if (offset != 0)
+          offset: buildWidgetMonth(
+            tasks: tasks,
+            today: dayStart,
+            colorKeyOf: resolver.colorKeyOf,
+            lang: lang,
+            monthOffset: offset,
+          ),
+    },
   );
 }

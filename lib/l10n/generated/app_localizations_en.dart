@@ -2160,4 +2160,160 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskStatusPaused => 'Paused';
+
+  @override
+  String get rescheduleAction => 'Reschedule';
+
+  @override
+  String get rescheduleChoose => 'Pick a date';
+
+  @override
+  String rescheduledTo(String date) {
+    return 'Rescheduled to $date.';
+  }
+
+  @override
+  String get rescheduleResumesHint =>
+      'Rescheduling also resumes the paused task.';
+
+  @override
+  String get pausedBanner =>
+      'Paused: it won\'t show in Today, overdue or reminders until resumed.';
+
+  @override
+  String get actionPause => 'Pause';
+
+  @override
+  String get actionResume => 'Resume';
+
+  @override
+  String get fieldEstimatedTime => 'Estimated time';
+
+  @override
+  String get estimateHours => 'Hours';
+
+  @override
+  String get estimateHint =>
+      'Compared with the focus time done (pomodoros and logged time).';
+
+  @override
+  String hubEstimatedTime(String done, String estimated) {
+    return 'Estimated × done: $done of $estimated';
+  }
+
+  @override
+  String statsOfTime(String done, String total) {
+    return '$done of $total';
+  }
+
+  @override
+  String get statsEstimatedVsDoneTime => 'Time: estimated × done';
+
+  @override
+  String get statsNoEstimatedTime => 'No task with an estimated time.';
+
+  @override
+  String get quickAddHint => 'New task (#tag to label)';
+
+  @override
+  String get searchAllTooltip => 'Search everything';
+
+  @override
+  String get searchHint => 'Search tasks, pages and cards';
+
+  @override
+  String get searchIntro =>
+      'Type at least 2 letters. Search looks at titles, notes, page text and both sides of cards.';
+
+  @override
+  String get searchNoResults => 'Nothing found.';
+
+  @override
+  String get searchClear => 'Clear';
+
+  @override
+  String get weekReviewTitle => 'Weekly review';
+
+  @override
+  String get weekPrevious => 'Previous week';
+
+  @override
+  String get weekNext => 'Next week';
+
+  @override
+  String get weekCompleted => 'Completed';
+
+  @override
+  String get weekRoutines => 'Routines done';
+
+  @override
+  String get weekFocus => 'Focus';
+
+  @override
+  String get weekByTag => 'Time by tag';
+
+  @override
+  String get weekNoFocus => 'No focus time this week.';
+
+  @override
+  String get weekOverdue => 'Left behind';
+
+  @override
+  String get weekNoOverdue => 'Nothing overdue. Nice!';
+
+  @override
+  String get weekAllToToday => 'All to today';
+
+  @override
+  String weekMovedToToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tasks moved to today.',
+      one: '1 task moved to today.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weekNoCompleted => 'No task completed this week.';
+
+  @override
+  String get templateSave => 'Save as template';
+
+  @override
+  String get templateName => 'Template name';
+
+  @override
+  String templateSaved(String name) {
+    return 'Template \"$name\" saved.';
+  }
+
+  @override
+  String get templateUse => 'Template';
+
+  @override
+  String get templatePickTitle => 'Create from a template';
+
+  @override
+  String get templatePickHint =>
+      'The task gets the template\'s tags, look, estimate, reminders, subtasks, books and decks; then pick the dates.';
+
+  @override
+  String get templateDelete => 'Delete template';
+
+  @override
+  String templateSubtasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subtasks',
+      one: '1 subtask',
+      zero: 'no subtasks',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weekReviewShort => 'Week';
 }

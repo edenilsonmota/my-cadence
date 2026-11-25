@@ -36,7 +36,7 @@ class TaskDraft {
     Set<int>? reminderOffsets,
     this.reminderMode = ReminderMode.notificacao,
     this.nagIntervalMinutes,
-    this.estimatedPomodoros,
+    this.estimatedMinutes,
     this.colorKey,
     this.iconKey,
     Set<String>? tagIds,
@@ -83,7 +83,7 @@ class TaskDraft {
       reminderOffsets: {...effectiveReminderOffsets(task)},
       reminderMode: task.reminderMode,
       nagIntervalMinutes: normalizeNagInterval(task.nagIntervalMinutes),
-      estimatedPomodoros: task.estimatedPomodoros,
+      estimatedMinutes: task.estimatedMinutes,
       colorKey: task.colorKey,
       iconKey: task.iconKey,
       tagIds: tagIds,
@@ -140,7 +140,7 @@ class TaskDraft {
 
   /// Intervalo em minutos para insistir se atrasar; `null` desliga.
   int? nagIntervalMinutes;
-  int? estimatedPomodoros;
+  int? estimatedMinutes;
 
   /// Chaves de cor e ícone; nulas = herdar (mãe, tag, tipo).
   String? colorKey;
@@ -230,7 +230,7 @@ class TaskDraft {
           ? ReminderMode.notificacao
           : reminderMode,
       nagIntervalMinutes: effectiveNag,
-      estimatedPomodoros: estimatedPomodoros,
+      estimatedMinutes: estimatedMinutes,
       colorKey: colorKey,
       iconKey: iconKey,
     );
@@ -271,7 +271,7 @@ class TaskFields {
     this.reminderOffsets,
     this.reminderMode = ReminderMode.notificacao,
     this.nagIntervalMinutes,
-    required this.estimatedPomodoros,
+    required this.estimatedMinutes,
     this.colorKey,
     this.iconKey,
   });
@@ -288,7 +288,7 @@ class TaskFields {
   final String? reminderOffsets;
   final ReminderMode reminderMode;
   final int? nagIntervalMinutes;
-  final int? estimatedPomodoros;
+  final int? estimatedMinutes;
   final String? colorKey;
   final String? iconKey;
 
@@ -306,7 +306,7 @@ class TaskFields {
     reminderOffsets: Value(reminderOffsets),
     reminderMode: reminderMode,
     nagIntervalMinutes: Value(nagIntervalMinutes),
-    estimatedPomodoros: Value(estimatedPomodoros),
+    estimatedMinutes: Value(estimatedMinutes),
     colorKey: Value(colorKey),
     iconKey: Value(iconKey),
   );

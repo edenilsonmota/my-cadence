@@ -41,6 +41,23 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
+            <ImageView
+                android:id="@+id/widget_cal_prev"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@string/widget_prev_month"
+                android:padding="5dp"
+                android:src="@drawable/ic_widget_chevron_left" />
+
+            <ImageView
+                android:id="@+id/widget_cal_next"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@string/widget_next_month"
+                android:padding="5dp"
+                android:src="@drawable/ic_widget_chevron_right" />
+
             <FrameLayout
                 android:id="@+id/widget_cal_add_btn"
                 android:layout_width="30dp"

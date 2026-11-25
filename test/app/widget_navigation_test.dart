@@ -21,6 +21,13 @@ void main() {
       expect(inDrawer.replace, isFalse);
     });
 
+    test('complete conclui e abre Hoje', () {
+      final r = WidgetNavigator.resolve('cadence://complete/abc')!;
+      expect(r.completeTaskId, 'abc');
+      expect(r.route, NavTab.today.tabRoute);
+      expect(WidgetNavigator.resolve('cadence://complete/'), isNull);
+    });
+
     test('resolve task e new-task corretamente', () {
       final task = WidgetNavigator.resolve('cadence://task/abc-123')!;
       expect(task.route, Routes.task('abc-123'));

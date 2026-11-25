@@ -83,7 +83,7 @@ class HubTools extends ConsumerWidget {
 
     final visible = visibleTools(
       hasCards: cards.isNotEmpty || linkedDecks.isNotEmpty,
-      hasPomodoro: sessions.isNotEmpty || task.estimatedPomodoros != null,
+      hasPomodoro: sessions.isNotEmpty || task.estimatedMinutes != null,
       hasPages:
           ownPages.isNotEmpty || linked.isNotEmpty || linkedBooks.isNotEmpty,
     );
@@ -163,7 +163,9 @@ class HubTools extends ConsumerWidget {
         if (visible.pomodoro)
           _PomodoroSection(
             summary: summarizeFocus(sessions, now),
-            estimated: task.estimatedPomodoros,
+            estimated: task.estimatedMinutes == null
+                ? null
+                : Duration(minutes: task.estimatedMinutes!),
             manual: [
               for (final s in sessions)
                 if (s.manual && s.taskId == task.id) s,
@@ -308,7 +310,9 @@ class _PomodoroSection extends ConsumerWidget {
   });
 
   final FocusSummary summary;
-  final int? estimated;
+
+  /// Tempo estimado (comparado com todo o foco, inclusive o manual).
+  final Duration? estimated;
 
   /// Registros manuais da própria tarefa, do mais recente ao mais antigo.
   final List<PomodoroSession> manual;
@@ -342,10 +346,17 @@ class _PomodoroSection extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.hubEstimatedVsDone(summary.completed, est)),
+                Text(
+                  l10n.hubEstimatedTime(
+                    formatDuration(summary.total),
+                    formatDuration(est),
+                  ),
+                ),
                 const SizedBox(height: 6),
                 LinearProgressIndicator(
-                  value: est == 0 ? 0 : (summary.completed / est).clamp(0, 1),
+                  value: est == Duration.zero
+                      ? 0
+                      : (summary.total.inSeconds / est.inSeconds).clamp(0, 1),
                   semanticsLabel: l10n.agendaCompletedPomodoros,
                 ),
               ],

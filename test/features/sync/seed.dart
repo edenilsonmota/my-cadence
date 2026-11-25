@@ -6,6 +6,7 @@ import 'package:my_cadence/data/repositories/cards_repository.dart';
 import 'package:my_cadence/data/repositories/pomodoro_repository.dart';
 import 'package:my_cadence/data/repositories/settings_repository.dart';
 import 'package:my_cadence/data/repositories/tasks_repository.dart';
+import 'package:my_cadence/data/repositories/templates_repository.dart';
 
 final _now = DateTime(2026, 11, 24, 12);
 
@@ -83,10 +84,8 @@ Future<void> seedEverything(AppDatabase db) async {
   await books.setTaskNotebooks(parent, {book});
   await cards.setTaskDecks(parent, {deck});
 
-  // Modelos ganham repositório na fase 16.8; aqui basta uma linha.
-  await db
-      .into(db.taskTemplates)
-      .insert(TaskTemplatesCompanion.insert(name: 'Prova', payload: '{}'));
+  await TemplatesRepository(db.templatesDao)
+      .createTemplate(name: 'Prova', payload: '{"title":"Prova"}');
 
   await settings.setString('pomodoro.focus', '30');
   await settings.setString('calendar.mode', 'mes'); // do aparelho

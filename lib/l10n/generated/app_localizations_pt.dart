@@ -2161,4 +2161,160 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get taskStatusPaused => 'Pausada';
+
+  @override
+  String get rescheduleAction => 'Reagendar';
+
+  @override
+  String get rescheduleChoose => 'Escolher data';
+
+  @override
+  String rescheduledTo(String date) {
+    return 'Reagendada para $date.';
+  }
+
+  @override
+  String get rescheduleResumesHint =>
+      'Reagendar também retoma a tarefa pausada.';
+
+  @override
+  String get pausedBanner =>
+      'Pausada: não aparece no Hoje, nos atrasados nem nos lembretes até ser retomada.';
+
+  @override
+  String get actionPause => 'Pausar';
+
+  @override
+  String get actionResume => 'Retomar';
+
+  @override
+  String get fieldEstimatedTime => 'Tempo estimado';
+
+  @override
+  String get estimateHours => 'Horas';
+
+  @override
+  String get estimateHint =>
+      'Comparado com o tempo de foco feito (pomodoros e tempo registrado).';
+
+  @override
+  String hubEstimatedTime(String done, String estimated) {
+    return 'Estimado × feito: $done de $estimated';
+  }
+
+  @override
+  String statsOfTime(String done, String total) {
+    return '$done de $total';
+  }
+
+  @override
+  String get statsEstimatedVsDoneTime => 'Tempo: estimado × feito';
+
+  @override
+  String get statsNoEstimatedTime => 'Nenhuma tarefa com tempo estimado.';
+
+  @override
+  String get quickAddHint => 'Nova tarefa (#tag para marcar)';
+
+  @override
+  String get searchAllTooltip => 'Buscar em tudo';
+
+  @override
+  String get searchHint => 'Buscar tarefas, páginas e cards';
+
+  @override
+  String get searchIntro =>
+      'Digite ao menos 2 letras. A busca olha títulos, notas, o texto das páginas e os dois lados dos cards.';
+
+  @override
+  String get searchNoResults => 'Nada encontrado.';
+
+  @override
+  String get searchClear => 'Limpar';
+
+  @override
+  String get weekReviewTitle => 'Revisão da semana';
+
+  @override
+  String get weekPrevious => 'Semana anterior';
+
+  @override
+  String get weekNext => 'Próxima semana';
+
+  @override
+  String get weekCompleted => 'Concluídas';
+
+  @override
+  String get weekRoutines => 'Rotinas cumpridas';
+
+  @override
+  String get weekFocus => 'Foco';
+
+  @override
+  String get weekByTag => 'Tempo por tag';
+
+  @override
+  String get weekNoFocus => 'Sem tempo de foco nesta semana.';
+
+  @override
+  String get weekOverdue => 'Ficou para trás';
+
+  @override
+  String get weekNoOverdue => 'Nada atrasado. Boa!';
+
+  @override
+  String get weekAllToToday => 'Todas para hoje';
+
+  @override
+  String weekMovedToToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tarefas movidas para hoje.',
+      one: '1 tarefa movida para hoje.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weekNoCompleted => 'Nenhuma tarefa concluída nesta semana.';
+
+  @override
+  String get templateSave => 'Salvar como modelo';
+
+  @override
+  String get templateName => 'Nome do modelo';
+
+  @override
+  String templateSaved(String name) {
+    return 'Modelo \"$name\" salvo.';
+  }
+
+  @override
+  String get templateUse => 'Modelo';
+
+  @override
+  String get templatePickTitle => 'Criar a partir de um modelo';
+
+  @override
+  String get templatePickHint =>
+      'A tarefa é criada com tags, aparência, estimativa, lembretes, subtarefas, books e decks do modelo; depois escolha as datas.';
+
+  @override
+  String get templateDelete => 'Excluir modelo';
+
+  @override
+  String templateSubtasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subtarefas',
+      one: '1 subtarefa',
+      zero: 'sem subtarefas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weekReviewShort => 'Semana';
 }

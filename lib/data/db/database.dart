@@ -10,6 +10,7 @@ import 'daos/pomodoro_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/tags_dao.dart';
 import 'daos/tasks_dao.dart';
+import 'daos/templates_dao.dart';
 import 'database.steps.dart';
 import 'enums.dart';
 import 'legacy_kind.dart';
@@ -39,7 +40,15 @@ part 'database.g.dart';
     TaskDeckLinks,
     AppSettings,
   ],
-  daos: [TasksDao, TagsDao, PomodoroDao, CardsDao, BooksDao, SettingsDao],
+  daos: [
+    TasksDao,
+    TagsDao,
+    PomodoroDao,
+    CardsDao,
+    BooksDao,
+    SettingsDao,
+    TemplatesDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);

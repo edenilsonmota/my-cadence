@@ -1233,5 +1233,95 @@
   "manualTimeEntries": "Registros manuais",
   "manualTimeDelete": "Excluir registro",
   "statsTagHint": "Tarefa com várias tags conta o tempo em cada uma; subtarefa herda as tags da mãe.",
-  "taskStatusPaused": "Pausada"
+  "taskStatusPaused": "Pausada",
+  "rescheduleAction": "Reagendar",
+  "rescheduleChoose": "Escolher data",
+  "rescheduledTo": "Reagendada para {date}.",
+  "@rescheduledTo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rescheduleResumesHint": "Reagendar também retoma a tarefa pausada.",
+  "pausedBanner": "Pausada: não aparece no Hoje, nos atrasados nem nos lembretes até ser retomada.",
+  "actionPause": "Pausar",
+  "actionResume": "Retomar",
+  "fieldEstimatedTime": "Tempo estimado",
+  "estimateHours": "Horas",
+  "estimateHint": "Comparado com o tempo de foco feito (pomodoros e tempo registrado).",
+  "hubEstimatedTime": "Estimado × feito: {done} de {estimated}",
+  "@hubEstimatedTime": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "estimated": {
+        "type": "String"
+      }
+    }
+  },
+  "statsOfTime": "{done} de {total}",
+  "@statsOfTime": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "statsEstimatedVsDoneTime": "Tempo: estimado × feito",
+  "statsNoEstimatedTime": "Nenhuma tarefa com tempo estimado.",
+  "quickAddHint": "Nova tarefa (#tag para marcar)",
+  "searchAllTooltip": "Buscar em tudo",
+  "searchHint": "Buscar tarefas, páginas e cards",
+  "searchIntro": "Digite ao menos 2 letras. A busca olha títulos, notas, o texto das páginas e os dois lados dos cards.",
+  "searchNoResults": "Nada encontrado.",
+  "searchClear": "Limpar",
+  "weekReviewTitle": "Revisão da semana",
+  "weekPrevious": "Semana anterior",
+  "weekNext": "Próxima semana",
+  "weekCompleted": "Concluídas",
+  "weekRoutines": "Rotinas cumpridas",
+  "weekFocus": "Foco",
+  "weekByTag": "Tempo por tag",
+  "weekNoFocus": "Sem tempo de foco nesta semana.",
+  "weekOverdue": "Ficou para trás",
+  "weekNoOverdue": "Nada atrasado. Boa!",
+  "weekAllToToday": "Todas para hoje",
+  "weekMovedToToday": "{count, plural, =1{1 tarefa movida para hoje.} other{{count} tarefas movidas para hoje.}}",
+  "@weekMovedToToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekNoCompleted": "Nenhuma tarefa concluída nesta semana.",
+  "templateSave": "Salvar como modelo",
+  "templateName": "Nome do modelo",
+  "templateSaved": "Modelo \"{name}\" salvo.",
+  "@templateSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "templateUse": "Modelo",
+  "templatePickTitle": "Criar a partir de um modelo",
+  "templatePickHint": "A tarefa é criada com tags, aparência, estimativa, lembretes, subtarefas, books e decks do modelo; depois escolha as datas.",
+  "templateDelete": "Excluir modelo",
+  "templateSubtasks": "{count, plural, =0{sem subtarefas} =1{1 subtarefa} other{{count} subtarefas}}",
+  "@templateSubtasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekReviewShort": "Semana"
 }

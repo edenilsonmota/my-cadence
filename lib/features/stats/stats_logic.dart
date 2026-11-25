@@ -119,13 +119,15 @@ Set<String> tagsWithAncestors(
   return result;
 }
 
-typedef EstimateRow = ({Task task, int estimated, int done});
+typedef EstimateRow = ({Task task, Duration estimated, Duration done});
 
-/// Tarefas com pomodoros estimados: estimado × focos concluídos (somando as
-/// subtarefas), das mais recentes para as mais antigas.
+/// Tarefas com tempo estimado: estimado × foco feito (pomodoros e tempo
+/// registrado à mão, somando as subtarefas), das mais recentes para as mais
+/// antigas.
 List<EstimateRow> estimatedVsDone(
   Iterable<Task> tasks,
   Iterable<PomodoroSession> sessions,
+  DateTime now,
 ) {
   final parentOf = {for (final t in tasks) t.id: t.parentId};
   String? rootWithEstimate(String? id, Set<String> estimated) {
@@ -140,18 +142,23 @@ List<EstimateRow> estimatedVsDone(
 
   final withEstimate = [
     for (final t in tasks)
-      if ((t.estimatedPomodoros ?? 0) > 0) t,
+      if ((t.estimatedMinutes ?? 0) > 0) t,
   ];
   final ids = {for (final t in withEstimate) t.id};
-  final done = <String, int>{};
+  final done = <String, Duration>{};
   for (final s in _focus(sessions)) {
-    if (!s.completed || s.manual) continue;
     final root = rootWithEstimate(s.taskId, ids);
-    if (root != null) done[root] = (done[root] ?? 0) + 1;
+    if (root != null) {
+      done[root] = (done[root] ?? Duration.zero) + elapsed(s, now);
+    }
   }
   return [
     for (final t in withEstimate)
-      (task: t, estimated: t.estimatedPomodoros!, done: done[t.id] ?? 0),
+      (
+        task: t,
+        estimated: Duration(minutes: t.estimatedMinutes!),
+        done: done[t.id] ?? Duration.zero,
+      ),
   ]..sort((a, b) => b.task.createdAt.compareTo(a.task.createdAt));
 }
 

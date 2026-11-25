@@ -105,17 +105,14 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
   }
 
   Future<void> _load() async {
+    // Repositórios lidos antes dos awaits (a tela pode sair no meio).
     final repo = ref.read(tasksRepositoryProvider);
+    final booksRepo = ref.read(booksRepositoryProvider);
+    final cardsRepo = ref.read(cardsRepositoryProvider);
     final task = await repo.getTask(widget.taskId!);
     final tags = await repo.watchTagsOfTask(widget.taskId!).first;
-    final books = await ref
-        .read(booksRepositoryProvider)
-        .watchLinkedNotebooks(widget.taskId!)
-        .first;
-    final decks = await ref
-        .read(cardsRepositoryProvider)
-        .watchLinkedDecks(widget.taskId!)
-        .first;
+    final books = await booksRepo.watchLinkedNotebooks(widget.taskId!).first;
+    final decks = await cardsRepo.watchLinkedDecks(widget.taskId!).first;
     if (!mounted) return;
     if (task == null) {
       Navigator.of(context).pop();
@@ -195,7 +192,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         reminderOffsets: f.reminderOffsets,
         reminderMode: f.reminderMode,
         nagIntervalMinutes: f.nagIntervalMinutes,
-        estimatedPomodoros: f.estimatedPomodoros,
+        estimatedMinutes: f.estimatedMinutes,
         colorKey: f.colorKey,
         iconKey: f.iconKey,
       );
@@ -349,13 +346,10 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           selected: {d.priority},
           onSelectionChanged: (s) => _edit((d) => d.priority = s.single),
         ),
-        _Label(l10n.fieldEstimatedPomodoros),
-        NumberStepper(
-          value: d.estimatedPomodoros ?? 0,
-          min: 0,
-          onChanged: (v) =>
-              _edit((d) => d.estimatedPomodoros = v == 0 ? null : v),
-          semanticLabel: l10n.fieldEstimatedPomodoros,
+        _Label(l10n.fieldEstimatedTime),
+        _EstimateField(
+          minutes: d.estimatedMinutes,
+          onChanged: (v) => _edit((d) => d.estimatedMinutes = v),
         ),
         _Label(l10n.fieldTags),
         _TagPicker(
@@ -603,6 +597,59 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         if (d.nagIntervalMinutes != null) _Hint(l10n.nagHint(maxNagRepeats)),
       ],
     ];
+  }
+}
+
+/// Tempo estimado: horas no seletor e os minutos em chips (0, 15, 30, 45).
+class _EstimateField extends StatelessWidget {
+  const _EstimateField({required this.minutes, required this.onChanged});
+
+  final int? minutes;
+
+  /// `null` = sem estimativa.
+  final ValueChanged<int?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final total = minutes ?? 0;
+    final hours = total ~/ 60;
+    final rest = total % 60;
+    void set(int h, int m) {
+      final value = h * 60 + m;
+      onChanged(value == 0 ? null : value);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text(l10n.estimateHours)),
+            NumberStepper(
+              value: hours,
+              min: 0,
+              max: 99,
+              onChanged: (h) => set(h, rest),
+              semanticLabel: l10n.estimateHours,
+            ),
+          ],
+        ),
+        SizedBox(height: context.space.xs),
+        Wrap(
+          spacing: context.space.sm,
+          children: [
+            for (final m in {0, 15, 30, 45, rest}.toList()..sort())
+              ChoiceChip(
+                label: Text('$m min'),
+                selected: rest == m,
+                onSelected: (_) => set(hours, m),
+              ),
+          ],
+        ),
+        _Hint(l10n.estimateHint),
+      ],
+    );
   }
 }
 

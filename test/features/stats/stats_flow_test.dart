@@ -23,7 +23,7 @@ void main() {
         final tasks = TasksRepository(db.tasksDao, db.tagsDao);
         final calc = await tasks.createTask(
           title: 'Cálculo',
-          estimatedPomodoros: 4,
+          estimatedMinutes: 100,
         );
         final tag = await tasks.createTag(name: 'Faculdade', colorKey: 'azul');
         await tasks.setTaskTags(calc, {tag});
@@ -87,8 +87,12 @@ void main() {
     expect(find.text('Faculdade'), findsOneWidget);
     expect(find.text('Sem tag'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.text('2 de 4'), 200, scrollable: list);
-    expect(find.text('2 de 4'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('50 min de 1 h 40 min'),
+      200,
+      scrollable: list,
+    );
+    expect(find.text('50 min de 1 h 40 min'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Acerto (30 dias)'),
@@ -119,14 +123,11 @@ void main() {
       findsOneWidget,
     ); // ação, não gráfico vazio
     await tester.scrollUntilVisible(
-      find.text('Nenhuma tarefa com pomodoros estimados.'),
+      find.text('Nenhuma tarefa com tempo estimado.'),
       200,
       scrollable: list,
     );
-    expect(
-      find.text('Nenhuma tarefa com pomodoros estimados.'),
-      findsOneWidget,
-    );
+    expect(find.text('Nenhuma tarefa com tempo estimado.'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Acerto (30 dias)'),
       200,

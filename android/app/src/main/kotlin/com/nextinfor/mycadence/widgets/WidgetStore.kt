@@ -160,52 +160,88 @@ object WidgetStore {
         }
     }
 
-    /** Grade do mês do snapshot (vazia se ainda não houver dados). */
-    fun readMonthData(context: Context): MonthWidgetData {
+    /**
+     * Grade do mês do snapshot ([offset] meses a partir do atual, dentro dos
+     * que o app mandou); vazia se ainda não houver dados.
+     */
+    fun readMonthData(context: Context, offset: Int = 0): MonthWidgetData {
         val empty = MonthWidgetData("", emptyList(), emptyList())
         val raw = readRawSnapshot(context)
         if (raw.isNullOrBlank()) return empty
         return try {
-            val month = JSONObject(raw).optJSONObject("month") ?: return empty
-            val weekdays = month.optJSONArray("weekdays")
-            val days = month.optJSONArray("days")
-            MonthWidgetData(
-                title = month.optString("title"),
-                weekdays = if (weekdays == null) {
-                    emptyList()
-                } else {
-                    (0 until weekdays.length()).map { weekdays.optString(it) }
-                },
-                days = if (days == null) {
-                    emptyList()
-                } else {
-                    (0 until days.length()).map { i ->
-                        val o = days.getJSONObject(i)
-                        val colors = o.optJSONArray("colors")
-                        val titles = o.optJSONArray("titles")
-                        WidgetMonthDay(
-                            day = o.optInt("d"),
-                            iso = o.optString("iso"),
-                            inMonth = o.optBoolean("in", true),
-                            today = o.optBoolean("today", false),
-                            colors = if (colors == null) {
-                                emptyList()
-                            } else {
-                                (0 until colors.length()).map { colors.optLong(it).toInt() }
-                            },
-                            titles = if (titles == null) {
-                                emptyList()
-                            } else {
-                                (0 until titles.length()).map { titles.optString(it) }
-                            },
-                            more = o.optInt("more", 0),
-                        )
-                    }
-                },
-            )
+            val root = JSONObject(raw)
+            val month = if (offset == 0) {
+                root.optJSONObject("month")
+            } else {
+                root.optJSONObject("months")?.optJSONObject(offset.toString())
+            } ?: return empty
+            parseMonth(month)
         } catch (_: Exception) {
             empty
         }
+    }
+
+    /** Deslocamentos de mês disponíveis no snapshot (o atual sempre). */
+    fun availableMonthOffsets(context: Context): Set<Int> {
+        val raw = readRawSnapshot(context) ?: return setOf(0)
+        return try {
+            val months = JSONObject(raw).optJSONObject("months") ?: return setOf(0)
+            months.keys().asSequence().mapNotNull { it.toIntOrNull() }.toSet() + 0
+        } catch (_: Exception) {
+            setOf(0)
+        }
+    }
+
+    fun monthOffset(context: Context, appWidgetId: Int): Int =
+        context
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getInt("month_offset_$appWidgetId", 0)
+
+    fun setMonthOffset(context: Context, appWidgetId: Int, offset: Int) {
+        context
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt("month_offset_$appWidgetId", offset)
+            .apply()
+    }
+
+    private fun parseMonth(month: JSONObject): MonthWidgetData {
+        val weekdays = month.optJSONArray("weekdays")
+        val days = month.optJSONArray("days")
+        return MonthWidgetData(
+            title = month.optString("title"),
+            weekdays = if (weekdays == null) {
+                emptyList()
+            } else {
+                (0 until weekdays.length()).map { weekdays.optString(it) }
+            },
+            days = if (days == null) {
+                emptyList()
+            } else {
+                (0 until days.length()).map { i ->
+                    val o = days.getJSONObject(i)
+                    val colors = o.optJSONArray("colors")
+                    val titles = o.optJSONArray("titles")
+                    WidgetMonthDay(
+                        day = o.optInt("d"),
+                        iso = o.optString("iso"),
+                        inMonth = o.optBoolean("in", true),
+                        today = o.optBoolean("today", false),
+                        colors = if (colors == null) {
+                            emptyList()
+                        } else {
+                            (0 until colors.length()).map { colors.optLong(it).toInt() }
+                        },
+                        titles = if (titles == null) {
+                            emptyList()
+                        } else {
+                            (0 until titles.length()).map { titles.optString(it) }
+                        },
+                        more = o.optInt("more", 0),
+                    )
+                }
+            },
+        )
     }
 
     fun resolveColors(

@@ -194,6 +194,24 @@ void main() {
       expect(busy.more, 2);
     });
 
+    test('mês vizinho: título do mês, hoje marcado só no dia real', () {
+      final next = buildWidgetMonth(
+        tasks: const [],
+        today: DateTime(2026, 11, 24),
+        colorKeyOf: (_) => 'azul',
+        monthOffset: 1,
+      );
+      expect(next.title, 'Dezembro 2026');
+      expect(next.days.where((d) => d.today), isEmpty);
+      final back = buildWidgetMonth(
+        tasks: const [],
+        today: DateTime(2026, 1, 10),
+        colorKeyOf: (_) => 'azul',
+        monthOffset: -1,
+      );
+      expect(back.title, 'Dezembro 2025');
+    });
+
     test('rotina diária marca os dias seguintes do mês', () {
       final routine = makeTask(
         'r',

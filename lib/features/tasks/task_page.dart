@@ -24,6 +24,8 @@ import 'hub/hub_tools.dart';
 import 'reminder_offsets.dart';
 import 'task_delete.dart';
 import 'task_providers.dart';
+import 'templates.dart';
+import 'widgets/reschedule_sheet.dart';
 import 'widgets/task_tile.dart';
 
 /// Hub da tarefa. Nesta etapa: dados da tarefa, status e subtarefas. Cards,
@@ -152,6 +154,11 @@ class _TaskHub extends ConsumerWidget {
         title: Text(parent == null ? l10n.taskSingular : l10n.subtaskSingular),
         actions: [
           IconButton(
+            tooltip: l10n.templateSave,
+            icon: const Icon(AppIcons.template),
+            onPressed: () => saveTaskAsTemplate(context, ref, task),
+          ),
+          IconButton(
             tooltip: l10n.actionEdit,
             icon: const Icon(AppIcons.edit),
             onPressed: () => context.push(Routes.editTask(task.id)),
@@ -229,9 +236,7 @@ class _TaskHub extends ConsumerWidget {
                       : repo.setStatus(task.id, s),
                   itemBuilder: (_) => [
                     for (final s in TaskStatus.values)
-                      // "Pausada" entra na fase 16.2 (Pausar e reagendar).
-                      if (s != TaskStatus.pausada)
-                        PopupMenuItem(value: s, child: Text(s.labelFor(l10n))),
+                      PopupMenuItem(value: s, child: Text(s.labelFor(l10n))),
                   ],
                   // A setinha fica dentro do rótulo: o `deleteIcon` do Chip
                   // anunciaria "Excluir" para o leitor de tela.
@@ -268,9 +273,49 @@ class _TaskHub extends ConsumerWidget {
                   ),
                 for (final tag in tags)
                   TagChip(name: tag.name, colorKey: tag.colorKey),
+                if (!done)
+                  ActionChip(
+                    avatar: const Icon(AppIcons.date),
+                    label: Text(l10n.rescheduleAction),
+                    onPressed: () => showRescheduleSheet(context, ref, task),
+                  ),
               ],
             ),
           ),
+          if (task.status == TaskStatus.pausada)
+            Padding(
+              padding: EdgeInsets.fromLTRB(space.page, space.md, space.page, 0),
+              child: Container(
+                padding: EdgeInsets.all(space.md),
+                decoration: BoxDecoration(
+                  color: context.palette.warning.tint,
+                  borderRadius: context.radius.mdAll,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      AppIcons.pause,
+                      size: AppIconSize.standard,
+                      color: context.palette.warning.onTint,
+                    ),
+                    SizedBox(width: space.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.pausedBanner,
+                        style: context.text.bodySmall!.copyWith(
+                          color: context.palette.warning.onTint,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          repo.setStatus(task.id, TaskStatus.aFazer),
+                      child: Text(l10n.actionResume),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           SizedBox(height: space.sm),
           if (task.startAt case final start?)
             _Info(AppIcons.start, l10n.fieldStart, when(start)),

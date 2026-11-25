@@ -58,6 +58,12 @@ private class TodayWidgetFactory(
             putExtra(WidgetStore.EXTRA_WIDGET_URI, "cadence://task/${item.id}")
         }
         views.setOnClickFillInIntent(R.id.widget_today_item_root, fillIn)
+
+        views.setInt(R.id.widget_today_item_check, "setColorFilter", c.muted)
+        val complete = Intent().apply {
+            putExtra(WidgetStore.EXTRA_WIDGET_URI, "cadence://complete/${item.id}")
+        }
+        views.setOnClickFillInIntent(R.id.widget_today_item_check, complete)
         return views
     }
 

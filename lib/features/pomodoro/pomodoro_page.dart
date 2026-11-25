@@ -13,6 +13,7 @@ import '../../shared/widgets/appearance_badge.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../tasks/task_providers.dart';
 import '../tasks/widgets/task_picker.dart';
+import 'manual_time_sheet.dart';
 import 'pomodoro_controller.dart';
 import 'pomodoro_logic.dart';
 
@@ -120,6 +121,14 @@ class _PomodoroPageState extends ConsumerState<PomodoroPage> {
     final l10n = context.l10n;
     return TabScaffold(
       title: l10n.navPomodoro,
+      actions: [
+        // Tempo feito sem cronômetro, na tarefa escolhida (ou sem tarefa).
+        IconButton(
+          tooltip: l10n.manualTimeLog,
+          icon: const Icon(AppIcons.time),
+          onPressed: () => showManualTimeSheet(context, taskId: taskId),
+        ),
+      ],
       body: ListView(
         padding: EdgeInsets.fromLTRB(
           space.page,

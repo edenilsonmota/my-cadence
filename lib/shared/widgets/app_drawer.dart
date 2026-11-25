@@ -21,6 +21,7 @@ class AppDrawer extends ConsumerWidget {
     final extraTabs = drawerNavTabs(ref.watch(navTabsProvider));
     final routes = <String>[
       for (final tab in extraTabs) tab.overlayRoute,
+      Routes.weekReview,
       Routes.settings,
       if (kDebugMode) Routes.devComponents,
     ];
@@ -61,6 +62,10 @@ class AppDrawer extends ConsumerWidget {
             label: Text(tab.labelFor(l10n)),
           ),
         if (extraTabs.isNotEmpty) const Divider(indent: 28, endIndent: 28),
+        NavigationDrawerDestination(
+          icon: const Icon(AppIcons.weekReview),
+          label: Text(l10n.weekReviewShort),
+        ),
         NavigationDrawerDestination(
           icon: const Icon(AppIcons.settings),
           label: Text(l10n.navSettings),

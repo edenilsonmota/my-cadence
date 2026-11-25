@@ -12,6 +12,7 @@ import '../../app/theme/app_theme.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
 import '../../shared/widgets/metric_card.dart';
+import '../../shared/widgets/share_row.dart';
 import '../../shared/widgets/tab_scaffold.dart';
 import '../tasks/hub/hub_stats.dart' show formatDuration;
 import '../tasks/task_providers.dart';
@@ -243,55 +244,6 @@ String _axisLabel(double v) {
 }
 
 /// Linha com rótulo, barra proporcional e valor.
-class _ShareRow extends StatelessWidget {
-  const _ShareRow({
-    required this.label,
-    required this.value,
-    required this.fraction,
-    this.color,
-  });
-
-  final String label;
-  final String value;
-  final double fraction;
-
-  /// Cor da barra (da tarefa, tag ou tipo); padrão, a do tema.
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: context.space.xs),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ),
-              SizedBox(width: context.space.sm),
-              Text(value, style: theme.textTheme.labelLarge!.tabular),
-            ],
-          ),
-          SizedBox(height: context.space.xs),
-          LinearProgressIndicator(
-            value: fraction.clamp(0, 1).toDouble(),
-            minHeight: 6,
-            color: color,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ─── Foco ────────────────────────────────────────────────────────────────────
 
 class _FocusSection extends ConsumerWidget {
@@ -497,7 +449,7 @@ class _FocusBySection extends ConsumerWidget {
           _Empty(l10n.statsNoFocusGroup)
         else
           for (final r in top)
-            _ShareRow(
+            ShareRow(
               label: name(r.key),
               value: formatDuration(r.total),
               color: colorOf(r.key),
@@ -518,19 +470,23 @@ class _EstimateSection extends ConsumerWidget {
     final l10n = context.l10n;
     final sessions = ref.watch(statsSessionsProvider).value ?? const [];
     final tasks = ref.watch(allTasksProvider).value ?? const <Task>[];
-    final rows = estimatedVsDone(tasks, sessions).take(10).toList();
+    final now = ref.watch(clockProvider)();
+    final rows = estimatedVsDone(tasks, sessions, now).take(10).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SectionTitle(l10n.statsEstimatedVsDone),
+        _SectionTitle(l10n.statsEstimatedVsDoneTime),
         if (rows.isEmpty)
-          _Empty(l10n.statsNoEstimated)
+          _Empty(l10n.statsNoEstimatedTime)
         else
           for (final r in rows)
-            _ShareRow(
+            ShareRow(
               label: r.task.title,
-              value: l10n.statsOf(r.done, r.estimated),
-              fraction: r.done / r.estimated,
+              value: l10n.statsOfTime(
+                formatDuration(r.done),
+                formatDuration(r.estimated),
+              ),
+              fraction: (r.done.inSeconds / r.estimated.inSeconds).clamp(0, 1),
             ),
       ],
     );

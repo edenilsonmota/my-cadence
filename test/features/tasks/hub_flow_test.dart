@@ -66,7 +66,7 @@ void main() {
     expect(cards.single.taskId, isNotNull);
   });
 
-  testWidgets('pomodoro soma subtarefas e mostra estimado × realizado', (
+  testWidgets('pomodoro soma subtarefas e mostra estimado × feito', (
     tester,
   ) async {
     await pumpApp(
@@ -76,7 +76,7 @@ void main() {
         final pomodoro = PomodoroRepository(db.pomodoroDao);
         final root = await tasks.createTask(
           title: 'TCC',
-          estimatedPomodoros: 4,
+          estimatedMinutes: 100,
         );
         final child = await tasks.createTask(title: 'Cap. 1', parentId: root);
         for (final (task, hour) in [(root, 8), (child, 9)]) {
@@ -99,7 +99,7 @@ void main() {
     await scrollTo(tester, find.text('Iniciar foco'));
     expect(find.text('Tempo de foco: 50 min'), findsOneWidget);
     expect(find.textContaining('2 sessões de foco'), findsOneWidget);
-    expect(find.text('Estimado × realizado: 2 de 4'), findsOneWidget);
+    expect(find.text('Estimado × feito: 50 min de 1 h 40 min'), findsOneWidget);
   });
 
   testWidgets('cria página no caderno da tarefa e vincula página de book', (

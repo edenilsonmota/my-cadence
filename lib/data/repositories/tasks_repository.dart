@@ -56,6 +56,7 @@ class TasksRepository {
     ReminderMode reminderMode = ReminderMode.notificacao,
     int? nagIntervalMinutes,
     int? estimatedPomodoros,
+    int? estimatedMinutes,
     int? sortOrder,
     String? colorKey,
     String? iconKey,
@@ -80,6 +81,7 @@ class TasksRepository {
         reminderMode: Value(reminderMode),
         nagIntervalMinutes: Value(nagIntervalMinutes),
         estimatedPomodoros: Value(estimatedPomodoros),
+        estimatedMinutes: Value(estimatedMinutes),
         sortOrder: Value(order),
         colorKey: Value(colorKey),
         iconKey: Value(iconKey),
@@ -93,12 +95,15 @@ class TasksRepository {
     String id, {
     required DateTime? startAt,
     required DateTime? dueAt,
+    bool hasTime = true,
+    TaskStatus? status,
   }) => _tasks.updateTask(
     id,
     TasksCompanion(
       startAt: Value(startAt),
       dueAt: Value(dueAt),
-      hasTime: const Value(true),
+      hasTime: Value(hasTime),
+      status: status == null ? const Value.absent() : Value(status),
     ),
   );
 
@@ -121,6 +126,7 @@ class TasksRepository {
       reminderMode: Value(task.reminderMode),
       nagIntervalMinutes: Value(task.nagIntervalMinutes),
       estimatedPomodoros: Value(task.estimatedPomodoros),
+      estimatedMinutes: Value(task.estimatedMinutes),
       sortOrder: Value(task.sortOrder),
       completedAt: Value(task.completedAt),
       colorKey: Value(task.colorKey),

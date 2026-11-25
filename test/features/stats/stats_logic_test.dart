@@ -150,22 +150,27 @@ void main() {
       expect(byTag.map((r) => r.total.inMinutes), [50, 50]);
     });
 
-    test('estimado × realizado soma focos concluídos das subtarefas', () {
-      final tasks = [
-        makeTask('a').copyWith(estimatedPomodoros: const Value(4)),
-        makeTask('a1', parentId: 'a'),
-        makeTask('b'),
-      ];
-      final rows = estimatedVsDone(tasks, [
-        session(d(24, 9), 25, taskId: 'a'),
-        session(d(24, 10), 25, taskId: 'a1'),
-        session(d(24, 11), 10, taskId: 'a1', completed: false),
-        session(d(24, 12), 25, taskId: 'b'),
-        // Tempo registrado à mão não vira pomodoro.
-        session(d(24, 13), 120, taskId: 'a', manual: true),
-      ]);
-      expect(rows.map((r) => (r.task.id, r.estimated, r.done)), [('a', 4, 2)]);
-    });
+    test(
+      'estimado × feito soma todo o foco das subtarefas, inclusive manual',
+      () {
+        final tasks = [
+          makeTask('a').copyWith(estimatedMinutes: const Value(240)),
+          makeTask('a1', parentId: 'a'),
+          makeTask('b'),
+        ];
+        final rows = estimatedVsDone(tasks, [
+          session(d(24, 9), 25, taskId: 'a'),
+          session(d(24, 10), 25, taskId: 'a1'),
+          session(d(24, 11), 10, taskId: 'a1', completed: false),
+          session(d(24, 12), 25, taskId: 'b'),
+          session(d(24, 13), 120, taskId: 'a', manual: true),
+        ], now);
+        expect(
+          rows.map((r) => (r.task.id, r.estimated.inMinutes, r.done.inMinutes)),
+          [('a', 240, 180)],
+        );
+      },
+    );
 
     test('tempo manual soma no foco', () {
       final manual = session(d(24, 14), 90, taskId: 'a', manual: true);

@@ -13,6 +13,7 @@ import '../features/cards/review_page.dart';
 import '../features/cards/review_session_page.dart';
 import '../features/dev/components_page.dart';
 import '../features/pomodoro/pomodoro_page.dart';
+import '../features/search/search_page.dart';
 import '../features/settings/alarm_diagnostics_page.dart';
 import '../features/settings/nav_bar_settings_page.dart';
 import '../features/settings/settings_page.dart';
@@ -22,6 +23,7 @@ import '../features/tasks/task_form_page.dart';
 import '../features/tasks/task_page.dart';
 import '../features/tasks/tasks_page.dart';
 import '../features/tasks/today_page.dart';
+import '../features/week/week_review_page.dart';
 import 'nav_tabs.dart';
 import 'nav_tabs_providers.dart';
 import 'shell.dart';
@@ -40,6 +42,8 @@ abstract final class Routes {
 
   /// Catálogo de componentes (só em debug).
   static const devComponents = '/dev/componentes';
+  static const search = '/busca';
+  static const weekReview = '/semana';
 
   /// Hub da tarefa (também alvo dos deep links das notificações).
   static String task(String id) => '/tarefa/$id';
@@ -146,6 +150,16 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
           parentNavigatorKey: rootKey,
           builder: (_, _) => const ComponentsPage(),
         ),
+      GoRoute(
+        path: Routes.weekReview,
+        parentNavigatorKey: rootKey,
+        builder: (_, _) => const WeekReviewPage(),
+      ),
+      GoRoute(
+        path: Routes.search,
+        parentNavigatorKey: rootKey,
+        builder: (_, _) => const SearchPage(),
+      ),
       GoRoute(
         path: '/revisao',
         parentNavigatorKey: rootKey,

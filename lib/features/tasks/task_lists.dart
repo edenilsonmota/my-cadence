@@ -42,7 +42,12 @@ class TaskFilter {
     this.sort = TaskSort.manual,
   });
 
-  static const defaultStatuses = {TaskStatus.aFazer, TaskStatus.fazendo};
+  /// Pausadas aparecem (com selo) para não sumirem de vez; concluídas não.
+  static const defaultStatuses = {
+    TaskStatus.aFazer,
+    TaskStatus.fazendo,
+    TaskStatus.pausada,
+  };
 
   /// Busca no título (sem diferenciar maiúsculas nem acentos).
   final String query;

@@ -8,4 +8,7 @@
     <string name="widget_month_description">Calendario del mes con las tareas de cada día.</string>
     <string name="widget_hybrid_label">Cadence · Mes + Hoy</string>
     <string name="widget_hybrid_description">Calendario del mes con las tareas de hoy debajo.</string>
+    <string name="widget_complete_task">Completar tarea</string>
+    <string name="widget_prev_month">Mes anterior</string>
+    <string name="widget_next_month">Mes siguiente</string>
 </resources>

@@ -37,4 +37,14 @@
         android:textColor="#9CA3AF"
         android:textSize="12sp"
         android:visibility="gone" />
+
+    <!-- Concluir: abre o app já concluindo (cadence://complete/<id>). -->
+    <ImageView
+        android:id="@+id/widget_today_item_check"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="4dp"
+        android:contentDescription="@string/widget_complete_task"
+        android:padding="6dp"
+        android:src="@drawable/ic_widget_check" />
 </LinearLayout>

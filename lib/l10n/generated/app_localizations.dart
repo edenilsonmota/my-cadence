@@ -3807,6 +3807,258 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Pausada'**
   String get taskStatusPaused;
+
+  /// No description provided for @rescheduleAction.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reagendar'**
+  String get rescheduleAction;
+
+  /// No description provided for @rescheduleChoose.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolher data'**
+  String get rescheduleChoose;
+
+  /// No description provided for @rescheduledTo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reagendada para {date}.'**
+  String rescheduledTo(String date);
+
+  /// No description provided for @rescheduleResumesHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reagendar também retoma a tarefa pausada.'**
+  String get rescheduleResumesHint;
+
+  /// No description provided for @pausedBanner.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pausada: não aparece no Hoje, nos atrasados nem nos lembretes até ser retomada.'**
+  String get pausedBanner;
+
+  /// No description provided for @actionPause.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pausar'**
+  String get actionPause;
+
+  /// No description provided for @actionResume.
+  ///
+  /// In pt, this message translates to:
+  /// **'Retomar'**
+  String get actionResume;
+
+  /// No description provided for @fieldEstimatedTime.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tempo estimado'**
+  String get fieldEstimatedTime;
+
+  /// No description provided for @estimateHours.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horas'**
+  String get estimateHours;
+
+  /// No description provided for @estimateHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comparado com o tempo de foco feito (pomodoros e tempo registrado).'**
+  String get estimateHint;
+
+  /// No description provided for @hubEstimatedTime.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estimado × feito: {done} de {estimated}'**
+  String hubEstimatedTime(String done, String estimated);
+
+  /// No description provided for @statsOfTime.
+  ///
+  /// In pt, this message translates to:
+  /// **'{done} de {total}'**
+  String statsOfTime(String done, String total);
+
+  /// No description provided for @statsEstimatedVsDoneTime.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tempo: estimado × feito'**
+  String get statsEstimatedVsDoneTime;
+
+  /// No description provided for @statsNoEstimatedTime.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma tarefa com tempo estimado.'**
+  String get statsNoEstimatedTime;
+
+  /// No description provided for @quickAddHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova tarefa (#tag para marcar)'**
+  String get quickAddHint;
+
+  /// No description provided for @searchAllTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar em tudo'**
+  String get searchAllTooltip;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar tarefas, páginas e cards'**
+  String get searchHint;
+
+  /// No description provided for @searchIntro.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite ao menos 2 letras. A busca olha títulos, notas, o texto das páginas e os dois lados dos cards.'**
+  String get searchIntro;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nada encontrado.'**
+  String get searchNoResults;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limpar'**
+  String get searchClear;
+
+  /// No description provided for @weekReviewTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Revisão da semana'**
+  String get weekReviewTitle;
+
+  /// No description provided for @weekPrevious.
+  ///
+  /// In pt, this message translates to:
+  /// **'Semana anterior'**
+  String get weekPrevious;
+
+  /// No description provided for @weekNext.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próxima semana'**
+  String get weekNext;
+
+  /// No description provided for @weekCompleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Concluídas'**
+  String get weekCompleted;
+
+  /// No description provided for @weekRoutines.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rotinas cumpridas'**
+  String get weekRoutines;
+
+  /// No description provided for @weekFocus.
+  ///
+  /// In pt, this message translates to:
+  /// **'Foco'**
+  String get weekFocus;
+
+  /// No description provided for @weekByTag.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tempo por tag'**
+  String get weekByTag;
+
+  /// No description provided for @weekNoFocus.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem tempo de foco nesta semana.'**
+  String get weekNoFocus;
+
+  /// No description provided for @weekOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ficou para trás'**
+  String get weekOverdue;
+
+  /// No description provided for @weekNoOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nada atrasado. Boa!'**
+  String get weekNoOverdue;
+
+  /// No description provided for @weekAllToToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todas para hoje'**
+  String get weekAllToToday;
+
+  /// No description provided for @weekMovedToToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 tarefa movida para hoje.} other{{count} tarefas movidas para hoje.}}'**
+  String weekMovedToToday(int count);
+
+  /// No description provided for @weekNoCompleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma tarefa concluída nesta semana.'**
+  String get weekNoCompleted;
+
+  /// No description provided for @templateSave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar como modelo'**
+  String get templateSave;
+
+  /// No description provided for @templateName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome do modelo'**
+  String get templateName;
+
+  /// No description provided for @templateSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modelo \"{name}\" salvo.'**
+  String templateSaved(String name);
+
+  /// No description provided for @templateUse.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modelo'**
+  String get templateUse;
+
+  /// No description provided for @templatePickTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar a partir de um modelo'**
+  String get templatePickTitle;
+
+  /// No description provided for @templatePickHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tarefa é criada com tags, aparência, estimativa, lembretes, subtarefas, books e decks do modelo; depois escolha as datas.'**
+  String get templatePickHint;
+
+  /// No description provided for @templateDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir modelo'**
+  String get templateDelete;
+
+  /// No description provided for @templateSubtasks.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{sem subtarefas} =1{1 subtarefa} other{{count} subtarefas}}'**
+  String templateSubtasks(int count);
+
+  /// No description provided for @weekReviewShort.
+  ///
+  /// In pt, this message translates to:
+  /// **'Semana'**
+  String get weekReviewShort;
 }
 
 class _AppLocalizationsDelegate

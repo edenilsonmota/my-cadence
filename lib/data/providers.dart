@@ -6,6 +6,7 @@ import 'repositories/cards_repository.dart';
 import 'repositories/pomodoro_repository.dart';
 import 'repositories/settings_repository.dart';
 import 'repositories/tasks_repository.dart';
+import 'repositories/templates_repository.dart';
 
 /// Banco do app. Nos testes, sobrescrever com
 /// `AppDatabase(NativeDatabase.memory())`.
@@ -30,6 +31,10 @@ final cardsRepositoryProvider = Provider<CardsRepository>(
 
 final booksRepositoryProvider = Provider<BooksRepository>(
   (ref) => BooksRepository(ref.watch(databaseProvider).booksDao),
+);
+
+final templatesRepositoryProvider = Provider<TemplatesRepository>(
+  (ref) => TemplatesRepository(ref.watch(databaseProvider).templatesDao),
 );
 
 final settingsRepositoryProvider = Provider<SettingsRepository>(
