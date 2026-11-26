@@ -2110,7 +2110,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get speakFront => 'Escuchar frente';
 
   @override
+  String get speakFrontSlow => 'Escuchar frente despacio';
+
+  @override
   String get speakBack => 'Escuchar reverso';
+
+  @override
+  String get speakBackSlow => 'Escuchar reverso despacio';
 
   @override
   String get speechDefault => 'Voz predeterminada';
@@ -2371,5 +2377,148 @@ class AppLocalizationsEs extends AppLocalizations {
       one: 'Importar 1 tarjeta',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get navTags => 'Etiquetas';
+
+  @override
+  String get tagEdit => 'Editar etiqueta';
+
+  @override
+  String get tagChangeColor => 'Cambiar color';
+
+  @override
+  String get tagOptions => 'Opciones de la etiqueta';
+
+  @override
+  String get tagDuplicateError => 'Ya existe una etiqueta con ese nombre.';
+
+  @override
+  String get tagsEmpty => 'Aún no hay etiquetas creadas.';
+
+  @override
+  String get tagsLoadError => 'No se pudieron cargar las etiquetas.';
+
+  @override
+  String tagTaskCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tareas',
+      one: '1 tarea',
+      zero: 'Ninguna tarea',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tagDeleteTitle(String name) {
+    return '¿Eliminar \"$name\"?';
+  }
+
+  @override
+  String get tagDeleteUnusedMessage => 'Ninguna tarea usa esta etiqueta.';
+
+  @override
+  String tagDeleteUsedMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Esta etiqueta está en $count tareas; perderán la etiqueta.',
+      one: 'Esta etiqueta está en 1 tarea; perderá la etiqueta.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tagDeleted(String name) {
+    return 'Etiqueta \"$name\" eliminada.';
+  }
+
+  @override
+  String get tagViewTasks => 'Ver tareas';
+
+  @override
+  String get cardsSearchHint => 'Buscar tarjetas';
+
+  @override
+  String get cardsFilterAll => 'Todas';
+
+  @override
+  String get cardsFilterDue => 'Pendientes';
+
+  @override
+  String get cardsFilterNew => 'Nuevas';
+
+  @override
+  String get cardsFilterSuspended => 'Suspendidas';
+
+  @override
+  String get cardsExportCsv => 'Exportar CSV';
+
+  @override
+  String cardsExportSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tarjetas listas en formato frente;reverso.',
+      one: '1 tarjeta lista en formato frente;reverso.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cardsExportCopy => 'Copiar CSV';
+
+  @override
+  String get cardsExportSaveFile => 'Guardar archivo';
+
+  @override
+  String get cardsCsvCopied => 'CSV copiado.';
+
+  @override
+  String get cardsCsvSaved => 'Archivo CSV guardado.';
+
+  @override
+  String get navTrash => 'Papelera';
+
+  @override
+  String get trashHint =>
+      'Los elementos eliminados quedan aquí para restaurarlos.';
+
+  @override
+  String get trashEmpty => 'La papelera está vacía.';
+
+  @override
+  String get trashFilterAll => 'Todo';
+
+  @override
+  String get trashFilterCards => 'Tarjetas';
+
+  @override
+  String get trashKindTask => 'Tarea';
+
+  @override
+  String get trashKindTag => 'Etiqueta';
+
+  @override
+  String get trashKindDeck => 'Mazo';
+
+  @override
+  String get trashKindCard => 'Tarjeta';
+
+  @override
+  String get trashKindBook => 'Book';
+
+  @override
+  String get trashKindPage => 'Página';
+
+  @override
+  String get trashRestore => 'Restaurar';
+
+  @override
+  String trashRestored(String title) {
+    return '\"$title\" restaurado.';
   }
 }

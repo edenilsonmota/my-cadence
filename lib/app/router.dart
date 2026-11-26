@@ -18,11 +18,13 @@ import '../features/settings/alarm_diagnostics_page.dart';
 import '../features/settings/nav_bar_settings_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/stats/stats_page.dart';
+import '../features/tasks/tags_page.dart';
 import '../features/tasks/task_draft.dart';
 import '../features/tasks/task_form_page.dart';
 import '../features/tasks/task_page.dart';
 import '../features/tasks/tasks_page.dart';
 import '../features/tasks/today_page.dart';
+import '../features/trash/trash_page.dart';
 import '../features/week/week_review_page.dart';
 import 'nav_tabs.dart';
 import 'nav_tabs_providers.dart';
@@ -44,6 +46,8 @@ abstract final class Routes {
   static const devComponents = '/dev/componentes';
   static const search = '/busca';
   static const weekReview = '/semana';
+  static const tags = '/tags';
+  static const trash = '/lixeira';
 
   /// Hub da tarefa (também alvo dos deep links das notificações).
   static String task(String id) => '/tarefa/$id';
@@ -154,6 +158,16 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         path: Routes.weekReview,
         parentNavigatorKey: rootKey,
         builder: (_, _) => const WeekReviewPage(),
+      ),
+      GoRoute(
+        path: Routes.tags,
+        parentNavigatorKey: rootKey,
+        builder: (_, _) => const TagsPage(),
+      ),
+      GoRoute(
+        path: Routes.trash,
+        parentNavigatorKey: rootKey,
+        builder: (_, _) => const TrashPage(),
       ),
       GoRoute(
         path: Routes.search,

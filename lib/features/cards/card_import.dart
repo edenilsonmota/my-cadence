@@ -128,3 +128,26 @@ List<(int, List<String>)> _parseRows(String text) {
   if (field.isNotEmpty || fields.isNotEmpty) endRow();
   return rows;
 }
+
+/// Gera texto CSV (`frente;verso`) pronto para copiar ou salvar em arquivo.
+/// Envolve em aspas campos que contenham `;`, `"`, ou quebra de linha.
+String exportCardsCsv(Iterable<ImportedCard> cards) {
+  String escape(String value) {
+    final needsQuotes =
+        value.contains(';') ||
+        value.contains('"') ||
+        value.contains('\n') ||
+        value.contains('\r');
+    if (!needsQuotes) return value;
+    return '"${value.replaceAll('"', '""')}"';
+  }
+
+  final buf = StringBuffer();
+  for (final card in cards) {
+    buf
+      ..write(escape(card.front))
+      ..write(';')
+      ..writeln(escape(card.back));
+  }
+  return buf.toString();
+}

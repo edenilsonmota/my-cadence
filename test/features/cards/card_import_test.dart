@@ -51,4 +51,14 @@ void main() {
     expect(result.unique, [(front: '  new   word ', back: 'palavra nova')]);
     expect(result.duplicateCount, 3);
   });
+
+  test('exportCardsCsv preserva ponto e vírgula, aspas e quebras de linha', () {
+    const cards = [
+      (front: 'apple', back: 'maçã'),
+      (front: 'a;b', back: 'linha 1\nlinha 2'),
+      (front: 'diz "oi"', back: 'ok'),
+    ];
+    final csv = exportCardsCsv(cards);
+    expect(parseCardsCsv(csv).cards, cards);
+  });
 }

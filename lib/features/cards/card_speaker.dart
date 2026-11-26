@@ -7,9 +7,13 @@ import '../../app/theme/app_theme.dart';
 import '../../data/providers.dart';
 import 'card_speech.dart';
 
+/// Velocidades do `flutter_tts`: no Android e no iOS, `0.5` equivale a 1×.
+const double normalSpeechRate = 0.5;
+const double slowSpeechRate = 0.3;
+
 /// Voz do celular para ler os cards. Trocada por um falso nos testes.
 abstract class CardSpeaker {
-  Future<void> speak(String text, String lang);
+  Future<void> speak(String text, String lang, {bool slow = false});
   Future<void> stop();
 
   /// Idiomas que o motor de texto para fala do aparelho oferece.
@@ -24,12 +28,13 @@ class DeviceSpeaker implements CardSpeaker {
   FlutterTts get _engine => _tts ??= FlutterTts();
 
   @override
-  Future<void> speak(String text, String lang) async {
+  Future<void> speak(String text, String lang, {bool slow = false}) async {
     final clean = speechText(text);
     if (clean.isEmpty) return;
     try {
       await _engine.stop();
       await _engine.setLanguage(lang);
+      await _engine.setSpeechRate(slow ? slowSpeechRate : normalSpeechRate);
       await _engine.speak(clean);
     } on Object {
       // Sem motor ou sem a voz: fica em silêncio.
@@ -230,23 +235,37 @@ class _SpeechSheet extends ConsumerWidget {
   }
 }
 
-/// Botão de alto-falante que lê [text] no idioma [lang].
+/// Botões que leem [text] no idioma [lang]: normal (alto-falante) e devagar
+/// (tartaruga).
 class SpeakButton extends ConsumerWidget {
   const SpeakButton({
     required this.text,
     required this.lang,
     required this.tooltip,
+    required this.slowTooltip,
     super.key,
   });
 
   final String text;
   final String lang;
   final String tooltip;
+  final String slowTooltip;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => IconButton(
-    tooltip: tooltip,
-    icon: const Icon(AppIcons.speak),
-    onPressed: () => ref.read(cardSpeakerProvider).speak(text, lang),
+  Widget build(BuildContext context, WidgetRef ref) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        tooltip: tooltip,
+        icon: const Icon(AppIcons.speak),
+        onPressed: () => ref.read(cardSpeakerProvider).speak(text, lang),
+      ),
+      IconButton(
+        tooltip: slowTooltip,
+        icon: const Icon(AppIcons.speakSlow),
+        onPressed: () =>
+            ref.read(cardSpeakerProvider).speak(text, lang, slow: true),
+      ),
+    ],
   );
 }

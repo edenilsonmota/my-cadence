@@ -40,6 +40,10 @@ class CardsRepository {
   /// Exclui o deck; os cards dele ficam sem deck.
   Future<void> deleteDeck(String id) => _dao.softDeleteDeck(id);
 
+  Stream<List<Deck>> watchDeletedDecks() => _dao.watchDeletedDecks();
+
+  Future<void> restoreDeck(String id) => _dao.restoreDeck(id);
+
   /// Vincula a tarefa exatamente a estes decks (cria, revive ou desfaz).
   Future<void> setTaskDecks(String taskId, Set<String> deckIds) =>
       _dao.setTaskDecks(taskId, deckIds);
@@ -111,6 +115,10 @@ class CardsRepository {
   /// Desfaz [deleteCard].
   Future<void> restoreCard(String id) =>
       _dao.updateCard(id, const FlashcardsCompanion(deletedAt: Value(null)));
+
+  Stream<List<Flashcard>> watchDeletedCards() => _dao.watchDeletedCards();
+
+  Future<void> restoreCardFromTrash(String id) => _dao.restoreCardFromTrash(id);
 
   /// Cria vários cards de uma vez (importação). Devolve quantos criou.
   Future<int> importCards(

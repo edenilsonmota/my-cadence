@@ -10,11 +10,11 @@ import '../../helpers/pump_app.dart';
 final now = DateTime(2026, 11, 23, 12);
 
 class FakeSpeaker implements CardSpeaker {
-  final spoken = <(String, String)>[];
+  final spoken = <({String text, String lang, bool slow})>[];
 
   @override
-  Future<void> speak(String text, String lang) async =>
-      spoken.add((text, lang));
+  Future<void> speak(String text, String lang, {bool slow = false}) async =>
+      spoken.add((text: text, lang: lang, slow: slow));
 
   @override
   Future<void> stop() async {}
@@ -66,14 +66,26 @@ void main() {
     await tester.tap(find.text('Revisar tudo'));
     await settle(tester);
 
-    expect(speaker.spoken, [('**house**', 'en-US')]);
+    expect(speaker.spoken, [(text: '**house**', lang: 'en-US', slow: false)]);
     await tester.tap(find.text('Mostrar resposta'));
     await settle(tester);
-    expect(speaker.spoken.last, ('casa', 'pt-BR'));
+    expect(speaker.spoken.last, (text: 'casa', lang: 'pt-BR', slow: false));
+
+    await tester.tap(find.byTooltip('Ouvir frente devagar'));
+    await settle(tester);
+    expect(speaker.spoken.last, (text: '**house**', lang: 'en-US', slow: true));
+
+    await tester.tap(find.byTooltip('Ouvir verso devagar'));
+    await settle(tester);
+    expect(speaker.spoken.last, (text: 'casa', lang: 'pt-BR', slow: true));
 
     await tester.tap(find.byTooltip('Ouvir frente'));
     await settle(tester);
-    expect(speaker.spoken.last, ('**house**', 'en-US'));
+    expect(speaker.spoken.last, (
+      text: '**house**',
+      lang: 'en-US',
+      slow: false,
+    ));
   });
 
   testWidgets('sem configurar nada, o botão lê no idioma do app', (
@@ -94,7 +106,7 @@ void main() {
     expect(speaker.spoken, isEmpty); // sem leitura automática
     await tester.tap(find.byTooltip('Ouvir frente'));
     await settle(tester);
-    expect(speaker.spoken, [('mesa', 'pt-BR')]);
+    expect(speaker.spoken, [(text: 'mesa', lang: 'pt-BR', slow: false)]);
   });
 
   testWidgets('deck sai da voz padrão e escolhe o idioma pela aba Revisar', (

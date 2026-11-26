@@ -10,6 +10,7 @@ import '../../data/providers.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/simple_markdown.dart';
 import '../../shared/widgets/skeleton.dart';
+import 'card_actions.dart';
 import 'card_speaker.dart';
 import 'card_speech.dart';
 import 'cards_providers.dart';
@@ -167,12 +168,61 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
     });
   }
 
+  Future<void> _editCurrentCard(Flashcard card) async {
+    await _speaker.stop();
+    if (!mounted) return;
+    await editCardFlow(context, ref, card);
+  }
+
+  Future<void> _suspendCurrentCard(Flashcard card) async {
+    if (_busy) return;
+    final repo = ref.read(cardsRepositoryProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    await _speaker.stop();
+    await repo.saveCard(card.copyWith(suspended: true));
+    if (!mounted) return;
+    setState(() {
+      if (_undoneId == card.id) _undoneId = null;
+      _currentId = null;
+      _preview = null;
+    });
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.cardSuspended),
+          action: SnackBarAction(
+            label: l10n.actionUndo,
+            onPressed: () => repo.saveCard(card.copyWith(suspended: false)),
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final queue = ref.watch(reviewQueueProvider(_scope));
     final scopeCards = ref.watch(scopeCardsProvider(_scope)).value ?? const [];
     final now = ref.watch(reviewNowProvider);
+    final queueList = queue.value;
+    if (queueList != null) {
+      // Esquece as cópias velhas assim que o banco devolve a nova.
+      _justAnswered.removeWhere(
+        (id, before) =>
+            scopeCards.any((c) => c.id == id && CardSchedule.of(c) != before),
+      );
+    }
+    final activeCard = queueList == null
+        ? null
+        : pickCurrentCard(
+            queue: queueList,
+            scopeCards: scopeCards,
+            currentId: _currentId,
+            undoneId: _undoneId,
+            justAnswered: _justAnswered,
+          );
 
     return Scaffold(
       appBar: AppBar(
@@ -183,6 +233,22 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
             icon: const Icon(AppIcons.undo),
             onPressed: _history.isEmpty || _busy ? null : _undo,
           ),
+          if (activeCard != null)
+            PopupMenuButton<String>(
+              tooltip: l10n.cardOptions,
+              onSelected: (v) => switch (v) {
+                'editar' => _editCurrentCard(activeCard),
+                'suspender' => _suspendCurrentCard(activeCard),
+                _ => null,
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 'editar', child: Text(l10n.cardEdit)),
+                PopupMenuItem(
+                  value: 'suspender',
+                  child: Text(l10n.cardSuspend),
+                ),
+              ],
+            ),
         ],
       ),
       body: queue.when(
@@ -190,19 +256,7 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
         error: (_, _) =>
             EmptyState(icon: AppIcons.error, message: l10n.reviewLoadError),
         data: (queue) {
-          // Esquece as cópias velhas assim que o banco devolve a nova.
-          _justAnswered.removeWhere(
-            (id, before) => scopeCards.any(
-              (c) => c.id == id && CardSchedule.of(c) != before,
-            ),
-          );
-          final card = pickCurrentCard(
-            queue: queue,
-            scopeCards: scopeCards,
-            currentId: _currentId,
-            undoneId: _undoneId,
-            justAnswered: _justAnswered,
-          );
+          final card = activeCard;
           if (card == null) {
             return _Done(
               reviewed: _history.length,
@@ -328,6 +382,7 @@ class _CardView extends StatelessWidget {
                           text: card.front,
                           lang: lang,
                           tooltip: l10n.speakFront,
+                          slowTooltip: l10n.speakFrontSlow,
                         ),
                       ),
                     if (revealed) ...[
@@ -343,6 +398,7 @@ class _CardView extends StatelessWidget {
                             text: card.back,
                             lang: lang,
                             tooltip: l10n.speakBack,
+                            slowTooltip: l10n.speakBackSlow,
                           ),
                         ),
                     ],

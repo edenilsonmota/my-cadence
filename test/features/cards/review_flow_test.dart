@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/card_schedule.dart';
@@ -7,6 +10,7 @@ import 'package:my_cadence/data/repositories/cards_repository.dart';
 import 'package:my_cadence/data/repositories/settings_repository.dart';
 import 'package:my_cadence/features/cards/card_actions.dart';
 import 'package:my_cadence/features/cards/review_queue.dart';
+import 'package:my_cadence/shared/file_access.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -357,5 +361,117 @@ void main() {
     ))!;
     expect(cards.map((c) => c.front), unorderedEquals(['hola', 'gracias']));
     expect(cards.every((c) => c.deckId == decks.single.id), isTrue);
+  });
+
+  testWidgets('edita e suspende card durante a sessão de revisão', (
+    tester,
+  ) async {
+    final db = await pumpApp(
+      tester,
+      seed: (db) async {
+        final repo = cardsOf(db);
+        await repo.createCard(front: 'aple', back: 'maçã', now: now);
+        await Future<void>.delayed(const Duration(milliseconds: 3));
+        await repo.createCard(front: 'book', back: 'livro', now: now);
+      },
+    );
+    await goToReviewTab(tester);
+    await tester.tap(find.text('Revisar tudo'));
+    await settle(tester);
+
+    expect(find.text('aple'), findsOneWidget);
+
+    // Edita o erro de digitação sem sair da revisão.
+    await tester.tap(find.byTooltip('Opções do card'));
+    await settle(tester);
+    await tester.tap(find.text('Editar card'));
+    await settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Frente'), 'apple');
+    await settle(tester);
+    await tester.tap(find.text('Salvar card'));
+    await settle(tester);
+    expect(find.text('apple'), findsOneWidget);
+
+    // Suspende o card atual: avança para o próximo e oferece desfazer.
+    await tester.tap(find.byTooltip('Opções do card'));
+    await settle(tester);
+    await tester.tap(find.text('Suspender'));
+    await settle(tester);
+    expect(find.text('book'), findsOneWidget);
+    expect(find.text('Suspenso'), findsOneWidget);
+
+    final cards = (await tester.runAsync(
+      () => cardsOf(db).watchCards().first,
+    ))!;
+    expect(cards.firstWhere((c) => c.front == 'apple').suspended, isTrue);
+  });
+
+  testWidgets('busca, filtra e exporta CSV dentro do deck', (tester) async {
+    String? savedName;
+    Uint8List? savedBytes;
+    await pumpApp(
+      tester,
+      overrides: [
+        fileSaverProvider.overrideWithValue((name, bytes) async {
+          savedName = name;
+          savedBytes = bytes;
+          return true;
+        }),
+      ],
+      seed: (db) async {
+        final repo = cardsOf(db);
+        final deck = await repo.createDeck(name: 'Inglês');
+        await repo.createCard(
+          front: 'apple',
+          back: 'maçã',
+          now: now,
+          deckId: deck,
+        );
+        final bookId = await repo.createCard(
+          front: 'book',
+          back: 'livro',
+          now: now,
+          deckId: deck,
+        );
+        final book = (await repo.getCard(bookId))!;
+        await repo.saveCard(book.copyWith(suspended: true));
+      },
+    );
+    await goToReviewTab(tester);
+    await tester.tap(find.text('Inglês'));
+    await settle(tester);
+
+    // Filtro por suspensos mostra apenas "book".
+    await tester.ensureVisible(find.text('Suspensos'));
+    await tester.tap(find.text('Suspensos'));
+    await settle(tester);
+    expect(find.text('book'), findsOneWidget);
+    expect(find.text('apple'), findsNothing);
+
+    // Volta para Todos e busca por verso sem acento ("maca" acha "maçã").
+    await tester.ensureVisible(find.text('Todos'));
+    await tester.tap(find.text('Todos'));
+    await settle(tester);
+    await tester.tap(find.byTooltip('Buscar cards'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField), 'maca');
+    await settle(tester);
+    expect(find.text('apple'), findsOneWidget);
+    expect(find.text('book'), findsNothing);
+
+    // Fecha busca e exporta CSV do deck.
+    await tester.tap(find.byTooltip('Limpar'));
+    await settle(tester);
+    await tester.tap(find.byTooltip('Opções do deck'));
+    await settle(tester);
+    await tester.tap(find.text('Exportar CSV'));
+    await settle(tester);
+    await tester.tap(find.text('Salvar arquivo'));
+    await settle(tester);
+
+    expect(savedName, 'ingl-s.csv');
+    final exported = utf8.decode(savedBytes!);
+    expect(exported, contains('apple;maçã'));
+    expect(exported, contains('book;livro'));
   });
 }

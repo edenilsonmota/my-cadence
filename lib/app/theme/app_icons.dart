@@ -53,6 +53,7 @@ abstract final class AppIcons {
   static const dragHandle = _I.gripHorizontal;
   static const import = _I.upload;
   static const export = _I.download;
+  static const copy = _I.copy;
   static const link = _I.link;
   static const unlink = _I.unlink;
   static const table = _I.table2;
@@ -101,6 +102,7 @@ abstract final class AppIcons {
   // ─── Books ──────────────────────────────────────────────────────────────
   static const book = _I.bookOpen;
   static const speak = _I.volume2;
+  static const speakSlow = _I.turtle;
   static const page = _I.fileText;
   static const newPage = _I.filePlus;
 

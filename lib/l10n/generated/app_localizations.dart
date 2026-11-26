@@ -3706,11 +3706,23 @@ abstract class AppLocalizations {
   /// **'Ouvir frente'**
   String get speakFront;
 
+  /// No description provided for @speakFrontSlow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ouvir frente devagar'**
+  String get speakFrontSlow;
+
   /// No description provided for @speakBack.
   ///
   /// In pt, this message translates to:
   /// **'Ouvir verso'**
   String get speakBack;
+
+  /// No description provided for @speakBackSlow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ouvir verso devagar'**
+  String get speakBackSlow;
 
   /// No description provided for @speechDefault.
   ///
@@ -4113,6 +4125,228 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{count, plural, =1{Importar 1 card} other{Importar {count} cards}}'**
   String cardsImportActionCount(int count);
+
+  /// No description provided for @navTags.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tags'**
+  String get navTags;
+
+  /// No description provided for @tagEdit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar tag'**
+  String get tagEdit;
+
+  /// No description provided for @tagChangeColor.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trocar cor'**
+  String get tagChangeColor;
+
+  /// No description provided for @tagOptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Opções da tag'**
+  String get tagOptions;
+
+  /// No description provided for @tagDuplicateError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Já existe uma tag com esse nome.'**
+  String get tagDuplicateError;
+
+  /// No description provided for @tagsEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma tag criada ainda.'**
+  String get tagsEmpty;
+
+  /// No description provided for @tagsLoadError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar as tags.'**
+  String get tagsLoadError;
+
+  /// No description provided for @tagTaskCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{Nenhuma tarefa} =1{1 tarefa} other{{count} tarefas}}'**
+  String tagTaskCount(int count);
+
+  /// No description provided for @tagDeleteTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir \"{name}\"?'**
+  String tagDeleteTitle(String name);
+
+  /// No description provided for @tagDeleteUnusedMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma tarefa usa esta tag.'**
+  String get tagDeleteUnusedMessage;
+
+  /// No description provided for @tagDeleteUsedMessage.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{Esta tag está em 1 tarefa; ela perde a tag.} other{Esta tag está em {count} tarefas; elas perdem a tag.}}'**
+  String tagDeleteUsedMessage(int count);
+
+  /// No description provided for @tagDeleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tag \"{name}\" excluída.'**
+  String tagDeleted(String name);
+
+  /// No description provided for @tagViewTasks.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver tarefas'**
+  String get tagViewTasks;
+
+  /// No description provided for @cardsSearchHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar cards'**
+  String get cardsSearchHint;
+
+  /// No description provided for @cardsFilterAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todos'**
+  String get cardsFilterAll;
+
+  /// No description provided for @cardsFilterDue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vencidos'**
+  String get cardsFilterDue;
+
+  /// No description provided for @cardsFilterNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novos'**
+  String get cardsFilterNew;
+
+  /// No description provided for @cardsFilterSuspended.
+  ///
+  /// In pt, this message translates to:
+  /// **'Suspensos'**
+  String get cardsFilterSuspended;
+
+  /// No description provided for @cardsExportCsv.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exportar CSV'**
+  String get cardsExportCsv;
+
+  /// No description provided for @cardsExportSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 card pronto no formato frente;verso.} other{{count} cards prontos no formato frente;verso.}}'**
+  String cardsExportSubtitle(int count);
+
+  /// No description provided for @cardsExportCopy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Copiar CSV'**
+  String get cardsExportCopy;
+
+  /// No description provided for @cardsExportSaveFile.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar arquivo'**
+  String get cardsExportSaveFile;
+
+  /// No description provided for @cardsCsvCopied.
+  ///
+  /// In pt, this message translates to:
+  /// **'CSV copiado.'**
+  String get cardsCsvCopied;
+
+  /// No description provided for @cardsCsvSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arquivo CSV salvo.'**
+  String get cardsCsvSaved;
+
+  /// No description provided for @navTrash.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lixeira'**
+  String get navTrash;
+
+  /// No description provided for @trashHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Itens excluídos ficam disponíveis aqui para restaurar.'**
+  String get trashHint;
+
+  /// No description provided for @trashEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'A lixeira está vazia.'**
+  String get trashEmpty;
+
+  /// No description provided for @trashFilterAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tudo'**
+  String get trashFilterAll;
+
+  /// No description provided for @trashFilterCards.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cards'**
+  String get trashFilterCards;
+
+  /// No description provided for @trashKindTask.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tarefa'**
+  String get trashKindTask;
+
+  /// No description provided for @trashKindTag.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tag'**
+  String get trashKindTag;
+
+  /// No description provided for @trashKindDeck.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deck'**
+  String get trashKindDeck;
+
+  /// No description provided for @trashKindCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Card'**
+  String get trashKindCard;
+
+  /// No description provided for @trashKindBook.
+  ///
+  /// In pt, this message translates to:
+  /// **'Book'**
+  String get trashKindBook;
+
+  /// No description provided for @trashKindPage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Página'**
+  String get trashKindPage;
+
+  /// No description provided for @trashRestore.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar'**
+  String get trashRestore;
+
+  /// No description provided for @trashRestored.
+  ///
+  /// In pt, this message translates to:
+  /// **'\"{title}\" restaurado.'**
+  String trashRestored(String title);
 }
 
 class _AppLocalizationsDelegate

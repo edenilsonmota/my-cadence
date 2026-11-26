@@ -38,6 +38,15 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
             ..orderBy([(d) => OrderingTerm.asc(d.name)]))
           .watch();
 
+  Stream<List<Deck>> watchDeletedDecks() =>
+      (select(decks)
+            ..where((d) => d.deletedAt.isNotNull())
+            ..orderBy([(d) => OrderingTerm.desc(d.deletedAt)]))
+          .watch();
+
+  Future<void> restoreDeck(String id) =>
+      updateSynced(decks, id, const DecksCompanion(deletedAt: Value(null)));
+
   // Vínculos deck ↔ tarefa
 
   /// Deixa a tarefa vinculada exatamente aos decks em [deckIds]: revive os
@@ -111,6 +120,34 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
       updateSynced(flashcards, id, patch);
 
   Future<void> softDeleteCard(String id) => softDeleteSynced(flashcards, id);
+
+  Stream<List<Flashcard>> watchDeletedCards() =>
+      (select(flashcards)
+            ..where((c) => c.deletedAt.isNotNull())
+            ..orderBy([(c) => OrderingTerm.desc(c.deletedAt)]))
+          .watch();
+
+  Future<void> restoreCardFromTrash(String id) => transaction(() async {
+    final card = await (select(
+      flashcards,
+    )..where((c) => c.id.equals(id))).getSingleOrNull();
+    if (card == null) return;
+    var clearDeck = false;
+    if (card.deckId case final deckId?) {
+      final deck = await (select(
+        decks,
+      )..where((d) => d.id.equals(deckId))).getSingleOrNull();
+      clearDeck = deck == null || deck.deletedAt != null;
+    }
+    await updateSynced(
+      flashcards,
+      id,
+      FlashcardsCompanion(
+        deletedAt: const Value(null),
+        deckId: clearDeck ? const Value(null) : const Value.absent(),
+      ),
+    );
+  });
 
   Future<Flashcard?> getCard(String id) => (select(
     flashcards,

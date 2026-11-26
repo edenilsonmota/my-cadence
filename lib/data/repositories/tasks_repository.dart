@@ -202,6 +202,11 @@ class TasksRepository {
 
   Future<void> restoreTasks(List<String> ids) => _tasks.restoreTasks(ids);
 
+  Stream<List<Task>> watchDeletedTasks() => _tasks.watchDeletedTasks();
+
+  Future<void> restoreTaskFromTrash(String id) =>
+      _tasks.restoreTaskFromTrash(id);
+
   // Histórico de rotinas
 
   Stream<List<TaskCompletion>> watchCompletions(String taskId) =>
@@ -272,6 +277,10 @@ class TasksRepository {
   );
 
   Future<void> deleteTag(String id) => _tags.softDeleteTag(id);
+
+  Stream<List<Tag>> watchDeletedTags() => _tags.watchDeletedTags();
+
+  Future<void> restoreTag(String id) => _tags.restoreTag(id);
 
   Future<void> addTagToTask(String taskId, String tagId) =>
       _tags.addTagToTask(taskId, tagId);

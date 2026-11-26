@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/clock.dart';
 import '../../app/l10n/l10n.dart';
+import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
+import '../../shared/file_access.dart';
 import 'card_form_sheet.dart';
+import 'card_import.dart';
 import 'card_import_sheet.dart';
 
 export 'card_import_sheet.dart' show csvPickerProvider;
@@ -99,4 +105,122 @@ Future<void> importCsvFlow(
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// Exporta [cards] no formato `frente;verso`, permitindo copiar o texto ou
+/// salvar como arquivo `.csv`.
+Future<void> exportCsvFlow(
+  BuildContext context,
+  WidgetRef ref,
+  List<Flashcard> cards, {
+  required String deckName,
+}) async {
+  if (cards.isEmpty) return;
+  final csv = exportCardsCsv([
+    for (final c in cards) (front: c.front, back: c.back),
+  ]);
+  final saver = ref.read(fileSaverProvider);
+  final messenger = ScaffoldMessenger.of(context);
+  final l10n = context.l10n;
+  final slug = deckName
+      .trim()
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+      .replaceAll(RegExp(r'^-|-$'), '');
+  final fileName = '${slug.isEmpty ? 'cards' : slug}.csv';
+
+  await showModalBottomSheet<void>(
+    useRootNavigator: true,
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (sheetContext) {
+      final space = sheetContext.space;
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(space.lg, 0, space.lg, space.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.cardsExportCsv, style: sheetContext.text.titleMedium),
+              SizedBox(height: space.xs),
+              Text(
+                l10n.cardsExportSubtitle(cards.length),
+                style: sheetContext.text.bodySmall!.copyWith(
+                  color: sheetContext.colors.onSurfaceVariant,
+                ),
+              ),
+              SizedBox(height: space.md),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 220),
+                child: Container(
+                  padding: EdgeInsets.all(space.md),
+                  decoration: BoxDecoration(
+                    color: sheetContext.colors.surfaceContainerHighest,
+                    borderRadius: sheetContext.radius.mdAll,
+                  ),
+                  child: SingleChildScrollView(
+                    child: SelectableText(csv, style: sheetContext.type.code),
+                  ),
+                ),
+              ),
+              SizedBox(height: space.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(
+                        AppIcons.export,
+                        size: AppIconSize.standard,
+                      ),
+                      label: Text(l10n.cardsExportSaveFile),
+                      onPressed: () async {
+                        final saved = await saver(
+                          fileName,
+                          Uint8List.fromList(utf8.encode(csv)),
+                        );
+                        if (sheetContext.mounted) {
+                          Navigator.of(sheetContext).pop();
+                        }
+                        if (saved) {
+                          messenger
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(content: Text(l10n.cardsCsvSaved)),
+                            );
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(width: space.sm),
+                  Expanded(
+                    child: FilledButton.icon(
+                      icon: const Icon(
+                        AppIcons.copy,
+                        size: AppIconSize.standard,
+                      ),
+                      label: Text(l10n.cardsExportCopy),
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: csv));
+                        if (sheetContext.mounted) {
+                          Navigator.of(sheetContext).pop();
+                        }
+                        messenger
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            SnackBar(content: Text(l10n.cardsCsvCopied)),
+                          );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

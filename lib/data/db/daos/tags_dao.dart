@@ -32,6 +32,16 @@ class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
             ..orderBy([(t) => OrderingTerm.asc(t.name)]))
           .watch();
 
+  /// Tags excluídas, da mais recente para a mais antiga (para a Lixeira).
+  Stream<List<Tag>> watchDeletedTags() =>
+      (select(tags)
+            ..where((t) => t.deletedAt.isNotNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.deletedAt)]))
+          .watch();
+
+  Future<void> restoreTag(String id) =>
+      updateSynced(tags, id, const TagsCompanion(deletedAt: Value(null)));
+
   /// Todos os vínculos tarefa ↔ tag vivos (para filtrar a lista por tag).
   Stream<List<TaskTag>> watchAllLinks() =>
       (select(taskTags)..where((l) => l.deletedAt.isNull())).watch();

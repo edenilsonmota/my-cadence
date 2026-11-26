@@ -181,6 +181,37 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
     }
   });
 
+  /// Tarefas excluídas, da mais recente para a mais antiga (para a Lixeira).
+  Stream<List<Task>> watchDeletedTasks() =>
+      (select(tasks)
+            ..where((t) => t.deletedAt.isNotNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.deletedAt)]))
+          .watch();
+
+  /// Restaura uma tarefa a partir da Lixeira. Se a tarefa mãe continuar
+  /// excluída, solta na raiz para não ficar invisível.
+  Future<void> restoreTaskFromTrash(String id) => transaction(() async {
+    final task = await (select(
+      tasks,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
+    if (task == null) return;
+    var detachParent = false;
+    if (task.parentId case final parentId?) {
+      final parent = await (select(
+        tasks,
+      )..where((t) => t.id.equals(parentId))).getSingleOrNull();
+      detachParent = parent == null || parent.deletedAt != null;
+    }
+    await updateSynced(
+      tasks,
+      id,
+      TasksCompanion(
+        deletedAt: const Value(null),
+        parentId: detachParent ? const Value(null) : const Value.absent(),
+      ),
+    );
+  });
+
   Future<void> insertCompletion(TaskCompletionsCompanion row) =>
       insertSynced(taskCompletions, row);
 

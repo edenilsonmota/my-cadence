@@ -102,3 +102,42 @@ Flashcard? pickCurrentCard({
   }
   return fresh.firstOrNull;
 }
+
+/// Filtro rápido da lista de cards de um deck.
+enum CardListFilter { all, due, newCards, suspended }
+
+String _fold(String s) {
+  const from = 'áàâãäéèêëíìîïóòôõöúùûüçñ';
+  const to = 'aaaaaeeeeiiiiooooouuuucn';
+  return [
+    for (final ch in s.toLowerCase().split(''))
+      from.contains(ch) ? to[from.indexOf(ch)] : ch,
+  ].join();
+}
+
+/// Filtra [cards] por estado ([filter]) e busca ([query] na frente ou verso,
+/// sem diferenciar maiúsculas nem acentos).
+List<Flashcard> filterDeckCards(
+  Iterable<Flashcard> cards, {
+  required DateTime now,
+  String query = '',
+  CardListFilter filter = CardListFilter.all,
+}) {
+  final q = _fold(query.trim());
+  return [
+    for (final c in cards)
+      if (_matchesFilter(c, filter, now) &&
+          (q.isEmpty ||
+              _fold(c.front).contains(q) ||
+              _fold(c.back).contains(q)))
+        c,
+  ];
+}
+
+bool _matchesFilter(Flashcard card, CardListFilter filter, DateTime now) =>
+    switch (filter) {
+      CardListFilter.all => true,
+      CardListFilter.due => !card.suspended && !card.due.isAfter(now),
+      CardListFilter.newCards => !card.suspended && isNewCard(card),
+      CardListFilter.suspended => card.suspended,
+    };

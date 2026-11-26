@@ -32,6 +32,78 @@ class BooksDao extends DatabaseAccessor<AppDatabase> with _$BooksDaoMixin {
     await softDeleteSynced(notebooks, id);
   });
 
+  /// Books (cadernos independentes) excluídos, do mais recente ao mais antigo.
+  Stream<List<Notebook>> watchDeletedBooks() =>
+      (select(notebooks)
+            ..where((n) => n.taskId.isNull() & n.deletedAt.isNotNull())
+            ..orderBy([(n) => OrderingTerm.desc(n.deletedAt)]))
+          .watch();
+
+  /// Restaura o book e as páginas excluídas dele.
+  Future<void> restoreNotebook(String id) => transaction(() async {
+    final book = await (select(
+      notebooks,
+    )..where((n) => n.id.equals(id))).getSingleOrNull();
+    if (book == null) return;
+    await updateSynced(
+      notebooks,
+      id,
+      const NotebooksCompanion(deletedAt: Value(null)),
+    );
+    final pages = await (select(
+      notePages,
+    )..where((p) => p.notebookId.equals(id) & p.deletedAt.isNotNull())).get();
+    for (final page in pages) {
+      await updateSynced(
+        notePages,
+        page.id,
+        const NotePagesCompanion(deletedAt: Value(null)),
+      );
+    }
+  });
+
+  /// Páginas excluídas cujos cadernos continuam vivos (para a Lixeira).
+  Stream<List<(NotePage, Notebook)>> watchDeletedPages() {
+    final query =
+        select(notePages).join([
+            innerJoin(notebooks, notebooks.id.equalsExp(notePages.notebookId)),
+          ])
+          ..where(
+            notePages.deletedAt.isNotNull() & notebooks.deletedAt.isNull(),
+          )
+          ..orderBy([OrderingTerm.desc(notePages.deletedAt)]);
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          (row.readTable(notePages), row.readTable(notebooks)),
+      ],
+    );
+  }
+
+  /// Restaura uma página da Lixeira (soltando na raiz do caderno se a página
+  /// mãe continuar excluída).
+  Future<void> restorePage(String id) => transaction(() async {
+    final page = await (select(
+      notePages,
+    )..where((p) => p.id.equals(id))).getSingleOrNull();
+    if (page == null) return;
+    var detachParent = false;
+    if (page.parentPageId case final parentId?) {
+      final parent = await (select(
+        notePages,
+      )..where((p) => p.id.equals(parentId))).getSingleOrNull();
+      detachParent = parent == null || parent.deletedAt != null;
+    }
+    await updateSynced(
+      notePages,
+      id,
+      NotePagesCompanion(
+        deletedAt: const Value(null),
+        parentPageId: detachParent ? const Value(null) : const Value.absent(),
+      ),
+    );
+  });
+
   Stream<Notebook?> watchNotebook(String id) => (select(
     notebooks,
   )..where((n) => n.id.equals(id) & n.deletedAt.isNull())).watchSingleOrNull();

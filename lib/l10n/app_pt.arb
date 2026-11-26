@@ -1210,7 +1210,9 @@
   "deckSpeechAuto": "Ler automaticamente na revisão",
   "deckSpeechNoVoices": "Nenhuma voz encontrada. Instale vozes em Ajustes do Android → Texto para fala.",
   "speakFront": "Ouvir frente",
+  "speakFrontSlow": "Ouvir frente devagar",
   "speakBack": "Ouvir verso",
+  "speakBackSlow": "Ouvir verso devagar",
   "speechDefault": "Voz padrão",
   "speechDefaultHint": "Vale para todos os decks que não têm ajuste próprio.",
   "speechUseDefault": "Usar a voz padrão",
@@ -1351,6 +1353,85 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "navTags": "Tags",
+  "tagEdit": "Editar tag",
+  "tagChangeColor": "Trocar cor",
+  "tagOptions": "Opções da tag",
+  "tagDuplicateError": "Já existe uma tag com esse nome.",
+  "tagsEmpty": "Nenhuma tag criada ainda.",
+  "tagsLoadError": "Não foi possível carregar as tags.",
+  "tagTaskCount": "{count, plural, =0{Nenhuma tarefa} =1{1 tarefa} other{{count} tarefas}}",
+  "@tagTaskCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagDeleteTitle": "Excluir \"{name}\"?",
+  "@tagDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagDeleteUnusedMessage": "Nenhuma tarefa usa esta tag.",
+  "tagDeleteUsedMessage": "{count, plural, =1{Esta tag está em 1 tarefa; ela perde a tag.} other{Esta tag está em {count} tarefas; elas perdem a tag.}}",
+  "@tagDeleteUsedMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagDeleted": "Tag \"{name}\" excluída.",
+  "@tagDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagViewTasks": "Ver tarefas",
+  "cardsSearchHint": "Buscar cards",
+  "cardsFilterAll": "Todos",
+  "cardsFilterDue": "Vencidos",
+  "cardsFilterNew": "Novos",
+  "cardsFilterSuspended": "Suspensos",
+  "cardsExportCsv": "Exportar CSV",
+  "cardsExportSubtitle": "{count, plural, =1{1 card pronto no formato frente;verso.} other{{count} cards prontos no formato frente;verso.}}",
+  "@cardsExportSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsExportCopy": "Copiar CSV",
+  "cardsExportSaveFile": "Salvar arquivo",
+  "cardsCsvCopied": "CSV copiado.",
+  "cardsCsvSaved": "Arquivo CSV salvo.",
+  "navTrash": "Lixeira",
+  "trashHint": "Itens excluídos ficam disponíveis aqui para restaurar.",
+  "trashEmpty": "A lixeira está vazia.",
+  "trashFilterAll": "Tudo",
+  "trashFilterCards": "Cards",
+  "trashKindTask": "Tarefa",
+  "trashKindTag": "Tag",
+  "trashKindDeck": "Deck",
+  "trashKindCard": "Card",
+  "trashKindBook": "Book",
+  "trashKindPage": "Página",
+  "trashRestore": "Restaurar",
+  "trashRestored": "\"{title}\" restaurado.",
+  "@trashRestored": {
+    "placeholders": {
+      "title": {
+        "type": "String"
       }
     }
   }

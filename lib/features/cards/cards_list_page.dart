@@ -19,17 +19,30 @@ import 'card_speaker.dart';
 import 'cards_providers.dart';
 import 'review_queue.dart';
 
-/// Cards de um deck ([deckId]) ou todos, com editar, suspender e excluir.
-class CardsListPage extends ConsumerWidget {
+/// Cards de um deck ([deckId]) ou todos, com busca, filtro, importar/exportar,
+/// editar, suspender e excluir.
+class CardsListPage extends ConsumerStatefulWidget {
   const CardsListPage({this.deckId, super.key});
 
   final String? deckId;
 
-  Future<void> _renameDeck(
-    BuildContext context,
-    WidgetRef ref,
-    Deck deck,
-  ) async {
+  @override
+  ConsumerState<CardsListPage> createState() => _CardsListPageState();
+}
+
+class _CardsListPageState extends ConsumerState<CardsListPage> {
+  bool _searching = false;
+  final _query = TextEditingController();
+  CardListFilter _filter = CardListFilter.all;
+
+  @override
+  void dispose() {
+    _query.dispose();
+    super.dispose();
+  }
+
+  Future<void> _renameDeck(BuildContext context, Deck deck) async {
+    final repo = ref.read(cardsRepositoryProvider);
     final name = await showTextInputDialog(
       context,
       title: context.l10n.deckRename,
@@ -38,17 +51,11 @@ class CardsListPage extends ConsumerWidget {
       initialValue: deck.name,
     );
     if (name != null) {
-      await ref
-          .read(cardsRepositoryProvider)
-          .saveDeck(deck.copyWith(name: name));
+      await repo.saveDeck(deck.copyWith(name: name));
     }
   }
 
-  Future<void> _deleteDeck(
-    BuildContext context,
-    WidgetRef ref,
-    Deck deck,
-  ) async {
+  Future<void> _deleteDeck(BuildContext context, Deck deck) async {
     // Lido antes: a tela sai da pilha antes de excluir.
     final cards = ref.read(cardsRepositoryProvider);
     final confirmed = await showDialog<bool>(
@@ -73,105 +80,198 @@ class CardsListPage extends ConsumerWidget {
     await cards.deleteDeck(deck.id);
   }
 
+  void _toggleSearch() {
+    setState(() {
+      _searching = !_searching;
+      if (!_searching) _query.clear();
+    });
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final deckId = widget.deckId;
     final decks = ref.watch(decksProvider).value ?? const <Deck>[];
     final deck = decks.where((d) => d.id == deckId).firstOrNull;
+    final title = deck?.name ?? l10n.reviewAllCards;
     final scope = (deckId: deckId, taskId: null);
     final cards = ref.watch(scopeCardsProvider(scope));
+    final allInDeck = cards.value ?? const <Flashcard>[];
     final due = ref.watch(reviewQueueProvider(scope)).value?.length ?? 0;
     final today = ref.watch(todayProvider);
+    final now = ref.watch(reviewNowProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(deck?.name ?? context.l10n.reviewAllCards),
+        title: _searching
+            ? TextField(
+                controller: _query,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: l10n.cardsSearchHint,
+                  border: InputBorder.none,
+                  filled: false,
+                ),
+                onChanged: (_) => setState(() {}),
+              )
+            : Text(title),
         actions: [
-          IconButton(
-            tooltip: context.l10n.reviewImportCsv,
-            icon: const Icon(AppIcons.import),
-            onPressed: () => importCsvFlow(context, ref, deckId: deckId),
-          ),
-          PopupMenuButton<String>(
-            tooltip: context.l10n.deckOptions,
-            onSelected: (v) => switch (v) {
-              'csv' => importCsvFlow(context, ref, deckId: deckId),
-              'voz' => showDeckSpeechSheet(context, deckId),
-              'renomear' => _renameDeck(context, ref, deck!),
-              _ => _deleteDeck(context, ref, deck!),
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                value: 'csv',
-                child: Text(context.l10n.reviewImportCsv),
+          if (_searching)
+            IconButton(
+              tooltip: l10n.searchClear,
+              icon: const Icon(AppIcons.close),
+              onPressed: _toggleSearch,
+            )
+          else ...[
+            if (allInDeck.isNotEmpty)
+              IconButton(
+                tooltip: l10n.cardsSearchHint,
+                icon: const Icon(AppIcons.search),
+                onPressed: _toggleSearch,
               ),
-              PopupMenuItem(value: 'voz', child: Text(context.l10n.deckSpeech)),
-              if (deck != null) ...[
-                PopupMenuItem(
-                  value: 'renomear',
-                  child: Text(context.l10n.actionRename),
+            IconButton(
+              tooltip: l10n.reviewImportCsv,
+              icon: const Icon(AppIcons.import),
+              onPressed: () => importCsvFlow(context, ref, deckId: deckId),
+            ),
+            PopupMenuButton<String>(
+              tooltip: l10n.deckOptions,
+              onSelected: (v) => switch (v) {
+                'csv' => importCsvFlow(context, ref, deckId: deckId),
+                'export' => exportCsvFlow(
+                  context,
+                  ref,
+                  allInDeck,
+                  deckName: title,
                 ),
-                PopupMenuItem(
-                  value: 'excluir',
-                  child: Text(context.l10n.deckDelete),
-                ),
+                'voz' => showDeckSpeechSheet(context, deckId),
+                'renomear' => _renameDeck(context, deck!),
+                _ => _deleteDeck(context, deck!),
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 'csv', child: Text(l10n.reviewImportCsv)),
+                if (allInDeck.isNotEmpty)
+                  PopupMenuItem(
+                    value: 'export',
+                    child: Text(l10n.cardsExportCsv),
+                  ),
+                PopupMenuItem(value: 'voz', child: Text(l10n.deckSpeech)),
+                if (deck != null) ...[
+                  PopupMenuItem(
+                    value: 'renomear',
+                    child: Text(l10n.actionRename),
+                  ),
+                  PopupMenuItem(value: 'excluir', child: Text(l10n.deckDelete)),
+                ],
               ],
-            ],
-          ),
+            ),
+          ],
         ],
       ),
       floatingActionButton: GradientFab(
-        tooltip: context.l10n.reviewNewCard,
+        tooltip: l10n.reviewNewCard,
         onPressed: () => createCardFlow(context, ref, deckId: deckId),
         child: const Icon(AppIcons.add),
       ),
       body: cards.when(
         loading: () => const SkeletonList(),
-        error: (_, _) => EmptyState(
-          icon: AppIcons.error,
-          message: context.l10n.reviewLoadError,
-        ),
-        data: (cards) => cards.isEmpty
-            ? EmptyState(
-                icon: AppIcons.flashcard,
-                message: context.l10n.cardsEmptyHere,
-                action: Wrap(
-                  spacing: context.space.sm,
-                  runSpacing: context.space.sm,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    FilledButton.tonal(
-                      onPressed: () =>
-                          createCardFlow(context, ref, deckId: deckId),
-                      child: Text(context.l10n.cardCreate),
-                    ),
-                    OutlinedButton.icon(
-                      icon: const Icon(
-                        AppIcons.import,
-                        size: AppIconSize.standard,
-                      ),
-                      label: Text(context.l10n.reviewImportCsv),
-                      onPressed: () =>
-                          importCsvFlow(context, ref, deckId: deckId),
-                    ),
-                  ],
-                ),
-              )
-            : ListView(
-                padding: const EdgeInsets.only(bottom: 88),
+        error: (_, _) =>
+            EmptyState(icon: AppIcons.error, message: l10n.reviewLoadError),
+        data: (cards) {
+          if (cards.isEmpty) {
+            return EmptyState(
+              icon: AppIcons.flashcard,
+              message: l10n.cardsEmptyHere,
+              action: Wrap(
+                spacing: context.space.sm,
+                runSpacing: context.space.sm,
+                alignment: WrapAlignment.center,
                 children: [
-                  if (due > 0)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                      child: FilledButton.tonalIcon(
-                        icon: const Icon(AppIcons.play),
-                        label: Text(context.l10n.cardsReviewCount(due)),
-                        onPressed: () =>
-                            context.push(Routes.reviewSession(deckId: deckId)),
-                      ),
+                  FilledButton.tonal(
+                    onPressed: () =>
+                        createCardFlow(context, ref, deckId: deckId),
+                    child: Text(l10n.cardCreate),
+                  ),
+                  OutlinedButton.icon(
+                    icon: const Icon(
+                      AppIcons.import,
+                      size: AppIconSize.standard,
                     ),
-                  for (final card in cards) _CardTile(card: card, today: today),
+                    label: Text(l10n.reviewImportCsv),
+                    onPressed: () =>
+                        importCsvFlow(context, ref, deckId: deckId),
+                  ),
                 ],
               ),
+            );
+          }
+
+          final filtered = filterDeckCards(
+            cards,
+            now: now,
+            query: _query.text,
+            filter: _filter,
+          );
+          final space = context.space;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (due > 0 && !_searching && _filter == CardListFilter.all)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    space.lg,
+                    space.md,
+                    space.lg,
+                    space.xs,
+                  ),
+                  child: FilledButton.tonalIcon(
+                    icon: const Icon(AppIcons.play),
+                    label: Text(l10n.cardsReviewCount(due)),
+                    onPressed: () =>
+                        context.push(Routes.reviewSession(deckId: deckId)),
+                  ),
+                ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(
+                  horizontal: space.lg,
+                  vertical: space.xs,
+                ),
+                child: Row(
+                  children: [
+                    for (final entry in [
+                      (CardListFilter.all, l10n.cardsFilterAll),
+                      (CardListFilter.due, l10n.cardsFilterDue),
+                      (CardListFilter.newCards, l10n.cardsFilterNew),
+                      (CardListFilter.suspended, l10n.cardsFilterSuspended),
+                    ])
+                      Padding(
+                        padding: EdgeInsets.only(right: space.sm),
+                        child: ChoiceChip(
+                          label: Text(entry.$2),
+                          selected: _filter == entry.$1,
+                          onSelected: (_) => setState(() => _filter = entry.$1),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: filtered.isEmpty
+                    ? EmptyState(
+                        icon: AppIcons.searchEmpty,
+                        message: l10n.searchNoResults,
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 88),
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) =>
+                            _CardTile(card: filtered[index], today: today),
+                      ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

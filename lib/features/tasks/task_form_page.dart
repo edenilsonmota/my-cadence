@@ -26,6 +26,7 @@ import 'task_appearance.dart';
 import 'task_draft.dart';
 import 'task_labels.dart';
 import 'task_providers.dart';
+import 'widgets/tag_form_dialog.dart';
 
 /// Criar ou editar uma tarefa. Com [taskId], edita; com [parentId], cria
 /// uma subtarefa.
@@ -1110,9 +1111,10 @@ class _TagPicker extends ConsumerWidget {
     // Lido antes do diálogo: com o teclado aberto, este trecho sai da tela e
     // a lista o descarta; depois do await o `ref` não vale mais.
     final repo = ref.read(tasksRepositoryProvider);
-    final created = await showDialog<({String name, String colorKey})>(
-      context: context,
-      builder: (_) => const _NewTagDialog(),
+    final existing = ref.read(tagsProvider).value ?? const <Tag>[];
+    final created = await showTagFormDialog(
+      context,
+      existingNames: [for (final t in existing) t.name],
     );
     if (created == null) return;
     final id = await repo.createTag(
@@ -1143,85 +1145,6 @@ class _TagPicker extends ConsumerWidget {
           label: Text(context.l10n.tagNew),
           onPressed: () => _createTag(context, ref),
         ),
-      ],
-    );
-  }
-}
-
-class _NewTagDialog extends StatefulWidget {
-  const _NewTagDialog();
-
-  @override
-  State<_NewTagDialog> createState() => _NewTagDialogState();
-}
-
-class _NewTagDialogState extends State<_NewTagDialog> {
-  final _name = TextEditingController();
-  PaletteKey _color = PaletteKey.azul;
-
-  @override
-  void dispose() {
-    _name.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final name = _name.text.trim();
-    if (name.isEmpty) return;
-    Navigator.of(context).pop((name: name, colorKey: _color.name));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final palette = context.palette;
-    return AlertDialog(
-      title: Text(l10n.tagNew),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: _name,
-            autofocus: true,
-            decoration: InputDecoration(labelText: l10n.reviewNameLabel),
-            onSubmitted: (_) => _submit(),
-          ),
-          SizedBox(height: context.space.lg),
-          Wrap(
-            spacing: context.space.sm,
-            runSpacing: context.space.sm,
-            children: [
-              for (final key in PaletteKey.values)
-                Semantics(
-                  button: true,
-                  selected: key == _color,
-                  label: key.label,
-                  child: InkResponse(
-                    onTap: () => setState(() => _color = key),
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: palette.of(key).strong,
-                      child: key == _color
-                          ? Icon(
-                              AppIcons.check,
-                              color: context.colors.surface,
-                              size: AppIconSize.standard,
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.actionCancel),
-        ),
-        FilledButton(onPressed: _submit, child: Text(l10n.actionCreate)),
       ],
     );
   }

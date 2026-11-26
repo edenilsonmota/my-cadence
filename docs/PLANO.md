@@ -362,8 +362,8 @@ automática ao mudar tarefas/aparência e na virada da meia-noite. Fazer em fase
 2. **Widget "Semanal" (`4 × 3`, redimensionável `4 × 2` a `5 × 5`).** Grade de 7 dias da semana com o dia atual
    destacado na cor de destaque, tarefas coloridas por dia e toque abrindo o dia na Agenda.
 3. **Widget "Mês" (`4 × 4`) — feito.** Grade 6 × 7 começando na segunda, com linhas, dia atual destacado na cor de
-   destaque, até 3 chips por dia com o título da tarefa (cor da tarefa) e "+N", estilo agenda; toque abre o dia.
-   Pendente: navegação de mês (`‹ ›`).
+   destaque, até 3 chips por dia com o título da tarefa (cor da tarefa) e "+N", estilo agenda; toque abre o dia;
+   navegação de mês (`‹ ›`) concluída na Etapa 16.7.
 3b. **Widget "Mês + Hoje" (`4 × 5`) — feito.** A mesma grade (com pontinhos, por ser menor) e a lista de hoje embaixo.
 4. **Concluir direto pelo widget *(opcional)*.** Ação rápida no widget **Hoje** para marcar tarefa concluída
    em segundo plano sem abrir o app.
@@ -391,10 +391,33 @@ A 16.1 saiu sozinha (1.4.0); da 16.2 à 16.8 saíram juntas (1.5.0).
    subtarefas, books e decks) e criar a partir dele.
 
 
-### Etapa 17: Gerenciar tags (a fazer)
-- Menu **Tags** (menu lateral): lista com cor e quantas tarefas usam cada uma; **renomear**, trocar a cor e
-  **excluir**. Ao excluir, avisar quantas tarefas estão vinculadas ("Esta tag está em N tarefas; elas perdem a
-  tag") antes de confirmar. Exclusão continua sendo `softDeleteTag` (tag → vínculos).
+### Etapa 17: Gerenciar tags (feito)
+- Menu **Tags** (menu lateral): lista com cor e quantas tarefas usam cada uma; criar, **renomear**, trocar a cor,
+  **ver tarefas** filtradas por aquela tag e **excluir**. Ao excluir, avisar quantas tarefas estão vinculadas
+  ("Esta tag está em N tarefas; elas perdem a tag") antes de confirmar. Exclusão continua sendo `softDeleteTag`
+  (tag → vínculos).
+
+### Etapa 18: Qualidade de vida no dia a dia (feito)
+- **TTS devagar nos flashcards:** botão com ícone de tartaruga ao lado do alto-falante (frente e verso) para
+  ouvir em ~60% da velocidade (`setSpeechRate`).
+- **Editar e suspender card durante a revisão:** menu `⋮` no topo da sessão de revisão para corrigir ou suspender
+  o card atual sem sair da fila (com desfazer ao suspender).
+- **Busca e filtro dentro do deck:** busca por frente/verso e filtros rápidos (*Todos*, *Vencidos*, *Novos*,
+  *Suspensos*).
+- **Exportar deck em CSV (`frente;verso`):** copiar o texto pronto ou salvar em arquivo `.csv`.
+- **Lixeira (menu lateral):** listar itens excluídos (tarefas, decks, cards, books, páginas e tags) e restaurar
+  em um toque.
+
+### Etapa 19: Próximas evoluções e arrumação de casa (a fazer)
+- **Compartilhar de outros apps no Android (`ACTION_SEND`):** receber texto/link de outros apps (navegador,
+  WhatsApp, leitor) para criar rapidamente uma **tarefa**, um **flashcard** ou uma **nota num book**.
+- **Modo "Praticar livre / Invertido" nos flashcards:** revisar um deck sem alterar o agendamento FSRS (ex.:
+  antes de uma aula/prova) e com opção de inverter *verso → frente* para idiomas.
+- **Meta diária de foco (ou revisões):** meta configurável com progresso discreto em Hoje e nas Métricas.
+- **Widget "Semanal" e de pomodoro *(opcional)*:** retomar a Etapa 15.2 caso faça falta além de Hoje, Mês e Mês + Hoje.
+- **Arrumação de casa:** atualizar [README.md](../README.md) e `docs/screenshots/` com os recursos recentes
+  (widgets, TTS, revisão semanal, modelos, tags, Lixeira, idiomas e Lights out) e conferir no celular as
+  pendências de testes de alarme anotadas na Etapa 13 (após reboot, lembrete no início e hora de dia inteiro).
 
 ---
 
