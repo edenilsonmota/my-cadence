@@ -1323,5 +1323,35 @@
       }
     }
   },
-  "weekReviewShort": "Semana"
+  "weekReviewShort": "Semana",
+  "cardsImportFromFile": "Carregar arquivo",
+  "cardsImportTextLabel": "Cards (frente;verso)",
+  "cardsImportTextHint": "apple;maçã\nbook;livro",
+  "cardsImportTextHelper": "Um card por linha, separado por ponto e vírgula (;)",
+  "cardsSkipDuplicates": "Ignorar frentes já existentes no deck",
+  "cardsDuplicatesSkipped": "{count, plural, =1{1 duplicado ignorado.} other{{count} duplicados ignorados.}}",
+  "@cardsDuplicatesSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsAllDuplicates": "{count, plural, =1{Este card já existe neste deck.} other{Todos os {count} cards já existem neste deck.}}",
+  "@cardsAllDuplicates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsNoneInText": "Nenhum card válido encontrado.",
+  "cardsImportActionCount": "{count, plural, =1{Importar 1 card} other{Importar {count} cards}}",
+  "@cardsImportActionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

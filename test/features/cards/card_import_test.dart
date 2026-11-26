@@ -24,7 +24,31 @@ void main() {
   });
 
   test('BOM do Excel e última linha sem quebra', () {
-    final r = parseCardsCsv('﻿um;dois');
+    final r = parseCardsCsv('\uFEFFum;dois');
     expect(r.cards, [(front: 'um', back: 'dois')]);
+  });
+
+  test('ignora cabeçalho em inglês, espanhol e após linhas em branco', () {
+    final en = parseCardsCsv('\n\nFront;Back\napple;maçã');
+    expect(en.cards, [(front: 'apple', back: 'maçã')]);
+    expect(en.skippedLines, isEmpty);
+
+    final es = parseCardsCsv('FRENTE;REVERSO\ncasa;house');
+    expect(es.cards, [(front: 'casa', back: 'house')]);
+    expect(es.skippedLines, isEmpty);
+  });
+
+  test('filtra duplicados contra o deck existente e dentro do lote', () {
+    final result = filterDuplicateCards(
+      const [
+        (front: 'Apple', back: 'maçã'),
+        (front: '  new   word ', back: 'palavra nova'),
+        (front: 'new word', back: 'outra tradução'),
+        (front: 'book', back: 'livro'),
+      ],
+      existingFronts: const ['apple', '  BOOK  '],
+    );
+    expect(result.unique, [(front: '  new   word ', back: 'palavra nova')]);
+    expect(result.duplicateCount, 3);
   });
 }

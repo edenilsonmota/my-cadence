@@ -218,7 +218,9 @@ void main() {
     expect(card.suspended, isTrue);
   });
 
-  testWidgets('importa CSV para um deck', (tester) async {
+  testWidgets('importa CSV de arquivo para um deck e permite editar antes', (
+    tester,
+  ) async {
     final db = await pumpApp(
       tester,
       seed: (db) => cardsOf(db).createDeck(name: 'Química'),
@@ -234,6 +236,9 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('Importar CSV'));
     await settle(tester);
+
+    await tester.tap(find.text('Carregar arquivo'));
+    await settle(tester);
     expect(find.text('2 cards encontrados.'), findsOneWidget);
     expect(find.textContaining('Linhas ignoradas'), findsOneWidget);
 
@@ -241,7 +246,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('Química').last);
     await settle(tester);
-    await tester.tap(find.text('Importar'));
+    await tester.tap(find.text('Importar 2 cards'));
     await settle(tester);
 
     expect(find.text('2 cards importados.'), findsOneWidget);
@@ -250,5 +255,107 @@ void main() {
     ))!;
     expect(cards.map((c) => c.front), unorderedEquals(['H2O', 'NaCl']));
     expect(cards.every((c) => c.deckId != null), isTrue);
+  });
+
+  testWidgets(
+    'cola CSV sem arquivo dentro do deck e acrescenta em lotes ignorando duplicados',
+    (tester) async {
+      final db = await pumpApp(
+        tester,
+        seed: (db) => cardsOf(db).createDeck(name: 'Inglês'),
+      );
+      await goToReviewTab(tester);
+
+      // Entra no deck Inglês e importa colando texto direto (sem arquivo).
+      await tester.tap(find.text('Inglês'));
+      await settle(tester);
+      await tester.tap(find.text('Importar CSV'));
+      await settle(tester);
+
+      // O deck atual já vem selecionado.
+      expect(
+        find.descendant(
+          of: find.byType(DropdownButtonFormField<String?>),
+          matching: find.text('Inglês'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Cards (frente;verso)'),
+        'apple;maçã\nbook;livro',
+      );
+      await settle(tester);
+      expect(find.text('2 cards encontrados.'), findsOneWidget);
+      await tester.tap(find.text('Importar 2 cards'));
+      await settle(tester);
+
+      expect(find.text('2 cards importados.'), findsOneWidget);
+      expect(find.text('apple'), findsOneWidget);
+      expect(find.text('book'), findsOneWidget);
+
+      // Segundo lote no mesmo deck: ignora duplicado (APPLE e repetido no lote).
+      await tester.tap(find.byTooltip('Importar CSV'));
+      await settle(tester);
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Cards (frente;verso)'),
+        'APPLE;maçã\nhouse;casa\nhouse;moradia',
+      );
+      await settle(tester);
+      expect(
+        find.text('1 card encontrado. 2 duplicados ignorados.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Importar 1 card'));
+      await settle(tester);
+
+      expect(
+        find.text('1 card importado. 2 duplicados ignorados.'),
+        findsOneWidget,
+      );
+      final cards = (await tester.runAsync(
+        () => cardsOf(db).watchCards().first,
+      ))!;
+      expect(
+        cards.map((c) => c.front),
+        unorderedEquals(['apple', 'book', 'house']),
+      );
+      expect(cards.map((c) => c.deckId).toSet(), hasLength(1));
+    },
+  );
+
+  testWidgets('cria deck novo dentro da importação CSV e importa nele', (
+    tester,
+  ) async {
+    final db = await pumpApp(tester);
+    await goToReviewTab(tester);
+
+    await tester.tap(find.text('Importar CSV'));
+    await settle(tester);
+
+    await tester.tap(find.byTooltip('Novo deck'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField).last, 'Espanhol');
+    await settle(tester);
+    await tester.tap(find.text('Criar'));
+    await settle(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Cards (frente;verso)'),
+      'hola;olá\ngracias;obrigado',
+    );
+    await settle(tester);
+    await tester.tap(find.text('Importar 2 cards'));
+    await settle(tester);
+
+    final decks = (await tester.runAsync(
+      () => cardsOf(db).watchDecks().first,
+    ))!;
+    expect(decks.map((d) => d.name), ['Espanhol']);
+    final cards = (await tester.runAsync(
+      () => cardsOf(db).watchCards().first,
+    ))!;
+    expect(cards.map((c) => c.front), unorderedEquals(['hola', 'gracias']));
+    expect(cards.every((c) => c.deckId == decks.single.id), isTrue);
   });
 }

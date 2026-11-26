@@ -3,6 +3,11 @@ library;
 
 typedef ImportedCard = ({String front, String back});
 
+typedef DuplicateFilterResult = ({
+  List<ImportedCard> unique,
+  int duplicateCount,
+});
+
 class CsvImport {
   const CsvImport(this.cards, this.skippedLines);
 
@@ -13,21 +18,54 @@ class CsvImport {
   final List<int> skippedLines;
 }
 
+const _headerPairs = {
+  ('frente', 'verso'),
+  ('front', 'back'),
+  ('frente', 'reverso'),
+};
+
+/// Normaliza a frente de um card para detecção de duplicados (ignora
+/// maiúsculas e espaços extras).
+String normalizeCardFront(String front) =>
+    front.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
+
+/// Remove cards cuja frente já existe em [existingFronts] ou se repete no
+/// próprio lote, mantendo a primeira ocorrência.
+DuplicateFilterResult filterDuplicateCards(
+  List<ImportedCard> cards, {
+  Iterable<String> existingFronts = const [],
+}) {
+  final seen = <String>{for (final f in existingFronts) normalizeCardFront(f)};
+  final unique = <ImportedCard>[];
+  var duplicates = 0;
+  for (final card in cards) {
+    if (seen.add(normalizeCardFront(card.front))) {
+      unique.add(card);
+    } else {
+      duplicates++;
+    }
+  }
+  return (unique: unique, duplicateCount: duplicates);
+}
+
 /// Lê um CSV com `;` como separador. Aceita campos entre aspas (com `;`,
 /// quebras de linha e `""` para aspas dentro), ignora linhas vazias e um
-/// cabeçalho `frente;verso`. Colunas além da segunda são ignoradas.
+/// cabeçalho `frente;verso` (ou `front;back` / `frente;reverso`). Colunas
+/// além da segunda são ignoradas.
 CsvImport parseCardsCsv(String text) {
-  final rows = _parseRows(text.replaceFirst('﻿', ''));
+  final rows = _parseRows(text.replaceFirst('\uFEFF', ''));
   final cards = <ImportedCard>[];
   final skipped = <int>[];
-  for (final (index, row) in rows.indexed) {
+  var sawNonEmpty = false;
+  for (final row in rows) {
     final (line, fields) = row;
     if (fields.every((f) => f.trim().isEmpty)) continue;
     final front = fields.isNotEmpty ? fields[0].trim() : '';
     final back = fields.length > 1 ? fields[1].trim() : '';
-    if (index == 0 &&
-        front.toLowerCase() == 'frente' &&
-        back.toLowerCase() == 'verso') {
+    final isFirst = !sawNonEmpty;
+    sawNonEmpty = true;
+    if (isFirst &&
+        _headerPairs.contains((front.toLowerCase(), back.toLowerCase()))) {
       continue;
     }
     if (front.isEmpty || back.isEmpty) {

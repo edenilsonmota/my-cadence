@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,19 +7,9 @@ import '../../app/l10n/l10n.dart';
 import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import 'card_form_sheet.dart';
-import 'card_import.dart';
+import 'card_import_sheet.dart';
 
-/// Abre o seletor de arquivos e devolve o texto do CSV (ou `null`). Os
-/// testes trocam por um texto fixo.
-final csvPickerProvider = Provider<Future<String?> Function()>(
-  (ref) => () async {
-    final file = await FilePicker.pickFile(
-      type: FileType.custom,
-      allowedExtensions: const ['csv', 'txt'],
-    );
-    return file?.xFile.readAsString();
-  },
-);
+export 'card_import_sheet.dart' show csvPickerProvider;
 
 Future<void> createCardFlow(
   BuildContext context,
@@ -83,88 +72,31 @@ Future<void> deleteCardWithUndo(
     );
 }
 
-/// Escolhe um CSV (`frente;verso`), mostra quantos cards achou e importa
-/// para o deck escolhido.
-Future<void> importCsvFlow(BuildContext context, WidgetRef ref) async {
+/// Abre a importação CSV (texto colado/editado ou arquivo `.csv`/`.txt`) e
+/// acrescenta os cards no deck escolhido (com [deckId] pré-selecionado, se
+/// informado).
+Future<void> importCsvFlow(
+  BuildContext context,
+  WidgetRef ref, {
+  String? deckId,
+}) async {
+  // Lidos antes do await: o teclado pode desmontar quem chamou.
   final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
-  final text = await ref.read(csvPickerProvider)();
-  if (text == null || !context.mounted) return;
-  final parsed = parseCardsCsv(text);
-  if (parsed.cards.isEmpty) {
-    messenger.showSnackBar(SnackBar(content: Text(l10n.cardsNoneInFile)));
-    return;
-  }
   final cards = ref.read(cardsRepositoryProvider);
   final clock = ref.read(clockProvider);
-  final deckId = await showDialog<({String? deckId})>(
-    context: context,
-    builder: (_) => _ImportDialog(parsed: parsed),
-  );
-  if (deckId == null) return;
+  final result = await showCardImportSheet(context, initialDeckId: deckId);
+  if (result == null || result.cards.isEmpty) return;
   final count = await cards.importCards(
-    parsed.cards,
+    result.cards,
     now: clock(),
-    deckId: deckId.deckId,
+    deckId: result.deckId,
   );
-  messenger.showSnackBar(SnackBar(content: Text(l10n.cardsImported(count))));
-}
-
-class _ImportDialog extends ConsumerStatefulWidget {
-  const _ImportDialog({required this.parsed});
-
-  final CsvImport parsed;
-
-  @override
-  ConsumerState<_ImportDialog> createState() => _ImportDialogState();
-}
-
-class _ImportDialogState extends ConsumerState<_ImportDialog> {
-  String? _deckId;
-
-  @override
-  Widget build(BuildContext context) {
-    final decks = ref.watch(decksProvider).value ?? const <Deck>[];
-    final found = widget.parsed.cards.length;
-    final skipped = widget.parsed.skippedLines;
-    return AlertDialog(
-      title: Text(context.l10n.cardsImportTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(context.l10n.cardsFound(found)),
-          if (skipped.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                context.l10n.cardsSkippedLines(skipped.join(', ')),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String?>(
-            initialValue: _deckId,
-            decoration: InputDecoration(labelText: context.l10n.fieldDeck),
-            items: [
-              DropdownMenuItem(value: null, child: Text(context.l10n.deckNone)),
-              for (final d in decks)
-                DropdownMenuItem(value: d.id, child: Text(d.name)),
-            ],
-            onChanged: (v) => setState(() => _deckId = v),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(context.l10n.actionCancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop((deckId: _deckId)),
-          child: Text(context.l10n.actionImport),
-        ),
-      ],
-    );
-  }
+  final message = result.skippedDuplicates > 0
+      ? '${l10n.cardsImported(count)} '
+            '${l10n.cardsDuplicatesSkipped(result.skippedDuplicates)}'
+      : l10n.cardsImported(count);
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }

@@ -4059,6 +4059,60 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Semana'**
   String get weekReviewShort;
+
+  /// No description provided for @cardsImportFromFile.
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregar arquivo'**
+  String get cardsImportFromFile;
+
+  /// No description provided for @cardsImportTextLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cards (frente;verso)'**
+  String get cardsImportTextLabel;
+
+  /// No description provided for @cardsImportTextHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'apple;maçã\nbook;livro'**
+  String get cardsImportTextHint;
+
+  /// No description provided for @cardsImportTextHelper.
+  ///
+  /// In pt, this message translates to:
+  /// **'Um card por linha, separado por ponto e vírgula (;)'**
+  String get cardsImportTextHelper;
+
+  /// No description provided for @cardsSkipDuplicates.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ignorar frentes já existentes no deck'**
+  String get cardsSkipDuplicates;
+
+  /// No description provided for @cardsDuplicatesSkipped.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 duplicado ignorado.} other{{count} duplicados ignorados.}}'**
+  String cardsDuplicatesSkipped(int count);
+
+  /// No description provided for @cardsAllDuplicates.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{Este card já existe neste deck.} other{Todos os {count} cards já existem neste deck.}}'**
+  String cardsAllDuplicates(int count);
+
+  /// No description provided for @cardsNoneInText.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum card válido encontrado.'**
+  String get cardsNoneInText;
+
+  /// No description provided for @cardsImportActionCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{Importar 1 card} other{Importar {count} cards}}'**
+  String cardsImportActionCount(int count);
 }
 
 class _AppLocalizationsDelegate

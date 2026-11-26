@@ -86,14 +86,24 @@ class CardsListPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(deck?.name ?? context.l10n.reviewAllCards),
         actions: [
+          IconButton(
+            tooltip: context.l10n.reviewImportCsv,
+            icon: const Icon(AppIcons.import),
+            onPressed: () => importCsvFlow(context, ref, deckId: deckId),
+          ),
           PopupMenuButton<String>(
             tooltip: context.l10n.deckOptions,
             onSelected: (v) => switch (v) {
+              'csv' => importCsvFlow(context, ref, deckId: deckId),
               'voz' => showDeckSpeechSheet(context, deckId),
               'renomear' => _renameDeck(context, ref, deck!),
               _ => _deleteDeck(context, ref, deck!),
             },
             itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'csv',
+                child: Text(context.l10n.reviewImportCsv),
+              ),
               PopupMenuItem(value: 'voz', child: Text(context.l10n.deckSpeech)),
               if (deck != null) ...[
                 PopupMenuItem(
@@ -124,9 +134,26 @@ class CardsListPage extends ConsumerWidget {
             ? EmptyState(
                 icon: AppIcons.flashcard,
                 message: context.l10n.cardsEmptyHere,
-                action: FilledButton.tonal(
-                  onPressed: () => createCardFlow(context, ref, deckId: deckId),
-                  child: Text(context.l10n.cardCreate),
+                action: Wrap(
+                  spacing: context.space.sm,
+                  runSpacing: context.space.sm,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    FilledButton.tonal(
+                      onPressed: () =>
+                          createCardFlow(context, ref, deckId: deckId),
+                      child: Text(context.l10n.cardCreate),
+                    ),
+                    OutlinedButton.icon(
+                      icon: const Icon(
+                        AppIcons.import,
+                        size: AppIconSize.standard,
+                      ),
+                      label: Text(context.l10n.reviewImportCsv),
+                      onPressed: () =>
+                          importCsvFlow(context, ref, deckId: deckId),
+                    ),
+                  ],
                 ),
               )
             : ListView(

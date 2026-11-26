@@ -659,5 +659,14 @@
   "templatePickHint": "La tarea se crea con etiquetas, apariencia, estimación, recordatorios, subtareas, books y mazos de la plantilla; luego elige las fechas.",
   "templateDelete": "Eliminar plantilla",
   "templateSubtasks": "{count, plural, =0{sin subtareas} =1{1 subtarea} other{{count} subtareas}}",
-  "weekReviewShort": "Semana"
+  "weekReviewShort": "Semana",
+  "cardsImportFromFile": "Cargar archivo",
+  "cardsImportTextLabel": "Tarjetas (frente;reverso)",
+  "cardsImportTextHint": "apple;manzana\nbook;libro",
+  "cardsImportTextHelper": "Una tarjeta por línea, separada por punto y coma (;)",
+  "cardsSkipDuplicates": "Omitir frentes que ya existen en el mazo",
+  "cardsDuplicatesSkipped": "{count, plural, =1{1 duplicada omitida.} other{{count} duplicadas omitidas.}}",
+  "cardsAllDuplicates": "{count, plural, =1{Esta tarjeta ya existe en este mazo.} other{Todas las {count} tarjetas ya existen en este mazo.}}",
+  "cardsNoneInText": "No se encontraron tarjetas válidas.",
+  "cardsImportActionCount": "{count, plural, =1{Importar 1 tarjeta} other{Importar {count} tarjetas}}"
 }

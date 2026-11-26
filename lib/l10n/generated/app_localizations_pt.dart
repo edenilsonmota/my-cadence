@@ -2318,4 +2318,56 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get weekReviewShort => 'Semana';
+
+  @override
+  String get cardsImportFromFile => 'Carregar arquivo';
+
+  @override
+  String get cardsImportTextLabel => 'Cards (frente;verso)';
+
+  @override
+  String get cardsImportTextHint => 'apple;maçã\nbook;livro';
+
+  @override
+  String get cardsImportTextHelper =>
+      'Um card por linha, separado por ponto e vírgula (;)';
+
+  @override
+  String get cardsSkipDuplicates => 'Ignorar frentes já existentes no deck';
+
+  @override
+  String cardsDuplicatesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count duplicados ignorados.',
+      one: '1 duplicado ignorado.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cardsAllDuplicates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Todos os $count cards já existem neste deck.',
+      one: 'Este card já existe neste deck.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cardsNoneInText => 'Nenhum card válido encontrado.';
+
+  @override
+  String cardsImportActionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Importar $count cards',
+      one: 'Importar 1 card',
+    );
+    return '$_temp0';
+  }
 }

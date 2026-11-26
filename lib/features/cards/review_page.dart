@@ -72,9 +72,24 @@ class ReviewPage extends ConsumerWidget {
             return EmptyState(
               icon: AppIcons.flashcard,
               message: l10n.reviewEmptyAlt,
-              action: FilledButton.tonal(
-                onPressed: () => _newDeck(context, ref),
-                child: Text(l10n.reviewEmptyAction),
+              action: Wrap(
+                spacing: context.space.sm,
+                runSpacing: context.space.sm,
+                alignment: WrapAlignment.center,
+                children: [
+                  FilledButton.tonal(
+                    onPressed: () => _newDeck(context, ref),
+                    child: Text(l10n.reviewEmptyAction),
+                  ),
+                  OutlinedButton.icon(
+                    icon: const Icon(
+                      AppIcons.import,
+                      size: AppIconSize.standard,
+                    ),
+                    label: Text(l10n.reviewImportCsv),
+                    onPressed: () => importCsvFlow(context, ref),
+                  ),
+                ],
               ),
             );
           }

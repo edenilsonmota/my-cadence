@@ -659,5 +659,14 @@
   "templatePickHint": "The task gets the template's tags, look, estimate, reminders, subtasks, books and decks; then pick the dates.",
   "templateDelete": "Delete template",
   "templateSubtasks": "{count, plural, =0{no subtasks} =1{1 subtask} other{{count} subtasks}}",
-  "weekReviewShort": "Week"
+  "weekReviewShort": "Week",
+  "cardsImportFromFile": "Load file",
+  "cardsImportTextLabel": "Cards (front;back)",
+  "cardsImportTextHint": "apple;manzana\nbook;libro",
+  "cardsImportTextHelper": "One card per line, separated by a semicolon (;)",
+  "cardsSkipDuplicates": "Skip fronts already in this deck",
+  "cardsDuplicatesSkipped": "{count, plural, =1{1 duplicate skipped.} other{{count} duplicates skipped.}}",
+  "cardsAllDuplicates": "{count, plural, =1{This card is already in this deck.} other{All {count} cards are already in this deck.}}",
+  "cardsNoneInText": "No valid cards found.",
+  "cardsImportActionCount": "{count, plural, =1{Import 1 card} other{Import {count} cards}}"
 }
