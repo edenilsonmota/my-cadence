@@ -110,49 +110,6 @@ String speechText(String markdown) {
       .trim();
 }
 
-/// Uma voz específica oferecida pelo motor TTS do aparelho.
-typedef TtsVoice = ({String name, String locale});
-
-/// Motor TTS escolhido neste aparelho (vazio = padrão do Android; não sincroniza).
-const ttsEngineSettingKey = 'device.tts.engine';
-
-/// Voz específica escolhida neste aparelho para [lang] (não sincroniza).
-String ttsVoiceSettingKey(String lang) =>
-    'device.tts.voice.${lang.replaceAll('_', '-')}';
-
-/// Vozes do motor compatíveis com [lang], sem repetir e em ordem alfabética.
-/// Se nenhuma bater no idioma exato (`en-US`), cai no prefixo (`en`).
-List<TtsVoice> voicesForLanguage(Iterable<TtsVoice> voices, String lang) {
-  String norm(String code) => code.replaceAll('_', '-').toLowerCase();
-  final target = norm(lang);
-  final prefix = target.split('-').first;
-  final exact = <String, TtsVoice>{};
-  final broad = <String, TtsVoice>{};
-  for (final v in voices) {
-    final loc = norm(v.locale);
-    if (loc == target) {
-      exact.putIfAbsent(v.name, () => v);
-    } else if (loc == prefix || loc.startsWith('$prefix-')) {
-      broad.putIfAbsent(v.name, () => v);
-    }
-  }
-  final picked = (exact.isNotEmpty ? exact : broad).values.toList()
-    ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-  return picked;
-}
-
-/// Rótulo amigável para pacotes de motores TTS comuns no Android.
-String friendlyEngineName(String packageId) {
-  final lower = packageId.toLowerCase();
-  if (lower == 'com.google.android.tts') return 'Google TTS';
-  if (lower == 'com.samsung.smt') return 'Samsung TTS';
-  if (lower.contains('sherpa')) return 'SherpaTTS ($packageId)';
-  if (lower.contains('vocalizer')) return 'Vocalizer ($packageId)';
-  if (lower.contains('acapela')) return 'Acapela ($packageId)';
-  if (lower.contains('rhvoice')) return 'RHVoice ($packageId)';
-  return packageId;
-}
-
 /// Rótulo legível de um código de idioma ("en-US" → "en-US"): o nome vem do
 /// próprio código; a lista só ordena com o idioma do app primeiro.
 List<String> sortVoiceLanguages(Iterable<String> codes, {String? first}) {

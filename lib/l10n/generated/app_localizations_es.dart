@@ -2523,28 +2523,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get speechEngineLabel => 'Motor de voz (este dispositivo)';
-
-  @override
-  String get speechEngineDefault => 'Predeterminado del dispositivo';
-
-  @override
-  String get speechEngineHint =>
-      'Muestra motores TTS instalados en Android (ej.: Google, SherpaTTS, Vocalizer).';
-
-  @override
-  String get speechVoiceSpecific => 'Voz específica';
-
-  @override
-  String get speechVoiceDefault => 'Predeterminada del idioma';
-
-  @override
-  String get speechTestVoice => 'Probar voz';
-
-  @override
-  String get speechTestSample => '¡Hola! Esta es la voz elegida.';
-
-  @override
   String get repeatSkipMissed => 'No acumular atrasos';
 
   @override

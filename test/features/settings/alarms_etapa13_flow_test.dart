@@ -180,6 +180,8 @@ void main() {
       await settle(tester);
       await tester.tap(find.text('Entregar TCC'));
       await settle(tester);
+      // Sem modo Alarme, o botão Adiar não aparece no hub.
+      expect(find.byTooltip('Adiar'), findsNothing);
       await tester.tap(find.byTooltip('Editar'));
       await settle(tester);
 
@@ -197,6 +199,17 @@ void main() {
       final oneDay = find.widgetWithText(FilterChip, '1 dia antes');
       await tester.ensureVisible(oneDay);
       await tester.tap(oneDay);
+      await settle(tester);
+
+      // Troca o modo do lembrete para Alarme (só alarmes com hora têm Adiar).
+      final alarmMode = find.text('Alarme');
+      await tester.dragUntilVisible(
+        alarmMode,
+        find.byType(ListView).first,
+        const Offset(0, -150),
+      );
+      await settle(tester);
+      await tester.tap(alarmMode);
       await settle(tester);
 
       // Ativa "Insistir se atrasar": A cada 15 min.
@@ -219,7 +232,7 @@ void main() {
       ))!.single;
       expect(effectiveReminderOffsets(task), [0, 1440]);
       expect(task.nagIntervalMinutes, 15);
-      expect(find.text('Na hora, 1 dia antes'), findsOneWidget);
+      expect(find.text('Na hora, 1 dia antes · Alarme'), findsOneWidget);
       expect(find.text('A cada 15 min (até 5×)'), findsOneWidget);
 
       // Adia para "Amanhã cedo (09:00)" pelo hub.
@@ -239,6 +252,7 @@ void main() {
         scheduler.pending[notificationIdFor(task.id)]!.time,
         DateTime(2026, 11, 24, 9),
       );
+      expect(scheduler.pending[notificationIdFor(task.id)]!.canSnooze, isTrue);
       expect(find.textContaining('Lembrete adiado para'), findsOneWidget);
     },
   );

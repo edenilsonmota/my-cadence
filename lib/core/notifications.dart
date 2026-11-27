@@ -49,6 +49,7 @@ class AlarmSpec {
     this.sound = true,
     this.vibrate = true,
     this.lang = 'pt',
+    this.canSnooze = false,
   });
 
   final int id;
@@ -63,6 +64,10 @@ class AlarmSpec {
   /// Idioma dos botões da notificação (`pt`, `en`, `es`).
   final String lang;
 
+  /// Exibe os botões "Adiar 10 min" e "Adiar 1 h" na notificação (apenas em
+  /// alarmes de tarefas com hora definida).
+  final bool canSnooze;
+
   AlarmSpec copyWith({DateTime? time}) => AlarmSpec(
     id: id,
     time: time ?? this.time,
@@ -73,6 +78,7 @@ class AlarmSpec {
     sound: sound,
     vibrate: vibrate,
     lang: lang,
+    canSnooze: canSnooze,
   );
 
   @override
@@ -86,11 +92,22 @@ class AlarmSpec {
       other.kind == kind &&
       other.sound == sound &&
       other.vibrate == vibrate &&
-      other.lang == lang;
+      other.lang == lang &&
+      other.canSnooze == canSnooze;
 
   @override
-  int get hashCode =>
-      Object.hash(id, time, title, body, payload, kind, sound, vibrate, lang);
+  int get hashCode => Object.hash(
+    id,
+    time,
+    title,
+    body,
+    payload,
+    kind,
+    sound,
+    vibrate,
+    lang,
+    canSnooze,
+  );
 
   @override
   String toString() => 'AlarmSpec($id, $time, $title, $kind)';
@@ -208,8 +225,12 @@ class NotificationService implements AlarmScheduler {
     return response.actionId == null ? response.payload : null;
   }
 
-  /// Botões dos lembretes de tarefa no idioma do app.
-  static List<AndroidNotificationAction> _taskActions(String lang) {
+  /// Botões dos lembretes de tarefa no idioma do app. Os botões de adiar
+  /// aparecem apenas quando [withSnooze] é verdadeiro (alarme com hora).
+  static List<AndroidNotificationAction> _taskActions(
+    String lang, {
+    required bool withSnooze,
+  }) {
     final (complete, snooze, snooze1h) = switch (lang) {
       'en' => ('Complete', 'Snooze 10 min', 'Snooze 1 h'),
       'es' => ('Completar', 'Posponer 10 min', 'Posponer 1 h'),
@@ -221,16 +242,18 @@ class NotificationService implements AlarmScheduler {
         complete,
         cancelNotification: true,
       ),
-      AndroidNotificationAction(
-        AlarmActions.snooze,
-        snooze,
-        cancelNotification: true,
-      ),
-      AndroidNotificationAction(
-        AlarmActions.snooze1h,
-        snooze1h,
-        cancelNotification: true,
-      ),
+      if (withSnooze) ...[
+        AndroidNotificationAction(
+          AlarmActions.snooze,
+          snooze,
+          cancelNotification: true,
+        ),
+        AndroidNotificationAction(
+          AlarmActions.snooze1h,
+          snooze1h,
+          cancelNotification: true,
+        ),
+      ],
     ];
   }
 
@@ -245,14 +268,17 @@ class NotificationService implements AlarmScheduler {
       // Ícone explícito: no isolate das ações o plugin não é inicializado.
       icon: '@drawable/ic_notification',
       color: brandColor,
-      actions: _taskActions(lang),
+      actions: _taskActions(lang, withSnooze: false),
     ),
     iOS: const DarwinNotificationDetails(categoryIdentifier: _iosCategory),
   );
 
   /// Alarme insistente de tarefa: canal próprio com áudio de alarme (toca no
   /// silencioso), som de alarme do sistema em repetição e tela cheia.
-  static NotificationDetails _alarmDetails(String lang) => NotificationDetails(
+  static NotificationDetails _alarmDetails(
+    String lang, {
+    required bool withSnooze,
+  }) => NotificationDetails(
     android: AndroidNotificationDetails(
       _alarmChannelId,
       'Alarmes de tarefas',
@@ -266,7 +292,7 @@ class NotificationService implements AlarmScheduler {
       additionalFlags: Int32List.fromList([_flagInsistent]),
       icon: '@drawable/ic_notification',
       color: brandColor,
-      actions: _taskActions(lang),
+      actions: _taskActions(lang, withSnooze: withSnooze),
     ),
     iOS: const DarwinNotificationDetails(
       categoryIdentifier: _iosCategory,
@@ -316,7 +342,10 @@ class NotificationService implements AlarmScheduler {
     scheduledDate: tz.TZDateTime.from(alarm.time, tz.local),
     notificationDetails: switch (alarm.kind) {
       AlarmKind.task => _details(alarm.lang),
-      AlarmKind.taskAlarm => _alarmDetails(alarm.lang),
+      AlarmKind.taskAlarm => _alarmDetails(
+        alarm.lang,
+        withSnooze: alarm.canSnooze,
+      ),
       AlarmKind.pomodoro => _pomodoroDetails(alarm),
       AlarmKind.dailyDigest => _dailyDigestDetails,
     },

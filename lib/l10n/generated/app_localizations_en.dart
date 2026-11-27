@@ -2519,28 +2519,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get speechEngineLabel => 'Speech engine (this device)';
-
-  @override
-  String get speechEngineDefault => 'Device default';
-
-  @override
-  String get speechEngineHint =>
-      'Lists TTS engines installed on Android (e.g. Google, SherpaTTS, Vocalizer).';
-
-  @override
-  String get speechVoiceSpecific => 'Specific voice';
-
-  @override
-  String get speechVoiceDefault => 'Language default';
-
-  @override
-  String get speechTestVoice => 'Test voice';
-
-  @override
-  String get speechTestSample => 'Hello! This is the selected voice.';
-
-  @override
   String get repeatSkipMissed => 'Don\'t pile up missed days';
 
   @override

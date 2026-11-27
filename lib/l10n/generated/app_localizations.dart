@@ -4348,48 +4348,6 @@ abstract class AppLocalizations {
   /// **'\"{title}\" restaurado.'**
   String trashRestored(String title);
 
-  /// No description provided for @speechEngineLabel.
-  ///
-  /// In pt, this message translates to:
-  /// **'Motor de voz (neste aparelho)'**
-  String get speechEngineLabel;
-
-  /// No description provided for @speechEngineDefault.
-  ///
-  /// In pt, this message translates to:
-  /// **'Padrão do aparelho'**
-  String get speechEngineDefault;
-
-  /// No description provided for @speechEngineHint.
-  ///
-  /// In pt, this message translates to:
-  /// **'Mostra motores TTS instalados no Android (ex.: Google, SherpaTTS, Vocalizer).'**
-  String get speechEngineHint;
-
-  /// No description provided for @speechVoiceSpecific.
-  ///
-  /// In pt, this message translates to:
-  /// **'Voz específica'**
-  String get speechVoiceSpecific;
-
-  /// No description provided for @speechVoiceDefault.
-  ///
-  /// In pt, this message translates to:
-  /// **'Padrão do idioma'**
-  String get speechVoiceDefault;
-
-  /// No description provided for @speechTestVoice.
-  ///
-  /// In pt, this message translates to:
-  /// **'Testar voz'**
-  String get speechTestVoice;
-
-  /// No description provided for @speechTestSample.
-  ///
-  /// In pt, this message translates to:
-  /// **'Olá! Esta é a voz escolhida.'**
-  String get speechTestSample;
-
   /// No description provided for @repeatSkipMissed.
   ///
   /// In pt, this message translates to:

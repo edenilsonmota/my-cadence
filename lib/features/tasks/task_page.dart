@@ -124,7 +124,9 @@ class _TaskHub extends ConsumerWidget {
     final nag = normalizeNagInterval(task.nagIntervalMinutes);
     final canSnooze =
         !done &&
-        (offsets.isNotEmpty || task.dueAt != null || task.startAt != null);
+        task.hasTime &&
+        task.reminderMode == ReminderMode.alarme &&
+        offsets.isNotEmpty;
 
     Future<void> snoozeTo(DateTime target) async {
       final now = ref.read(clockProvider)();
@@ -457,7 +459,16 @@ class _Info extends StatelessWidget {
       dense: true,
       leading: Icon(icon),
       title: Text(label),
-      trailing: Text(value, style: Theme.of(context).textTheme.bodyMedium),
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 200),
+        child: Text(
+          value,
+          textAlign: TextAlign.end,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ),
     );
   }
 }

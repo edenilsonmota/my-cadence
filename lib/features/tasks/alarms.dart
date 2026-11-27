@@ -189,6 +189,7 @@ AlarmSpec _spec(
         ? AlarmKind.taskAlarm
         : AlarmKind.task,
     lang: lang,
+    canSnooze: task.hasTime && task.reminderMode == ReminderMode.alarme,
   );
 }
 
