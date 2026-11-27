@@ -28,6 +28,11 @@ class Tasks extends Table with SyncColumns {
 
   /// RRULE (subconjunto de `core/recurrence.dart`).
   TextColumn get recurrenceRule => text().nullable()();
+
+  /// Só vale para rotinas: se `true` (padrão), ocorrências de dias passados
+  /// que não foram feitas viram `naoConcluida` no histórico e a rotina avança
+  /// sem acumular em Atrasadas.
+  BoolColumn get skipMissed => boolean().withDefault(const Constant(true))();
   IntColumn get reminderMinutesBefore => integer().nullable()();
 
   /// Lista ordenada de antecedências em minutos separadas por vírgula
@@ -66,10 +71,14 @@ class TaskTemplates extends Table with SyncColumns {
   TextColumn get payload => text()();
 }
 
-/// Histórico de conclusões de rotinas (uma linha por ocorrência concluída).
+/// Histórico de ocorrências de rotinas (uma linha por ocorrência concluída ou
+/// não concluída).
 class TaskCompletions extends Table with SyncColumns {
   TextColumn get taskId => text().references(Tasks, #id)();
   DateTimeColumn get occurrence => dateTime()();
+  TextColumn get status => textEnum<OccurrenceStatus>().withDefault(
+    Constant(OccurrenceStatus.concluida.name),
+  )();
 }
 
 class Tags extends Table with SyncColumns {

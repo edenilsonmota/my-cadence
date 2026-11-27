@@ -96,7 +96,7 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
             appLang: context.lang,
           );
     if (speech != null && speech.auto && speech.back != null) {
-      _speaker.speak(card.back, speech.back!);
+      speakCardText(ref, card.back, speech.back!);
     }
     final settings =
         ref.read(cardSettingsProvider).value ?? const CardSettings();
@@ -276,9 +276,9 @@ class _ReviewSessionPageState extends ConsumerState<ReviewSessionPage> {
               _autoSpokenId != card.id &&
               _preview == null) {
             _autoSpokenId = card.id;
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) => _speaker.speak(card.front, speech.front!),
-            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) speakCardText(ref, card.front, speech.front!);
+            });
           }
           final remaining =
               queue

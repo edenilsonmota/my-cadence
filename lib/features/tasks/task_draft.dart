@@ -32,6 +32,7 @@ class TaskDraft {
     this.interval = 1,
     Set<int>? weekdays,
     this.until,
+    this.skipMissed = true,
     int? reminderMinutesBefore,
     Set<int>? reminderOffsets,
     this.reminderMode = ReminderMode.notificacao,
@@ -80,6 +81,7 @@ class TaskDraft {
       interval: rule?.interval ?? 1,
       weekdays: {...?rule?.weekdays},
       until: rule?.until,
+      skipMissed: task.skipMissed,
       reminderOffsets: {...effectiveReminderOffsets(task)},
       reminderMode: task.reminderMode,
       nagIntervalMinutes: normalizeNagInterval(task.nagIntervalMinutes),
@@ -121,6 +123,7 @@ class TaskDraft {
   int interval;
   Set<int> weekdays;
   DateTime? until;
+  bool skipMissed;
 
   /// Antecedências selecionadas em minutos (vazio = sem lembrete).
   Set<int> reminderOffsets;
@@ -224,6 +227,7 @@ class TaskDraft {
       startAt: startAt,
       dueAt: dueAt,
       recurrenceRule: rule?.toRule(),
+      skipMissed: skipMissed,
       reminderMinutesBefore: primaryOffset,
       reminderOffsets: encodedOffsets,
       reminderMode: primaryOffset == null
@@ -267,6 +271,7 @@ class TaskFields {
     required this.startAt,
     required this.dueAt,
     required this.recurrenceRule,
+    this.skipMissed = true,
     required this.reminderMinutesBefore,
     this.reminderOffsets,
     this.reminderMode = ReminderMode.notificacao,
@@ -284,6 +289,7 @@ class TaskFields {
   final DateTime? startAt;
   final DateTime? dueAt;
   final String? recurrenceRule;
+  final bool skipMissed;
   final int? reminderMinutesBefore;
   final String? reminderOffsets;
   final ReminderMode reminderMode;
@@ -302,6 +308,7 @@ class TaskFields {
     startAt: Value(startAt),
     dueAt: Value(dueAt),
     recurrenceRule: Value(recurrenceRule),
+    skipMissed: skipMissed,
     reminderMinutesBefore: Value(reminderMinutesBefore),
     reminderOffsets: Value(reminderOffsets),
     reminderMode: reminderMode,

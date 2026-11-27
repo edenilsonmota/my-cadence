@@ -2,10 +2,10 @@ import 'package:drift/drift.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_cadence/data/db/database.dart';
-import 'package:my_cadence/data/db/enums.dart';
 
 import 'app/generated/schema.dart';
 import 'app/generated/schema_v4.dart' as v4;
+import 'app/generated/schema_v5.dart' as v5;
 
 /// v4 → v5: tarefas ganham `reminderOffsets` e `nagIntervalMinutes` (nulos),
 /// preservando todos os dados existentes.
@@ -42,9 +42,12 @@ void main() {
       await old.close();
 
       final db = AppDatabase(schema.newConnection());
-      addTearDown(db.close);
       await verifier.migrateAndValidate(db, 5);
-      final task = await db.select(db.tasks).getSingle();
+      await db.close();
+
+      final db5 = v5.DatabaseAtV5(schema.newConnection());
+      addTearDown(db5.close);
+      final task = await db5.select(db5.tasks).getSingle();
       expect(
         (
           task.title,
@@ -53,7 +56,7 @@ void main() {
           task.reminderOffsets,
           task.nagIntervalMinutes,
         ),
-        ('Consulta', 30, ReminderMode.alarme, null, null),
+        ('Consulta', 30, 'alarme', null, null),
       );
     },
   );

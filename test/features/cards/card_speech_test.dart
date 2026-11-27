@@ -58,4 +58,28 @@ void main() {
       ['pt-BR', 'pt-PT', 'en-US'],
     );
   });
+
+  test('filtra vozes por idioma e formata nome de motores Android', () {
+    const voices = <TtsVoice>[
+      (name: 'en-us-neural-b', locale: 'en_US'),
+      (name: 'en-us-neural-a', locale: 'en-US'),
+      (name: 'en-gb-a', locale: 'en-GB'),
+      (name: 'pt-br-a', locale: 'pt-BR'),
+    ];
+    expect(voicesForLanguage(voices, 'en-US').map((v) => v.name), [
+      'en-us-neural-a',
+      'en-us-neural-b',
+    ]);
+    // Sem exato, cai no prefixo do idioma.
+    expect(voicesForLanguage(voices, 'en-AU').map((v) => v.name), [
+      'en-gb-a',
+      'en-us-neural-a',
+      'en-us-neural-b',
+    ]);
+    expect(friendlyEngineName('com.google.android.tts'), 'Google TTS');
+    expect(
+      friendlyEngineName('es.codefactory.vocalizertts'),
+      'Vocalizer (es.codefactory.vocalizertts)',
+    );
+  });
 }

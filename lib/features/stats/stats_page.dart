@@ -610,16 +610,21 @@ class _RoutineSection extends ConsumerWidget {
     final completions = ref.watch(statsCompletionsProvider).value ?? const [];
     final today = ref.watch(todayProvider);
     final grid = routineHeatmap(completions, today, heatmapWeeks);
+    final missedGrid = routineMissedHeatmap(completions, today, heatmapWeeks);
+    final summary = routineSummary(completions);
     final start = heatmapStart(today, heatmapWeeks);
     final scheme = Theme.of(context).colorScheme;
     final small = context.type.micro;
     // Tons de uma única cor, do claro ao forte.
     final heat = context.palette.of(PaletteKey.verde);
-    final total = completions.length;
+    final danger = context.palette.danger;
+    final total = summary.done;
 
-    Color? colorOf(int? count) {
+    Color? colorOf(int? count, {int missed = 0}) {
       if (count == null) return null; // dia futuro
-      if (count == 0) return scheme.surfaceContainerHighest;
+      if (count == 0) {
+        return missed > 0 ? danger.tint : scheme.surfaceContainerHighest;
+      }
       return Color.lerp(heat.tint, heat.strong, math.min(count, 4) / 4)!;
     }
 
@@ -641,11 +646,18 @@ class _RoutineSection extends ConsumerWidget {
       children: [
         _SectionTitle(l10n.statsRoutinesDone),
         Text(
-          l10n.statsRoutineTotal(
-            total,
-            total == 1 ? l10n.unitCompletion : l10n.unitCompletions,
-            heatmapWeeks,
-          ),
+          summary.missed > 0
+              ? l10n.statsRoutineSummary(
+                  summary.done,
+                  summary.missed,
+                  ((summary.rate ?? 0) * 100).round(),
+                  heatmapWeeks,
+                )
+              : l10n.statsRoutineTotal(
+                  total,
+                  total == 1 ? l10n.unitCompletion : l10n.unitCompletions,
+                  heatmapWeeks,
+                ),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 8),
@@ -669,13 +681,22 @@ class _RoutineSection extends ConsumerWidget {
                 Column(
                   children: [
                     for (final (d, count) in week.indexed)
-                      cell(
-                        colorOf(count),
-                        tip: count == null
-                            ? null
-                            : '${formatDate(addDays(start, 7 * w + d), today, lang: lang)}: '
-                                  '$count',
-                      ),
+                      () {
+                        final missed = missedGrid[w][d] ?? 0;
+                        final date = formatDate(
+                          addDays(start, 7 * w + d),
+                          today,
+                          lang: lang,
+                        );
+                        return cell(
+                          colorOf(count, missed: missed),
+                          tip: count == null
+                              ? null
+                              : missed > 0
+                              ? '$date: $count · ${l10n.routineMissedCount(missed)}'
+                              : '$date: $count',
+                        );
+                      }(),
                   ],
                 ),
             ],

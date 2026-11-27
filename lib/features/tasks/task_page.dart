@@ -603,10 +603,16 @@ class _RoutineHistory extends ConsumerWidget {
     final lang = context.lang;
     final completions =
         ref.watch(completionsProvider(taskId)).value ?? const [];
+    final doneList = [
+      for (final c in completions)
+        if (c.status == OccurrenceStatus.concluida) c,
+    ];
+    final missedCount = completions.length - doneList.length;
     final theme = Theme.of(context);
+    final danger = context.palette.danger;
     final streak = routineStreak(
       rule,
-      completions.map((c) => c.occurrence),
+      doneList.map((c) => c.occurrence),
       today,
     );
     final daily = rule.frequency == Frequency.daily && rule.interval == 1;
@@ -621,6 +627,15 @@ class _RoutineHistory extends ConsumerWidget {
             streak,
             streak == 1 ? l10n.routineTimeSingular : l10n.routineTimePlural,
           );
+    final doneSummary = doneList.isEmpty && missedCount == 0
+        ? l10n.routineNotCompletedYet
+        : missedCount == 0
+        ? l10n.routineTotalCompletions(
+            doneList.length,
+            doneList.length == 1 ? l10n.unitCompletion : l10n.unitCompletions,
+          )
+        : '${l10n.routineTotalCompletions(doneList.length, doneList.length == 1 ? l10n.unitCompletion : l10n.unitCompletions)}'
+              ' · ${l10n.routineMissedCount(missedCount)}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -632,16 +647,7 @@ class _RoutineHistory extends ConsumerWidget {
             color: streak > 0 ? theme.colorScheme.tertiary : null,
           ),
           title: Text(streakText),
-          subtitle: Text(
-            completions.isEmpty
-                ? l10n.routineNotCompletedYet
-                : l10n.routineTotalCompletions(
-                    completions.length,
-                    completions.length == 1
-                        ? l10n.unitCompletion
-                        : l10n.unitCompletions,
-                  ),
-          ),
+          subtitle: Text(doneSummary),
         ),
         if (completions.isNotEmpty)
           Padding(
@@ -651,10 +657,33 @@ class _RoutineHistory extends ConsumerWidget {
               runSpacing: 4,
               children: [
                 for (final c in completions.take(_shown))
-                  Chip(
-                    avatar: const Icon(AppIcons.check, size: 16),
-                    label: Text(formatDate(c.occurrence, today, lang: lang)),
-                  ),
+                  if (c.status == OccurrenceStatus.naoConcluida)
+                    Tooltip(
+                      message: l10n.routineMarkAsDone,
+                      child: ActionChip(
+                        backgroundColor: danger.tint,
+                        avatar: Icon(
+                          AppIcons.close,
+                          size: 16,
+                          color: danger.strong,
+                        ),
+                        label: Text(
+                          formatDate(c.occurrence, today, lang: lang),
+                          style: TextStyle(color: danger.onTint),
+                        ),
+                        onPressed: () => ref
+                            .read(tasksRepositoryProvider)
+                            .setCompletionStatus(
+                              c.id,
+                              OccurrenceStatus.concluida,
+                            ),
+                      ),
+                    )
+                  else
+                    Chip(
+                      avatar: const Icon(AppIcons.check, size: 16),
+                      label: Text(formatDate(c.occurrence, today, lang: lang)),
+                    ),
               ],
             ),
           ),

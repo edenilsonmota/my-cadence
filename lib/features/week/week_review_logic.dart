@@ -13,6 +13,7 @@ class WeekReview {
     required this.start,
     required this.completed,
     required this.routineDone,
+    this.routineMissed = 0,
     required this.focus,
     required this.byTag,
     required this.overdue,
@@ -27,6 +28,9 @@ class WeekReview {
 
   /// Ocorrências de rotina concluídas na semana.
   final int routineDone;
+
+  /// Ocorrências de rotina fechadas como não concluídas na semana.
+  final int routineMissed;
 
   /// Tempo de foco (pomodoros e tempo manual) iniciado na semana.
   final Duration focus;
@@ -77,7 +81,17 @@ WeekReview buildWeekReview({
     completed: completed,
     routineDone: [
       for (final c in completions)
-        if (c.deletedAt == null && inWeek(c.occurrence)) c,
+        if (c.deletedAt == null &&
+            c.status == OccurrenceStatus.concluida &&
+            inWeek(c.occurrence))
+          c,
+    ].length,
+    routineMissed: [
+      for (final c in completions)
+        if (c.deletedAt == null &&
+            c.status == OccurrenceStatus.naoConcluida &&
+            inWeek(c.occurrence))
+          c,
     ].length,
     focus: focusBetween(weekSessions, start, end, now),
     byTag: focusBy(

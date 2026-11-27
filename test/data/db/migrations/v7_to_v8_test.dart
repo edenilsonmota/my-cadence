@@ -5,6 +5,7 @@ import 'package:my_cadence/data/db/database.dart';
 
 import 'app/generated/schema.dart';
 import 'app/generated/schema_v7.dart' as v7;
+import 'app/generated/schema_v8.dart' as v8;
 
 /// v7 → v8: sem tipo na interface (cor/ícone gravados onde a aparência
 /// mudaria), tempo estimado a partir dos pomodoros e tabela de modelos.
@@ -51,9 +52,12 @@ void main() {
       await old.close();
 
       final db = AppDatabase(schema.newConnection());
-      addTearDown(db.close);
       await verifier.migrateAndValidate(db, 8);
-      final byId = {for (final t in await db.select(db.tasks).get()) t.id: t};
+      await db.close();
+
+      final db8 = v8.DatabaseAtV8(schema.newConnection());
+      addTearDown(db8.close);
+      final byId = {for (final t in await db8.select(db8.tasks).get()) t.id: t};
 
       expect(
         (byId['prova']!.colorKey, byId['prova']!.iconKey),
@@ -69,7 +73,7 @@ void main() {
         (byId['mercado']!.colorKey, byId['mercado']!.iconKey),
         (null, null),
       );
-      expect(await db.select(db.taskTemplates).get(), isEmpty);
+      expect(await db8.select(db8.taskTemplates).get(), isEmpty);
     },
   );
 }

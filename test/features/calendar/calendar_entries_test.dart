@@ -7,13 +7,18 @@ import '../tasks/fixtures.dart';
 
 DateTime d(int day, [int h = 0, int m = 0]) => DateTime(2026, 11, day, h, m);
 
-TaskCompletion completion(String taskId, DateTime occurrence) => TaskCompletion(
+TaskCompletion completion(
+  String taskId,
+  DateTime occurrence, {
+  OccurrenceStatus status = OccurrenceStatus.concluida,
+}) => TaskCompletion(
   id: 'c-$taskId-${occurrence.day}',
   createdAt: DateTime(2026),
   updatedAt: DateTime(2026),
   dirty: true,
   taskId: taskId,
   occurrence: occurrence,
+  status: status,
 );
 
 void main() {

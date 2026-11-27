@@ -23,6 +23,8 @@ class CalendarEntry {
     required this.allDay,
     this.virtual = false,
     this.done = false,
+    this.missed = false,
+    this.completionId,
   });
 
   final Task task;
@@ -36,13 +38,19 @@ class CalendarEntry {
   /// Ocorrência futura de rotina, calculada (não existe linha no banco).
   final bool virtual;
 
-  /// Concluída: tarefa feita ou ocorrência do histórico da rotina.
+  /// Concluída: tarefa feita ou ocorrência concluída no histórico da rotina.
   final bool done;
+
+  /// Ocorrência passada de rotina fechada automaticamente como não concluída.
+  final bool missed;
+
+  /// Id da linha em `TaskCompletions` quando esta entrada vem do histórico.
+  final String? completionId;
 
   bool get isRoutine => task.recurrenceRule != null;
 
   /// Dá para arrastar: tem hora e não é histórico.
-  bool get movable => !allDay && !(isRoutine && done);
+  bool get movable => !allDay && !(isRoutine && (done || missed));
 
   String get key => '${task.id}@${start.millisecondsSinceEpoch}';
 
@@ -54,7 +62,8 @@ class CalendarEntry {
   @override
   String toString() =>
       'CalendarEntry(${task.title}, $start, $end${allDay ? ', dia inteiro' : ''}'
-      '${virtual ? ', virtual' : ''}${done ? ', feita' : ''})';
+      '${virtual ? ', virtual' : ''}${done ? ', feita' : ''}'
+      '${missed ? ', não concluída' : ''})';
 }
 
 /// Intervalo da tarefa como está no banco, ou `null` se não tem data.
@@ -154,7 +163,9 @@ List<CalendarEntry> expandOccurrences(
           start: start,
           end: end,
           allDay: span.allDay,
-          done: true,
+          done: c.status == OccurrenceStatus.concluida,
+          missed: c.status == OccurrenceStatus.naoConcluida,
+          completionId: c.id,
         ),
       );
     }
@@ -223,7 +234,7 @@ TaskTimes resizeEntry(CalendarEntry entry, DateTime newEnd) {
 CalendarEntry? nextUpcoming(Iterable<CalendarEntry> entries, DateTime now) {
   CalendarEntry? best;
   for (final e in entries) {
-    if (e.allDay || e.done || !e.start.isAfter(now)) continue;
+    if (e.allDay || e.done || e.missed || !e.start.isAfter(now)) continue;
     if (best == null || e.start.isBefore(best.start)) best = e;
   }
   return best;

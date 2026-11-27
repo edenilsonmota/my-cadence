@@ -2521,4 +2521,67 @@ class AppLocalizationsEs extends AppLocalizations {
   String trashRestored(String title) {
     return '\"$title\" restaurado.';
   }
+
+  @override
+  String get speechEngineLabel => 'Motor de voz (este dispositivo)';
+
+  @override
+  String get speechEngineDefault => 'Predeterminado del dispositivo';
+
+  @override
+  String get speechEngineHint =>
+      'Muestra motores TTS instalados en Android (ej.: Google, SherpaTTS, Vocalizer).';
+
+  @override
+  String get speechVoiceSpecific => 'Voz específica';
+
+  @override
+  String get speechVoiceDefault => 'Predeterminada del idioma';
+
+  @override
+  String get speechTestVoice => 'Probar voz';
+
+  @override
+  String get speechTestSample => '¡Hola! Esta es la voz elegida.';
+
+  @override
+  String get repeatSkipMissed => 'No acumular atrasos';
+
+  @override
+  String get repeatSkipMissedHint =>
+      'Si no se completa en el día, la registra como no completada y avanza a la siguiente.';
+
+  @override
+  String get repeatSkipMissedInfo =>
+      'Por defecto, las rutinas no acumulan atrasos: si pasa un día sin completarla, la ocurrencia queda registrada como no completada en el calendario y métricas, y la rutina avanza. Desactívalo para mantenerla en Atrasadas.';
+
+  @override
+  String routineMissedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count no completadas',
+      one: '1 no completada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routineMarkAsDone => 'Marcar como completada';
+
+  @override
+  String get routineMissedDialogTitle => 'Ocurrencia no completada';
+
+  @override
+  String routineMissedDialogBody(String title) {
+    return '\"$title\" no se completó este día. Puedes marcarla como completada o abrir la tarea.';
+  }
+
+  @override
+  String get routineOpenTask => 'Abrir tarea';
+
+  @override
+  String statsRoutineSummary(int done, int missed, int rate, int weeks) {
+    return '$done completadas · $missed no completadas ($rate%) en las últimas $weeks semanas';
+  }
 }

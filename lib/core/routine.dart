@@ -21,6 +21,61 @@ class RoutineAdvance {
   bool get finished => nextDue == null;
 }
 
+class RoutineRollover {
+  const RoutineRollover({
+    required this.missedOccurrences,
+    required this.nextDue,
+    required this.nextStart,
+  });
+
+  /// Ocorrências de dias anteriores a `today` que não foram feitas e viram
+  /// `naoConcluida` no histórico.
+  final List<DateTime> missedOccurrences;
+
+  /// Próximo prazo (em `today` ou depois), ou `null` se a série terminou.
+  final DateTime? nextDue;
+  final DateTime? nextStart;
+
+  bool get finished => nextDue == null;
+}
+
+/// Teto de faltas gravadas de uma só vez caso o app fique meses sem abrir.
+const maxRecordedMissedOccurrences = 90;
+
+/// Se a rotina tem [dueAt] em um dia anterior a [today], calcula as ocorrências
+/// perdidas até [today] e o próximo prazo (em [today] ou depois). Devolve `null`
+/// se [dueAt] já é hoje ou futuro.
+RoutineRollover? rolloverMissedRoutine({
+  required RecurrenceRule rule,
+  required DateTime dueAt,
+  required DateTime today,
+  DateTime? startAt,
+}) {
+  final todayStart = startOfDay(today);
+  if (!startOfDay(dueAt).isBefore(todayStart)) return null;
+
+  final missed = <DateTime>[];
+  DateTime? cursor = dueAt;
+  var guard = 0;
+  while (cursor != null &&
+      startOfDay(cursor).isBefore(todayStart) &&
+      guard++ < 5000) {
+    missed.add(cursor);
+    cursor = rule.next(cursor);
+  }
+  final recorded = missed.length > maxRecordedMissedOccurrences
+      ? missed.sublist(missed.length - maxRecordedMissedOccurrences)
+      : missed;
+  final nextDue = cursor;
+  return RoutineRollover(
+    missedOccurrences: recorded,
+    nextDue: nextDue,
+    nextStart: nextDue == null || startAt == null
+        ? null
+        : nextDue.subtract(dueAt.difference(startAt)),
+  );
+}
+
 /// Conclui a ocorrência [dueAt] e calcula a próxima, pulando as que ficaram
 /// no passado. Em tarefa de dia inteiro, a ocorrência de hoje ainda conta como
 /// futura; com hora, só as depois de [now]. O início acompanha o prazo,

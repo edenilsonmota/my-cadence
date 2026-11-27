@@ -216,9 +216,30 @@ int studyStreak(Iterable<ReviewLog> logs, DateTime today) {
 // ─── Rotinas ─────────────────────────────────────────────────────────────────
 
 /// Grade do heatmap: [weeks] semanas (colunas, de segunda a domingo) até a
-/// semana de [today]. Cada célula é o número de conclusões de rotina do dia;
-/// dias depois de hoje ficam `null`.
+/// semana de [today]. Cada célula é o número de conclusões de rotina do dia
+/// (apenas `concluida`); dias depois de hoje ficam `null`.
 List<List<int?>> routineHeatmap(
+  Iterable<TaskCompletion> completions,
+  DateTime today,
+  int weeks,
+) => _routineGrid(
+  completions.where((c) => c.status == OccurrenceStatus.concluida),
+  today,
+  weeks,
+);
+
+/// Mesma grade do heatmap contando ocorrências fechadas como `naoConcluida`.
+List<List<int?>> routineMissedHeatmap(
+  Iterable<TaskCompletion> completions,
+  DateTime today,
+  int weeks,
+) => _routineGrid(
+  completions.where((c) => c.status == OccurrenceStatus.naoConcluida),
+  today,
+  weeks,
+);
+
+List<List<int?>> _routineGrid(
   Iterable<TaskCompletion> completions,
   DateTime today,
   int weeks,
@@ -240,6 +261,22 @@ List<List<int?>> routineHeatmap(
           },
       ],
   ];
+}
+
+/// Resumo de cumprimento de rotinas: concluídas, não concluídas e taxa (0..1).
+({int done, int missed, double? rate}) routineSummary(
+  Iterable<TaskCompletion> completions,
+) {
+  var done = 0, missed = 0;
+  for (final c in completions) {
+    if (c.status == OccurrenceStatus.naoConcluida) {
+      missed++;
+    } else {
+      done++;
+    }
+  }
+  final total = done + missed;
+  return (done: done, missed: missed, rate: total == 0 ? null : done / total);
 }
 
 /// Primeiro dia da grade de [routineHeatmap].

@@ -5,6 +5,7 @@ import 'package:my_cadence/data/db/database.dart';
 
 import 'app/generated/schema.dart';
 import 'app/generated/schema_v5.dart' as v5;
+import 'app/generated/schema_v6.dart' as v6;
 
 /// v5 → v6: novas tabelas de vínculo tarefa ↔ book e tarefa ↔ deck, sem
 /// mexer nos dados.
@@ -51,18 +52,15 @@ void main() {
       await old.close();
 
       final db = AppDatabase(schema.newConnection());
-      addTearDown(db.close);
       await verifier.migrateAndValidate(db, 6);
-      expect((await db.select(db.tasks).getSingle()).title, 'Estudar física');
-      expect((await db.select(db.notebooks).getSingle()).title, 'Física');
-      expect(await db.select(db.taskNotebookLinks).get(), isEmpty);
-      expect(await db.select(db.taskDeckLinks).get(), isEmpty);
+      await db.close();
 
-      await db.booksDao.setTaskNotebooks('t1', {'n1'});
-      expect(
-        (await db.booksDao.watchLinkedNotebooks('t1').first).single.id,
-        'n1',
-      );
+      final db6 = v6.DatabaseAtV6(schema.newConnection());
+      addTearDown(db6.close);
+      expect((await db6.select(db6.tasks).getSingle()).title, 'Estudar física');
+      expect((await db6.select(db6.notebooks).getSingle()).title, 'Física');
+      expect(await db6.select(db6.taskNotebookLinks).get(), isEmpty);
+      expect(await db6.select(db6.taskDeckLinks).get(), isEmpty);
     },
   );
 }

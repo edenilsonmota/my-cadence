@@ -189,6 +189,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         dueAt: f.dueAt,
         hasTime: f.hasTime,
         recurrenceRule: f.recurrenceRule,
+        skipMissed: f.skipMissed,
         reminderMinutesBefore: f.reminderMinutesBefore,
         reminderOffsets: f.reminderOffsets,
         reminderMode: f.reminderMode,
@@ -252,7 +253,8 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
       (l10n.formInfoDatesTitle, l10n.datesHint),
       (
         l10n.formInfoRepeatTitle,
-        '${l10n.repeatDatesHint} ${l10n.repeatTimeHint}',
+        '${l10n.repeatDatesHint} ${l10n.repeatTimeHint}\n'
+            '${l10n.repeatSkipMissedInfo}',
       ),
       (l10n.formInfoRemindersTitle, l10n.formInfoReminders),
       (
@@ -472,6 +474,13 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
         allDay: true,
         placeholder: l10n.repeatNever,
         onDate: (v) => _edit((d) => d.until = v),
+      ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(l10n.repeatSkipMissed),
+        subtitle: Text(l10n.repeatSkipMissedHint),
+        value: d.skipMissed,
+        onChanged: (v) => _edit((d) => d.skipMissed = v),
       ),
       SizedBox(height: space.xs),
       Text(

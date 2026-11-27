@@ -1434,5 +1434,51 @@
         "type": "String"
       }
     }
+  },
+  "speechEngineLabel": "Motor de voz (neste aparelho)",
+  "speechEngineDefault": "Padrão do aparelho",
+  "speechEngineHint": "Mostra motores TTS instalados no Android (ex.: Google, SherpaTTS, Vocalizer).",
+  "speechVoiceSpecific": "Voz específica",
+  "speechVoiceDefault": "Padrão do idioma",
+  "speechTestVoice": "Testar voz",
+  "speechTestSample": "Olá! Esta é a voz escolhida.",
+  "repeatSkipMissed": "Não acumular atrasos",
+  "repeatSkipMissedHint": "Se não concluir no dia, registra como não concluída e avança para a próxima.",
+  "repeatSkipMissedInfo": "Por padrão, rotinas não acumulam atrasos: se um dia passar sem concluir, a ocorrência fica marcada como não concluída no calendário e nas métricas, e a rotina avança para a próxima data. Desative para mantê-la em Atrasadas.",
+  "routineMissedCount": "{count, plural, =1{1 não concluída} other{{count} não concluídas}}",
+  "@routineMissedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routineMarkAsDone": "Marcar como concluída",
+  "routineMissedDialogTitle": "Ocorrência não concluída",
+  "routineMissedDialogBody": "\"{title}\" não foi concluída neste dia. Você pode marcá-la como concluída ou abrir a tarefa.",
+  "@routineMissedDialogBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "routineOpenTask": "Abrir tarefa",
+  "statsRoutineSummary": "{done} concluídas · {missed} não concluídas ({rate}%) nas últimas {weeks} semanas",
+  "@statsRoutineSummary": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "missed": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "int"
+      },
+      "weeks": {
+        "type": "int"
+      }
+    }
   }
 }

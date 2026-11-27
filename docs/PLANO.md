@@ -398,8 +398,13 @@ A 16.1 saiu sozinha (1.4.0); da 16.2 à 16.8 saíram juntas (1.5.0).
   (tag → vínculos).
 
 ### Etapa 18: Qualidade de vida no dia a dia (feito)
-- **TTS devagar nos flashcards:** botão com ícone de tartaruga ao lado do alto-falante (frente e verso) para
-  ouvir em ~60% da velocidade (`setSpeechRate`).
+- **TTS devagar e motores externos nos flashcards:** botão com ícone de tartaruga ao lado do alto-falante
+  (frente e verso) para ouvir em ~60% da velocidade (`setSpeechRate`); seletor de motor TTS instalado no
+  Android (Google, SherpaTTS, Vocalizer etc.) e voz específica por idioma, com botão de testar voz.
+- **Rotinas não acumulativas (esquema v9):** opção por rotina *"Não acumular atrasos"* (ligada por padrão,
+  documentada no "i" do formulário). Na virada do dia, ocorrências passadas não concluídas ganham status
+  `naoConcluida` no histórico e a rotina avança sem poluir Atrasadas — refletindo no calendário (com toque para
+  corrigir retroativamente), no hub da tarefa, nas métricas e na revisão da semana.
 - **Editar e suspender card durante a revisão:** menu `⋮` no topo da sessão de revisão para corrigir ou suspender
   o card atual sem sair da fila (com desfazer ao suspender).
 - **Busca e filtro dentro do deck:** busca por frente/verso e filtros rápidos (*Todos*, *Vencidos*, *Novos*,

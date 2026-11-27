@@ -6,7 +6,7 @@ import 'snapshot.dart';
 
 /// Esquema do banco nesta versão do app (igual a `AppDatabase.schemaVersion`;
 /// um teste garante que andam juntos).
-const currentSchemaVersion = 8;
+const currentSchemaVersion = 9;
 
 typedef SnapshotUpgrader = Map<String, List<SyncRow>> Function(
   Map<String, List<SyncRow>> tables,
@@ -21,6 +21,21 @@ final Map<int, SnapshotUpgrader> upgraders = {
   5: _v5ToV6,
   6: _v6ToV7,
   7: _v7ToV8,
+  8: _v8ToV9,
+};
+
+/// v8 → v9: tarefas ganham `skip_missed` (verdadeiro) e conclusões de rotina
+/// ganham `status` (`concluida`).
+Map<String, List<SyncRow>> _v8ToV9(Map<String, List<SyncRow>> tables) => {
+  ...tables,
+  'tasks': [
+    for (final row in tables['tasks'] ?? const <SyncRow>[])
+      {...row, 'skip_missed': row['skip_missed'] ?? true},
+  ],
+  'task_completions': [
+    for (final row in tables['task_completions'] ?? const <SyncRow>[])
+      {...row, 'status': row['status'] ?? 'concluida'},
+  ],
 };
 
 /// v7 → v8 (mesma regra da migração do banco): `estimated_minutes` a partir

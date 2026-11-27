@@ -55,13 +55,17 @@ Flashcard card(DateTime due, {bool suspended = false}) => Flashcard(
   suspended: suspended,
 );
 
-TaskCompletion done(DateTime occurrence) => TaskCompletion(
+TaskCompletion done(
+  DateTime occurrence, {
+  OccurrenceStatus status = OccurrenceStatus.concluida,
+}) => TaskCompletion(
   id: 'k${_n++}',
   createdAt: occurrence,
   updatedAt: occurrence,
   dirty: true,
   taskId: 't',
   occurrence: occurrence,
+  status: status,
 );
 
 void main() {

@@ -4347,6 +4347,102 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'\"{title}\" restaurado.'**
   String trashRestored(String title);
+
+  /// No description provided for @speechEngineLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Motor de voz (neste aparelho)'**
+  String get speechEngineLabel;
+
+  /// No description provided for @speechEngineDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Padrão do aparelho'**
+  String get speechEngineDefault;
+
+  /// No description provided for @speechEngineHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mostra motores TTS instalados no Android (ex.: Google, SherpaTTS, Vocalizer).'**
+  String get speechEngineHint;
+
+  /// No description provided for @speechVoiceSpecific.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voz específica'**
+  String get speechVoiceSpecific;
+
+  /// No description provided for @speechVoiceDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Padrão do idioma'**
+  String get speechVoiceDefault;
+
+  /// No description provided for @speechTestVoice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Testar voz'**
+  String get speechTestVoice;
+
+  /// No description provided for @speechTestSample.
+  ///
+  /// In pt, this message translates to:
+  /// **'Olá! Esta é a voz escolhida.'**
+  String get speechTestSample;
+
+  /// No description provided for @repeatSkipMissed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não acumular atrasos'**
+  String get repeatSkipMissed;
+
+  /// No description provided for @repeatSkipMissedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Se não concluir no dia, registra como não concluída e avança para a próxima.'**
+  String get repeatSkipMissedHint;
+
+  /// No description provided for @repeatSkipMissedInfo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por padrão, rotinas não acumulam atrasos: se um dia passar sem concluir, a ocorrência fica marcada como não concluída no calendário e nas métricas, e a rotina avança para a próxima data. Desative para mantê-la em Atrasadas.'**
+  String get repeatSkipMissedInfo;
+
+  /// No description provided for @routineMissedCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 não concluída} other{{count} não concluídas}}'**
+  String routineMissedCount(int count);
+
+  /// No description provided for @routineMarkAsDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Marcar como concluída'**
+  String get routineMarkAsDone;
+
+  /// No description provided for @routineMissedDialogTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ocorrência não concluída'**
+  String get routineMissedDialogTitle;
+
+  /// No description provided for @routineMissedDialogBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'\"{title}\" não foi concluída neste dia. Você pode marcá-la como concluída ou abrir a tarefa.'**
+  String routineMissedDialogBody(String title);
+
+  /// No description provided for @routineOpenTask.
+  ///
+  /// In pt, this message translates to:
+  /// **'Abrir tarefa'**
+  String get routineOpenTask;
+
+  /// No description provided for @statsRoutineSummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'{done} concluídas · {missed} não concluídas ({rate}%) nas últimas {weeks} semanas'**
+  String statsRoutineSummary(int done, int missed, int rate, int weeks);
 }
 
 class _AppLocalizationsDelegate

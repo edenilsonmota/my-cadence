@@ -12,6 +12,7 @@ import '../../app/theme/app_theme.dart';
 import '../../core/calendar_layout.dart';
 import '../../core/dates.dart';
 import '../../data/db/database.dart';
+import '../../data/db/enums.dart';
 import '../../data/providers.dart';
 import '../tasks/task_appearance.dart';
 import '../tasks/task_providers.dart';
@@ -308,10 +309,12 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
               opacity: dragging ? 0.35 : 1,
               child: _Block(
                 entry: e,
-                tones: entryTones(context, e.task, resolver),
-                icon: entryIcon(e.task, resolver),
+                tones: e.missed
+                    ? context.palette.danger
+                    : entryTones(context, e.task, resolver),
+                icon: e.missed ? AppIcons.close : entryIcon(e.task, resolver),
                 hourHeight: hourHeight,
-                onTap: () => context.push(Routes.task(e.task.id)),
+                onTap: () => _openCalendarEntry(context, ref, e),
                 onDragStart: e.movable ? (mode) => _startDrag(e, mode) : null,
                 onDragUpdate: _updateDrag,
                 onDragEnd: () => _endDrag(hourHeight, dayWidth),
@@ -485,7 +488,11 @@ class _Block extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(right: 3),
                           child: Icon(
-                            entry.isRoutine ? AppIcons.repeat : icon,
+                            entry.missed
+                                ? AppIcons.close
+                                : entry.isRoutine
+                                ? AppIcons.repeat
+                                : icon,
                             size: 12,
                             color: text,
                           ),
@@ -520,9 +527,20 @@ class _Block extends StatelessWidget {
       button: true,
       label:
           '${entry.task.title}, ${formatTime(start)} a ${formatTime(end)}'
-          '${done ? ', concluída' : ''}',
+          '${done
+              ? ', concluída'
+              : entry.missed
+              ? ', não concluída'
+              : ''}',
       excludeSemantics: true,
-      child: Opacity(opacity: done ? 0.55 : 1, child: block),
+      child: Opacity(
+        opacity: done
+            ? 0.55
+            : entry.missed
+            ? 0.78
+            : 1,
+        child: block,
+      ),
     );
     if (onTap == null) return content;
 
@@ -713,9 +731,47 @@ class _AllDayStrip extends StatelessWidget {
   }
 }
 
+Future<void> _openCalendarEntry(
+  BuildContext context,
+  WidgetRef ref,
+  CalendarEntry entry,
+) async {
+  if (!entry.missed || entry.completionId == null) {
+    await context.push(Routes.task(entry.task.id));
+    return;
+  }
+  final repo = ref.read(tasksRepositoryProvider);
+  final l10n = context.l10n;
+  final action = await showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.routineMissedDialogTitle),
+      content: Text(l10n.routineMissedDialogBody(entry.task.title)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop('open'),
+          child: Text(l10n.routineOpenTask),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop('done'),
+          child: Text(l10n.routineMarkAsDone),
+        ),
+      ],
+    ),
+  );
+  if (action == 'done') {
+    await repo.setCompletionStatus(
+      entry.completionId!,
+      OccurrenceStatus.concluida,
+    );
+  } else if (action == 'open' && context.mounted) {
+    await context.push(Routes.task(entry.task.id));
+  }
+}
+
 /// Item compacto (dia inteiro e visão Mês). [dense] usa altura fixa de
 /// [EntryChip.denseHeight] (grade do mês).
-class EntryChip extends StatelessWidget {
+class EntryChip extends ConsumerWidget {
   const EntryChip({
     required this.entry,
     required this.tones,
@@ -730,31 +786,47 @@ class EntryChip extends StatelessWidget {
   final bool dense;
 
   @override
-  Widget build(BuildContext context) {
-    final text = tones.onTint;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final effective = entry.missed ? context.palette.danger : tones;
+    final text = effective.onTint;
     final base = dense ? context.type.micro : context.text.labelSmall!;
     final chip = Material(
-      color: tones.tint,
+      color: effective.tint,
       borderRadius: context.radius.xsAll,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: dense ? null : () => context.push(Routes.task(entry.task.id)),
+        onTap: dense ? null : () => _openCalendarEntry(context, ref, entry),
         child: Container(
           decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: tones.strong, width: 3)),
+            border: Border(left: BorderSide(color: effective.strong, width: 3)),
           ),
           alignment: Alignment.centerLeft,
           padding: EdgeInsets.symmetric(horizontal: 3, vertical: dense ? 0 : 1),
-          child: Text(
-            entry.task.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: base.copyWith(
-              color: text,
-              fontWeight: FontWeight.w600,
-              decoration: entry.done ? TextDecoration.lineThrough : null,
-              decorationColor: text,
-            ),
+          child: Row(
+            children: [
+              if (entry.missed)
+                Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: Icon(
+                    AppIcons.close,
+                    size: dense ? 9 : 11,
+                    color: text,
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  entry.task.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: base.copyWith(
+                    color: text,
+                    fontWeight: FontWeight.w600,
+                    decoration: entry.done ? TextDecoration.lineThrough : null,
+                    decorationColor: text,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -762,7 +834,11 @@ class EntryChip extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Opacity(
-        opacity: entry.done ? 0.55 : 1,
+        opacity: entry.done
+            ? 0.55
+            : entry.missed
+            ? 0.78
+            : 1,
         child: dense ? SizedBox(height: denseHeight - 2, child: chip) : chip,
       ),
     );

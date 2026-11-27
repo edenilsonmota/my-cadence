@@ -138,7 +138,12 @@ class _WeekReviewPageState extends ConsumerState<WeekReviewPage> {
             child: Row(
               children: [
                 stat('${review.completed.length}', l10n.weekCompleted),
-                stat('${review.routineDone}', l10n.weekRoutines),
+                stat(
+                  review.routineMissed > 0
+                      ? '${review.routineDone}/${review.routineDone + review.routineMissed}'
+                      : '${review.routineDone}',
+                  l10n.weekRoutines,
+                ),
                 stat(formatDuration(review.focus), l10n.weekFocus),
               ],
             ),

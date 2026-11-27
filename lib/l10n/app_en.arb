@@ -707,5 +707,21 @@
   "trashKindBook": "Book",
   "trashKindPage": "Page",
   "trashRestore": "Restore",
-  "trashRestored": "\"{title}\" restored."
+  "trashRestored": "\"{title}\" restored.",
+  "speechEngineLabel": "Speech engine (this device)",
+  "speechEngineDefault": "Device default",
+  "speechEngineHint": "Lists TTS engines installed on Android (e.g. Google, SherpaTTS, Vocalizer).",
+  "speechVoiceSpecific": "Specific voice",
+  "speechVoiceDefault": "Language default",
+  "speechTestVoice": "Test voice",
+  "speechTestSample": "Hello! This is the selected voice.",
+  "repeatSkipMissed": "Don't pile up missed days",
+  "repeatSkipMissedHint": "If missed, marks it as not completed and moves to the next occurrence.",
+  "repeatSkipMissedInfo": "By default, routines don't pile up: if a day passes without completing it, that occurrence is logged as not completed in the calendar and metrics, and the routine moves on. Turn it off to keep it in Overdue.",
+  "routineMissedCount": "{count, plural, =1{1 missed} other{{count} missed}}",
+  "routineMarkAsDone": "Mark as completed",
+  "routineMissedDialogTitle": "Missed occurrence",
+  "routineMissedDialogBody": "\"{title}\" wasn't completed on this day. You can mark it as completed or open the task.",
+  "routineOpenTask": "Open task",
+  "statsRoutineSummary": "{done} completed · {missed} missed ({rate}%) in the last {weeks} weeks"
 }

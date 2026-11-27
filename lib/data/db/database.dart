@@ -68,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
   // Ao mudar o esquema: incrementar a versão, rodar
   // `dart run drift_dev make-migrations` e escrever o passo em `onUpgrade`.
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -147,6 +147,15 @@ class AppDatabase extends _$AppDatabase {
           'WHERE estimated_pomodoros IS NOT NULL',
         );
         await _applyLegacyKindFixes();
+      },
+      // v9: rotinas não acumulativas (`skip_missed`) e status das ocorrências
+      // no histórico (`concluida` | `naoConcluida`).
+      from8To9: (m, schema) async {
+        await m.addColumn(schema.tasks, schema.tasks.skipMissed);
+        await m.addColumn(
+          schema.taskCompletions,
+          schema.taskCompletions.status,
+        );
       },
     ),
     beforeOpen: (details) async {

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../core/dates.dart';
 import '../../core/ids.dart';
 import '../../core/recurrence.dart';
 import '../../core/routine.dart';
@@ -51,6 +52,7 @@ class TasksRepository {
     DateTime? dueAt,
     bool hasTime = false,
     String? recurrenceRule,
+    bool skipMissed = true,
     int? reminderMinutesBefore,
     String? reminderOffsets,
     ReminderMode reminderMode = ReminderMode.notificacao,
@@ -76,6 +78,7 @@ class TasksRepository {
         dueAt: Value(dueAt),
         hasTime: Value(hasTime),
         recurrenceRule: Value(recurrenceRule),
+        skipMissed: Value(skipMissed),
         reminderMinutesBefore: Value(reminderMinutesBefore),
         reminderOffsets: Value(reminderOffsets),
         reminderMode: Value(reminderMode),
@@ -121,6 +124,7 @@ class TasksRepository {
       dueAt: Value(task.dueAt),
       hasTime: Value(task.hasTime),
       recurrenceRule: Value(task.recurrenceRule),
+      skipMissed: Value(task.skipMissed),
       reminderMinutesBefore: Value(task.reminderMinutesBefore),
       reminderOffsets: Value(task.reminderOffsets),
       reminderMode: Value(task.reminderMode),
@@ -212,19 +216,90 @@ class TasksRepository {
   Stream<List<TaskCompletion>> watchCompletions(String taskId) =>
       _tasks.watchCompletions(taskId);
 
-  Future<String> addCompletion(String taskId, DateTime occurrence) async {
+  Future<String> addCompletion(
+    String taskId,
+    DateTime occurrence, {
+    OccurrenceStatus status = OccurrenceStatus.concluida,
+  }) async {
     final id = newId();
     await _tasks.insertCompletion(
       TaskCompletionsCompanion.insert(
         id: Value(id),
         taskId: taskId,
         occurrence: occurrence,
+        status: Value(status),
       ),
     );
     return id;
   }
 
+  /// Altera o status de uma ocorrência já registrada no histórico (ex.: marcar
+  /// como concluída uma ocorrência que tinha ficado como não concluída).
+  Future<void> setCompletionStatus(String id, OccurrenceStatus status) => _tasks
+      .updateCompletion(id, TaskCompletionsCompanion(status: Value(status)));
+
   Future<void> deleteCompletion(String id) => _tasks.softDeleteCompletion(id);
+
+  /// Dá baixa como `naoConcluida` em ocorrências passadas de rotinas não
+  /// acumulativas (`skipMissed == true`) e avança o prazo para [today] ou a
+  /// próxima ocorrência da regra. Devolve quantas faltas foram registradas.
+  Future<int> rolloverMissedRoutines(DateTime today) =>
+      _tasks.transaction(() async {
+        final todayStart = startOfDay(today);
+        final candidates = await _tasks.getRoutinesToRollover(todayStart);
+        var recordedCount = 0;
+        for (final task in candidates) {
+          final rule = RecurrenceRule.tryParse(task.recurrenceRule!);
+          final dueAt = task.dueAt;
+          if (rule == null || dueAt == null) continue;
+          final rollover = rolloverMissedRoutine(
+            rule: rule,
+            dueAt: dueAt,
+            today: todayStart,
+            startAt: task.startAt,
+          );
+          if (rollover == null) continue;
+
+          final existing = await _tasks.watchCompletions(task.id).first;
+          final existingDays = {
+            for (final c in existing) startOfDay(c.occurrence),
+          };
+          for (final missed in rollover.missedOccurrences) {
+            if (existingDays.add(startOfDay(missed))) {
+              await addCompletion(
+                task.id,
+                missed,
+                status: OccurrenceStatus.naoConcluida,
+              );
+              recordedCount++;
+            }
+          }
+
+          if (rollover.finished) {
+            await _tasks.updateTask(
+              task.id,
+              const TasksCompanion(
+                status: Value(TaskStatus.feita),
+                completedAt: Value(null),
+              ),
+            );
+          } else {
+            await _tasks.updateTask(
+              task.id,
+              TasksCompanion(
+                dueAt: Value(rollover.nextDue),
+                startAt: Value(rollover.nextStart),
+                status: const Value(TaskStatus.aFazer),
+                completedAt: const Value(null),
+              ),
+            );
+            for (final subId in (await _tasks.taskTreeIds(task.id)).skip(1)) {
+              await setStatus(subId, TaskStatus.aFazer);
+            }
+          }
+        }
+        return recordedCount;
+      });
 
   // Tags
 

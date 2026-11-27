@@ -25,6 +25,7 @@ import 'features/sync/sync_providers.dart';
 import 'features/tasks/alarms.dart';
 import 'features/tasks/daily_reminders_providers.dart';
 import 'features/tasks/notification_actions.dart';
+import 'features/tasks/routine_rollover.dart';
 import 'features/widgets/home_widget_sync.dart';
 
 Future<void> main() async {
@@ -78,6 +79,7 @@ Future<void> main() async {
   container.read(alarmSyncProvider);
   container.read(dailyReminderSyncProvider);
   container.read(homeWidgetSyncProvider);
+  container.read(routineRolloverProvider);
 
   final widgetNavigator = WidgetNavigator(
     container.read(routerProvider),

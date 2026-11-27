@@ -2519,4 +2519,67 @@ class AppLocalizationsPt extends AppLocalizations {
   String trashRestored(String title) {
     return '\"$title\" restaurado.';
   }
+
+  @override
+  String get speechEngineLabel => 'Motor de voz (neste aparelho)';
+
+  @override
+  String get speechEngineDefault => 'Padrão do aparelho';
+
+  @override
+  String get speechEngineHint =>
+      'Mostra motores TTS instalados no Android (ex.: Google, SherpaTTS, Vocalizer).';
+
+  @override
+  String get speechVoiceSpecific => 'Voz específica';
+
+  @override
+  String get speechVoiceDefault => 'Padrão do idioma';
+
+  @override
+  String get speechTestVoice => 'Testar voz';
+
+  @override
+  String get speechTestSample => 'Olá! Esta é a voz escolhida.';
+
+  @override
+  String get repeatSkipMissed => 'Não acumular atrasos';
+
+  @override
+  String get repeatSkipMissedHint =>
+      'Se não concluir no dia, registra como não concluída e avança para a próxima.';
+
+  @override
+  String get repeatSkipMissedInfo =>
+      'Por padrão, rotinas não acumulam atrasos: se um dia passar sem concluir, a ocorrência fica marcada como não concluída no calendário e nas métricas, e a rotina avança para a próxima data. Desative para mantê-la em Atrasadas.';
+
+  @override
+  String routineMissedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count não concluídas',
+      one: '1 não concluída',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routineMarkAsDone => 'Marcar como concluída';
+
+  @override
+  String get routineMissedDialogTitle => 'Ocorrência não concluída';
+
+  @override
+  String routineMissedDialogBody(String title) {
+    return '\"$title\" não foi concluída neste dia. Você pode marcá-la como concluída ou abrir a tarefa.';
+  }
+
+  @override
+  String get routineOpenTask => 'Abrir tarefa';
+
+  @override
+  String statsRoutineSummary(int done, int missed, int rate, int weeks) {
+    return '$done concluídas · $missed não concluídas ($rate%) nas últimas $weeks semanas';
+  }
 }

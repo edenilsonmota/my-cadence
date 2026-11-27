@@ -10,17 +10,51 @@ import '../../helpers/pump_app.dart';
 final now = DateTime(2026, 11, 23, 12);
 
 class FakeSpeaker implements CardSpeaker {
-  final spoken = <({String text, String lang, bool slow})>[];
+  final spoken =
+      <
+        ({String text, String lang, bool slow, String? engine, TtsVoice? voice})
+      >[];
+  String? currentEngine;
+  List<String> availableEngines = const [
+    'com.google.android.tts',
+    'es.codefactory.vocalizertts',
+  ];
+  List<TtsVoice> availableVoices = const [
+    (name: 'en-us-smooth', locale: 'en-US'),
+    (name: 'pt-br-smooth', locale: 'pt-BR'),
+  ];
 
   @override
-  Future<void> speak(String text, String lang, {bool slow = false}) async =>
-      spoken.add((text: text, lang: lang, slow: slow));
+  Future<void> speak(
+    String text,
+    String lang, {
+    bool slow = false,
+    String? engine,
+    TtsVoice? voice,
+  }) async => spoken.add((
+    text: text,
+    lang: lang,
+    slow: slow,
+    engine: engine,
+    voice: voice,
+  ));
 
   @override
   Future<void> stop() async {}
 
   @override
   Future<List<String>> languages() async => ['en-US', 'pt-BR'];
+
+  @override
+  Future<List<String>> engines() async => availableEngines;
+
+  @override
+  Future<List<TtsVoice>> voices() async => availableVoices;
+
+  @override
+  Future<void> setEngine(String? engine) async {
+    currentEngine = engine;
+  }
 }
 
 Future<void> goToReview(WidgetTester tester) async {
@@ -66,18 +100,44 @@ void main() {
     await tester.tap(find.text('Revisar tudo'));
     await settle(tester);
 
-    expect(speaker.spoken, [(text: '**house**', lang: 'en-US', slow: false)]);
+    expect(speaker.spoken, [
+      (
+        text: '**house**',
+        lang: 'en-US',
+        slow: false,
+        engine: null,
+        voice: null,
+      ),
+    ]);
     await tester.tap(find.text('Mostrar resposta'));
     await settle(tester);
-    expect(speaker.spoken.last, (text: 'casa', lang: 'pt-BR', slow: false));
+    expect(speaker.spoken.last, (
+      text: 'casa',
+      lang: 'pt-BR',
+      slow: false,
+      engine: null,
+      voice: null,
+    ));
 
     await tester.tap(find.byTooltip('Ouvir frente devagar'));
     await settle(tester);
-    expect(speaker.spoken.last, (text: '**house**', lang: 'en-US', slow: true));
+    expect(speaker.spoken.last, (
+      text: '**house**',
+      lang: 'en-US',
+      slow: true,
+      engine: null,
+      voice: null,
+    ));
 
     await tester.tap(find.byTooltip('Ouvir verso devagar'));
     await settle(tester);
-    expect(speaker.spoken.last, (text: 'casa', lang: 'pt-BR', slow: true));
+    expect(speaker.spoken.last, (
+      text: 'casa',
+      lang: 'pt-BR',
+      slow: true,
+      engine: null,
+      voice: null,
+    ));
 
     await tester.tap(find.byTooltip('Ouvir frente'));
     await settle(tester);
@@ -85,6 +145,8 @@ void main() {
       text: '**house**',
       lang: 'en-US',
       slow: false,
+      engine: null,
+      voice: null,
     ));
   });
 
@@ -106,7 +168,9 @@ void main() {
     expect(speaker.spoken, isEmpty); // sem leitura automática
     await tester.tap(find.byTooltip('Ouvir frente'));
     await settle(tester);
-    expect(speaker.spoken, [(text: 'mesa', lang: 'pt-BR', slow: false)]);
+    expect(speaker.spoken, [
+      (text: 'mesa', lang: 'pt-BR', slow: false, engine: null, voice: null),
+    ]);
   });
 
   testWidgets('deck sai da voz padrão e escolhe o idioma pela aba Revisar', (
@@ -141,5 +205,40 @@ void main() {
       DeckSpeech.parse(raw),
       const DeckSpeech(front: 'en-US', back: 'pt-BR'),
     );
+  });
+
+  testWidgets('seleciona motor TTS externo e voz específica na folha de voz', (
+    tester,
+  ) async {
+    final speaker = FakeSpeaker();
+    await pumpApp(
+      tester,
+      overrides: [cardSpeakerProvider.overrideWithValue(speaker)],
+      seed: (db) async {
+        final cards = CardsRepository(db.cardsDao);
+        await cards.createCard(front: 'mesa', back: 'table', now: now);
+      },
+    );
+    await goToReview(tester);
+    await tester.tap(find.byTooltip('Voz padrão'));
+    await settle(tester);
+
+    // Escolhe motor TTS externo (ex.: Vocalizer).
+    await tester.tap(find.text('Padrão do aparelho'));
+    await settle(tester);
+    await tester.tap(find.text('Vocalizer (es.codefactory.vocalizertts)').last);
+    await settle(tester);
+
+    // Escolhe voz específica para pt-BR e testa.
+    await tester.tap(find.text('Padrão do idioma').first);
+    await settle(tester);
+    await tester.tap(find.text('pt-br-smooth').last);
+    await settle(tester);
+
+    await tester.tap(find.byTooltip('Testar voz').first);
+    await settle(tester);
+
+    expect(speaker.spoken.last.engine, 'es.codefactory.vocalizertts');
+    expect(speaker.spoken.last.voice, (name: 'pt-br-smooth', locale: 'pt-BR'));
   });
 }

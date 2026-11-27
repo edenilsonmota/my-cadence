@@ -24,3 +24,6 @@ enum CardState { learning, review, relearning }
 
 /// Como o lembrete da tarefa avisa: notificação comum ou alarme insistente.
 enum ReminderMode { notificacao, alarme }
+
+/// Resultado de uma ocorrência de rotina no histórico (`TaskCompletions`).
+enum OccurrenceStatus { concluida, naoConcluida }

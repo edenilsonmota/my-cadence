@@ -13,6 +13,7 @@ Task makeTask(
   DateTime? dueAt,
   bool hasTime = false,
   String? recurrenceRule,
+  bool skipMissed = true,
   ReminderMode reminderMode = ReminderMode.notificacao,
   int sortOrder = 0,
 }) => Task(
@@ -29,6 +30,7 @@ Task makeTask(
   dueAt: dueAt,
   hasTime: hasTime,
   recurrenceRule: recurrenceRule,
+  skipMissed: skipMissed,
   reminderMode: reminderMode,
   sortOrder: sortOrder,
 );

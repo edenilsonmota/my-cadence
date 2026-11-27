@@ -7,6 +7,7 @@ import '../data/providers.dart';
 import '../features/pomodoro/pomodoro_controller.dart';
 import '../features/tasks/alarms.dart';
 import '../features/tasks/daily_reminders_providers.dart';
+import '../features/tasks/routine_rollover.dart';
 import '../features/widgets/home_widget_sync.dart';
 import 'l10n/l10n.dart';
 import 'router.dart';
@@ -36,6 +37,7 @@ class _CadenceAppState extends ConsumerState<CadenceApp> {
     ref.read(alarmSyncProvider).reset();
     ref.read(dailyReminderSyncProvider).reset();
     ref.read(homeWidgetSyncProvider).reset();
+    ref.read(routineRolloverProvider).run();
     ref.invalidate(alarmDiagnosticsProvider);
     // O ciclo pode ter acabado com o app em segundo plano.
     ref.read(pomodoroControllerProvider.notifier).checkDue();

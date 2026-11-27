@@ -215,8 +215,28 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
   Future<void> insertCompletion(TaskCompletionsCompanion row) =>
       insertSynced(taskCompletions, row);
 
+  Future<void> updateCompletion(String id, TaskCompletionsCompanion patch) =>
+      updateSynced(taskCompletions, id, patch);
+
   Future<void> softDeleteCompletion(String id) =>
       softDeleteSynced(taskCompletions, id);
+
+  /// Rotinas ativas não acumulativas cujo prazo atual já ficou em dia anterior
+  /// a [todayStart].
+  Future<List<Task>> getRoutinesToRollover(DateTime todayStart) =>
+      (select(tasks)..where(
+            (t) =>
+                t.deletedAt.isNull() &
+                t.recurrenceRule.isNotNull() &
+                t.skipMissed.equals(true) &
+                t.dueAt.isNotNull() &
+                t.dueAt.isSmallerThanValue(todayStart) &
+                t.status.isIn([
+                  TaskStatus.aFazer.name,
+                  TaskStatus.fazendo.name,
+                ]),
+          ))
+          .get();
 
   /// Conclusões da tarefa, da mais recente para a mais antiga.
   Stream<List<TaskCompletion>> watchCompletions(String taskId) =>

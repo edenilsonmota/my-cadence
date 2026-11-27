@@ -24,13 +24,18 @@ PomodoroSession focus(String task, DateTime start, int minutes) =>
       manual: false,
     );
 
-TaskCompletion done(String task, DateTime at) => TaskCompletion(
+TaskCompletion done(
+  String task,
+  DateTime at, {
+  OccurrenceStatus status = OccurrenceStatus.concluida,
+}) => TaskCompletion(
   id: '$task$at',
   createdAt: at,
   updatedAt: at,
   dirty: true,
   taskId: task,
   occurrence: at,
+  status: status,
 );
 
 void main() {

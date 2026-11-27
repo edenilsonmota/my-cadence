@@ -126,4 +126,59 @@ void main() {
       expect(routineStreak(monWedFri, days, now), 4);
     });
   });
+
+  group('rolloverMissedRoutine', () {
+    test('retorna null se prazo já é hoje ou futuro', () {
+      expect(
+        rolloverMissedRoutine(
+          rule: daily,
+          dueAt: DateTime(2026, 11, 23, 8),
+          today: DateTime(2026, 11, 23),
+        ),
+        isNull,
+      );
+      expect(
+        rolloverMissedRoutine(
+          rule: daily,
+          dueAt: DateTime(2026, 11, 24),
+          today: DateTime(2026, 11, 23),
+        ),
+        isNull,
+      );
+    });
+
+    test('registra dias perdidos e avança mantendo a duração com início', () {
+      final r = rolloverMissedRoutine(
+        rule: daily,
+        dueAt: DateTime(2026, 11, 20, 9),
+        startAt: DateTime(2026, 11, 20, 8),
+        today: DateTime(2026, 11, 23),
+      )!;
+      expect(r.missedOccurrences, [
+        DateTime(2026, 11, 20, 9),
+        DateTime(2026, 11, 21, 9),
+        DateTime(2026, 11, 22, 9),
+      ]);
+      expect(r.nextDue, DateTime(2026, 11, 23, 9));
+      expect(r.nextStart, DateTime(2026, 11, 23, 8));
+      expect(r.finished, isFalse);
+    });
+
+    test('encerra série se UNTIL ficou no passado', () {
+      final ending = RecurrenceRule(
+        frequency: Frequency.daily,
+        until: DateTime(2026, 11, 21),
+      );
+      final r = rolloverMissedRoutine(
+        rule: ending,
+        dueAt: DateTime(2026, 11, 20),
+        today: DateTime(2026, 11, 23),
+      )!;
+      expect(r.missedOccurrences, [
+        DateTime(2026, 11, 20),
+        DateTime(2026, 11, 21),
+      ]);
+      expect(r.finished, isTrue);
+    });
+  });
 }

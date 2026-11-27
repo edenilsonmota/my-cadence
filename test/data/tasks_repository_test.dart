@@ -311,5 +311,62 @@ void main() {
         ('n', 10, true),
       );
     });
+
+    test('rolloverMissedRoutines dá baixa em rotinas não acumulativas', () async {
+      // Rotina padrão (skipMissed = true): atrasada 2 dias → avança para hoje.
+      final nonCum = await repo.createTask(
+        title: 'Inglês',
+        dueAt: d(21, 9),
+        startAt: d(21, 8),
+        hasTime: true,
+        recurrenceRule: 'FREQ=DAILY',
+      );
+      // Rotina cumulativa (skipMissed = false): continua atrasada.
+      final cum = await repo.createTask(
+        title: 'Contas',
+        dueAt: d(21),
+        recurrenceRule: 'FREQ=DAILY',
+        skipMissed: false,
+      );
+      // Rotina pausada: não gera falta.
+      final paused = await repo.createTask(
+        title: 'Academia',
+        dueAt: d(21),
+        recurrenceRule: 'FREQ=DAILY',
+      );
+      await repo.setStatus(paused, TaskStatus.pausada);
+
+      final count = await repo.rolloverMissedRoutines(d(23));
+      expect(count, 2);
+
+      // Rodar novamente no mesmo dia é idempotente.
+      expect(await repo.rolloverMissedRoutines(d(23)), 0);
+
+      final tNonCum = (await repo.getTask(nonCum))!;
+      expect((tNonCum.startAt, tNonCum.dueAt), (d(23, 8), d(23, 9)));
+      final history = await repo.watchCompletions(nonCum).first;
+      expect(history, hasLength(2));
+      expect(
+        history.every((c) => c.status == OccurrenceStatus.naoConcluida),
+        isTrue,
+      );
+
+      // Corrigir retroativamente uma falta para concluída.
+      await repo.setCompletionStatus(
+        history.first.id,
+        OccurrenceStatus.concluida,
+      );
+      final updated = await repo.watchCompletions(nonCum).first;
+      expect(
+        updated.where((c) => c.status == OccurrenceStatus.concluida),
+        hasLength(1),
+      );
+
+      // Cumulativa e pausada ficam intactas.
+      expect((await repo.getTask(cum))!.dueAt, d(21));
+      expect(await repo.watchCompletions(cum).first, isEmpty);
+      expect((await repo.getTask(paused))!.dueAt, d(21));
+      expect(await repo.watchCompletions(paused).first, isEmpty);
+    });
   });
 }
